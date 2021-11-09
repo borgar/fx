@@ -1,0 +1,38 @@
+{
+  "name": "@borgar/fx",
+  "version": "1.0.0",
+  "description": "Utilities for working with Excel formulas",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint index.js src/*.js",
+    "test": "tape run src/*-test.js | tap-min"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/borgar/xlsx-reader.git"
+  },
+  "bugs": {
+    "url": "https://github.com/borgar/xlsx-reader/issues"
+  },
+  "keywords": [
+    "excel",
+    "json",
+    "xlsx",
+    "csf",
+    "office",
+    "spreadsheet",
+    "workbook"
+  ],
+  "author": "Borgar Þorsteinsson <borgar@borgar.net> (http://borgar.net/)",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/core": "~7.15.5",
+    "@babel/eslint-parser": "~7.15.4",
+    "@borgar/eslint-config": "~2.2.1",
+    "babel-eslint": "~10.1.0",
+    "eslint": "~7.32.0",
+    "tap-min": "~2.0.0",
+    "tape": "~5.3.1"
+  }
+}
