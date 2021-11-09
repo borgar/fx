@@ -17,12 +17,9 @@
   },
   "keywords": [
     "excel",
-    "json",
     "xlsx",
-    "csf",
-    "office",
+    "formula",
     "spreadsheet",
-    "workbook"
   ],
   "author": "Borgar Þorsteinsson <borgar@borgar.net> (http://borgar.net/)",
   "license": "MIT",
