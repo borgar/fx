@@ -1,12 +1,14 @@
 {
   "name": "@borgar/fx",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Utilities for working with Excel formulas",
-  "main": "src/index.js",
+  "main": "index.cjs.js",
+  "module": "src/index.js",
   "type": "module",
   "scripts": {
     "lint": "eslint index.js src/*.js",
-    "test": "tape run src/*-test.js | tap-min"
+    "test": "tape run src/*-test.js | tap-min",
+    "build": "NODE_ENV=production rollup -c"
   },
   "repository": {
     "type": "git",
@@ -15,6 +17,11 @@
   "bugs": {
     "url": "https://github.com/borgar/xlsx-reader/issues"
   },
+  "browserslist": [
+    "defaults",
+    "not IE 11",
+    "maintained node versions"
+  ],
   "keywords": [
     "excel",
     "xlsx",
@@ -24,11 +31,15 @@
   "author": "Borgar Þorsteinsson <borgar@borgar.net> (http://borgar.net/)",
   "license": "MIT",
   "devDependencies": {
-    "@babel/core": "~7.15.5",
+    "@babel/core": "~7.15.8",
     "@babel/eslint-parser": "~7.15.4",
+    "@babel/preset-env": "~7.16.0",
     "@borgar/eslint-config": "~2.2.1",
+    "@rollup/plugin-babel": "~5.3.0",
     "babel-eslint": "~10.1.0",
     "eslint": "~7.32.0",
+    "rollup": "~2.60.0",
+    "rollup-plugin-uglify": "~6.0.4",
     "tap-min": "~2.0.0",
     "tape": "~5.3.1"
   }
