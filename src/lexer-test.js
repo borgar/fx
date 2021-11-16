@@ -700,6 +700,13 @@ test('tokenize A1 style references', t => {
     { type: RANGE_BEAM, value: 'AA:JJ' }
   ]);
 
+  t.isTokens('=XFD:XFF', [
+    { type: FX_PREFIX, value: '=' },
+    { type: RANGE_NAMED, value: 'XFD' },
+    { type: OPERATOR, value: ':' },
+    { type: RANGE_NAMED, value: 'XFF' }
+  ]);
+
   t.isTokens('=Sheetname!A1', [
     { type: FX_PREFIX, value: '=' },
     { type: RANGE, value: 'Sheetname!A1' }
@@ -852,12 +859,11 @@ test('tokenize A1 style references', t => {
     { type: RANGE, value: 'X4' }
   ], { mergeRanges: false });
 
-  // largest possible A1 ref
+  // largest possible A1 ref (in Excel)
   t.isTokens('=XFD1048576', [
     { type: FX_PREFIX, value: '=' },
     { type: RANGE, value: 'XFD1048576' }
   ]);
-
   t.isTokens('=XFD1048577', [
     { type: FX_PREFIX, value: '=' },
     { type: RANGE_NAMED, value: 'XFD1048577' }
