@@ -5,7 +5,7 @@ import pkg from './package.json';
 const isProd = process.env.NODE_ENV === 'production';
 
 export default {
-  input: 'src/index.js',
+  input: pkg.module,
   plugins: [
     babel({
       babelHelpers: 'bundled',
@@ -16,8 +16,6 @@ export default {
     file: pkg.main,
     format: 'cjs',
     sourcemap: 'inline',
-    plugins: [
-      isProd && uglify()
-    ]
+    plugins: [ isProd && uglify() ]
   }
 };
