@@ -17,10 +17,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/borgar/xlsx-reader.git"
+    "url": "git+https://github.com/borgar/fx.git"
   },
   "bugs": {
-    "url": "https://github.com/borgar/xlsx-reader/issues"
+    "url": "https://github.com/borgar/fx/issues"
   },
   "browserslist": [
     "defaults",
