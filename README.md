@@ -106,13 +106,13 @@ The returned output will be the same array of tokens but the following propertie
 
 Matching parens will be tagged with `.groupId` string identifier as well as a `.depth` number value (indicating the level of nesting).
 
-Parens without a counterpart will be tagged with `.error` (boolean true).
+Closing parens without a counterpart will be tagged with `.error` (boolean true).
 
 #### Curly brackets { }
 
 Matching curly brackets will be tagged with `.groupId` string identifier. These may not be nested in Excel.
 
-Curly brackets without a counterpart will be tagged with `.error` (boolean `true`).
+Closing curly brackets without a counterpart will be tagged with `.error` (boolean `true`).
 
 #### Ranges (`RANGE` or `RANGE_BEAM` type tokens)
 
