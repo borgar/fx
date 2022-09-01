@@ -1,5 +1,5 @@
 import babel from '@rollup/plugin-babel';
-import { uglify } from 'rollup-plugin-uglify';
+import { terser } from 'rollup-plugin-terser';
 import pkg from './package.json';
 
 const isProd = process.env.NODE_ENV === 'production';
@@ -16,6 +16,6 @@ export default {
     file: pkg.main,
     format: 'cjs',
     sourcemap: 'inline',
-    plugins: [ isProd && uglify() ]
+    plugins: [ isProd && terser() ]
   }
 };
