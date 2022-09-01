@@ -12,7 +12,7 @@
   },
   "scripts": {
     "lint": "eslint index.js lib/*.js",
-    "test": "tape run lib/*-test.js | tap-min",
+    "test": "tape lib/*-test.js | tap-min",
     "build": "NODE_ENV=production rollup -c"
   },
   "repository": {
