@@ -60,6 +60,15 @@ tokenTypes = {
 }
 ```
 
+To support syntax highlighting as you type, `STRING`, `PATH_BRACE`, and `PATH_QUOTE` tokens are allowed to be "unterminated". For example, the incomplete formula `="Hello world` would be tokenized as:
+
+```js
+[
+  { type: FX_PREFIX, value: '=' },
+  { type: STRING, value: '"Hello world', unterminated: true },
+]
+```
+
 ### <a name="translateToA1" href="#translateToA1">#</a> **translateToA1**( _formula, anchorCell_ )
 
 Translates ranges in a formula from relative R1C1 syntax to absolute A1 syntax.
