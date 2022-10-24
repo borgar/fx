@@ -1,7 +1,8 @@
+import fs from 'fs';
 import babel from '@rollup/plugin-babel';
-import { terser } from 'rollup-plugin-terser';
-import pkg from './package.json';
+import { terser } from 'rollup-plugin-minification';
 
+const pkg = JSON.parse(fs.readFileSync('./package.json'));
 const isProd = process.env.NODE_ENV === 'production';
 
 export default {
