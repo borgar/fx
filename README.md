@@ -112,6 +112,16 @@ Runs through a list of tokens and adds extra attributes such as matching parens 
 The returned output will be the same array of tokens but the following properties will added to tokens (as applicable):
 
 
+### <a name="isRange" href="#isRange">#</a> **isRange**( _token_ )
+
+Returns `true` if the input is a token of type either RANGE (`A1` or `A1:B2`) or RANGE_BEAM (`A:A` or `1:1`), otherwise `false` is returned.
+
+
+### <a name="isReference" href="#isReference">#</a> **isReference**( _token_ )
+
+Returns `true` if the input is a token of type RANGE (`A1` or `A1:B2`), RANGE_BEAM (`A:A` or `1:1`), or RANGE_NAMED (`myrange`). In all other cases `false` is returned.
+
+
 #### Parentheses ( )
 
 Matching parens will be tagged with `.groupId` string identifier as well as a `.depth` number value (indicating the level of nesting).
