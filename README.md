@@ -21,7 +21,7 @@ The library is also provided as an ES6 module in an NPM package:
   | name | default | effect |
   |- | - | -
   | `emitRanges` | `false` | Adds offset ranges on the tokens: `{ range: [ start, end ] }`
-  | `mergeRanges` | `true` | Should ranges be returned as whole references (`Sheet1!A1:B2`) or as separate tokens for each part: (`Sheet1`,`!`,`A1`,`:`,`B2`).
+  | `mergeRanges` | `true` | Should ranges be returned as whole references (`Sheet1!A1:B2`) or as separate tokens for each part: (`Sheet1`,`!`,`A1`,`:`,`B2`). This is the same as calling [`mergeRanges`](#mergeRanges)
   | `negativeNumbers` | `false` | Merges all unary minuses with their immediately following number tokens (`-`,`1`) => `-1`
   | `r1c1` | `false` | Ranges are expected to be in the R1C1 style format rather than the more popular A1 style.
 
@@ -110,6 +110,11 @@ Runs through a list of tokens and adds extra attributes such as matching parens 
 * `context` should be an object containing default reference attributes: `{ workbookName: 'report.xlsx', sheetName: 'Sheet1' })`. If supplied, these are used to match A1 to "Sheet1A1)
 
 The returned output will be the same array of tokens but the following properties will added to tokens (as applicable):
+
+
+### <a name="mergeRanges" href="#mergeRanges">#</a> **mergeRanges**( _tokenlist_ )
+
+Given a tokenlist, returns a new list with ranges returned as whole references (`Sheet1!A1:B2`) rather than separate tokens for each part: (`Sheet1`,`!`,`A1`,`:`,`B2`).
 
 
 ### <a name="isRange" href="#isRange">#</a> **isRange**( _token_ )
