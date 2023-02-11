@@ -186,11 +186,11 @@ Stringify a range object ([see above](#a1.parse)) into A1 syntax.
 
 #### <a name="a1.fromCol" href="#a1.fromCol">#</a> **.fromCol**( _columnString_ )
 
-Convert a column string representation to a 0 based offset number (`"C"` = `2`).
+Convert a column string representation to a 0 based offset number (`"C"` = `2`). The method expects a valid column identifier made up of _only_ A-Z letters, which may be either upper or lower case. Other input will return garbage.
 
 #### <a name="a1.toCol" href="#a1.toCol">#</a> **.toCol**( _columnNumber_ )
 
-Convert a 0 based offset number to a column string representation (`2` = `"C"`).
+Convert a 0 based offset number to a column string representation (`2` = `"C"`). The method expects a number between 0 and 16383. Other input will return garbage.
 
 ### .rc:
 
