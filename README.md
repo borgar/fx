@@ -110,44 +110,9 @@ Runs through a list of tokens and adds extra attributes such as matching parens 
 
 * `context` should be an object containing default reference attributes: `{ workbookName: 'report.xlsx', sheetName: 'Sheet1' }`. If supplied, these are used to match `A1` to `Sheet1!A1`)
 
+All tokens will be tagged with a `.depth` number value to indicating the level of nesting in parentheses as well as an `.index` number indicating their zero based position in the list.
+
 The returned output will be the same array of tokens but the following properties will added to tokens (as applicable):
-
-
-### <a name="mergeRanges" href="#mergeRanges">#</a> **mergeRanges**( _tokenlist_ )
-
-Given a tokenlist, returns a new list with ranges returned as whole references (`Sheet1!A1:B2`) rather than separate tokens for each part: (`Sheet1`,`!`,`A1`,`:`,`B2`).
-
-
-### <a name="fixRanges" href="#fixRanges">#</a> **fixRanges**( _formula[, { completeRanges: true } ]_ )
-
-Normalizes A1 style ranges in a formula or list of tokens so that the top and left coordinates of the range are on the left-hand side of a colon operator:
-
-* `B2:A1` → `A1:B2`
-* `1:A1` → `A1:1`
-* `A:A1` → `A1:A`
-* `B:A` → `A:B`
-* `2:1` → `1:2`
-* `A1:A1` → `A1`
-
-When `{ completeRanges: true }` is passed as an option, the missing bounds are also added. This can be done to ensure Excel compatible ranges. The fixes then additionally include:
-
-* `1:A1` → `A1:1` → `1:1`
-* `A:A1` → `A1:A` → `A:A`
-* `A1:A` → `A:A`
-* `A1:1` → `A:1`
-* `B2:B` → `B2:1048576`
-* `B2:2` → `B2:XFD2`
-
-Returns the same formula with the ranges updated. If an array of tokens was supplied, then a new array is returned.
-
-### <a name="isRange" href="#isRange">#</a> **isRange**( _token_ )
-
-Returns `true` if the input is a token that has a type of either RANGE (`A1` or `A1:B2`), RANGE_PART (`A1:A`, `A1:1`, `1:A1`, or `A:A1`), or RANGE_BEAM (`A:A` or `1:1`). In all other cases `false` is returned.
-
-
-### <a name="isReference" href="#isReference">#</a> **isReference**( _token_ )
-
-Returns `true` if the input is a token of type RANGE (`A1` or `A1:B2`), RANGE_PART (`A1:A`, `A1:1`, `1:A1`, or `A:A1`), RANGE_BEAM (`A:A` or `1:1`), or RANGE_NAMED (`myrange`). In all other cases `false` is returned.
 
 #### Parentheses ( )
 
@@ -168,6 +133,43 @@ All ranges will be tagged with `.groupId` string identifier regardless of the nu
 #### Tokens of type `UNKNOWN`
 
 All will be tagged with `.error` (boolean `true`).
+
+
+### <a name="mergeRanges" href="#mergeRanges">#</a> **mergeRanges**( _tokenlist_ )
+
+Given a tokenlist, returns a new list with ranges returned as whole references (`Sheet1!A1:B2`) rather than separate tokens for each part: (`Sheet1`,`!`,`A1`,`:`,`B2`).
+
+
+### <a name="fixRanges" href="#fixRanges">#</a> **fixRanges**( _formula[, { addBounds: true } ]_ )
+
+Normalizes A1 style ranges in a formula or list of tokens so that the top and left coordinates of the range are on the left-hand side of a colon operator:
+
+* `B2:A1` → `A1:B2`
+* `1:A1` → `A1:1`
+* `A:A1` → `A1:A`
+* `B:A` → `A:B`
+* `2:1` → `1:2`
+* `A1:A1` → `A1`
+
+When `{ addBounds: true }` is passed as an option, the missing bounds are also added. This can be done to ensure Excel compatible ranges. The fixes then additionally include:
+
+* `1:A1` → `A1:1` → `1:1`
+* `A:A1` → `A1:A` → `A:A`
+* `A1:A` → `A:A`
+* `A1:1` → `A:1`
+* `B2:B` → `B2:1048576`
+* `B2:2` → `B2:XFD2`
+
+Returns the same formula with the ranges updated. If an array of tokens was supplied, then a new array is returned.
+
+### <a name="isRange" href="#isRange">#</a> **isRange**( _token_ )
+
+Returns `true` if the input is a token that has a type of either RANGE (`A1` or `A1:B2`), RANGE_PART (`A1:A`, `A1:1`, `1:A1`, or `A:A1`), or RANGE_BEAM (`A:A` or `1:1`). In all other cases `false` is returned.
+
+
+### <a name="isReference" href="#isReference">#</a> **isReference**( _token_ )
+
+Returns `true` if the input is a token of type RANGE (`A1` or `A1:B2`), RANGE_PART (`A1:A`, `A1:1`, `1:A1`, or `A:A1`), RANGE_BEAM (`A:A` or `1:1`), or RANGE_NAMED (`myrange`). In all other cases `false` is returned.
 
 
 ### .a1:
