@@ -50,9 +50,8 @@ tokenTypes = {
   NEWLINE: "newline",
   WHITESPACE: "whitespace",
   STRING: "string",
-  PATH_QUOTE: "path-quote",
-  PATH_BRACE: "path-brace",
-  PATH_PREFIX: "path-prefix",
+  CONTEXT_QUOTE: "context-quote",
+  CONTEXT: "context",
   RANGE: "range",
   RANGE_BEAM: "range-beam",
   RANGE_NAMED: "range-named",
@@ -62,7 +61,7 @@ tokenTypes = {
 }
 ```
 
-To support syntax highlighting as you type, `STRING`, `PATH_BRACE`, and `PATH_QUOTE` tokens are allowed to be "unterminated". For example, the incomplete formula `="Hello world` would be tokenized as:
+To support syntax highlighting as you type, `STRING` tokens are allowed to be "unterminated". For example, the incomplete formula `="Hello world` would be tokenized as:
 
 ```js
 [
@@ -149,7 +148,6 @@ Returns `true` if the input is a token that has a type of either RANGE (`A1` or 
 ### <a name="isReference" href="#isReference">#</a> **isReference**( _token_ )
 
 Returns `true` if the input is a token of type RANGE (`A1` or `A1:B2`), RANGE_PART (`A1:A`, `A1:1`, `1:A1`, or `A:A1`), RANGE_BEAM (`A:A` or `1:1`), or RANGE_NAMED (`myrange`). In all other cases `false` is returned.
-
 
 #### Parentheses ( )
 
