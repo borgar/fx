@@ -20,7 +20,7 @@ The library is also provided as an ES6 module in an NPM package:
 
   | name | default | effect |
   |- |- |-
-  | `allowPartials` | `false` | Enables the recognition of "partial" ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel.
+  | `allowTernary` | `false` | Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: References.md.
   | `emitRanges` | `false` | Adds offset ranges on the tokens: `{ range: [ start, end ] }`
   | `mergeRanges` | `true` | Should ranges be returned as whole references (`Sheet1!A1:B2`) or as separate tokens for each part: (`Sheet1`,`!`,`A1`,`:`,`B2`). This is the same as calling [`mergeRanges`](#mergeRanges)
   | `negativeNumbers` | `false` | Merges all unary minuses with their immediately following number tokens (`-`,`1`) => `-1`
@@ -55,7 +55,7 @@ tokenTypes = {
   RANGE: "range",
   RANGE_BEAM: "range-beam",
   RANGE_NAMED: "range-named",
-  RANGE_PART: "range-part",
+  RANGE_TERNARY: "range-ternary",
   FX_PREFIX: "fx-prefix",
   UNKNOWN: "unknown"
 }
@@ -164,19 +164,19 @@ Returns the same formula with the ranges updated. If an array of tokens was supp
 
 ### <a name="isRange" href="#isRange">#</a> **isRange**( _token_ )
 
-Returns `true` if the input is a token that has a type of either RANGE (`A1` or `A1:B2`), RANGE_PART (`A1:A`, `A1:1`, `1:A1`, or `A:A1`), or RANGE_BEAM (`A:A` or `1:1`). In all other cases `false` is returned.
+Returns `true` if the input is a token that has a type of either RANGE (`A1` or `A1:B2`), RANGE_TERNARY (`A1:A`, `A1:1`, `1:A1`, or `A:A1`), or RANGE_BEAM (`A:A` or `1:1`). In all other cases `false` is returned.
 
 
 ### <a name="isReference" href="#isReference">#</a> **isReference**( _token_ )
 
-Returns `true` if the input is a token of type RANGE (`A1` or `A1:B2`), RANGE_PART (`A1:A`, `A1:1`, `1:A1`, or `A:A1`), RANGE_BEAM (`A:A` or `1:1`), or RANGE_NAMED (`myrange`). In all other cases `false` is returned.
+Returns `true` if the input is a token of type RANGE (`A1` or `A1:B2`), RANGE_TERNARY (`A1:A`, `A1:1`, `1:A1`, or `A:A1`), RANGE_BEAM (`A:A` or `1:1`), or RANGE_NAMED (`myrange`). In all other cases `false` is returned.
 
 
 ### .a1:
 
 An object of methods to interpret and manipulate A1 style references.
 
-#### <a name="a1.parse" href="#a1.parse">#</a> **.parse**( _refString[, { allowNamed: true, allowPartials: true } ]_ )
+#### <a name="a1.parse" href="#a1.parse">#</a> **.parse**( _refString[, { allowNamed: true, allowTernary: true } ]_ )
 
 Parse a string reference into an object representing it.
 
@@ -278,7 +278,7 @@ Convert a 0 based offset number to a column string representation (`2` = `"C"`).
 
 An object of methods to interpret and manipulate R1C1 style references.
 
-#### <a name="rc.parse" href="#rc.parse">#</a> **.parse**( _refString[, { allowNamed: true, allowPartials: true } ]_ )
+#### <a name="rc.parse" href="#rc.parse">#</a> **.parse**( _refString[, { allowNamed: true, allowTernary: true } ]_ )
 
 Parse a string reference into an object representing it.
 
@@ -332,42 +332,3 @@ Stringify a range object ([see above](#rc.parse)) into R1C1 syntax.
 #### <a name="rc.to" href="#rc.to">#</a> **.to**( _columnString_ )
 Parse a simple string reference to an R1C1 range into a range object ([see above](#rc.parse)).
 
-
-----
-
-
-## References and Ranges
-
-In Excels spreadsheet formula language terminology, a reference is similar to what is in most programming is called a variable. Spreadsheets do not have variables though, they have cells. The cells can be referenced in formulas, either directly (such as `=SUM(A1)`), or through aliases (such as `=SUM(someName)`).
-
-A range is when a cell, or a set of cells, is referenced directly. Ranges in formulas can come in one of two syntax styles: The commonly known A1 style, as well as R1C1 style where both axes are numerical. Only one style can be used at a time in a formula.
-
-This tokenizer considers there to be three "types" of ranges:
-
-### Ranges (`RANGE`)
-
-The basic type of range will be referencing either:
-
-* A single cell, like `A1` or `AF31`.
-* A bounded rectangle of cells, like `A1:B2` or `AF17:AF31`.
-
-
-### Range partial (`RANGE_PART`)
-
-Partials are essentially rectangles of cells that are unbounded in either bottom or right dimension. They are:
-
-* A rectangle of cells that is unbounded to the bottom, like `A1:A` or `C3:D`.
-* A rectangle of cells that is unbounded to the right, like `A1:1` or `F2:5`.
-
-This type of range is not supported in Excel, so it is an opt-in for the tokenizer ([see above](#tokenize)).
-
-
-### Range beams (`RANGE_BEAM`)
-
-Range beams are rectangles of cells that are unbounded in either left and right, or top and bottom dimensions.
-
-* A rectangle of cells that is unbounded to the top and bottom, like `A:A` or `C:D`.
-* A rectangle of cells that is unbounded to the left and right, like `1:1` or `2:5`.
-
-
-Spreadsheet applications will normalize all of these types when you enter a formula, flipping the left/right and top/bottom coordinates as needed to keep the range top to bottom and left to right.
