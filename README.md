@@ -23,7 +23,7 @@ The library is also provided as an ES6 module in an NPM package:
   | `allowTernary` | `false` | Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: References.md.
   | `emitRanges` | `false` | Adds offset ranges on the tokens: `{ range: [ start, end ] }`
   | `mergeRanges` | `true` | Should ranges be returned as whole references (`Sheet1!A1:B2`) or as separate tokens for each part: (`Sheet1`,`!`,`A1`,`:`,`B2`). This is the same as calling [`mergeRanges`](#mergeRanges)
-  | `negativeNumbers` | `false` | Merges all unary minuses with their immediately following number tokens (`-`,`1`) => `-1`
+  | `negativeNumbers` | `true` | Merges unary minuses with their immediately following number tokens (`-`,`1`) => `-1`
   | `r1c1` | `false` | Ranges are expected to be in the R1C1 style format rather than the more popular A1 style.
 
 The returned output will be an array of objects representing the tokens:
