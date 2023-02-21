@@ -1,6 +1,6 @@
 {
   "name": "@borgar/fx",
-  "version": "2.1.1",
+  "version": "3.0.0",
   "description": "Utilities for working with Excel formulas",
   "main": "dist/fx.js",
   "module": "lib/index.js",
@@ -36,16 +36,16 @@
   "author": "Borgar Þorsteinsson <borgar@borgar.net> (http://borgar.net/)",
   "license": "MIT",
   "devDependencies": {
-    "@babel/core": "~7.19.6",
+    "@babel/core": "~7.21.0",
     "@babel/eslint-parser": "~7.19.1",
-    "@babel/preset-env": "~7.19.4",
-    "@borgar/eslint-config": "~2.2.1",
-    "@rollup/plugin-babel": "~6.0.2",
+    "@babel/preset-env": "~7.20.2",
+    "@borgar/eslint-config": "~3.0.0",
+    "@rollup/plugin-babel": "~6.0.3",
     "babel-eslint": "~10.1.0",
-    "eslint": "~8.26.0",
-    "rollup": "~3.2.3",
+    "eslint": "~8.34.0",
+    "rollup": "~3.17.2",
     "rollup-plugin-minification": "~0.2.0",
     "tap-min": "~2.0.0",
-    "tape": "~5.6.1"
+    "tape": "~5.6.3"
   }
 }
