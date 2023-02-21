@@ -16,7 +16,7 @@ The library is also provided as an ES6 module in an NPM package:
 
 * `formula` should be a string (an Excel formula).
 
-* `options` are set as an object of keys: `convert(filename, { option: true })`. Supported options are:
+* `options` are set as an object of keys: `tokenize(formula, { option: true })`. Supported options are:
 
   | name | default | effect |
   |- |- |-
