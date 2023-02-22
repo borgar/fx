@@ -46,17 +46,17 @@ tokenTypes = {
   BOOLEAN: "bool",
   ERROR: "error",
   NUMBER: "number",
-  FUNCTION: "function",
+  FUNCTION: "func",
   NEWLINE: "newline",
   WHITESPACE: "whitespace",
   STRING: "string",
-  CONTEXT_QUOTE: "context-quote",
+  CONTEXT_QUOTE: "context_quote",
   CONTEXT: "context",
   RANGE: "range",
-  RANGE_BEAM: "range-beam",
-  RANGE_NAMED: "range-named",
-  RANGE_TERNARY: "range-ternary",
-  FX_PREFIX: "fx-prefix",
+  RANGE_BEAM: "range_beam",
+  RANGE_NAMED: "range_named",
+  RANGE_TERNARY: "range_ternary",
+  FX_PREFIX: "fx_prefix",
   UNKNOWN: "unknown"
 }
 ```
@@ -184,8 +184,7 @@ Parse a string reference into an object representing it.
 import { a1 } from '@borgar/fx';
 a1.parse('Sheet1!A$1:$B2');
 // => {
-//   workbookName: '',
-//   sheetName: 'Sheet1',
+//   context: [ 'Sheet1' ],
 //   range: {
 //     top: 0,
 //     left: 0,
@@ -208,8 +207,7 @@ Get a string representation of a reference object.
 ```js
 import { a1 } from '@borgar/fx';
 a1.stringify({
-  workbookName: '',
-  sheetName: 'Sheet1',
+  context: [ 'Sheet1' ],
   range: {
     top: 0,
     left: 0,
@@ -230,9 +228,8 @@ Fill the any missing bounds in range objects. Top will be set to 0, bottom to 10
 
 ```js
 import { a1 } from '@borgar/fx';
-a1.stringify({
-  workbookName: '',
-  sheetName: 'Sheet1',
+a1.addBounds({
+  context: [ 'Sheet1' ],
   range: {
     top: 0,
     left: 0,
@@ -243,8 +240,7 @@ a1.stringify({
   }
 });
 // => {
-//   workbookName: '',
-//   sheetName: 'Sheet1',
+//   context: [ 'Sheet1' ],
 //   range: {
 //     top: 0,
 //     left: 0,
@@ -286,8 +282,7 @@ Parse a string reference into an object representing it.
 import { rc } from '@borgar/fx';
 rc.parse('Sheet1!R[9]C9:R[9]C9');
 // => {
-//   workbookName: '',
-//   sheetName: 'Sheet1',
+//   context: [ 'Sheet1' ],
 //   range: {
 //     r0: 9,
 //     c0: 8,
@@ -308,8 +303,7 @@ Get a string representation of a reference object.
 ```js
 import { a1 } from '@borgar/fx';
 a1.stringify({
-  workbookName: '',
-  sheetName: 'Sheet1',
+  context: [ 'Sheet1' ],
   range: {
     r0: 9,
     c0: 8,
