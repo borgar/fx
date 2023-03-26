@@ -212,7 +212,7 @@ a1.stringify({
     top: 0,
     left: 0,
     bottom: 1,
-    right: 1
+    right: 1,
     $top: true,
     $left: false,
     $bottom: false,
@@ -254,13 +254,13 @@ a1.addBounds({
 // }
 ```
 
-#### <a name="a1.to" href="#a1.to">#</a> **.to**( _columnString_ )
-
-Parse a simple string reference to an A1 range into a range object ([see above](#a1.parse)). Will accept `A1`, `A2`, `A:A`, or `1:1`.
-
-#### <a name="a1.from" href="#a1.from">#</a> **.from**( _rangeObject_ )
+#### <a name="a1.to" href="#a1.to">#</a> **.to**( _rangeObject_ )
 
 Stringify a range object ([see above](#a1.parse)) into A1 syntax.
+
+#### <a name="a1.from" href="#a1.from">#</a> **.from**( _rangeString_ )
+
+Parse a simple string reference to an A1 range into a range object ([see above](#a1.parse)). Will accept `A1`, `A2`, `A:A`, or `1:1`.
 
 #### <a name="a1.fromCol" href="#a1.fromCol">#</a> **.fromCol**( _columnString_ )
 
@@ -319,10 +319,10 @@ a1.stringify({
 ```
 
 
-#### <a name="rc.from" href="#rc.from">#</a> **.from**( _rangeObject_ )
+#### <a name="rc.from" href="#rc.from">#</a> **.from**( _refString_ )
 
-Stringify a range object ([see above](#rc.parse)) into R1C1 syntax.
-
-#### <a name="rc.to" href="#rc.to">#</a> **.to**( _columnString_ )
 Parse a simple string reference to an R1C1 range into a range object ([see above](#rc.parse)).
 
+#### <a name="rc.to" href="#rc.to">#</a> **.to**( _rangeObject_ )
+
+Stringify a range object ([see above](#rc.parse)) into R1C1 syntax.
