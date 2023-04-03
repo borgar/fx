@@ -70,7 +70,7 @@ To support syntax highlighting as you type, `STRING` tokens are allowed to be "u
 ]
 ```
 
-### <a name="translateToA1" href="#translateToA1">#</a> **translateToA1**( _formula, anchorCell_ )
+### <a name="translateToA1" href="#translateToA1">#</a> **translateToA1**( _formula, anchorCell [, options]_ )
 
 Translates ranges in a formula or list of tokens from relative R1C1 syntax to absolute A1 syntax.
 
@@ -78,12 +78,23 @@ Translates ranges in a formula or list of tokens from relative R1C1 syntax to ab
 
 * `anchorCell` should be a simple string reference to an A1 cell (`AF123` or `$C$5`).
 
+* `options` are set as an object of keys: `translateToA1(formula, anchor, { option: true })`. Supported options are:
+
+  | name | default | effect |
+  |- |- |-
+  | `wrapEdges` | `true` | Whether to allow wrapping cell points around edges.
+  | `mergeRanges` | `true` | Should ranges be treated as whole references (`Sheet1!A1:B2`) or as separate tokens for each part: (`Sheet1`,`!`,`A1`,`:`,`B2`).
+
 Returns the same formula with the ranges translated. If an array of tokens was supplied, then the same array is returned (be careful that `mergeRanges` must be false).
 
 ```js
 translateToA1("=SUM(RC[1],R2C5,Sheet!R3C5)", "D10");
 // => "=SUM(E10,$E$2,Sheet!$E$3)");
 ```
+
+If an input range is -1,-1 relative rows/columns and the anchor is A1, the resulting range will (by default) wrap around to the bottom of the sheet resulting in the range XFD1048576. This may not be what you want so may set `wrapEdges` to false which will instead turn the range into a `#REF!` error.
+
+Note that if you are passing in a list of tokens that was not created using `mergeRanges` and you disable edge wrapping (or you simply set both options to false), you can end up with a formula such as `=#REF!:B2` or `=Sheet3!#REF!:F3`. These are valid formulas in the Excel formula language and Excel will accept them, but they are not supported in Google Sheets.
 
 
 ### <a name="translateToRC" href="#translateToRC">#</a> **translateToRC**( _formula, anchorCell_ )
