@@ -33,7 +33,7 @@ The returned output will be an array of objects representing the tokens:
   { type: FX_PREFIX, value: '=' },
   { type: FUNCTION, value: 'SUM' },
   { type: OPERATOR, value: '(' },
-  { type: RANGE, value: 'A1:B2' },
+  { type: REF_RANGE, value: 'A1:B2' },
   { type: OPERATOR, value: ')' }
 ]
 ```
@@ -52,10 +52,11 @@ tokenTypes = {
   STRING: "string",
   CONTEXT_QUOTE: "context_quote",
   CONTEXT: "context",
-  RANGE: "range",
-  RANGE_BEAM: "range_beam",
-  RANGE_NAMED: "range_named",
-  RANGE_TERNARY: "range_ternary",
+  REF_RANGE: "range",
+  REF_BEAM: "range_beam",
+  REF_NAMED: "range_named",
+  REF_TERNARY: "range_ternary",
+  REF_STRUCT: "structured",
   FX_PREFIX: "fx_prefix",
   UNKNOWN: "unknown"
 }
@@ -137,7 +138,7 @@ Matching curly brackets will be tagged with `.groupId` string identifier. These 
 
 Closing curly brackets without a counterpart will be tagged with `.error` (boolean `true`).
 
-#### Ranges (`RANGE` or `RANGE_BEAM` type tokens)
+#### Ranges (`REF_RANGE` or `REF_BEAM` type tokens)
 
 All ranges will be tagged with `.groupId` string identifier regardless of the number of times they occur.
 
@@ -175,19 +176,49 @@ Returns the same formula with the ranges updated. If an array of tokens was supp
 
 ### <a name="isRange" href="#isRange">#</a> **isRange**( _token_ )
 
-Returns `true` if the input is a token that has a type of either RANGE (`A1` or `A1:B2`), RANGE_TERNARY (`A1:A`, `A1:1`, `1:A1`, or `A:A1`), or RANGE_BEAM (`A:A` or `1:1`). In all other cases `false` is returned.
+Returns `true` if the input is a token that has a type of either REF_RANGE (`A1` or `A1:B2`), REF_TERNARY (`A1:A`, `A1:1`, `1:A1`, or `A:A1`), or REF_BEAM (`A:A` or `1:1`). In all other cases `false` is returned.
 
 
 ### <a name="isReference" href="#isReference">#</a> **isReference**( _token_ )
 
-Returns `true` if the input is a token of type RANGE (`A1` or `A1:B2`), RANGE_TERNARY (`A1:A`, `A1:1`, `1:A1`, or `A:A1`), RANGE_BEAM (`A:A` or `1:1`), or RANGE_NAMED (`myrange`). In all other cases `false` is returned.
+Returns `true` if the input is a token of type REF_RANGE (`A1` or `A1:B2`), REF_TERNARY (`A1:A`, `A1:1`, `1:A1`, or `A:A1`), REF_BEAM (`A:A` or `1:1`), or REF_NAMED (`myrange`). In all other cases `false` is returned.
+
+
+### <a name="isLiteral" href="#isLiteral">#</a> **isLiteral**( _token_ )
+
+Returns `true` if the input is a token of type BOOLEAN (`TRUE` or `FALSE`), ERROR (`#VALUE!`), NUMBER (123.4), or STRING (`"lorem ipsum"`). In all other cases `false` is returned.
+
+
+### <a name="isError" href="#isError">#</a> **isError**( _token_ )
+
+Returns `true` if the input is a token of type ERROR (`#VALUE!`). In all other cases `false` is returned.
+
+
+### <a name="isWhitespace" href="#isWhitespace">#</a> **isWhitespace**( _token_ )
+
+Returns `true` if the input is a token of type WHITESPACE (` `) or NEWLINE (`\n`). In all other cases `false` is returned.
+
+
+### <a name="isFunction" href="#isFunction">#</a> **isFunction**( _token_ )
+
+Returns `true` if the input is a token of type FUNCTION. In all other cases `false` is returned.
+
+
+### <a name="isFxPrefix" href="#isFxPrefix">#</a> **isFxPrefix**( _token_ )
+
+Returns `true` if the input is a token of type FX_PREFIX (leading `=` in formula). In all other cases `false` is returned.
+
+
+### <a name="isOperator" href="#isOperator">#</a> **isOperator**( _token_ )
+
+Returns `true` if the input is a token of type OPERATOR (`+` or `:`). In all other cases `false` is returned.
 
 
 ### .a1:
 
 An object of methods to interpret and manipulate A1 style references.
 
-#### <a name="a1.parse" href="#a1.parse">#</a> **.parse**( _refString[, { allowNamed: true, allowTernary: true } ]_ )
+#### <a name="a1.parse" href="#a1.parse">#</a> **.parse**( _refString[, { allowTernary: true } ]_ )
 
 Parse a string reference into an object representing it.
 
@@ -285,7 +316,7 @@ Convert a 0 based offset number to a column string representation (`2` = `"C"`).
 
 An object of methods to interpret and manipulate R1C1 style references.
 
-#### <a name="rc.parse" href="#rc.parse">#</a> **.parse**( _refString[, { allowNamed: true, allowTernary: true } ]_ )
+#### <a name="rc.parse" href="#rc.parse">#</a> **.parse**( _refString[, { allowTernary: true } ]_ )
 
 Parse a string reference into an object representing it.
 
@@ -337,3 +368,46 @@ Parse a simple string reference to an R1C1 range into a range object ([see above
 #### <a name="rc.to" href="#rc.to">#</a> **.to**( _rangeObject_ )
 
 Stringify a range object ([see above](#rc.parse)) into R1C1 syntax.
+
+
+
+### .sr:
+
+An object of methods to interpret and manipulate structured references.
+
+#### <a name="sr.parse" href="#sr.parse">#</a> **.parse**( _refString_ )
+
+Parse a string of structured reference into an object representing it.
+
+```js
+import { sr } from '@borgar/fx';
+sr.parse('workbook.xlsx!tableName[[#Data],[Column1]:[Column2]]');
+// => {
+//   context: [ 'workbook.xlsx' ],
+//   sections: [ 'data' ],
+//   columns: [ 'my column', '@foo' ],
+//   table: 'tableName',
+// }
+```
+
+#### <a name="sr.stringify" href="#sr.stringify">#</a> **.stringify**( _refObject_ )
+
+Get a string representation of a structured reference object.
+
+```js
+import { sr } from '@borgar/fx';
+sr.stringify({
+  context: [ 'Sheet1' ],
+  range: {
+    r0: 9,
+    c0: 8,
+    r1: 9,
+    c1: 8,
+    $c0: true,
+    $c1: true
+    $r0: false,
+    $r1: false
+  }
+});
+// => 'Sheet1!R[9]C9:R[9]C9'
+```
