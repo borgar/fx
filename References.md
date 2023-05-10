@@ -38,11 +38,11 @@ As well as ranges, a reference can be either of:
 
 ### Named Ranges or Names  (`REF_NAMED`)
 
-Named Ranges, or Names as Excel prefers to call them, are usually a references to a range or table but may also be references to entire expressions.
+[Named Ranges][named], or Names as Excel prefers to call them most of the time, are usually a references to a range or table but may also be references to entire expressions.
 
 ### Structured references (`REF_STRUCT`)
 
-Structured references are references into an area or slice of a table. They can include the table name (which is essentially a Name), as well as either or both of a section directive and/or column name or a range of columns.
+[Structured references][srefs] are references into an area or slice of a table. They can include the table name (which is essentially a Name), as well as either or both of a section directive and/or column name or a range of columns.
 
 * A structured reference to a column: `Table1[Column1]`
 * A structured reference to the tables totals: `Table1[#Totals]`
@@ -55,3 +55,6 @@ Spreadsheet applications will normalize all ranges when you enter a formula, fli
 
 The library has tools to both normalize the ranges, as well as filling in the missing boundaries (see README.md).
 
+
+[named]: https://support.microsoft.com/en-us/office/define-and-use-names-in-formulas-4d0f13ac-53b7-422e-afd2-abd7ff379c64
+[srefs]: https://support.microsoft.com/en-us/office/using-structured-references-with-excel-tables-f5ed2452-2337-4f71-bed3-c8ae6d2b276e

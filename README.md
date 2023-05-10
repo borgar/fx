@@ -95,6 +95,14 @@ translateToA1("=SUM(RC[1],R2C5,Sheet!R3C5)", "D10");
 
 If an input range is -1,-1 relative rows/columns and the anchor is A1, the resulting range will (by default) wrap around to the bottom of the sheet resulting in the range XFD1048576. This may not be what you want so may set `wrapEdges` to false which will instead turn the range into a `#REF!` error.
 
+```js
+translateToA1("=R[-1]C[-1]", "A1");
+// => "=XFD1048576");
+
+translateToA1("=R[-1]C[-1]", "A1", { wrapEdges: false });
+// => "=#REF!");
+```
+
 Note that if you are passing in a list of tokens that was not created using `mergeRanges` and you disable edge wrapping (or you simply set both options to false), you can end up with a formula such as `=#REF!:B2` or `=Sheet3!#REF!:F3`. These are valid formulas in the Excel formula language and Excel will accept them, but they are not supported in Google Sheets.
 
 
@@ -397,17 +405,10 @@ Get a string representation of a structured reference object.
 ```js
 import { sr } from '@borgar/fx';
 sr.stringify({
-  context: [ 'Sheet1' ],
-  range: {
-    r0: 9,
-    c0: 8,
-    r1: 9,
-    c1: 8,
-    $c0: true,
-    $c1: true
-    $r0: false,
-    $r1: false
-  }
+  context: [ 'workbook.xlsx' ],
+  sections: [ 'data' ],
+  columns: [ 'my column', '@foo' ],
+  table: 'tableName',
 });
-// => 'Sheet1!R[9]C9:R[9]C9'
+// => 'workbook.xlsx!tableName[[#Data],[Column1]:[Column2]]'
 ```
