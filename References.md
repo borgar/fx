@@ -22,7 +22,7 @@ Ternary ranges are rectangles of cells defined by only three of the four possibl
 * A rectangle of cells that is unbounded to the bottom, like `A1:A` or `C3:D`.
 * A rectangle of cells that is unbounded to the right, like `A1:1` or `F2:5`.
 
-This type of range is not supported in Excel, so it is an opt-in for the tokenizer (see README.md).
+This type of range is not supported in Excel, so it is an opt-in for the tokenizer (see [README.md](./README.md)).
 
 ### Range beams (`REF_BEAM`)
 
@@ -53,7 +53,7 @@ As well as ranges, a reference can be either of:
 
 Spreadsheet applications will normalize all ranges when you enter a formula, flipping the left/right and top/bottom coordinates as needed to keep the range top to bottom and left to right. Structured references will also be normalized as appropriate.
 
-The library has tools to both normalize the ranges, as well as filling in the missing boundaries (see README.md).
+The library has tools to both normalize the ranges, as well as filling in the missing boundaries (see [README.md](./README.md)).
 
 
 [named]: https://support.microsoft.com/en-us/office/define-and-use-names-in-formulas-4d0f13ac-53b7-422e-afd2-abd7ff379c64

@@ -1,8 +1,8 @@
 # _fx_
 
-This is a collection utilities to work with Excel formula code, specifically syntax highlighting.
+A tokenizer, parser, and other utilities to work with Excel formula code, specifically syntax highlighting.
 
-This utility is developed as tooling for [GRID – The new face of spreadsheets](https://grid.is/), to which it owes a debt of gratitude.
+This utility is partially developed as tooling for [GRID – The new face of spreadsheets](https://grid.is/), to which it owes a debt of gratitude.
 
 ## Installing
 
@@ -20,8 +20,8 @@ The library is also provided as an ES6 module in an NPM package:
 
   | name | default | effect |
   |- |- |-
-  | `allowTernary` | `false` | Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: References.md.
-  | `withLocation` | `false` | Adds source position offsets to the tokens: `{ loc: [ start, end ] }`
+  | `allowTernary` | `false` | Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: [References.md](./References.md).
+  | `withLocation` | `false` | Nodes will include source position offsets to the tokens: `{ loc: [ start, end ] }`
   | `mergeRanges` | `true` | Should ranges be returned as whole references (`Sheet1!A1:B2`) or as separate tokens for each part: (`Sheet1`,`!`,`A1`,`:`,`B2`). This is the same as calling [`mergeRanges`](#mergeRanges)
   | `negativeNumbers` | `true` | Merges unary minuses with their immediately following number tokens (`-`,`1`) => `-1`
   | `r1c1` | `false` | Ranges are expected to be in the R1C1 style format rather than the more popular A1 style.
@@ -70,6 +70,27 @@ To support syntax highlighting as you type, `STRING` tokens are allowed to be "u
   { type: STRING, value: '"Hello world', unterminated: true },
 ]
 ```
+
+### <a name="parse" href="#parse">#</a> **parse**( _formula [, options]_ )
+
+Parses a string formula or list of tokens into an AST.
+
+* `formula` should be a string (an Excel formula) or an array of tokens.
+
+* `options` are set as an object of keys: `parse(formula, { option: true })`. Supported options are:
+
+  | name | default | effect |
+  |- |- |-
+  | `allowTernary` | `false` | Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: [References.md](./References.md).
+  | `withLocation` | `true` | Nodes will include source position offsets to the tokens: `{ loc: [ start, end ] }`
+  | `negativeNumbers` | `true` | Merges unary minuses with their immediately following number tokens (`-`,`1`) => `-1` (alternatively these will be unary operations in the tree).
+  | `r1c1` | `false` | Ranges are expected to be in the R1C1 style format rather than the more popular A1 style.
+  | `permitArrayRanges` | `false` | Ranges are allowed as elements of arrays. This is a features in Google Sheets while Excel does not support it.
+
+The parser requires `mergeRanges` to have been true for tokenlist arguments, because it does not recognize context tokens.
+
+The AST Abstract Syntax Tree's format is documented in [AST format.md](./AST format.md)
+
 
 ### <a name="translateToA1" href="#translateToA1">#</a> **translateToA1**( _formula, anchorCell [, options]_ )
 
