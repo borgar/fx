@@ -164,8 +164,8 @@ exports.publish = (data, { destination }) => {
         .filter(d => d.kind === kind)
         .filter(d => d.access !== 'private')
         .sort((a, b) => {
-          if (a.name < b.name) { return 1; }
-          if (a.name > b.name) { return -1; }
+          if (a.name < b.name) { return -1; }
+          if (a.name > b.name) { return 1; }
           return NaN;
         })
         .forEach((d, i) => {
