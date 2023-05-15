@@ -1,0 +1,17 @@
+{
+  "source": {
+    "includePattern": ".+\\.js(doc|x)?$",
+    "excludePattern": "((^|\\/|\\\\)_|spec\\.js$)"
+  },
+  "opts": {
+    "template": "./.jsdoc",
+    "encoding": "utf8",
+    "destination": "./docs/"
+  },
+  "templates": {
+    "default": {
+      "includeDate": false,
+      "outputSourceFiles": false
+    }
+  }
+}

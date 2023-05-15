@@ -15,6 +15,7 @@
     "version": "npm run build",
     "lint": "eslint lib/*.js",
     "test": "tape lib/*.spec.js | tap-min",
+    "build:docs": "echo '# @borgar/fx API\n'>docs/API.md; jsdoc -c .jsdoc/config.json -d console lib>>docs/API.md",
     "build": "NODE_ENV=production rollup -c"
   },
   "repository": {
@@ -45,6 +46,7 @@
     "@rollup/plugin-babel": "~6.0.3",
     "babel-eslint": "~10.1.0",
     "eslint": "~8.34.0",
+    "jsdoc": "~4.0.2",
     "rollup": "~3.17.2",
     "rollup-plugin-minification": "~0.2.0",
     "tap-min": "~2.0.0",
