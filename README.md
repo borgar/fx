@@ -18,7 +18,7 @@ Documentation can be found under [docs/](./docs/):
 
 * The API is documented in [docs/API.md](./docs/API.md).
 
-* The AST format the parser emits is specified in [docs/AST format.md](./docs/AST format.md).
+* The AST format the parser emits is specified in [docs/AST_format.md](./docs/AST_format.md).
 
 * A primer/terminology definitions of Excel references and ranges can be found in [docs/References.md](./docs/References.md).
 
