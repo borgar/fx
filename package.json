@@ -1,6 +1,6 @@
 {
   "name": "@borgar/fx",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "description": "Utilities for working with Excel formulas",
   "main": "dist/fx.js",
   "module": "lib/index.js",
@@ -15,7 +15,7 @@
     "version": "npm run build",
     "lint": "eslint lib/*.js",
     "test": "tape lib/*.spec.js | tap-min",
-    "build:docs": "echo '# @borgar/fx API\n'>docs/API.md; jsdoc -c .jsdoc/config.json -d console lib>>docs/API.md",
+    "build:docs": "echo '# _fx_ API\n'>docs/API.md; jsdoc -c .jsdoc/config.json -d console lib>>docs/API.md",
     "build": "NODE_ENV=production rollup -c"
   },
   "repository": {

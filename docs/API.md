@@ -362,7 +362,7 @@ Parses a string formula or list of tokens into an AST.
 
 The parser requires `mergeRefs` to have been `true` in tokenlist options, because it does not recognize reference context tokens.
 
-The AST Abstract Syntax Tree's format is documented in [AST format.md][AST format.md]
+The AST Abstract Syntax Tree's format is documented in [AST_format.md][./AST_format.md]
 
 **See also:** [nodeTypes](#nodeTypes).
 
@@ -375,7 +375,8 @@ The AST Abstract Syntax Tree's format is documented in [AST format.md][AST forma
 | _[options]_.allowNamed | `boolean` | `true` | Enable parsing names as well as ranges. |
 | _[options]_.allowTernary | `boolean` | `false` | Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: References.md. |
 | _[options]_.negativeNumbers | `boolean` | `true` | Merges unary minuses with their immediately following number tokens (`-`,`1`) => `-1` (alternatively these will be unary operations in the tree). |
-| _[options]_.permitArrayRanges | `boolean` | `false` | Ranges are allowed as elements of arrays. This is a features in Google Sheets while Excel does not support it. |
+| _[options]_.permitArrayRanges | `boolean` | `false` | Ranges are allowed as elements of arrays. This is a feature in Google Sheets while Excel does not allow it. |
+| _[options]_.permitArrayCalls | `boolean` | `false` | Function calls are allowed as elements of arrays. This is a feature in Google Sheets while Excel does not allow it. |
 | _[options]_.r1c1 | `boolean` | `false` | Ranges are expected to be in the R1C1 style format rather than the more popular A1 style. |
 | _[options]_.withLocation | `boolean` | `true` | Nodes will include source position offsets to the tokens: `{ loc: [ start, end ] }` |
 
