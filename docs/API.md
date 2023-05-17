@@ -1,4 +1,4 @@
-# @borgar/fx API
+# _fx_ API
 
 ## Constants
 
