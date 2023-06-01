@@ -1,4 +1,36 @@
-# _fx_ API
+# _Fx_ API
+
+**Constants**
+
+- [nodeTypes](#nodeTypes)
+- [tokenTypes](#tokenTypes)
+
+**Functions**
+
+- [addA1RangeBounds( range )](#addA1RangeBounds)
+- [addTokenMeta( tokenlist, _\[context\]_ )](#addTokenMeta)
+- [fixRanges( formula, _\[options\]_ )](#fixRanges)
+- [fromCol( columnString )](#fromCol)
+- [isError( token )](#isError)
+- [isFunction( token )](#isFunction)
+- [isFxPrefix( token )](#isFxPrefix)
+- [isLiteral( token )](#isLiteral)
+- [isOperator( token )](#isOperator)
+- [isRange( token )](#isRange)
+- [isReference( token )](#isReference)
+- [isWhitespace( token )](#isWhitespace)
+- [mergeRefTokens( tokenlist )](#mergeRefTokens)
+- [parse( formula, _\[options\]_ )](#parse)
+- [parseA1Ref( refString, _\[options\]_ )](#parseA1Ref)
+- [parseR1C1Ref( refString, _\[options\]_ )](#parseR1C1Ref)
+- [parseStructRef( ref, _\[options\]_ )](#parseStructRef)
+- [stringifyA1Ref( refObject, _\[options\]_ )](#stringifyA1Ref)
+- [stringifyR1C1Ref( refObject, _\[options\]_ )](#stringifyR1C1Ref)
+- [stringifyStructRef( refObject, _\[options\]_ )](#stringifyStructRef)
+- [toCol( columnIndex )](#toCol)
+- [tokenize( formula, _\[options\]_ )](#tokenize)
+- [translateToA1( formula, anchorCell, _\[options\]_ )](#translateToA1)
+- [translateToR1C1( formula, anchorCell, _\[options\]_ )](#translateToR1C1)
 
 ## Constants
 
@@ -143,7 +175,9 @@ All will be tagged with `.error` (boolean `true`).
 
 ### <a name="fixRanges" href="#fixRanges">#</a> fixRanges( formula, _[options = `{}`]_ ) ⇒ `string` | `Array.<Object>`
 
-Normalizes A1 style ranges in a formula or list of tokens so that the top and left coordinates of the range are on the left-hand side of a colon operator:
+Normalizes A1 style ranges and structured references in a formula or list of tokens.
+
+It ensures that that the top and left coordinates of an A1 range are on the left-hand side of a colon operator:
 
 `B2:A1` → `A1:B2`  
 `1:A1` → `A1:1`  
@@ -161,6 +195,8 @@ When `{ addBounds: true }` is passed as an option, the missing bounds are also a
 `B2:B` → `B2:1048576`  
 `B2:2` → `B2:XFD2`  
 
+Structured ranges are normalized cleaned up to have consistent order and capitalization of sections as well as removing redundant ones.
+
 Returns the same formula with the ranges updated. If an array of tokens was supplied, then a new array is returned.
 
 #### Parameters
@@ -170,7 +206,7 @@ Returns the same formula with the ranges updated. If an array of tokens was supp
 | formula | `string` \| `Array.<Object>` |  | A string (an Excel formula) or a token list that should be adjusted. |
 | _[options]_ | `Object` | `{}` | Options |
 | _[options]_.addBounds | `boolean` | `false` | Fill in any undefined bounds of range objects. Top to 0, bottom to 1048575, left to 0, and right to 16383. |
-| _[options]_.r1c1 | `boolean` | `false` | Ranges are expected to be in the R1C1 style format rather than the more popular A1 style. |
+| _[options]_.xlsx | `boolean` | `false` | Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md) |
 
 #### Returns
 
@@ -362,7 +398,7 @@ Parses a string formula or list of tokens into an AST.
 
 The parser requires `mergeRefs` to have been `true` in tokenlist options, because it does not recognize reference context tokens.
 
-The AST Abstract Syntax Tree's format is documented in [AST_format.md][./AST_format.md]
+The AST Abstract Syntax Tree's format is documented in [AST_format.md](./AST_format.md)
 
 **See also:** [nodeTypes](#nodeTypes).
 
@@ -378,7 +414,8 @@ The AST Abstract Syntax Tree's format is documented in [AST_format.md][./AST_for
 | _[options]_.permitArrayRanges | `boolean` | `false` | Ranges are allowed as elements of arrays. This is a feature in Google Sheets while Excel does not allow it. |
 | _[options]_.permitArrayCalls | `boolean` | `false` | Function calls are allowed as elements of arrays. This is a feature in Google Sheets while Excel does not allow it. |
 | _[options]_.r1c1 | `boolean` | `false` | Ranges are expected to be in the R1C1 style format rather than the more popular A1 style. |
-| _[options]_.withLocation | `boolean` | `true` | Nodes will include source position offsets to the tokens: `{ loc: [ start, end ] }` |
+| _[options]_.withLocation | `boolean` | `false` | Nodes will include source position offsets to the tokens: `{ loc: [ start, end ] }` |
+| _[options]_.xlsx | `boolean` | `false` | Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md) |
 
 #### Returns
 
@@ -417,6 +454,7 @@ For A:A or A1:A style ranges, `null` will be used for any dimensions that the sy
 | _[options]_ | `Object` | `{}` | Options |
 | _[options]_.allowNamed | `boolean` | `true` | Enable parsing names as well as ranges. |
 | _[options]_.allowTernary | `boolean` | `false` | Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: References.md. |
+| _[options]_.xlsx | `boolean` | `false` | Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md) |
 
 #### Returns
 
@@ -453,6 +491,7 @@ parseR1C1Ref('Sheet1!R[9]C9:R[9]C9');
 | _[options]_ | `Object` | `{}` | Options |
 | _[options]_.allowNamed | `boolean` | `true` | Enable parsing names as well as ranges. |
 | _[options]_.allowTernary | `boolean` | `false` | Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: References.md. |
+| _[options]_.xlsx | `boolean` | `false` | Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md) |
 
 #### Returns
 
@@ -482,6 +521,7 @@ For A:A or A1:A style ranges, `null` will be used for any dimensions that the sy
 | ---- | ---- | ------- | ----------- |
 | ref | `string` |  | A structured reference string |
 | _[options]_ | `Object` | `{}` | Options |
+| _[options]_.xlsx | `boolean` | `false` | Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md) |
 
 #### Returns
 
@@ -489,7 +529,7 @@ For A:A or A1:A style ranges, `null` will be used for any dimensions that the sy
 
 ---
 
-### <a name="stringifyA1Ref" href="#stringifyA1Ref">#</a> stringifyA1Ref( refObject ) ⇒ `Object`
+### <a name="stringifyA1Ref" href="#stringifyA1Ref">#</a> stringifyA1Ref( refObject, _[options = `{}`]_ ) ⇒ `Object`
 
 Get an A1-style string representation of a reference object.
 
@@ -512,9 +552,11 @@ stringifyA1Ref({
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| refObject | `Object` | A reference object |
+| Name | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| refObject | `Object` |  | A reference object |
+| _[options]_ | `Object` | `{}` | Options |
+| _[options]_.xlsx | `boolean` | `false` | Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md) |
 
 #### Returns
 
@@ -522,7 +564,7 @@ stringifyA1Ref({
 
 ---
 
-### <a name="stringifyR1C1Ref" href="#stringifyR1C1Ref">#</a> stringifyR1C1Ref( refObject ) ⇒ `Object`
+### <a name="stringifyR1C1Ref" href="#stringifyR1C1Ref">#</a> stringifyR1C1Ref( refObject, _[options = `{}`]_ ) ⇒ `Object`
 
 Get an R1C1-style string representation of a reference object.
 
@@ -545,9 +587,11 @@ stringifyR1C1Ref({
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| refObject | `Object` | A reference object |
+| Name | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| refObject | `Object` |  | A reference object |
+| _[options]_ | `Object` | `{}` | Options |
+| _[options]_.xlsx | `boolean` | `false` | Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md) |
 
 #### Returns
 
@@ -555,7 +599,7 @@ stringifyR1C1Ref({
 
 ---
 
-### <a name="stringifyStructRef" href="#stringifyStructRef">#</a> stringifyStructRef( refObject ) ⇒ `Object`
+### <a name="stringifyStructRef" href="#stringifyStructRef">#</a> stringifyStructRef( refObject, _[options = `{}`]_ ) ⇒ `Object`
 
 Get a string representation of a structured reference object.
 
@@ -571,9 +615,11 @@ stringifyStructRef({
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| refObject | `Object` | A structured reference object |
+| Name | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| refObject | `Object` |  | A structured reference object |
+| _[options]_ | `Object` | `{}` | Options |
+| _[options]_.xlsx | `boolean` | `false` | Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md) |
 
 #### Returns
 
@@ -639,6 +685,7 @@ To support syntax highlighting as you type, `STRING` tokens are allowed to be "u
 | _[options]_.r1c1 | `boolean` | `false` | Ranges are expected to be in the R1C1 style format rather than the more popular A1 style. |
 | _[options]_.withLocation | `boolean` | `true` | Nodes will include source position offsets to the tokens: `{ loc: [ start, end ] }` |
 | _[options]_.mergeRefs | `boolean` | `true` | Should ranges be returned as whole references (`Sheet1!A1:B2`) or as separate tokens for each part: (`Sheet1`,`!`,`A1`,`:`,`B2`). This is the same as calling [`mergeRefTokens`](#mergeRefTokens) |
+| _[options]_.xlsx | `boolean` | `false` | Enables a `[1]Sheet1!A1` or `[1]!name` syntax form for external workbooks found only in XLSX files. |
 
 #### Returns
 
@@ -650,7 +697,7 @@ To support syntax highlighting as you type, `STRING` tokens are allowed to be "u
 
 Translates ranges in a formula or list of tokens from relative R1C1 syntax to absolute A1 syntax.
 
-Returns the same formula with the ranges translated. If an array of tokens was supplied, then the same array is returned (be careful that `mergeRefs` *must* be `false`).
+Returns the same formula with the ranges translated. If an array of tokens was supplied, then the same array is returned.
 
 ```js
 translateToA1("=SUM(RC[1],R2C5,Sheet!R3C5)", "D10");
@@ -678,6 +725,7 @@ Note that if you are passing in a list of tokens that was not created using `mer
 | _[options]_ | `Object` | `{}` | The options |
 | _[options]_.wrapEdges | `boolean` | `true` | Wrap out-of-bounds ranges around sheet edges rather than turning them to #REF! errors |
 | _[options]_.mergeRefs | `boolean` | `true` | Should ranges be treated as whole references (`Sheet1!A1:B2`) or as separate tokens for each part: (`Sheet1`,`!`,`A1`,`:`,`B2`). |
+| _[options]_.xlsx | `boolean` | `false` | Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md) |
 
 #### Returns
 
@@ -685,11 +733,11 @@ Note that if you are passing in a list of tokens that was not created using `mer
 
 ---
 
-### <a name="translateToR1C1" href="#translateToR1C1">#</a> translateToR1C1( formula, anchorCell ) ⇒ `string` | `Array.<Object>`
+### <a name="translateToR1C1" href="#translateToR1C1">#</a> translateToR1C1( formula, anchorCell, _[options = `{}`]_ ) ⇒ `string` | `Array.<Object>`
 
 Translates ranges in a formula or list of tokens from absolute A1 syntax to relative R1C1 syntax.
 
-Returns the same formula with the ranges translated. If an array of tokens was supplied, then the same array is returned (be careful that `mergeRefs` *must* be `false`).
+Returns the same formula with the ranges translated. If an array of tokens was supplied, then the same array is returned.
 
 ```js
 translateToR1C1("=SUM(E10,$E$2,Sheet!$E$3)", "D10");
@@ -698,10 +746,12 @@ translateToR1C1("=SUM(E10,$E$2,Sheet!$E$3)", "D10");
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| formula | `string` \| `Array.<Object>` | A string (an Excel formula) or a token list that should be adjusted. |
-| anchorCell | `string` | A simple string reference to an A1 cell ID (`AF123` or`$C$5`). |
+| Name | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| formula | `string` \| `Array.<Object>` |  | A string (an Excel formula) or a token list that should be adjusted. |
+| anchorCell | `string` |  | A simple string reference to an A1 cell ID (`AF123` or`$C$5`). |
+| _[options]_ | `Object` | `{}` | The options |
+| _[options]_.xlsx | `boolean` | `false` | Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md) |
 
 #### Returns
 
