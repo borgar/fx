@@ -4,7 +4,7 @@ function formatType (d, inTable = false) {
   return d.names?.map(n => `\`${n}\``).join(inTable ? ' \\| ' : ' | ') || '';
 }
 
-function formatArguments (args) {
+function formatArguments (args, showDefaults = true) {
   let inOpt = false;
   let r = args.reduce((a, d, i) => {
     if (d.name.includes('.')) {
@@ -22,7 +22,7 @@ function formatArguments (args) {
       inOpt = true;
     }
     a += d.name;
-    if (d.defaultvalue) {
+    if (showDefaults && d.defaultvalue) {
       a += ' = `' + d.defaultvalue + '`';
     }
     return a;
@@ -101,6 +101,23 @@ function formatHeading (text, level = 2) {
   return '#'.repeat(level || 1) + ' ' + text;
 }
 
+function formatIndexLink (name, text) {
+  return `[${text.replace(/([[\]])/g, '\\$1')}](#${name})`;
+}
+
+const formatIndex = {
+  function: d => {
+    return '- ' + formatIndexLink(d.name,
+      `${d.name}( ${formatArguments(d.params, false)} )`
+    );
+  },
+  constant: d => {
+    return '- ' + formatIndexLink(d.name,
+      `${d.name}`
+    );
+  }
+}
+
 const format = {
   function: d => {
     return [
@@ -151,6 +168,7 @@ exports.publish = (data, { destination }) => {
   });
 
   let output = [];
+  const index = [];
 
   Object.keys(categories)
     .sort()
@@ -158,6 +176,8 @@ exports.publish = (data, { destination }) => {
       const heading = categoryHeadings[kind];
       if (heading == null) { return; }
       // emit category heading
+      if (index.length) { index.push(''); }
+      index.push('**' + heading + '**', '');
       output.push(formatHeading(heading, 2));
       // emit all members belonging to that category
       docs
@@ -176,17 +196,19 @@ exports.publish = (data, { destination }) => {
             console.error('Unsupported member type ' + d.kind);
             process.exit(1);
           }
+          index.push(formatIndex[d.kind](d));
           output.push(...format[d.kind](d));
         });
     });
 
-  output = output
-    .map(d => d.trim())
-    .filter(Boolean);
-
-  // console.log(docs.map(d => d.name).sort());
   if (destination === 'console') {
-    console.log(output.join('\n\n') + '\n');
+    const outText = (
+      index.map(d => d.trim()).join('\n') +
+      '\n\n' +
+      output.map(d => d.trim()).filter(Boolean).join('\n\n') +
+      '\n'
+    );
+    console.log(outText);
   }
   else {
     console.error('This template only supports output to the console. Use the option "-d console" when you run JSDoc.');
