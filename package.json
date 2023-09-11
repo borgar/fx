@@ -5,6 +5,9 @@
   "main": "dist/fx.js",
   "types": "dist/fx.d.ts",
   "module": "lib/index.js",
+  "bin": {
+    "tokenize": "bin/tokenize.js"
+  },
   "exports": {
     ".": {
       "require": "./dist/fx.js",
