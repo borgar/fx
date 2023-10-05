@@ -41,19 +41,19 @@
   "author": "Borgar Þorsteinsson <borgar@borgar.net> (http://borgar.net/)",
   "license": "MIT",
   "devDependencies": {
-    "@babel/core": "~7.22.17",
+    "@babel/core": "~7.23.0",
     "@babel/eslint-parser": "~7.22.15",
-    "@babel/preset-env": "~7.22.15",
+    "@babel/preset-env": "~7.22.20",
     "@borgar/eslint-config": "~3.1.0",
     "@borgar/jsdoc-tsmd": "~0.1.0",
     "@rollup/plugin-babel": "~6.0.3",
     "babel-eslint": "~10.1.0",
-    "eslint": "~8.49.0",
+    "eslint": "~8.50.0",
     "jsdoc": "~4.0.2",
-    "rollup": "~3.29.1",
+    "rollup": "~3.29.4",
     "rollup-plugin-minification": "~0.2.0",
     "tap-min": "~3.0.0",
     "typescript": "~5.2.2",
-    "tape": "~5.6.6"
+    "tape": "~5.7.0"
   }
 }
