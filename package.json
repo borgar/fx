@@ -1,6 +1,6 @@
 {
   "name": "@borgar/fx",
-  "version": "4.4.0",
+  "version": "4.5.0",
   "description": "Utilities for working with Excel formulas",
   "main": "dist/fx.js",
   "types": "dist/fx.d.ts",

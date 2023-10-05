@@ -743,14 +743,15 @@ Note that if you are passing in a list of tokens that was not created using `mer
 
 ##### Parameters
 
-| Name                | Type                        | Default | Description                                                                                                                      |
-| ------------------- | --------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| formula             | `string` \| `Array<object>` |         | A string (an Excel formula) or a token list that should be adjusted.                                                             |
-| anchorCell          | `string`                    |         | A simple string reference to an A1 cell ID (`AF123` or`$C$5`).                                                                   |
-| [options]           | `object`                    | `{}`    | The options                                                                                                                      |
-| [options].mergeRefs | `boolean`                   | `true`  | Should ranges be treated as whole references (`Sheet1!A1:B2`) or as separate tokens for each part: (`Sheet1`,`!`,`A1`,`:`,`B2`). |
-| [options].wrapEdges | `boolean`                   | `true`  | Wrap out-of-bounds ranges around sheet edges rather than turning them to #REF! errors                                            |
-| [options].xlsx      | `boolean`                   | `false` | Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md)        |
+| Name                   | Type                        | Default | Description                                                                                                                                         |
+| ---------------------- | --------------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| formula                | `string` \| `Array<object>` |         | A string (an Excel formula) or a token list that should be adjusted.                                                                                |
+| anchorCell             | `string`                    |         | A simple string reference to an A1 cell ID (`AF123` or`$C$5`).                                                                                      |
+| [options]              | `object`                    | `{}`    | The options                                                                                                                                         |
+| [options].allowTernary | `boolean`                   | `true`  | Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: References.md. |
+| [options].mergeRefs    | `boolean`                   | `true`  | Should ranges be treated as whole references (`Sheet1!A1:B2`) or as separate tokens for each part: (`Sheet1`,`!`,`A1`,`:`,`B2`).                    |
+| [options].wrapEdges    | `boolean`                   | `true`  | Wrap out-of-bounds ranges around sheet edges rather than turning them to #REF! errors                                                               |
+| [options].xlsx         | `boolean`                   | `false` | Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md)                           |
 
 ##### Returns
 
@@ -771,12 +772,13 @@ translateToR1C1("=SUM(E10,$E$2,Sheet!$E$3)", "D10");
 
 ##### Parameters
 
-| Name           | Type                        | Default | Description                                                                                                               |
-| -------------- | --------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------- |
-| formula        | `string` \| `Array<object>` |         | A string (an Excel formula) or a token list that should be adjusted.                                                      |
-| anchorCell     | `string`                    |         | A simple string reference to an A1 cell ID (`AF123` or`$C$5`).                                                            |
-| [options]      | `object`                    | `{}`    | The options                                                                                                               |
-| [options].xlsx | `boolean`                   | `false` | Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md) |
+| Name                   | Type                        | Default | Description                                                                                                                                         |
+| ---------------------- | --------------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| formula                | `string` \| `Array<object>` |         | A string (an Excel formula) or a token list that should be adjusted.                                                                                |
+| anchorCell             | `string`                    |         | A simple string reference to an A1 cell ID (`AF123` or`$C$5`).                                                                                      |
+| [options]              | `object`                    | `{}`    | The options                                                                                                                                         |
+| [options].allowTernary | `boolean`                   | `true`  | Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: References.md. |
+| [options].xlsx         | `boolean`                   | `false` | Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md)                           |
 
 ##### Returns
 

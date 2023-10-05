@@ -552,12 +552,15 @@ export declare function tokenize(formula: string, options?: {
  * @param formula A string (an Excel formula) or a token list that should be adjusted.
  * @param anchorCell A simple string reference to an A1 cell ID (`AF123` or`$C$5`).
  * @param [options={}] The options
+ * @param [options.allowTernary=true] Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: References.md.
  * @param [options.mergeRefs=true] Should ranges be treated as whole references (`Sheet1!A1:B2`) or as separate tokens for each part: (`Sheet1`,`!`,`A1`,`:`,`B2`).
  * @param [options.wrapEdges=true] Wrap out-of-bounds ranges around sheet edges rather than turning them to #REF! errors
  * @param [options.xlsx=false] Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md)
  * @returns A formula string or token list (depending on which was input)
  */
 export declare function translateToA1(formula: (string | Array<object>), anchorCell: string, options?: {
+    /** Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: References.md. */
+    allowTernary?: boolean;
     /** Should ranges be treated as whole references (`Sheet1!A1:B2`) or as separate tokens for each part: (`Sheet1`,`!`,`A1`,`:`,`B2`). */
     mergeRefs?: boolean;
     /** Wrap out-of-bounds ranges around sheet edges rather than turning them to #REF! errors */
@@ -579,10 +582,13 @@ export declare function translateToA1(formula: (string | Array<object>), anchorC
  * @param formula A string (an Excel formula) or a token list that should be adjusted.
  * @param anchorCell A simple string reference to an A1 cell ID (`AF123` or`$C$5`).
  * @param [options={}] The options
+ * @param [options.allowTernary=true] Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: References.md.
  * @param [options.xlsx=false] Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md)
  * @returns A formula string or token list (depending on which was input)
  */
 export declare function translateToR1C1(formula: (string | Array<object>), anchorCell: string, options?: {
+    /** Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: References.md. */
+    allowTernary?: boolean;
     /** Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md) */
     xlsx?: boolean;
 }): (string | Array<object>);
