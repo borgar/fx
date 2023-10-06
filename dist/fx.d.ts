@@ -31,7 +31,7 @@
  * @param range The range part of a reference object.
  * @returns same range with missing bounds filled in.
  */
-export declare function addA1RangeBounds(range: object): object;
+export declare function addA1RangeBounds(range: RangeA1): RangeA1;
 
 /**
  * Runs through a list of tokens and adds extra attributes such as matching
@@ -66,12 +66,12 @@ export declare function addA1RangeBounds(range: object): object;
  * @param [context.workbookName=''] An implied workbook name ('report.xlsx')
  * @returns The input array with the enchanced tokens
  */
-export declare function addTokenMeta(tokenlist: Array<object>, context?: {
+export declare function addTokenMeta(tokenlist: Array<Token>, context?: {
     /** An implied sheet name ('Sheet1') */
     sheetName?: string;
     /** An implied workbook name ('report.xlsx') */
     workbookName?: string;
-}): Array<object>;
+}): Array<TokenEnhanced>;
 
 /**
  * Normalizes A1 style ranges and structured references in a formula or list of
@@ -104,21 +104,21 @@ export declare function addTokenMeta(tokenlist: Array<object>, context?: {
  * @param [options.xlsx=false] Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md)
  * @returns A formula string or token list (depending on which was input)
  */
-export declare function fixRanges(formula: (string | Array<object>), options?: {
+export declare function fixRanges(formula: (string | Array<Token>), options?: {
     /** Fill in any undefined bounds of range objects. Top to 0, bottom to 1048575, left to 0, and right to 16383. */
     addBounds?: boolean;
     /** Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md) */
     xlsx?: boolean;
-}): (string | Array<object>);
+}): (string | Array<Token>);
 
 /**
  * Parse a simple string reference to an A1 range into a range object.
  * Will accept `A1`, `A2`, `A:A`, or `1:1`.
  *
  * @param rangeString A range string
- * @returns An object representing a valid reference or null if it is invalid.
+ * @returns An object representing a valid range or null if it is invalid.
  */
-declare function fromA1(rangeString: string): (object | null);
+declare function fromA1(rangeString: string): (RangeA1 | null);
 
 /**
  * Convert a column string representation to a 0 based
@@ -138,7 +138,7 @@ export declare function fromCol(columnString: string): number;
  * @param rangeString A range string
  * @returns An object representing a valid reference or null if it is invalid.
  */
-declare function fromR1C1(rangeString: string): (object | null);
+declare function fromR1C1(rangeString: string): (RangeR1C1 | null);
 
 /**
  * Determines whether the specified token is an error.
@@ -148,7 +148,7 @@ declare function fromR1C1(rangeString: string): (object | null);
  * @param token The token
  * @returns True if the specified token is error, False otherwise.
  */
-export declare function isError(token: object): boolean;
+export declare function isError(token: any): boolean;
 
 /**
  * Determines whether the specified token is a function.
@@ -158,7 +158,7 @@ export declare function isError(token: object): boolean;
  * @param token The token
  * @returns True if the specified token is function, False otherwise.
  */
-export declare function isFunction(token: object): boolean;
+export declare function isFunction(token: any): boolean;
 
 /**
  * Returns `true` if the input is a token of type FX_PREFIX (leading `=` in
@@ -167,7 +167,7 @@ export declare function isFunction(token: object): boolean;
  * @param token The token
  * @returns True if the specified token is effects prefix, False otherwise.
  */
-export declare function isFxPrefix(token: object): boolean;
+export declare function isFxPrefix(token: any): boolean;
 
 /**
  * Determines whether the specified token is a literal.
@@ -178,7 +178,7 @@ export declare function isFxPrefix(token: object): boolean;
  * @param token The token
  * @returns True if the specified token is literal, False otherwise.
  */
-export declare function isLiteral(token: object): boolean;
+export declare function isLiteral(token: any): boolean;
 
 /**
  * Determines whether the specified token is an operator.
@@ -188,7 +188,7 @@ export declare function isLiteral(token: object): boolean;
  * @param token The token
  * @returns True if the specified token is operator, False otherwise.
  */
-export declare function isOperator(token: object): boolean;
+export declare function isOperator(token: any): boolean;
 
 /**
  * Determines whether the specified token is a range.
@@ -199,7 +199,7 @@ export declare function isOperator(token: object): boolean;
  * @param token A token
  * @returns True if the specified token is range, False otherwise.
  */
-export declare function isRange(token: object): boolean;
+export declare function isRange(token: any): boolean;
 
 /**
  * Determines whether the specified token is a reference.
@@ -210,7 +210,7 @@ export declare function isRange(token: object): boolean;
  * @param token The token
  * @returns True if the specified token is reference, False otherwise.
  */
-export declare function isReference(token: object): boolean;
+export declare function isReference(token: any): boolean;
 
 /**
  * Determines whether the specified token is whitespace.
@@ -220,7 +220,7 @@ export declare function isReference(token: object): boolean;
  * @param token The token
  * @returns True if the specified token is whitespace, False otherwise.
  */
-export declare function isWhitespace(token: object): boolean;
+export declare function isWhitespace(token: any): boolean;
 
 /**
  * Merges context with reference tokens as possible in a list of tokens.
@@ -231,7 +231,7 @@ export declare function isWhitespace(token: object): boolean;
  * @param tokenlist An array of tokens (from `tokenize()`)
  * @returns A new list of tokens with range parts merged.
  */
-export declare function mergeRefTokens(tokenlist: Array<object>): Array<any>;
+export declare function mergeRefTokens(tokenlist: Array<Token>): Array<Token>;
 
 /**
  * Parses a string formula or list of tokens into an AST.
@@ -252,7 +252,7 @@ export declare function mergeRefTokens(tokenlist: Array<object>): Array<any>;
  * @param [options.xlsx=false] Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md)
  * @returns An AST of nodes
  */
-export declare function parse(formula: (string | Array<object>), options?: {
+export declare function parse(formula: (string | Array<Token>), options?: {
     /** Enable parsing names as well as ranges. */
     allowNamed?: boolean;
     /** Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: References.md. */
@@ -306,7 +306,7 @@ export declare function parseA1Ref(refString: string, options?: {
     allowTernary?: boolean;
     /** Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md) */
     xlsx?: boolean;
-}): (object | null);
+}): (ReferenceA1 | null);
 
 /**
  * Parse a string reference into an object representing it.
@@ -341,7 +341,7 @@ export declare function parseR1C1Ref(refString: string, options?: {
     allowTernary?: boolean;
     /** Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md) */
     xlsx?: boolean;
-}): (object | null);
+}): (ReferenceR1C1 | null);
 
 /**
  * Parse a structured reference string into an object representing it.
@@ -365,7 +365,7 @@ export declare function parseR1C1Ref(refString: string, options?: {
 export declare function parseStructRef(ref: string, options?: {
     /** Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md) */
     xlsx?: boolean;
-}): (object | null);
+}): (ReferenceStruct | null);
 
 /**
  * Get an A1-style string representation of a reference object.
@@ -391,10 +391,10 @@ export declare function parseStructRef(ref: string, options?: {
  * @param [options.xlsx=false] Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md)
  * @returns The reference in A1-style string format
  */
-export declare function stringifyA1Ref(refObject: object, options?: {
+export declare function stringifyA1Ref(refObject: ReferenceA1, options?: {
     /** Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md) */
     xlsx?: boolean;
-}): object;
+}): string;
 
 /**
  * Get an R1C1-style string representation of a reference object.
@@ -420,10 +420,10 @@ export declare function stringifyA1Ref(refObject: object, options?: {
  * @param [options.xlsx=false] Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md)
  * @returns The reference in R1C1-style string format
  */
-export declare function stringifyR1C1Ref(refObject: object, options?: {
+export declare function stringifyR1C1Ref(refObject: ReferenceR1C1, options?: {
     /** Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md) */
     xlsx?: boolean;
-}): object;
+}): string;
 
 /**
  * Get a string representation of a structured reference object.
@@ -442,10 +442,10 @@ export declare function stringifyR1C1Ref(refObject: object, options?: {
  * @param [options.xlsx=false] Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md)
  * @returns The structured reference in string format
  */
-export declare function stringifyStructRef(refObject: object, options?: {
+export declare function stringifyStructRef(refObject: ReferenceStruct, options?: {
     /** Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md) */
     xlsx?: boolean;
-}): object;
+}): string;
 
 /**
  * Stringify a range object into A1 syntax.
@@ -453,7 +453,7 @@ export declare function stringifyStructRef(refObject: object, options?: {
  * @param range A range object
  * @returns An A1-style string represenation of a range
  */
-declare function toA1(range: object): string;
+declare function toA1(range: RangeA1): string;
 
 /**
  * Convert a 0 based offset number to a column string
@@ -472,7 +472,7 @@ export declare function toCol(columnIndex: number): string;
  * @param range A range object
  * @returns An R1C1-style string represenation of a range
  */
-declare function toR1C1(range: object): string;
+declare function toR1C1(range: RangeR1C1): string;
 
 /**
  * Breaks a string formula into a list of tokens.
@@ -522,7 +522,7 @@ export declare function tokenize(formula: string, options?: {
     withLocation?: boolean;
     /** Enables a `[1]Sheet1!A1` or `[1]!name` syntax form for external workbooks found only in XLSX files. */
     xlsx?: boolean;
-}): Array<object>;
+}): Array<Token>;
 
 /**
  * Translates ranges in a formula or list of tokens from relative R1C1 syntax to
@@ -558,7 +558,7 @@ export declare function tokenize(formula: string, options?: {
  * @param [options.xlsx=false] Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md)
  * @returns A formula string or token list (depending on which was input)
  */
-export declare function translateToA1(formula: (string | Array<object>), anchorCell: string, options?: {
+export declare function translateToA1(formula: (string | Array<Token>), anchorCell: string, options?: {
     /** Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: References.md. */
     allowTernary?: boolean;
     /** Should ranges be treated as whole references (`Sheet1!A1:B2`) or as separate tokens for each part: (`Sheet1`,`!`,`A1`,`:`,`B2`). */
@@ -567,7 +567,7 @@ export declare function translateToA1(formula: (string | Array<object>), anchorC
     wrapEdges?: boolean;
     /** Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md) */
     xlsx?: boolean;
-}): (string | Array<object>);
+}): (string | Array<Token>);
 
 /**
  * Translates ranges in a formula or list of tokens from absolute A1 syntax to
@@ -586,12 +586,12 @@ export declare function translateToA1(formula: (string | Array<object>), anchorC
  * @param [options.xlsx=false] Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md)
  * @returns A formula string or token list (depending on which was input)
  */
-export declare function translateToR1C1(formula: (string | Array<object>), anchorCell: string, options?: {
+export declare function translateToR1C1(formula: (string | Array<Token>), anchorCell: string, options?: {
     /** Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: References.md. */
     allowTernary?: boolean;
     /** Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md) */
     xlsx?: boolean;
-}): (string | Array<object>);
+}): (string | Array<Token>);
 
 /** A dictionary of the types used to identify AST node variants. */
 export declare const nodeTypes: Readonly<{
@@ -650,4 +650,117 @@ export declare const tokenTypes: Readonly<{
     /** Whitespace character sequence (` `) */
     WHITESPACE: string;
 }>;
+
+/** A range in A1 style coordinates. */
+export declare type RangeA1 = {
+    /** Signifies that bottom is a "locked" value */
+    $bottom?: (boolean | null);
+    /** Signifies that left is a "locked" value */
+    $left?: (boolean | null);
+    /** Signifies that right is a "locked" value */
+    $right?: (boolean | null);
+    /** Signifies that top is a "locked" value */
+    $top?: (boolean | null);
+    /** Bottom row of the range */
+    bottom?: (number | null);
+    /** Left column of the range */
+    left?: (number | null);
+    /** Right column of the range */
+    right?: (number | null);
+    /** Top row of the range */
+    top?: (number | null);
+};
+
+/** A range in R1C1 style coordinates. */
+export declare type RangeR1C1 = {
+    /** Signifies that c0 is an absolute value */
+    $c0?: (boolean | null);
+    /** Signifies that c1 is an absolute value */
+    $c1?: (boolean | null);
+    /** Signifies that r0 is an absolute value */
+    $r0?: (boolean | null);
+    /** Signifies that r1 is an absolute value */
+    $r1?: (boolean | null);
+    /** Left column of the range */
+    c0?: (number | null);
+    /** Right column of the range */
+    c1?: (number | null);
+    /** Top row of the range */
+    r0?: (number | null);
+    /** Bottom row of the range */
+    r1?: (number | null);
+};
+
+/**
+ * A reference containing an A1 style range. See [Prefixes.md] for
+ *   documentation on how scopes work in Fx.
+ */
+export declare type ReferenceA1 = {
+    /** A collection of scopes for the reference */
+    context?: Array<string>;
+    /** The reference's range */
+    range?: RangeA1;
+    /** A context sheet scope */
+    sheetName?: string;
+    /** A context workbook scope */
+    workbookName?: string;
+};
+
+/**
+ * A reference containing a R1C1 style range. See [Prefixes.md] for
+ *   documentation on how scopes work in Fx.
+ */
+export declare type ReferenceR1C1 = {
+    /** A collection of scopes for the reference */
+    context?: Array<string>;
+    /** The reference's range */
+    range?: RangeR1C1;
+    /** A context sheet scope */
+    sheetName?: string;
+    /** A context workbook scope */
+    workbookName?: string;
+};
+
+/**
+ * A reference containing a table slice definition. See [Prefixes.md] for
+ *   documentation on how scopes work in Fx.
+ */
+export declare type ReferenceStruct = {
+    /** The sections this reference targets */
+    columns?: Array<string>;
+    /** A collection of scopes for the reference */
+    context?: Array<string>;
+    /** The sections this reference targets */
+    sections?: Array<string>;
+    /** A context sheet scope */
+    sheetName?: string;
+    /** The table this reference targets */
+    table?: string;
+    /** A context workbook scope */
+    workbookName?: string;
+};
+
+/** A formula language token. */
+export declare type Token = Record<string,any> & {
+    /** Source position offsets to the token */
+    loc?: Array<number>;
+    /** The type of the token */
+    type: string;
+    /** Signifies an unterminated string token */
+    unterminated?: boolean;
+    /** The value of the token */
+    value: string;
+};
+
+/** A token with extra meta data. */
+export declare type TokenEnhanced = Token & {
+    /** This token's level of nesting inside parentheses */
+    depth?: number;
+    /** Token is of unknown type or a paren without a match */
+    error?: boolean;
+    /** The ID of a group which this token belongs (e.g. matching parens) */
+    groupId?: string;
+    /** A zero based position in a token list */
+    index: number;
+};
 

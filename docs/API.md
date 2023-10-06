@@ -36,9 +36,19 @@
 - [nodeTypes](#nodeTypes)
 - [tokenTypes](#tokenTypes)
 
+**Types**
+
+- [RangeA1](#RangeA1)
+- [RangeR1C1](#RangeR1C1)
+- [ReferenceA1](#ReferenceA1)
+- [ReferenceR1C1](#ReferenceR1C1)
+- [ReferenceStruct](#ReferenceStruct)
+- [Token](#Token)
+- [TokenEnhanced](#TokenEnhanced)
+
 ## Functions
 
-### <a id="addA1RangeBounds" href="#addA1RangeBounds">#</a> addA1RangeBounds( range ) ⇒ `object`
+### <a id="addA1RangeBounds" href="#addA1RangeBounds">#</a> addA1RangeBounds( range ) ⇒ [`RangeA1`](#RangeA1)
 
 Fill the any missing bounds in range objects. Top will be set to 0, bottom to 1048575, left to 0, and right to 16383, if they are `null` or `undefined`.
 
@@ -71,17 +81,17 @@ addA1RangeBounds({
 
 ##### Parameters
 
-| Name  | Type     | Description                           |
-| ----- | -------- | ------------------------------------- |
-| range | `object` | The range part of a reference object. |
+| Name  | Type                  | Description                           |
+| ----- | --------------------- | ------------------------------------- |
+| range | [`RangeA1`](#RangeA1) | The range part of a reference object. |
 
 ##### Returns
 
-`object` – same range with missing bounds filled in.
+[`RangeA1`](#RangeA1) – same range with missing bounds filled in.
 
 ---
 
-### <a id="addTokenMeta" href="#addTokenMeta">#</a> addTokenMeta( tokenlist, _[context = `{}`]_ ) ⇒ `Array<object>`
+### <a id="addTokenMeta" href="#addTokenMeta">#</a> addTokenMeta( tokenlist, _[context = `{}`]_ ) ⇒ `Array<TokenEnhanced>`
 
 Runs through a list of tokens and adds extra attributes such as matching parens and ranges.
 
@@ -113,20 +123,20 @@ All will be tagged with `.error` (boolean `true`).
 
 ##### Parameters
 
-| Name                   | Type            | Default | Description                                  |
-| ---------------------- | --------------- | ------- | -------------------------------------------- |
-| tokenlist              | `Array<object>` |         | An array of tokens (from `tokenize()`)       |
-| [context]              | `object`        | `{}`    | A contest used to match `A1` to `Sheet1!A1`. |
-| [context].sheetName    | `string`        | `""`    | An implied sheet name ('Sheet1')             |
-| [context].workbookName | `string`        | `""`    | An implied workbook name ('report.xlsx')     |
+| Name                   | Type           | Default | Description                                  |
+| ---------------------- | -------------- | ------- | -------------------------------------------- |
+| tokenlist              | `Array<Token>` |         | An array of tokens (from `tokenize()`)       |
+| [context]              | `object`       | `{}`    | A contest used to match `A1` to `Sheet1!A1`. |
+| [context].sheetName    | `string`       | `""`    | An implied sheet name ('Sheet1')             |
+| [context].workbookName | `string`       | `""`    | An implied workbook name ('report.xlsx')     |
 
 ##### Returns
 
-`Array<object>` – The input array with the enchanced tokens
+`Array<TokenEnhanced>` – The input array with the enchanced tokens
 
 ---
 
-### <a id="fixRanges" href="#fixRanges">#</a> fixRanges( formula, _[options = `{}`]_ ) ⇒ `string` | `Array<object>`
+### <a id="fixRanges" href="#fixRanges">#</a> fixRanges( formula, _[options = `{}`]_ ) ⇒ `string` | `Array<Token>`
 
 Normalizes A1 style ranges and structured references in a formula or list of tokens.
 
@@ -154,20 +164,20 @@ Returns the same formula with the ranges updated. If an array of tokens was supp
 
 ##### Parameters
 
-| Name                | Type                        | Default | Description                                                                                                               |
-| ------------------- | --------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------- |
-| formula             | `string` \| `Array<object>` |         | A string (an Excel formula) or a token list that should be adjusted.                                                      |
-| [options]           | `object`                    | `{}`    | Options                                                                                                                   |
-| [options].addBounds | `boolean`                   | `false` | Fill in any undefined bounds of range objects. Top to 0, bottom to 1048575, left to 0, and right to 16383.                |
-| [options].xlsx      | `boolean`                   | `false` | Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md) |
+| Name                | Type                       | Default | Description                                                                                                               |
+| ------------------- | -------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------- |
+| formula             | `string` \| `Array<Token>` |         | A string (an Excel formula) or a token list that should be adjusted.                                                      |
+| [options]           | `object`                   | `{}`    | Options                                                                                                                   |
+| [options].addBounds | `boolean`                  | `false` | Fill in any undefined bounds of range objects. Top to 0, bottom to 1048575, left to 0, and right to 16383.                |
+| [options].xlsx      | `boolean`                  | `false` | Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md) |
 
 ##### Returns
 
-`string` | `Array<object>` – A formula string or token list (depending on which was input)
+`string` | `Array<Token>` – A formula string or token list (depending on which was input)
 
 ---
 
-### <a id="fromA1" href="#fromA1">#</a> fromA1( rangeString ) ⇒ `object` | `null`
+### <a id="fromA1" href="#fromA1">#</a> fromA1( rangeString ) ⇒ [`RangeA1`](#RangeA1) | `null`
 
 Parse a simple string reference to an A1 range into a range object. Will accept `A1`, `A2`, `A:A`, or `1:1`.
 
@@ -181,7 +191,7 @@ Parse a simple string reference to an A1 range into a range object. Will accept 
 
 ##### Returns
 
-`object` | `null` – An object representing a valid reference or null if it is invalid.
+[`RangeA1`](#RangeA1) | `null` – An object representing a valid range or null if it is invalid.
 
 ---
 
@@ -203,7 +213,7 @@ The method expects a valid column identifier made up of _only_ A-Z letters, whic
 
 ---
 
-### <a id="fromR1C1" href="#fromR1C1">#</a> fromR1C1( rangeString ) ⇒ `object` | `null`
+### <a id="fromR1C1" href="#fromR1C1">#</a> fromR1C1( rangeString ) ⇒ [`RangeR1C1`](#RangeR1C1) | `null`
 
 Parse a simple string reference to an R1C1 range into a range object.
 
@@ -217,7 +227,7 @@ Parse a simple string reference to an R1C1 range into a range object.
 
 ##### Returns
 
-`object` | `null` – An object representing a valid reference or null if it is invalid.
+[`RangeR1C1`](#RangeR1C1) | `null` – An object representing a valid reference or null if it is invalid.
 
 ---
 
@@ -229,9 +239,9 @@ Returns `true` if the input is a token of type ERROR (`#VALUE!`). In all other c
 
 ##### Parameters
 
-| Name  | Type     | Description |
-| ----- | -------- | ----------- |
-| token | `object` | The token   |
+| Name  | Type  | Description |
+| ----- | ----- | ----------- |
+| token | `any` | The token   |
 
 ##### Returns
 
@@ -247,9 +257,9 @@ Returns `true` if the input is a token of type FUNCTION. In all other cases `fal
 
 ##### Parameters
 
-| Name  | Type     | Description |
-| ----- | -------- | ----------- |
-| token | `object` | The token   |
+| Name  | Type  | Description |
+| ----- | ----- | ----------- |
+| token | `any` | The token   |
 
 ##### Returns
 
@@ -263,9 +273,9 @@ Returns `true` if the input is a token of type FX_PREFIX (leading `=` in formula
 
 ##### Parameters
 
-| Name  | Type     | Description |
-| ----- | -------- | ----------- |
-| token | `object` | The token   |
+| Name  | Type  | Description |
+| ----- | ----- | ----------- |
+| token | `any` | The token   |
 
 ##### Returns
 
@@ -281,9 +291,9 @@ Returns `true` if the input is a token of type BOOLEAN (`TRUE` or `FALSE`), ERRO
 
 ##### Parameters
 
-| Name  | Type     | Description |
-| ----- | -------- | ----------- |
-| token | `object` | The token   |
+| Name  | Type  | Description |
+| ----- | ----- | ----------- |
+| token | `any` | The token   |
 
 ##### Returns
 
@@ -299,9 +309,9 @@ Returns `true` if the input is a token of type OPERATOR (`+` or `:`). In all oth
 
 ##### Parameters
 
-| Name  | Type     | Description |
-| ----- | -------- | ----------- |
-| token | `object` | The token   |
+| Name  | Type  | Description |
+| ----- | ----- | ----------- |
+| token | `any` | The token   |
 
 ##### Returns
 
@@ -317,9 +327,9 @@ Returns `true` if the input is a token that has a type of either REF_RANGE (`A1`
 
 ##### Parameters
 
-| Name  | Type     | Description |
-| ----- | -------- | ----------- |
-| token | `object` | A token     |
+| Name  | Type  | Description |
+| ----- | ----- | ----------- |
+| token | `any` | A token     |
 
 ##### Returns
 
@@ -335,9 +345,9 @@ Returns `true` if the input is a token of type REF_RANGE (`A1` or `A1:B2`), REF_
 
 ##### Parameters
 
-| Name  | Type     | Description |
-| ----- | -------- | ----------- |
-| token | `object` | The token   |
+| Name  | Type  | Description |
+| ----- | ----- | ----------- |
+| token | `any` | The token   |
 
 ##### Returns
 
@@ -353,9 +363,9 @@ Returns `true` if the input is a token of type WHITESPACE (` `) or NEWLINE (`\n`
 
 ##### Parameters
 
-| Name  | Type     | Description |
-| ----- | -------- | ----------- |
-| token | `object` | The token   |
+| Name  | Type  | Description |
+| ----- | ----- | ----------- |
+| token | `any` | The token   |
 
 ##### Returns
 
@@ -363,7 +373,7 @@ Returns `true` if the input is a token of type WHITESPACE (` `) or NEWLINE (`\n`
 
 ---
 
-### <a id="mergeRefTokens" href="#mergeRefTokens">#</a> mergeRefTokens( tokenlist ) ⇒ `Array<any>`
+### <a id="mergeRefTokens" href="#mergeRefTokens">#</a> mergeRefTokens( tokenlist ) ⇒ `Array<Token>`
 
 Merges context with reference tokens as possible in a list of tokens.
 
@@ -371,13 +381,13 @@ When given a tokenlist, this function returns a new list with ranges returned as
 
 ##### Parameters
 
-| Name      | Type            | Description                            |
-| --------- | --------------- | -------------------------------------- |
-| tokenlist | `Array<object>` | An array of tokens (from `tokenize()`) |
+| Name      | Type           | Description                            |
+| --------- | -------------- | -------------------------------------- |
+| tokenlist | `Array<Token>` | An array of tokens (from `tokenize()`) |
 
 ##### Returns
 
-`Array<any>` – A new list of tokens with range parts merged.
+`Array<Token>` – A new list of tokens with range parts merged.
 
 ---
 
@@ -393,18 +403,18 @@ The AST Abstract Syntax Tree's format is documented in [AST_format.md](./AST_for
 
 ##### Parameters
 
-| Name                        | Type                        | Default | Description                                                                                                                                         |
-| --------------------------- | --------------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| formula                     | `string` \| `Array<object>` |         | An Excel formula string (an Excel expression) or an array of tokens.                                                                                |
-| [options]                   | `object`                    | `{}`    | Options                                                                                                                                             |
-| [options].allowNamed        | `boolean`                   | `true`  | Enable parsing names as well as ranges.                                                                                                             |
-| [options].allowTernary      | `boolean`                   | `false` | Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: References.md. |
-| [options].negativeNumbers   | `boolean`                   | `true`  | Merges unary minuses with their immediately following number tokens (`-`,`1`) => `-1` (alternatively these will be unary operations in the tree).   |
-| [options].permitArrayCalls  | `boolean`                   | `false` | Function calls are allowed as elements of arrays. This is a feature in Google Sheets while Excel does not allow it.                                 |
-| [options].permitArrayRanges | `boolean`                   | `false` | Ranges are allowed as elements of arrays. This is a feature in Google Sheets while Excel does not allow it.                                         |
-| [options].r1c1              | `boolean`                   | `false` | Ranges are expected to be in the R1C1 style format rather than the more popular A1 style.                                                           |
-| [options].withLocation      | `boolean`                   | `false` | Nodes will include source position offsets to the tokens: `{ loc: [ start, end ] }`                                                                 |
-| [options].xlsx              | `boolean`                   | `false` | Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md)                           |
+| Name                        | Type                       | Default | Description                                                                                                                                         |
+| --------------------------- | -------------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| formula                     | `string` \| `Array<Token>` |         | An Excel formula string (an Excel expression) or an array of tokens.                                                                                |
+| [options]                   | `object`                   | `{}`    | Options                                                                                                                                             |
+| [options].allowNamed        | `boolean`                  | `true`  | Enable parsing names as well as ranges.                                                                                                             |
+| [options].allowTernary      | `boolean`                  | `false` | Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: References.md. |
+| [options].negativeNumbers   | `boolean`                  | `true`  | Merges unary minuses with their immediately following number tokens (`-`,`1`) => `-1` (alternatively these will be unary operations in the tree).   |
+| [options].permitArrayCalls  | `boolean`                  | `false` | Function calls are allowed as elements of arrays. This is a feature in Google Sheets while Excel does not allow it.                                 |
+| [options].permitArrayRanges | `boolean`                  | `false` | Ranges are allowed as elements of arrays. This is a feature in Google Sheets while Excel does not allow it.                                         |
+| [options].r1c1              | `boolean`                  | `false` | Ranges are expected to be in the R1C1 style format rather than the more popular A1 style.                                                           |
+| [options].withLocation      | `boolean`                  | `false` | Nodes will include source position offsets to the tokens: `{ loc: [ start, end ] }`                                                                 |
+| [options].xlsx              | `boolean`                  | `false` | Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md)                           |
 
 ##### Returns
 
@@ -412,7 +422,7 @@ The AST Abstract Syntax Tree's format is documented in [AST_format.md](./AST_for
 
 ---
 
-### <a id="parseA1Ref" href="#parseA1Ref">#</a> parseA1Ref( refString, _[options = `{}`]_ ) ⇒ `object` | `null`
+### <a id="parseA1Ref" href="#parseA1Ref">#</a> parseA1Ref( refString, _[options = `{}`]_ ) ⇒ [`ReferenceA1`](#ReferenceA1) | `null`
 
 Parse a string reference into an object representing it.
 
@@ -447,11 +457,11 @@ For A:A or A1:A style ranges, `null` will be used for any dimensions that the sy
 
 ##### Returns
 
-`object` | `null` – An object representing a valid reference or null if it is invalid.
+[`ReferenceA1`](#ReferenceA1) | `null` – An object representing a valid reference or null if it is invalid.
 
 ---
 
-### <a id="parseR1C1Ref" href="#parseR1C1Ref">#</a> parseR1C1Ref( refString, _[options = `{}`]_ ) ⇒ `object` | `null`
+### <a id="parseR1C1Ref" href="#parseR1C1Ref">#</a> parseR1C1Ref( refString, _[options = `{}`]_ ) ⇒ [`ReferenceR1C1`](#ReferenceR1C1) | `null`
 
 Parse a string reference into an object representing it.
 
@@ -484,11 +494,11 @@ parseR1C1Ref('Sheet1!R[9]C9:R[9]C9');
 
 ##### Returns
 
-`object` | `null` – An object representing a valid reference or null if it is invalid.
+[`ReferenceR1C1`](#ReferenceR1C1) | `null` – An object representing a valid reference or null if it is invalid.
 
 ---
 
-### <a id="parseStructRef" href="#parseStructRef">#</a> parseStructRef( ref, _[options = `{}`]_ ) ⇒ `object` | `null`
+### <a id="parseStructRef" href="#parseStructRef">#</a> parseStructRef( ref, _[options = `{}`]_ ) ⇒ [`ReferenceStruct`](#ReferenceStruct) | `null`
 
 Parse a structured reference string into an object representing it.
 
@@ -514,11 +524,11 @@ For A:A or A1:A style ranges, `null` will be used for any dimensions that the sy
 
 ##### Returns
 
-`object` | `null` – An object representing a valid reference or null if it is invalid.
+[`ReferenceStruct`](#ReferenceStruct) | `null` – An object representing a valid reference or null if it is invalid.
 
 ---
 
-### <a id="stringifyA1Ref" href="#stringifyA1Ref">#</a> stringifyA1Ref( refObject, _[options = `{}`]_ ) ⇒ `object`
+### <a id="stringifyA1Ref" href="#stringifyA1Ref">#</a> stringifyA1Ref( refObject, _[options = `{}`]_ ) ⇒ `string`
 
 Get an A1-style string representation of a reference object.
 
@@ -541,19 +551,19 @@ stringifyA1Ref({
 
 ##### Parameters
 
-| Name           | Type      | Default | Description                                                                                                               |
-| -------------- | --------- | ------- | ------------------------------------------------------------------------------------------------------------------------- |
-| refObject      | `object`  |         | A reference object                                                                                                        |
-| [options]      | `object`  | `{}`    | Options                                                                                                                   |
-| [options].xlsx | `boolean` | `false` | Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md) |
+| Name           | Type                          | Default | Description                                                                                                               |
+| -------------- | ----------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------- |
+| refObject      | [`ReferenceA1`](#ReferenceA1) |         | A reference object                                                                                                        |
+| [options]      | `object`                      | `{}`    | Options                                                                                                                   |
+| [options].xlsx | `boolean`                     | `false` | Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md) |
 
 ##### Returns
 
-`object` – The reference in A1-style string format
+`string` – The reference in A1-style string format
 
 ---
 
-### <a id="stringifyR1C1Ref" href="#stringifyR1C1Ref">#</a> stringifyR1C1Ref( refObject, _[options = `{}`]_ ) ⇒ `object`
+### <a id="stringifyR1C1Ref" href="#stringifyR1C1Ref">#</a> stringifyR1C1Ref( refObject, _[options = `{}`]_ ) ⇒ `string`
 
 Get an R1C1-style string representation of a reference object.
 
@@ -576,19 +586,19 @@ stringifyR1C1Ref({
 
 ##### Parameters
 
-| Name           | Type      | Default | Description                                                                                                               |
-| -------------- | --------- | ------- | ------------------------------------------------------------------------------------------------------------------------- |
-| refObject      | `object`  |         | A reference object                                                                                                        |
-| [options]      | `object`  | `{}`    | Options                                                                                                                   |
-| [options].xlsx | `boolean` | `false` | Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md) |
+| Name           | Type                              | Default | Description                                                                                                               |
+| -------------- | --------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------- |
+| refObject      | [`ReferenceR1C1`](#ReferenceR1C1) |         | A reference object                                                                                                        |
+| [options]      | `object`                          | `{}`    | Options                                                                                                                   |
+| [options].xlsx | `boolean`                         | `false` | Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md) |
 
 ##### Returns
 
-`object` – The reference in R1C1-style string format
+`string` – The reference in R1C1-style string format
 
 ---
 
-### <a id="stringifyStructRef" href="#stringifyStructRef">#</a> stringifyStructRef( refObject, _[options = `{}`]_ ) ⇒ `object`
+### <a id="stringifyStructRef" href="#stringifyStructRef">#</a> stringifyStructRef( refObject, _[options = `{}`]_ ) ⇒ `string`
 
 Get a string representation of a structured reference object.
 
@@ -604,15 +614,15 @@ stringifyStructRef({
 
 ##### Parameters
 
-| Name           | Type      | Default | Description                                                                                                               |
-| -------------- | --------- | ------- | ------------------------------------------------------------------------------------------------------------------------- |
-| refObject      | `object`  |         | A structured reference object                                                                                             |
-| [options]      | `object`  | `{}`    | Options                                                                                                                   |
-| [options].xlsx | `boolean` | `false` | Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md) |
+| Name           | Type                                  | Default | Description                                                                                                               |
+| -------------- | ------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------- |
+| refObject      | [`ReferenceStruct`](#ReferenceStruct) |         | A structured reference object                                                                                             |
+| [options]      | `object`                              | `{}`    | Options                                                                                                                   |
+| [options].xlsx | `boolean`                             | `false` | Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md) |
 
 ##### Returns
 
-`object` – The structured reference in string format
+`string` – The structured reference in string format
 
 ---
 
@@ -624,9 +634,9 @@ Stringify a range object into A1 syntax.
 
 ##### Parameters
 
-| Name  | Type     | Description    |
-| ----- | -------- | -------------- |
-| range | `object` | A range object |
+| Name  | Type                  | Description    |
+| ----- | --------------------- | -------------- |
+| range | [`RangeA1`](#RangeA1) | A range object |
 
 ##### Returns
 
@@ -660,9 +670,9 @@ Stringify a range object into R1C1 syntax.
 
 ##### Parameters
 
-| Name  | Type     | Description    |
-| ----- | -------- | -------------- |
-| range | `object` | A range object |
+| Name  | Type                      | Description    |
+| ----- | ------------------------- | -------------- |
+| range | [`RangeR1C1`](#RangeR1C1) | A range object |
 
 ##### Returns
 
@@ -670,7 +680,7 @@ Stringify a range object into R1C1 syntax.
 
 ---
 
-### <a id="tokenize" href="#tokenize">#</a> tokenize( formula, _[options = `{}`]_ ) ⇒ `Array<object>`
+### <a id="tokenize" href="#tokenize">#</a> tokenize( formula, _[options = `{}`]_ ) ⇒ `Array<Token>`
 
 Breaks a string formula into a list of tokens.
 
@@ -714,11 +724,11 @@ To support syntax highlighting as you type, `STRING` tokens are allowed to be "u
 
 ##### Returns
 
-`Array<object>` – An AST of nodes
+`Array<Token>` – An AST of nodes
 
 ---
 
-### <a id="translateToA1" href="#translateToA1">#</a> translateToA1( formula, anchorCell, _[options = `{}`]_ ) ⇒ `string` | `Array<object>`
+### <a id="translateToA1" href="#translateToA1">#</a> translateToA1( formula, anchorCell, _[options = `{}`]_ ) ⇒ `string` | `Array<Token>`
 
 Translates ranges in a formula or list of tokens from relative R1C1 syntax to absolute A1 syntax.
 
@@ -743,23 +753,23 @@ Note that if you are passing in a list of tokens that was not created using `mer
 
 ##### Parameters
 
-| Name                   | Type                        | Default | Description                                                                                                                                         |
-| ---------------------- | --------------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| formula                | `string` \| `Array<object>` |         | A string (an Excel formula) or a token list that should be adjusted.                                                                                |
-| anchorCell             | `string`                    |         | A simple string reference to an A1 cell ID (`AF123` or`$C$5`).                                                                                      |
-| [options]              | `object`                    | `{}`    | The options                                                                                                                                         |
-| [options].allowTernary | `boolean`                   | `true`  | Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: References.md. |
-| [options].mergeRefs    | `boolean`                   | `true`  | Should ranges be treated as whole references (`Sheet1!A1:B2`) or as separate tokens for each part: (`Sheet1`,`!`,`A1`,`:`,`B2`).                    |
-| [options].wrapEdges    | `boolean`                   | `true`  | Wrap out-of-bounds ranges around sheet edges rather than turning them to #REF! errors                                                               |
-| [options].xlsx         | `boolean`                   | `false` | Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md)                           |
+| Name                   | Type                       | Default | Description                                                                                                                                         |
+| ---------------------- | -------------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| formula                | `string` \| `Array<Token>` |         | A string (an Excel formula) or a token list that should be adjusted.                                                                                |
+| anchorCell             | `string`                   |         | A simple string reference to an A1 cell ID (`AF123` or`$C$5`).                                                                                      |
+| [options]              | `object`                   | `{}`    | The options                                                                                                                                         |
+| [options].allowTernary | `boolean`                  | `true`  | Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: References.md. |
+| [options].mergeRefs    | `boolean`                  | `true`  | Should ranges be treated as whole references (`Sheet1!A1:B2`) or as separate tokens for each part: (`Sheet1`,`!`,`A1`,`:`,`B2`).                    |
+| [options].wrapEdges    | `boolean`                  | `true`  | Wrap out-of-bounds ranges around sheet edges rather than turning them to #REF! errors                                                               |
+| [options].xlsx         | `boolean`                  | `false` | Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md)                           |
 
 ##### Returns
 
-`string` | `Array<object>` – A formula string or token list (depending on which was input)
+`string` | `Array<Token>` – A formula string or token list (depending on which was input)
 
 ---
 
-### <a id="translateToR1C1" href="#translateToR1C1">#</a> translateToR1C1( formula, anchorCell, _[options = `{}`]_ ) ⇒ `string` | `Array<object>`
+### <a id="translateToR1C1" href="#translateToR1C1">#</a> translateToR1C1( formula, anchorCell, _[options = `{}`]_ ) ⇒ `string` | `Array<Token>`
 
 Translates ranges in a formula or list of tokens from absolute A1 syntax to relative R1C1 syntax.
 
@@ -772,17 +782,17 @@ translateToR1C1("=SUM(E10,$E$2,Sheet!$E$3)", "D10");
 
 ##### Parameters
 
-| Name                   | Type                        | Default | Description                                                                                                                                         |
-| ---------------------- | --------------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| formula                | `string` \| `Array<object>` |         | A string (an Excel formula) or a token list that should be adjusted.                                                                                |
-| anchorCell             | `string`                    |         | A simple string reference to an A1 cell ID (`AF123` or`$C$5`).                                                                                      |
-| [options]              | `object`                    | `{}`    | The options                                                                                                                                         |
-| [options].allowTernary | `boolean`                   | `true`  | Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: References.md. |
-| [options].xlsx         | `boolean`                   | `false` | Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md)                           |
+| Name                   | Type                       | Default | Description                                                                                                                                         |
+| ---------------------- | -------------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| formula                | `string` \| `Array<Token>` |         | A string (an Excel formula) or a token list that should be adjusted.                                                                                |
+| anchorCell             | `string`                   |         | A simple string reference to an A1 cell ID (`AF123` or`$C$5`).                                                                                      |
+| [options]              | `object`                   | `{}`    | The options                                                                                                                                         |
+| [options].allowTernary | `boolean`                  | `true`  | Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: References.md. |
+| [options].xlsx         | `boolean`                  | `false` | Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md)                           |
 
 ##### Returns
 
-`string` | `Array<object>` – A formula string or token list (depending on which was input)
+`string` | `Array<Token>` – A formula string or token list (depending on which was input)
 
 ---
 
@@ -836,6 +846,123 @@ A dictionary of the types used to identify token variants.
 | STRING        | `string` | String literal (`"Lorem ipsum"`)                                 |
 | UNKNOWN       | `string` | Any unidentifiable range of characters.                          |
 | WHITESPACE    | `string` | Whitespace character sequence (` `)                              |
+
+---
+
+## Types
+
+### <a id="RangeA1" href="#RangeA1">#</a> RangeA1
+
+A range in A1 style coordinates.
+
+##### Properties
+
+| Name      | Type                | Description                               |
+| --------- | ------------------- | ----------------------------------------- |
+| [$bottom] | `boolean` \| `null` | Signifies that bottom is a "locked" value |
+| [$left]   | `boolean` \| `null` | Signifies that left is a "locked" value   |
+| [$right]  | `boolean` \| `null` | Signifies that right is a "locked" value  |
+| [$top]    | `boolean` \| `null` | Signifies that top is a "locked" value    |
+| [bottom]  | `number` \| `null`  | Bottom row of the range                   |
+| [left]    | `number` \| `null`  | Left column of the range                  |
+| [right]   | `number` \| `null`  | Right column of the range                 |
+| [top]     | `number` \| `null`  | Top row of the range                      |
+
+---
+
+### <a id="RangeR1C1" href="#RangeR1C1">#</a> RangeR1C1
+
+A range in R1C1 style coordinates.
+
+##### Properties
+
+| Name  | Type                | Description                            |
+| ----- | ------------------- | -------------------------------------- |
+| [$c0] | `boolean` \| `null` | Signifies that c0 is an absolute value |
+| [$c1] | `boolean` \| `null` | Signifies that c1 is an absolute value |
+| [$r0] | `boolean` \| `null` | Signifies that r0 is an absolute value |
+| [$r1] | `boolean` \| `null` | Signifies that r1 is an absolute value |
+| [c0]  | `number` \| `null`  | Left column of the range               |
+| [c1]  | `number` \| `null`  | Right column of the range              |
+| [r0]  | `number` \| `null`  | Top row of the range                   |
+| [r1]  | `number` \| `null`  | Bottom row of the range                |
+
+---
+
+### <a id="ReferenceA1" href="#ReferenceA1">#</a> ReferenceA1
+
+A reference containing an A1 style range. See [Prefixes.md] for   documentation on how scopes work in Fx.
+
+##### Properties
+
+| Name           | Type                  | Description                              |
+| -------------- | --------------------- | ---------------------------------------- |
+| [context]      | `Array<string>`       | A collection of scopes for the reference |
+| [range]        | [`RangeA1`](#RangeA1) | The reference's range                    |
+| [sheetName]    | `string`              | A context sheet scope                    |
+| [workbookName] | `string`              | A context workbook scope                 |
+
+---
+
+### <a id="ReferenceR1C1" href="#ReferenceR1C1">#</a> ReferenceR1C1
+
+A reference containing a R1C1 style range. See [Prefixes.md] for   documentation on how scopes work in Fx.
+
+##### Properties
+
+| Name           | Type                      | Description                              |
+| -------------- | ------------------------- | ---------------------------------------- |
+| [context]      | `Array<string>`           | A collection of scopes for the reference |
+| [range]        | [`RangeR1C1`](#RangeR1C1) | The reference's range                    |
+| [sheetName]    | `string`                  | A context sheet scope                    |
+| [workbookName] | `string`                  | A context workbook scope                 |
+
+---
+
+### <a id="ReferenceStruct" href="#ReferenceStruct">#</a> ReferenceStruct
+
+A reference containing a table slice definition. See [Prefixes.md] for   documentation on how scopes work in Fx.
+
+##### Properties
+
+| Name           | Type            | Description                              |
+| -------------- | --------------- | ---------------------------------------- |
+| [columns]      | `Array<string>` | The sections this reference targets      |
+| [context]      | `Array<string>` | A collection of scopes for the reference |
+| [sections]     | `Array<string>` | The sections this reference targets      |
+| [sheetName]    | `string`        | A context sheet scope                    |
+| [table]        | `string`        | The table this reference targets         |
+| [workbookName] | `string`        | A context workbook scope                 |
+
+---
+
+### <a id="Token" href="#Token">#</a> Token extends `Record<string, any>`
+
+A formula language token.
+
+##### Properties
+
+| Name           | Type            | Description                            |
+| -------------- | --------------- | -------------------------------------- |
+| [loc]          | `Array<number>` | Source position offsets to the token   |
+| type           | `string`        | The type of the token                  |
+| [unterminated] | `boolean`       | Signifies an unterminated string token |
+| value          | `string`        | The value of the token                 |
+
+---
+
+### <a id="TokenEnhanced" href="#TokenEnhanced">#</a> TokenEnhanced extends [`Token`](#Token)
+
+A token with extra meta data.
+
+##### Properties
+
+| Name      | Type      | Description                                                       |
+| --------- | --------- | ----------------------------------------------------------------- |
+| [depth]   | `number`  | This token's level of nesting inside parentheses                  |
+| [error]   | `boolean` | Token is of unknown type or a paren without a match               |
+| [groupId] | `string`  | The ID of a group which this token belongs (e.g. matching parens) |
+| index     | `number`  | A zero based position in a token list                             |
 
 ---
 

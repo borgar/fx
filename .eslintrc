@@ -1,6 +1,6 @@
 {
   "parser": "@babel/eslint-parser",
-  "extends": [ "@borgar/eslint-config" ],
+  "extends": [ "@borgar/eslint-config", "@borgar/eslint-config/jsdoc" ],
   "env": {
     "es6": true,
     "node": true,
@@ -11,19 +11,10 @@
     "requireConfigFile": false,
   },
   "rules": {
-    "max-len": [ "error", {
-      "code": 120,
-      "comments": 80,
-      "tabWidth": 2,
-      "ignoreUrls": true,
-      "ignoreStrings": true,
-      "ignoreTemplateLiterals": true,
-      "ignoreRegExpLiterals": true,
-      "ignorePattern": "^\\s*\\*\\s*@(param|return|property)\\s"
-    } ],
     "no-trailing-spaces": [ "error", {
       "ignoreComments": true
-    } ]
+    } ],
+    "jsdoc/no-undefined-types": "off"
   },
   "globals": {
     "Promise"
