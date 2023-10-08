@@ -1,0 +1,59 @@
+diff --git a/dist/fx.d.ts b/dist/fx.d.ts
+index a4485ca..23f8bc2 100644
+--- a/dist/fx.d.ts
++++ b/dist/fx.d.ts
+@@ -66,12 +66,12 @@ export declare function addA1RangeBounds(range: RangeA1): RangeA1;
+  * @param [context.workbookName=''] An implied workbook name ('report.xlsx')
+  * @returns The input array with the enchanced tokens
+  */
+-export declare function addTokenMeta(tokenlist: Array<Token>, context?: {
++export declare function addTokenMeta<T extends Token>(tokenlist: Array<T>, context?: {
+     /** An implied sheet name ('Sheet1') */
+     sheetName?: string;
+     /** An implied workbook name ('report.xlsx') */
+     workbookName?: string;
+-}): Array<TokenEnhanced>;
++}): Array<T & TokenEnhanced>;
+ 
+ /**
+  * Normalizes A1 style ranges and structured references in a formula or list of
+@@ -252,7 +252,7 @@ export declare function mergeRefTokens(tokenlist: Array<Token>): Array<Token>;
+  * @param [options.xlsx=false] Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md)
+  * @returns An AST of nodes
+  */
+-export declare function parse(formula: (string | Array<Token>), options?: {
++export declare function parse<WithLoc extends boolean = true>(formula: (string | Array<Token>), options?: {
+     /** Enable parsing names as well as ranges. */
+     allowNamed?: boolean;
+     /** Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: References.md. */
+@@ -266,7 +266,7 @@ export declare function parse(formula: (string | Array<Token>), options?: {
+     /** Ranges are expected to be in the R1C1 style format rather than the more popular A1 style. */
+     r1c1?: boolean;
+     /** Nodes will include source position offsets to the tokens: `{ loc: [ start, end ] }` */
+-    withLocation?: boolean;
++    withLocation?: WithLoc;
+     /** Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md) */
+     xlsx?: boolean;
+ }): object;
+@@ -509,7 +509,7 @@ declare function toR1C1(range: RangeR1C1): string;
+  * @param [options.xlsx=false] Enables a `[1]Sheet1!A1` or `[1]!name` syntax form for external workbooks found only in XLSX files.
+  * @returns An AST of nodes
+  */
+-export declare function tokenize(formula: string, options?: {
++export declare function tokenize<WithLoc extends boolean = true>(formula: string, options?: {
+     /** Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: References.md. */
+     allowTernary?: boolean;
+     /** Should ranges be returned as whole references (`Sheet1!A1:B2`) or as separate tokens for each part: (`Sheet1`,`!`,`A1`,`:`,`B2`). This is the same as calling [`mergeRefTokens`](#mergeRefTokens) */
+@@ -519,10 +519,10 @@ export declare function tokenize(formula: string, options?: {
+     /** Ranges are expected to be in the R1C1 style format rather than the more popular A1 style. */
+     r1c1?: boolean;
+     /** Nodes will include source position offsets to the tokens: `{ loc: [ start, end ] }` */
+-    withLocation?: boolean;
++    withLocation?: WithLoc;
+     /** Enables a `[1]Sheet1!A1` or `[1]!name` syntax form for external workbooks found only in XLSX files. */
+     xlsx?: boolean;
+-}): Array<Token>;
++}): WithLoc extends false ? Array<Token> : Array<Token & { loc: number[] }>;
+ 
+ /**
+  * Translates ranges in a formula or list of tokens from relative R1C1 syntax to

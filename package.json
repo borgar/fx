@@ -16,7 +16,7 @@
     "version": "npm run build",
     "lint": "eslint lib/*.js",
     "test": "tape lib/*.spec.js | tap-min",
-    "build:types": "jsdoc -c tsd.json lib>dist/fx.d.ts",
+    "build:types": "jsdoc -c tsd.json lib>dist/fx.d.ts && patch dist/fx.d.ts convey-loc-guarantee-in-types.patch",
     "build:docs": "echo '# _Fx_ API\n'>docs/API.md; jsdoc -t node_modules/@borgar/jsdoc-tsmd -d console lib>>docs/API.md",
     "build": "NODE_ENV=production rollup -c"
   },
