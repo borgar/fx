@@ -1,6 +1,6 @@
 {
   "name": "@borgar/fx",
-  "version": "4.6.0",
+  "version": "4.7.0",
   "description": "Utilities for working with Excel formulas",
   "main": "dist/fx.js",
   "types": "dist/fx.d.ts",
@@ -16,6 +16,7 @@
     "version": "npm run build",
     "lint": "eslint lib/*.js",
     "test": "tape lib/*.spec.js | tap-min",
+    "build:all": "npm run build:types && npm run build:docs && npm run build",
     "build:types": "jsdoc -c tsd.json lib>dist/fx.d.ts",
     "build:docs": "echo '# _Fx_ API\n'>docs/API.md; jsdoc -t node_modules/@borgar/jsdoc-tsmd -d console lib>>docs/API.md",
     "build": "NODE_ENV=production rollup -c"
@@ -41,20 +42,20 @@
   "author": "Borgar Þorsteinsson <borgar@borgar.net> (http://borgar.net/)",
   "license": "MIT",
   "devDependencies": {
-    "@babel/core": "~7.23.0",
-    "@babel/eslint-parser": "~7.22.15",
-    "@babel/preset-env": "~7.22.20",
+    "@babel/core": "~7.23.9",
+    "@babel/eslint-parser": "~7.23.10",
+    "@babel/preset-env": "~7.23.9",
     "@borgar/eslint-config": "~3.1.0",
-    "@borgar/jsdoc-tsmd": "~0.2.0",
-    "@rollup/plugin-babel": "~6.0.3",
+    "@borgar/jsdoc-tsmd": "~0.2.1",
+    "@rollup/plugin-babel": "~6.0.4",
     "babel-eslint": "~10.1.0",
-    "eslint": "~8.50.0",
-    "eslint-plugin-jsdoc": "~46.8.2",
+    "eslint": "~8.56.0",
+    "eslint-plugin-jsdoc": "~48.1.0",
     "jsdoc": "~4.0.2",
-    "rollup": "~3.29.4",
+    "rollup": "~4.12.0",
     "rollup-plugin-minification": "~0.2.0",
     "tap-min": "~3.0.0",
-    "tape": "~5.7.0",
-    "typescript": "~5.2.2"
+    "tape": "~5.7.5",
+    "typescript": "~5.3.3"
   }
 }
