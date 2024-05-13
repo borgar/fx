@@ -63,7 +63,7 @@ When Excel saves a workbook to one of its XML formats (most commonly as .xlsx) i
 * `[a]!`
 * `[a]b!`
 
-Since the XML files only ever emitted with positive integer indexes instead of workbook names, whether the syntax allows anything else is open. _Fx_ chooses to be permissive in handling this variant and allows `[Workbook.xlsx]!A1` forms as well as `[1]!A1`.
+Since the XML files only ever emitted with positive integer indexes instead of workbook names, whether the syntax allows anything else is speculative. _Fx_ chooses to be permissive in handling this variant and allows `[Workbook.xlsx]!A1` forms as well as `[1]!A1`.
 
 Why the formula language does not use this unambiguous and somewhat more intuitive variant rather than the above form is a question for Excel historians, likely this later form was introduced with the XML format to eliminate the ambiguity?
 
