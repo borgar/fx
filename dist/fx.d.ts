@@ -112,15 +112,6 @@ export declare function fixRanges(formula: (string | Array<Token>), options?: {
 }): (string | Array<Token>);
 
 /**
- * Parse a simple string reference to an A1 range into a range object.
- * Will accept `A1`, `A2`, `A:A`, or `1:1`.
- *
- * @param rangeString A range string
- * @returns An object representing a valid range or null if it is invalid.
- */
-declare function fromA1(rangeString: string): (RangeA1 | null);
-
-/**
  * Convert a column string representation to a 0 based
  * offset number (`"C"` = `2`).
  * The method expects a valid column identifier made up of _only_
@@ -131,14 +122,6 @@ declare function fromA1(rangeString: string): (RangeA1 | null);
  * @returns Zero based column index number
  */
 export declare function fromCol(columnString: string): number;
-
-/**
- * Parse a simple string reference to an R1C1 range into a range object.
- *
- * @param rangeString A range string
- * @returns An object representing a valid reference or null if it is invalid.
- */
-declare function fromR1C1(rangeString: string): (RangeR1C1 | null);
 
 /**
  * Determines whether the specified token is an error.
@@ -448,14 +431,6 @@ export declare function stringifyStructRef(refObject: ReferenceStruct, options?:
 }): string;
 
 /**
- * Stringify a range object into A1 syntax.
- *
- * @param range A range object
- * @returns An A1-style string represenation of a range
- */
-declare function toA1(range: RangeA1): string;
-
-/**
  * Convert a 0 based offset number to a column string
  * representation (`2` = `"C"`).
  * The method expects a number between 0 and 16383. Other input will
@@ -465,14 +440,6 @@ declare function toA1(range: RangeA1): string;
  * @returns The column string identifier
  */
 export declare function toCol(columnIndex: number): string;
-
-/**
- * Stringify a range object into R1C1 syntax.
- *
- * @param range A range object
- * @returns An R1C1-style string represenation of a range
- */
-declare function toR1C1(range: RangeR1C1): string;
 
 /**
  * Breaks a string formula into a list of tokens.

@@ -5,9 +5,7 @@
 - [addA1RangeBounds( range )](#addA1RangeBounds)
 - [addTokenMeta( tokenlist, _\[context\]_ )](#addTokenMeta)
 - [fixRanges( formula, _\[options\]_ )](#fixRanges)
-- [fromA1( rangeString )](#fromA1)
 - [fromCol( columnString )](#fromCol)
-- [fromR1C1( rangeString )](#fromR1C1)
 - [isError( token )](#isError)
 - [isFunction( token )](#isFunction)
 - [isFxPrefix( token )](#isFxPrefix)
@@ -24,9 +22,7 @@
 - [stringifyA1Ref( refObject, _\[options\]_ )](#stringifyA1Ref)
 - [stringifyR1C1Ref( refObject, _\[options\]_ )](#stringifyR1C1Ref)
 - [stringifyStructRef( refObject, _\[options\]_ )](#stringifyStructRef)
-- [toA1( range )](#toA1)
 - [toCol( columnIndex )](#toCol)
-- [toR1C1( range )](#toR1C1)
 - [tokenize( formula, _\[options\]_ )](#tokenize)
 - [translateToA1( formula, anchorCell, _\[options\]_ )](#translateToA1)
 - [translateToR1C1( formula, anchorCell, _\[options\]_ )](#translateToR1C1)
@@ -177,24 +173,6 @@ Returns the same formula with the ranges updated. If an array of tokens was supp
 
 ---
 
-### <a id="fromA1" href="#fromA1">#</a> fromA1( rangeString ) ⇒ [`RangeA1`](#RangeA1) | `null`
-
-Parse a simple string reference to an A1 range into a range object. Will accept `A1`, `A2`, `A:A`, or `1:1`.
-
-**See also:** [parseA1Ref](#parseA1Ref).
-
-##### Parameters
-
-| Name        | Type     | Description    |
-| ----------- | -------- | -------------- |
-| rangeString | `string` | A range string |
-
-##### Returns
-
-[`RangeA1`](#RangeA1) | `null` – An object representing a valid range or null if it is invalid.
-
----
-
 ### <a id="fromCol" href="#fromCol">#</a> fromCol( columnString ) ⇒ `number`
 
 Convert a column string representation to a 0 based offset number (`"C"` = `2`).
@@ -210,24 +188,6 @@ The method expects a valid column identifier made up of _only_ A-Z letters, whic
 ##### Returns
 
 `number` – Zero based column index number
-
----
-
-### <a id="fromR1C1" href="#fromR1C1">#</a> fromR1C1( rangeString ) ⇒ [`RangeR1C1`](#RangeR1C1) | `null`
-
-Parse a simple string reference to an R1C1 range into a range object.
-
-**See also:** [parseA1Ref](#parseA1Ref).
-
-##### Parameters
-
-| Name        | Type     | Description    |
-| ----------- | -------- | -------------- |
-| rangeString | `string` | A range string |
-
-##### Returns
-
-[`RangeR1C1`](#RangeR1C1) | `null` – An object representing a valid reference or null if it is invalid.
 
 ---
 
@@ -399,7 +359,7 @@ The parser requires `mergeRefs` to have been `true` in tokenlist options, becaus
 
 The AST Abstract Syntax Tree's format is documented in [AST_format.md](./AST_format.md)
 
-**See also:** [nodeTypes](#nodeTypes).
+**See also:**  [nodeTypes](#nodeTypes).
 
 ##### Parameters
 
@@ -626,24 +586,6 @@ stringifyStructRef({
 
 ---
 
-### <a id="toA1" href="#toA1">#</a> toA1( range ) ⇒ `string`
-
-Stringify a range object into A1 syntax.
-
-**See also:** [parseA1Ref](#parseA1Ref).
-
-##### Parameters
-
-| Name  | Type                  | Description    |
-| ----- | --------------------- | -------------- |
-| range | [`RangeA1`](#RangeA1) | A range object |
-
-##### Returns
-
-`string` – An A1-style string represenation of a range
-
----
-
 ### <a id="toCol" href="#toCol">#</a> toCol( columnIndex ) ⇒ `string`
 
 Convert a 0 based offset number to a column string representation (`2` = `"C"`).
@@ -659,24 +601,6 @@ The method expects a number between 0 and 16383. Other input will return garbage
 ##### Returns
 
 `string` – The column string identifier
-
----
-
-### <a id="toR1C1" href="#toR1C1">#</a> toR1C1( range ) ⇒ `string`
-
-Stringify a range object into R1C1 syntax.
-
-**See also:** [parseR1C1Ref](#parseR1C1Ref).
-
-##### Parameters
-
-| Name  | Type                      | Description    |
-| ----- | ------------------------- | -------------- |
-| range | [`RangeR1C1`](#RangeR1C1) | A range object |
-
-##### Returns
-
-`string` – An R1C1-style string represenation of a range
 
 ---
 
@@ -707,7 +631,7 @@ To support syntax highlighting as you type, `STRING` tokens are allowed to be "u
 ]
 ```
 
-**See also:** [tokenTypes](#tokenTypes).
+**See also:**  [tokenTypes](#tokenTypes).
 
 ##### Parameters
 
@@ -802,7 +726,7 @@ translateToR1C1("=SUM(E10,$E$2,Sheet!$E$3)", "D10");
 
 A dictionary of the types used to identify AST node variants.
 
-**See also:** [parse](#parse).
+**See also:**  [parse](#parse).
 
 ##### Properties
 
@@ -823,7 +747,7 @@ A dictionary of the types used to identify AST node variants.
 
 A dictionary of the types used to identify token variants.
 
-**See also:** [tokenize](#tokenize).
+**See also:**  [tokenize](#tokenize).
 
 ##### Properties
 
