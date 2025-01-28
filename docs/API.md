@@ -34,13 +34,26 @@
 
 **Types**
 
+- [AstExpression](#AstExpression)
+- [BinaryExpression](#BinaryExpression)
+- [CallExpression](#CallExpression)
+- [ErrorLiteral](#ErrorLiteral)
+- [Identifier](#Identifier)
+- [LambdaExpression](#LambdaExpression)
+- [LetDeclarator](#LetDeclarator)
+- [LetExpression](#LetExpression)
+- [Literal](#Literal)
+- [MatrixExpression](#MatrixExpression)
 - [RangeA1](#RangeA1)
 - [RangeR1C1](#RangeR1C1)
 - [ReferenceA1](#ReferenceA1)
+- [ReferenceIdentifier](#ReferenceIdentifier)
 - [ReferenceR1C1](#ReferenceR1C1)
 - [ReferenceStruct](#ReferenceStruct)
+- [SourceLocation](#SourceLocation)
 - [Token](#Token)
 - [TokenEnhanced](#TokenEnhanced)
+- [UnaryExpression](#UnaryExpression)
 
 ## Functions
 
@@ -351,7 +364,7 @@ When given a tokenlist, this function returns a new list with ranges returned as
 
 ---
 
-### <a id="parse" href="#parse">#</a> parse( formula, _[options = `{}`]_ ) ⇒ `object`
+### <a id="parse" href="#parse">#</a> parse( formula, _[options = `{}`]_ ) ⇒ [`AstExpression`](#AstExpression)
 
 Parses a string formula or list of tokens into an AST.
 
@@ -378,7 +391,7 @@ The AST Abstract Syntax Tree's format is documented in [AST_format.md](./AST_for
 
 ##### Returns
 
-`object` – An AST of nodes
+[`AstExpression`](#AstExpression) – An AST of nodes
 
 ---
 
@@ -775,6 +788,125 @@ A dictionary of the types used to identify token variants.
 
 ## Types
 
+### <a id="AstExpression" href="#AstExpression">#</a> AstExpression = [`ReferenceIdentifier`](#ReferenceIdentifier) | [`Literal`](#Literal) | [`ErrorLiteral`](#ErrorLiteral) | [`UnaryExpression`](#UnaryExpression) | [`BinaryExpression`](#BinaryExpression) | [`CallExpression`](#CallExpression) | [`MatrixExpression`](#MatrixExpression) | [`LambdaExpression`](#LambdaExpression) | [`LetExpression`](#LetExpression)
+
+---
+
+### <a id="BinaryExpression" href="#BinaryExpression">#</a> BinaryExpression = `Node`
+
+##### Properties
+
+| Name      | Type                                                                                                                                   |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| arguments | `Array<AstExpression>`                                                                                                                 |
+| [loc]     | [`SourceLocation`](#SourceLocation)                                                                                                    |
+| operator  | `"="` \| `"<"` \| `">"` \| `"<="` \| `">="` \| `"<>"` \| `"-"` \| `"+"` \| `"*"` \| `"/"` \| `"^"` \| `":"` \| `" "` \| `","` \| `"&"` |
+| type      | `"BinaryExpression"`                                                                                                                   |
+
+---
+
+### <a id="CallExpression" href="#CallExpression">#</a> CallExpression = `Node`
+
+##### Properties
+
+| Name      | Type                                |
+| --------- | ----------------------------------- |
+| arguments | `Array<AstExpression>`              |
+| callee    | [`Identifier`](#Identifier)         |
+| [loc]     | [`SourceLocation`](#SourceLocation) |
+| type      | `"CallExpression"`                  |
+
+---
+
+### <a id="ErrorLiteral" href="#ErrorLiteral">#</a> ErrorLiteral = `Node`
+
+##### Properties
+
+| Name  | Type                                |
+| ----- | ----------------------------------- |
+| [loc] | [`SourceLocation`](#SourceLocation) |
+| raw   | `string`                            |
+| type  | `"ErrorLiteral"`                    |
+| value | `string`                            |
+
+---
+
+### <a id="Identifier" href="#Identifier">#</a> Identifier = `Node`
+
+##### Properties
+
+| Name  | Type                                |
+| ----- | ----------------------------------- |
+| [loc] | [`SourceLocation`](#SourceLocation) |
+| name  | `string`                            |
+| type  | `"Identifier"`                      |
+
+---
+
+### <a id="LambdaExpression" href="#LambdaExpression">#</a> LambdaExpression = `Node`
+
+##### Properties
+
+| Name   | Type                                        |
+| ------ | ------------------------------------------- |
+| body   | `null` \| [`AstExpression`](#AstExpression) |
+| [loc]  | [`SourceLocation`](#SourceLocation)         |
+| params | `Array<Identifier>`                         |
+| type   | `"LambdaExpression"`                        |
+
+---
+
+### <a id="LetDeclarator" href="#LetDeclarator">#</a> LetDeclarator = `Node`
+
+##### Properties
+
+| Name  | Type                                        |
+| ----- | ------------------------------------------- |
+| id    | [`Identifier`](#Identifier)                 |
+| init  | `null` \| [`AstExpression`](#AstExpression) |
+| [loc] | [`SourceLocation`](#SourceLocation)         |
+| type  | `"LetDeclarator"`                           |
+
+---
+
+### <a id="LetExpression" href="#LetExpression">#</a> LetExpression = `Node`
+
+##### Properties
+
+| Name         | Type                                        |
+| ------------ | ------------------------------------------- |
+| body         | `null` \| [`AstExpression`](#AstExpression) |
+| declarations | `Array<LetDeclarator>`                      |
+| [loc]        | [`SourceLocation`](#SourceLocation)         |
+| type         | `"LetExpression"`                           |
+
+---
+
+### <a id="Literal" href="#Literal">#</a> Literal = `Node`
+
+##### Properties
+
+| Name  | Type                                |
+| ----- | ----------------------------------- |
+| [loc] | [`SourceLocation`](#SourceLocation) |
+| raw   | `string`                            |
+| type  | `"Literal"`                         |
+| value | `string` \| `number` \| `boolean`   |
+
+---
+
+### <a id="MatrixExpression" href="#MatrixExpression">#</a> MatrixExpression = `Node`
+
+##### Properties
+
+| Name      | Type                                                                            |
+| --------- | ------------------------------------------------------------------------------- |
+| arguments | `Array<Array<(ReferenceIdentifier | Literal | ErrorLiteral | CallExpression)>>` |
+| [loc]     | [`SourceLocation`](#SourceLocation)                                             |
+| type      | `"ArrayExpression"`                                                             |
+
+---
+
 ### <a id="RangeA1" href="#RangeA1">#</a> RangeA1
 
 A range in A1 style coordinates.
@@ -828,6 +960,19 @@ A reference containing an A1 style range. See [Prefixes.md] for   documentation 
 
 ---
 
+### <a id="ReferenceIdentifier" href="#ReferenceIdentifier">#</a> ReferenceIdentifier = `Node`
+
+##### Properties
+
+| Name  | Type                                           |
+| ----- | ---------------------------------------------- |
+| kind  | `"name"` \| `"range"` \| `"beam"` \| `"table"` |
+| [loc] | [`SourceLocation`](#SourceLocation)            |
+| type  | `"ReferenceIdentifier"`                        |
+| value | `string`                                       |
+
+---
+
 ### <a id="ReferenceR1C1" href="#ReferenceR1C1">#</a> ReferenceR1C1
 
 A reference containing a R1C1 style range. See [Prefixes.md] for   documentation on how scopes work in Fx.
@@ -860,6 +1005,10 @@ A reference containing a table slice definition. See [Prefixes.md] for   documen
 
 ---
 
+### <a id="SourceLocation" href="#SourceLocation">#</a> SourceLocation = `Array<number>`
+
+---
+
 ### <a id="Token" href="#Token">#</a> Token extends `Record<string, any>`
 
 A formula language token.
@@ -887,6 +1036,19 @@ A token with extra meta data.
 | [error]   | `boolean` | Token is of unknown type or a paren without a match               |
 | [groupId] | `string`  | The ID of a group which this token belongs (e.g. matching parens) |
 | index     | `number`  | A zero based position in a token list                             |
+
+---
+
+### <a id="UnaryExpression" href="#UnaryExpression">#</a> UnaryExpression = `Node`
+
+##### Properties
+
+| Name      | Type                                      |
+| --------- | ----------------------------------------- |
+| arguments | `Array<AstExpression>`                    |
+| [loc]     | [`SourceLocation`](#SourceLocation)       |
+| operator  | `"+"` \| `"-"` \| `"%"` \| `"#"` \| `"@"` |
+| type      | `"UnaryExpression"`                       |
 
 ---
 
