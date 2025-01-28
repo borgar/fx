@@ -252,7 +252,7 @@ export declare function parse(formula: (string | Array<Token>), options?: {
     withLocation?: boolean;
     /** Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md) */
     xlsx?: boolean;
-}): object;
+}): AstExpression;
 
 /**
  * Parse a string reference into an object representing it.
@@ -618,6 +618,69 @@ export declare const tokenTypes: Readonly<{
     WHITESPACE: string;
 }>;
 
+export declare type AstExpression = (ReferenceIdentifier | Literal | ErrorLiteral | UnaryExpression | BinaryExpression | CallExpression | MatrixExpression | LambdaExpression | LetExpression);
+
+export declare type BinaryExpression = {
+    arguments: Array<AstExpression>;
+    loc?: SourceLocation;
+    operator: ("=" | "<" | ">" | "<=" | ">=" | "<>" | "-" | "+" | "*" | "/" | "^" | ":" | " " | "," | "&");
+    type: "BinaryExpression";
+};
+
+export declare type CallExpression = {
+    arguments: Array<AstExpression>;
+    callee: Identifier;
+    loc?: SourceLocation;
+    type: "CallExpression";
+};
+
+export declare type ErrorLiteral = {
+    loc?: SourceLocation;
+    raw: string;
+    type: "ErrorLiteral";
+    value: string;
+};
+
+export declare type Identifier = {
+    loc?: SourceLocation;
+    name: string;
+    type: "Identifier";
+};
+
+export declare type LambdaExpression = {
+    body: (null | AstExpression);
+    loc?: SourceLocation;
+    params: Array<Identifier>;
+    type: "LambdaExpression";
+};
+
+export declare type LetDeclarator = {
+    id: Identifier;
+    init: (null | AstExpression);
+    loc?: SourceLocation;
+    type: "LetDeclarator";
+};
+
+export declare type LetExpression = {
+    body: (null | AstExpression);
+    declarations: Array<LetDeclarator>;
+    loc?: SourceLocation;
+    type: "LetExpression";
+};
+
+export declare type Literal = {
+    loc?: SourceLocation;
+    raw: string;
+    type: "Literal";
+    value: (string | number | boolean);
+};
+
+export declare type MatrixExpression = {
+    arguments: Array<Array<(ReferenceIdentifier | Literal | ErrorLiteral | CallExpression)>>;
+    loc?: SourceLocation;
+    type: "ArrayExpression";
+};
+
 /** A range in A1 style coordinates. */
 export declare type RangeA1 = {
     /** Signifies that bottom is a "locked" value */
@@ -673,6 +736,13 @@ export declare type ReferenceA1 = {
     workbookName?: string;
 };
 
+export declare type ReferenceIdentifier = {
+    kind: ("name" | "range" | "beam" | "table");
+    loc?: SourceLocation;
+    type: "ReferenceIdentifier";
+    value: string;
+};
+
 /**
  * A reference containing a R1C1 style range. See [Prefixes.md] for
  *   documentation on how scopes work in Fx.
@@ -707,6 +777,8 @@ export declare type ReferenceStruct = {
     workbookName?: string;
 };
 
+export declare type SourceLocation = Array<number>;
+
 /** A formula language token. */
 export declare type Token = Record<string,any> & {
     /** Source position offsets to the token */
@@ -729,5 +801,12 @@ export declare type TokenEnhanced = Token & {
     groupId?: string;
     /** A zero based position in a token list */
     index: number;
+};
+
+export declare type UnaryExpression = {
+    arguments: Array<AstExpression>;
+    loc?: SourceLocation;
+    operator: ("+" | "-" | "%" | "#" | "@");
+    type: "UnaryExpression";
 };
 

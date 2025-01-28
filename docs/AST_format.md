@@ -136,7 +136,7 @@ A function call expression.
 ```ts
 interface ArrayExpression extends Node {
   type: "ArrayExpression";
-  elements: Array<Array<Literal | Error | ReferenceIdentifier>>;
+  elements: Array<Array<ReferenceIdentifier | Literal | ErrorLiteral | CallExpression>>;
 }
 ```
 
