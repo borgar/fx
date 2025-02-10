@@ -178,6 +178,7 @@ Returns the same formula with the ranges updated. If an array of tokens was supp
 | formula             | `string` \| `Array<Token>` |         | A string (an Excel formula) or a token list that should be adjusted.                                                      |
 | [options]           | `object`                   | `{}`    | Options                                                                                                                   |
 | [options].addBounds | `boolean`                  | `false` | Fill in any undefined bounds of range objects. Top to 0, bottom to 1048575, left to 0, and right to 16383.                |
+| [options].thisRow   | `boolean`                  | `false` | Enforces using the `[#This Row]` instead of the `@` shorthand when serializing structured ranges.                         |
 | [options].xlsx      | `boolean`                  | `false` | Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md) |
 
 ##### Returns
@@ -587,11 +588,12 @@ stringifyStructRef({
 
 ##### Parameters
 
-| Name           | Type                                  | Default | Description                                                                                                               |
-| -------------- | ------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------- |
-| refObject      | [`ReferenceStruct`](#ReferenceStruct) |         | A structured reference object                                                                                             |
-| [options]      | `object`                              | `{}`    | Options                                                                                                                   |
-| [options].xlsx | `boolean`                             | `false` | Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md) |
+| Name              | Type                                  | Default | Description                                                                                                               |
+| ----------------- | ------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------- |
+| refObject         | [`ReferenceStruct`](#ReferenceStruct) |         | A structured reference object                                                                                             |
+| [options]         | `object`                              | `{}`    | Options                                                                                                                   |
+| [options].thisRow | `boolean`                             | `false` | Enforces using the `[#This Row]` instead of the `@` shorthand when serializing structured ranges.                         |
+| [options].xlsx    | `boolean`                             | `false` | Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md) |
 
 ##### Returns
 
