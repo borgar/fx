@@ -101,12 +101,15 @@ export declare function addTokenMeta(tokenlist: Array<Token>, context?: {
  * @param formula A string (an Excel formula) or a token list that should be adjusted.
  * @param [options={}] Options
  * @param [options.addBounds=false] Fill in any undefined bounds of range objects. Top to 0, bottom to 1048575, left to 0, and right to 16383.
+ * @param [options.thisRow=false] Enforces using the `[#This Row]` instead of the `@` shorthand when serializing structured ranges.
  * @param [options.xlsx=false] Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md)
  * @returns A formula string or token list (depending on which was input)
  */
 export declare function fixRanges(formula: (string | Array<Token>), options?: {
     /** Fill in any undefined bounds of range objects. Top to 0, bottom to 1048575, left to 0, and right to 16383. */
     addBounds?: boolean;
+    /** Enforces using the `[#This Row]` instead of the `@` shorthand when serializing structured ranges. */
+    thisRow?: boolean;
     /** Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md) */
     xlsx?: boolean;
 }): (string | Array<Token>);
@@ -422,10 +425,13 @@ export declare function stringifyR1C1Ref(refObject: ReferenceR1C1, options?: {
  *
  * @param refObject A structured reference object
  * @param [options={}] Options
+ * @param [options.thisRow=false] Enforces using the `[#This Row]` instead of the `@` shorthand when serializing structured ranges.
  * @param [options.xlsx=false] Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md)
  * @returns The structured reference in string format
  */
 export declare function stringifyStructRef(refObject: ReferenceStruct, options?: {
+    /** Enforces using the `[#This Row]` instead of the `@` shorthand when serializing structured ranges. */
+    thisRow?: boolean;
     /** Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md) */
     xlsx?: boolean;
 }): string;
