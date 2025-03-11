@@ -705,6 +705,8 @@ export declare type RangeA1 = {
     right?: (number | null);
     /** Top row of the range */
     top?: (number | null);
+    /** Should empty rows and columns at the top/left or bottom/right be discarded when range is read? */
+    trim?: ("head" | "tail" | "both");
 };
 
 /** A range in R1C1 style coordinates. */
