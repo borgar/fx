@@ -915,16 +915,17 @@ A range in A1 style coordinates.
 
 ##### Properties
 
-| Name      | Type                | Description                               |
-| --------- | ------------------- | ----------------------------------------- |
-| [$bottom] | `boolean` \| `null` | Signifies that bottom is a "locked" value |
-| [$left]   | `boolean` \| `null` | Signifies that left is a "locked" value   |
-| [$right]  | `boolean` \| `null` | Signifies that right is a "locked" value  |
-| [$top]    | `boolean` \| `null` | Signifies that top is a "locked" value    |
-| [bottom]  | `number` \| `null`  | Bottom row of the range                   |
-| [left]    | `number` \| `null`  | Left column of the range                  |
-| [right]   | `number` \| `null`  | Right column of the range                 |
-| [top]     | `number` \| `null`  | Top row of the range                      |
+| Name      | Type                             | Description                                                                                    |
+| --------- | -------------------------------- | ---------------------------------------------------------------------------------------------- |
+| [$bottom] | `boolean` \| `null`              | Signifies that bottom is a "locked" value                                                      |
+| [$left]   | `boolean` \| `null`              | Signifies that left is a "locked" value                                                        |
+| [$right]  | `boolean` \| `null`              | Signifies that right is a "locked" value                                                       |
+| [$top]    | `boolean` \| `null`              | Signifies that top is a "locked" value                                                         |
+| [bottom]  | `number` \| `null`               | Bottom row of the range                                                                        |
+| [left]    | `number` \| `null`               | Left column of the range                                                                       |
+| [right]   | `number` \| `null`               | Right column of the range                                                                      |
+| [top]     | `number` \| `null`               | Top row of the range                                                                           |
+| [trim]    | `"head"` \| `"tail"` \| `"both"` | Should empty rows and columns at the top/left or bottom/right be discarded when range is read? |
 
 ---
 
