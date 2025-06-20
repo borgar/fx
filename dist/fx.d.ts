@@ -230,6 +230,7 @@ export declare function mergeRefTokens(tokenlist: Array<Token>): Array<Token>;
  * @param [options={}] Options
  * @param [options.allowNamed=true] Enable parsing names as well as ranges.
  * @param [options.allowTernary=false] Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: References.md.
+ * @param [options.looseRefCalls=false] Permits any function call where otherwise only functions that return references would be permitted.
  * @param [options.negativeNumbers=true] Merges unary minuses with their immediately following number tokens (`-`,`1`) => `-1` (alternatively these will be unary operations in the tree).
  * @param [options.permitArrayCalls=false] Function calls are allowed as elements of arrays. This is a feature in Google Sheets while Excel does not allow it.
  * @param [options.permitArrayRanges=false] Ranges are allowed as elements of arrays. This is a feature in Google Sheets while Excel does not allow it.
@@ -243,6 +244,8 @@ export declare function parse(formula: (string | Array<Token>), options?: {
     allowNamed?: boolean;
     /** Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: References.md. */
     allowTernary?: boolean;
+    /** Permits any function call where otherwise only functions that return references would be permitted. */
+    looseRefCalls?: boolean;
     /** Merges unary minuses with their immediately following number tokens (`-`,`1`) => `-1` (alternatively these will be unary operations in the tree). */
     negativeNumbers?: boolean;
     /** Function calls are allowed as elements of arrays. This is a feature in Google Sheets while Excel does not allow it. */
