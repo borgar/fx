@@ -16,7 +16,7 @@
     "preversion": "npm test && npm run lint",
     "version": "npm run build",
     "lint": "eslint lib/*.js",
-    "test": "tape lib/*.spec.js | tap-min",
+    "test": "vitest run",
     "build:all": "npm run build:types && npm run build:docs && npm run build",
     "build:types": "jsdoc -c tsd.json lib>dist/fx.d.ts",
     "build:docs": "echo '# _Fx_ API\n'>docs/API.md; jsdoc -t node_modules/@borgar/jsdoc-tsmd -d console lib>>docs/API.md",
@@ -55,8 +55,7 @@
     "eslint-plugin-jsdoc": "~48.1.0",
     "jsdoc": "~4.0.2",
     "rollup": "~4.12.0",
-    "tap-min": "~3.0.0",
-    "tape": "~5.7.5",
-    "typescript": "~5.3.3"
+    "typescript": "~5.3.3",
+    "vitest": "~3.2.4"
   }
 }
