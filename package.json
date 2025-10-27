@@ -47,17 +47,17 @@
     "@babel/core": "~7.28.5",
     "@babel/eslint-parser": "~7.28.5",
     "@babel/preset-env": "~7.28.5",
-    "@borgar/eslint-config": "~3.1.0",
+    "@borgar/eslint-config": "~4.0.1",
     "@borgar/jsdoc-tsmd": "~0.2.2",
     "@rollup/plugin-babel": "~6.1.0",
     "@rollup/plugin-terser": "~0.4.4",
     "babel-eslint": "~10.1.0",
     "benchmark": "~2.1.4",
-    "eslint": "~8.56.0",
-    "eslint-plugin-jsdoc": "~48.1.0",
+    "eslint": "~9.37.0",
     "jsdoc": "~4.0.5",
     "rollup": "~4.52.5",
     "typescript": "~5.9.3",
+    "typescript-eslint": "~8.46.0",
     "vitest": "~3.2.4"
   }
 }
