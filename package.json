@@ -3,14 +3,14 @@
   "version": "4.13.0",
   "description": "Utilities for working with Excel formulas",
   "type": "module",
-  "main": "dist/fx.js",
-  "types": "dist/fx.d.ts",
-  "module": "lib/index.js",
+  "source": "lib/index.ts",
+  "main": "dist/index.cjs",
+  "types": "dist/index.d.cts",
   "exports": {
     ".": {
-      "require": "./dist/fx.js",
-      "types": "./dist/fx.d.ts",
-      "default": "./lib/index.js"
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.cts",
+      "default": "./dist/index.js"
     }
   },
   "scripts": {
@@ -22,7 +22,20 @@
     "build:all": "npm run build:types && npm run build:docs && npm run build",
     "build:types": "jsdoc -c tsd.json lib>dist/fx.d.ts",
     "build:docs": "echo '# _Fx_ API\n'>docs/API.md; jsdoc -t node_modules/@borgar/jsdoc-tsmd -d console lib>>docs/API.md",
-    "build": "NODE_ENV=production rollup -c"
+    "build": "tsup"
+  },
+  "tsup": {
+    "entry": [
+      "lib/index.js"
+    ],
+    "format": [
+      "esm",
+      "cjs"
+    ],
+    "splitting": false,
+    "sourcemap": true,
+    "clean": true,
+    "dts": true
   },
   "repository": {
     "type": "git",
@@ -45,20 +58,15 @@
   "author": "Borgar Þorsteinsson <borgar@borgar.net> (http://borgar.net/)",
   "license": "MIT",
   "devDependencies": {
-    "@babel/core": "~7.28.5",
-    "@babel/eslint-parser": "~7.28.5",
-    "@babel/preset-env": "~7.28.5",
     "@borgar/eslint-config": "~4.0.1",
     "@borgar/jsdoc-tsmd": "~0.2.2",
-    "@rollup/plugin-babel": "~6.1.0",
-    "@rollup/plugin-terser": "~0.4.4",
-    "babel-eslint": "~10.1.0",
     "benchmark": "~2.1.4",
     "eslint": "~9.37.0",
     "jsdoc": "~4.0.5",
-    "rollup": "~4.52.5",
     "typescript": "~5.9.3",
     "typescript-eslint": "~8.46.0",
-    "vitest": "~3.2.4"
+    "vitest": "~3.2.4",
+    "globals": "~16.4.0",
+    "tsup": "~8.5.0"
   }
 }

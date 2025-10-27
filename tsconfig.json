@@ -1,5 +1,8 @@
 {
-	"include": ["lib/**/*"],
+	"include": [
+		"lib/**/*",
+		"eslint.config.mjs",
+	],
 	"compilerOptions": {
 		"jsx": "react",
 		"declaration": true,
