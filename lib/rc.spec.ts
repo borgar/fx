@@ -1,9 +1,9 @@
-/* eslint-disable object-property-newline, object-curly-newline */
+/* eslint-disable @stylistic/object-property-newline */
 import { describe, test, expect } from 'vitest';
 import { MAX_COLS, MAX_ROWS } from './constants.js';
 import { parseR1C1Ref, stringifyR1C1Ref, toR1C1 } from './rc.js';
 
-function isRCEqual(expr: string, expected: any, opts?: any) {
+function isRCEqual (expr: string, expected: any, opts?: any) {
   if (expected) {
     expected = (opts?.xlsx)
       ? { workbookName: '', sheetName: '', ...expected }
@@ -20,8 +20,8 @@ function isRCEqual(expr: string, expected: any, opts?: any) {
   expect(parseR1C1Ref(expr, opts)).toEqual(expected);
 }
 
-function isR1C1Rendered(range: any, expected: string, d?: any) {
-  expect(toR1C1(range, d)).toBe(expected);
+function isR1C1Rendered (range: any, expected: string) {
+  expect(toR1C1(range)).toBe(expected);
 }
 
 describe('parse single R1C1 references', () => {
@@ -408,7 +408,7 @@ describe('R1C1 serialization', () => {
 describe('stringifyR1C1Ref', () => {
   const rangeA1 = { r0: 2, c0: 4, r1: 2, c1: 4 };
 
-  function testRef(ref: any, expected: string) {
+  function testRef (ref: any, expected: string) {
     expect(stringifyR1C1Ref(ref)).toBe(expected);
   }
 
@@ -436,7 +436,7 @@ describe('stringifyR1C1Ref', () => {
 describe('stringifyR1C1Ref in XLSX mode', () => {
   const rangeA1 = { r0: 2, c0: 4, r1: 2, c1: 4 };
 
-  function testRef(ref: any, expected: string) {
+  function testRef (ref: any, expected: string) {
     expect(stringifyR1C1Ref(ref, { xlsx: true })).toBe(expected);
   }
 

@@ -19,9 +19,8 @@
     "lint": "eslint lib/*.js",
     "benchmark": "node benchmark/benchmark.js",
     "test": "vitest run",
-    "build:all": "npm run build:types && npm run build:docs && npm run build",
-    "build:types": "jsdoc -c tsd.json lib>dist/fx.d.ts",
-    "build:docs": "echo '# _Fx_ API\n'>docs/API.md; jsdoc -t node_modules/@borgar/jsdoc-tsmd -d console lib>>docs/API.md",
+    "build:all": "npm run build:docs && npm run build",
+    "build:docs": "typedoc && concat-md tempdocs > docs/API.md && rm -rf tempdocs",
     "build": "tsup"
   },
   "tsup": {
@@ -59,14 +58,15 @@
   "license": "MIT",
   "devDependencies": {
     "@borgar/eslint-config": "~4.0.1",
-    "@borgar/jsdoc-tsmd": "~0.2.2",
+    "concat-md": "~0.5.1",
     "benchmark": "~2.1.4",
     "eslint": "~9.37.0",
-    "jsdoc": "~4.0.5",
     "typescript": "~5.9.3",
     "typescript-eslint": "~8.46.0",
     "vitest": "~3.2.4",
     "globals": "~16.4.0",
+    "typedoc": "~0.28.13",
+    "typedoc-plugin-markdown": "~4.9.0",
     "tsup": "~8.5.0"
   }
 }
