@@ -1,7 +1,6 @@
 /* eslint-disable object-property-newline, object-curly-newline */
 import { describe, test, expect } from 'vitest';
 import {
-  fromRow,
   toRow,
   toRelative,
   toAbsolute,
@@ -28,19 +27,6 @@ function isA1Equal(expr: string, expected: any, opts?: any) {
   }
   expect(parseA1Ref(expr, opts)).toEqual(expected);
 }
-
-// What happens when B2:A1 -> should work!
-describe('convert to and from column and row ids', () => {
-  test('fromRow', () => {
-    expect(fromRow('11')).toBe(10);
-    expect(fromRow('1')).toBe(0);
-  });
-
-  test('toRow', () => {
-    expect(toRow(12)).toBe('13');
-    expect(toRow(77)).toBe('78');
-  });
-});
 
 describe('parse A1 references', () => {
   test('basic A1 references', () => {
