@@ -10,6 +10,7 @@ import { isRange, isReference, isLiteral, isError, isWhitespace, isFunction, isF
 describe('isRange', () => {
   test('returns false for non-range types', () => {
     expect(isRange(null)).toBe(false);
+    // @ts-expect-error -- testing invalid input
     expect(isRange({})).toBe(false);
     expect(isRange({ type: BOOLEAN })).toBe(false);
     expect(isRange({ type: ERROR })).toBe(false);
@@ -34,6 +35,7 @@ describe('isRange', () => {
 describe('isReference', () => {
   test('returns false for non-reference types', () => {
     expect(isReference(null)).toBe(false);
+    // @ts-expect-error -- testing invalid input
     expect(isReference({})).toBe(false);
     expect(isReference({ type: BOOLEAN })).toBe(false);
     expect(isReference({ type: ERROR })).toBe(false);
@@ -58,6 +60,7 @@ describe('isReference', () => {
 describe('isLiteral', () => {
   test('returns false for non-literal types', () => {
     expect(isLiteral(null)).toBe(false);
+    // @ts-expect-error -- testing invalid input
     expect(isLiteral({})).toBe(false);
     expect(isLiteral({ type: FUNCTION })).toBe(false);
     expect(isLiteral({ type: FX_PREFIX })).toBe(false);
@@ -82,6 +85,7 @@ describe('isLiteral', () => {
 describe('isError', () => {
   test('returns false for non-error types', () => {
     expect(isError(null)).toBe(false);
+    // @ts-expect-error -- testing invalid input
     expect(isError({})).toBe(false);
     expect(isError({ type: BOOLEAN })).toBe(false);
     expect(isError({ type: FUNCTION })).toBe(false);
@@ -106,6 +110,7 @@ describe('isError', () => {
 describe('isWhitespace', () => {
   test('returns false for non-whitespace types', () => {
     expect(isWhitespace(null)).toBe(false);
+    // @ts-expect-error -- testing invalid input
     expect(isWhitespace({})).toBe(false);
     expect(isWhitespace({ type: BOOLEAN })).toBe(false);
     expect(isWhitespace({ type: ERROR })).toBe(false);
@@ -130,6 +135,7 @@ describe('isWhitespace', () => {
 describe('isFunction', () => {
   test('returns false for non-function types', () => {
     expect(isFunction(null)).toBe(false);
+    // @ts-expect-error -- testing invalid input
     expect(isFunction({})).toBe(false);
     expect(isFunction({ type: BOOLEAN })).toBe(false);
     expect(isFunction({ type: ERROR })).toBe(false);
@@ -154,6 +160,7 @@ describe('isFunction', () => {
 describe('isFxPrefix', () => {
   test('returns false for non-prefix types', () => {
     expect(isFxPrefix(null)).toBe(false);
+    // @ts-expect-error -- testing invalid input
     expect(isFxPrefix({})).toBe(false);
     expect(isFxPrefix({ type: BOOLEAN })).toBe(false);
     expect(isFxPrefix({ type: ERROR })).toBe(false);
@@ -178,6 +185,7 @@ describe('isFxPrefix', () => {
 describe('isOperator', () => {
   test('returns false for non-operator types', () => {
     expect(isOperator(null)).toBe(false);
+    // @ts-expect-error -- testing invalid input
     expect(isOperator({})).toBe(false);
     expect(isOperator({ type: BOOLEAN })).toBe(false);
     expect(isOperator({ type: ERROR })).toBe(false);

@@ -1,7 +1,6 @@
-/* eslint-disable object-property-newline, object-curly-newline */
+/* eslint-disable @stylistic/object-property-newline */
 import { describe, test, expect } from 'vitest';
 import {
-  toRow,
   toRelative,
   toAbsolute,
   parseA1Ref,
@@ -9,8 +8,9 @@ import {
   toA1
 } from './a1.js';
 import { MAX_COLS, MAX_ROWS } from './constants.js';
+import type { RangeA1 } from './extraTypes.ts';
 
-function isA1Equal(expr: string, expected: any, opts?: any) {
+function isA1Equal (expr: string, expected: any, opts?: any) {
   if (expected) {
     expected = opts?.xlsx
       ? { workbookName: '', sheetName: '', ...expected }
@@ -479,12 +479,12 @@ describe('A1 utilities', () => {
     expect(toAbsolute(relA1Range)).toEqual(absA1Range);
     expect(toRelative(absA1Range)).toEqual(relA1Range);
 
-    const relA1RangeT = {
+    const relA1RangeT: RangeA1 = {
       top: 0, left: 0, bottom: 0, right: 0,
       $top: false, $left: false, $bottom: false, $right: false,
       trim: 'both'
     };
-    const absA1RangeT = {
+    const absA1RangeT: RangeA1 = {
       top: 0, left: 0, bottom: 0, right: 0,
       $top: true, $left: true, $bottom: true, $right: true,
       trim: 'both'

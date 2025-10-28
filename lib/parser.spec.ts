@@ -1,14 +1,13 @@
-/* eslint-disable object-property-newline, object-curly-newline */
 import { describe, test, expect } from 'vitest';
 import { parse } from './parser.js';
 
-function isParsed(expr: string, expected: any, opts?: any) {
+function isParsed (expr: string, expected: any, opts?: any) {
   const result = parse(expr, { allowTernary: true, withLocation: false, ...opts });
   const cleaned = JSON.parse(JSON.stringify(result));
   expect(cleaned).toEqual(expected);
 }
 
-function isInvalidExpr(expr: string, opts?: any) {
+function isInvalidExpr (expr: string, opts?: any) {
   expect(() => parse(expr, { allowTernary: true, ...opts })).toThrow();
 }
 
@@ -230,24 +229,31 @@ describe('parser', () => {
 
     test('array expressions with function calls', () => {
       isParsed('={1234; UNIQUE(A:A)}',
-        { type: 'ArrayExpression', elements: [
-          [ { type: 'Literal', value: 1234, raw: '1234' } ],
-          [ { type: 'CallExpression', callee: { type: 'Identifier', name: 'UNIQUE' }, arguments: [
-            { type: 'ReferenceIdentifier', value: 'A:A', kind: 'beam' }
-          ] } ]
-        ] },
+        { type: 'ArrayExpression',
+          elements: [
+            [ { type: 'Literal', value: 1234, raw: '1234' } ],
+            [ { type: 'CallExpression',
+              callee: { type: 'Identifier', name: 'UNIQUE' },
+              arguments: [
+                { type: 'ReferenceIdentifier', value: 'A:A', kind: 'beam' }
+              ] } ]
+          ] },
         { permitArrayCalls: true });
 
       isParsed('={SUM({1,2}),3}',
-        { type: 'ArrayExpression', elements: [
-          [ { type: 'CallExpression', callee: { type: 'Identifier', name: 'SUM' }, arguments: [
-            { type: 'ArrayExpression', elements: [ [
-              { type: 'Literal', value: 1, raw: '1' },
-              { type: 'Literal', value: 2, raw: '2' }
-            ] ] }
+        { type: 'ArrayExpression',
+          elements: [
+            [ { type: 'CallExpression',
+              callee: { type: 'Identifier', name: 'SUM' },
+              arguments: [
+                { type: 'ArrayExpression',
+                  elements: [ [
+                    { type: 'Literal', value: 1, raw: '1' },
+                    { type: 'Literal', value: 2, raw: '2' }
+                  ] ] }
+              ] },
+            { type: 'Literal', value: 3, raw: '3' } ]
           ] },
-          { type: 'Literal', value: 3, raw: '3' } ]
-        ] },
         { permitArrayCalls: true });
     });
   });
@@ -255,22 +261,26 @@ describe('parser', () => {
   describe('parse function calls', () => {
     test('basic function calls', () => {
       isParsed('=foo()', {
-        type: 'CallExpression', callee: { type: 'Identifier', name: 'foo' },
+        type: 'CallExpression',
+        callee: { type: 'Identifier', name: 'foo' },
         arguments: []
       });
 
       isParsed('=FOO()', {
-        type: 'CallExpression', callee: { type: 'Identifier', name: 'FOO' },
+        type: 'CallExpression',
+        callee: { type: 'Identifier', name: 'FOO' },
         arguments: []
       });
 
       isParsed('=FOO(1)', {
-        type: 'CallExpression', callee: { type: 'Identifier', name: 'FOO' },
+        type: 'CallExpression',
+        callee: { type: 'Identifier', name: 'FOO' },
         arguments: [ { type: 'Literal', value: 1, raw: '1' } ]
       });
 
       isParsed('=FOO(1,2)', {
-        type: 'CallExpression', callee: { type: 'Identifier', name: 'FOO' },
+        type: 'CallExpression',
+        callee: { type: 'Identifier', name: 'FOO' },
         arguments: [
           { type: 'Literal', value: 1, raw: '1' },
           { type: 'Literal', value: 2, raw: '2' }
@@ -281,14 +291,16 @@ describe('parser', () => {
     test('function calls with many arguments', () => {
       const args = Array(300).fill('1');
       isParsed(`=FOO(${args.join(',')})`, {
-        type: 'CallExpression', callee: { type: 'Identifier', name: 'FOO' },
+        type: 'CallExpression',
+        callee: { type: 'Identifier', name: 'FOO' },
         arguments: [ ...args.map(() => ({ type: 'Literal', value: 1, raw: '1' })) ]
       });
     });
 
     test('function calls with ranges', () => {
       isParsed('=FOO(A1,B2)', {
-        type: 'CallExpression', callee: { type: 'Identifier', name: 'FOO' },
+        type: 'CallExpression',
+        callee: { type: 'Identifier', name: 'FOO' },
         arguments: [
           { type: 'ReferenceIdentifier', value: 'A1', kind: 'range' },
           { type: 'ReferenceIdentifier', value: 'B2', kind: 'range' }
@@ -296,21 +308,26 @@ describe('parser', () => {
       });
 
       isParsed('=FOO((A1,B2))', {
-        type: 'CallExpression', callee: { type: 'Identifier', name: 'FOO' },
+        type: 'CallExpression',
+        callee: { type: 'Identifier', name: 'FOO' },
         arguments: [
-          { type: 'BinaryExpression', operator: ',', arguments: [
-            { type: 'ReferenceIdentifier', value: 'A1', kind: 'range' },
-            { type: 'ReferenceIdentifier', value: 'B2', kind: 'range' }
-          ] }
+          { type: 'BinaryExpression',
+            operator: ',',
+            arguments: [
+              { type: 'ReferenceIdentifier', value: 'A1', kind: 'range' },
+              { type: 'ReferenceIdentifier', value: 'B2', kind: 'range' }
+            ] }
         ]
       });
     });
 
     test('nested function calls', () => {
       isParsed('=FOO(BAR())', {
-        type: 'CallExpression', callee: { type: 'Identifier', name: 'FOO' },
+        type: 'CallExpression',
+        callee: { type: 'Identifier', name: 'FOO' },
         arguments: [
-          { type: 'CallExpression', callee: { type: 'Identifier', name: 'BAR' },
+          { type: 'CallExpression',
+            callee: { type: 'Identifier', name: 'BAR' },
             arguments: [] }
         ]
       });
@@ -318,34 +335,40 @@ describe('parser', () => {
 
     test('function calls with null arguments', () => {
       isParsed('=FOO(,)', {
-        type: 'CallExpression', callee: { type: 'Identifier', name: 'FOO' },
+        type: 'CallExpression',
+        callee: { type: 'Identifier', name: 'FOO' },
         arguments: [ null, null ]
       });
 
       isParsed('=FOO(,,)', {
-        type: 'CallExpression', callee: { type: 'Identifier', name: 'FOO' },
+        type: 'CallExpression',
+        callee: { type: 'Identifier', name: 'FOO' },
         arguments: [ null, null, null ]
       });
 
       isParsed('=FOO(1,)', {
-        type: 'CallExpression', callee: { type: 'Identifier', name: 'FOO' },
+        type: 'CallExpression',
+        callee: { type: 'Identifier', name: 'FOO' },
         arguments: [ { type: 'Literal', value: 1, raw: '1' }, null ]
       });
 
       isParsed('=FOO(,1)', {
-        type: 'CallExpression', callee: { type: 'Identifier', name: 'FOO' },
+        type: 'CallExpression',
+        callee: { type: 'Identifier', name: 'FOO' },
         arguments: [ null, { type: 'Literal', value: 1, raw: '1' } ]
       });
     });
 
     test('boolean function names', () => {
       isParsed('=FALSE()', {
-        type: 'CallExpression', callee: { type: 'Identifier', name: 'FALSE' },
+        type: 'CallExpression',
+        callee: { type: 'Identifier', name: 'FALSE' },
         arguments: []
       });
 
       isParsed('=TRUE()', {
-        type: 'CallExpression', callee: { type: 'Identifier', name: 'TRUE' },
+        type: 'CallExpression',
+        callee: { type: 'Identifier', name: 'TRUE' },
         arguments: []
       });
     });
@@ -361,17 +384,20 @@ describe('parser', () => {
     describe('unary operator %', () => {
       test('percentage operator', () => {
         isParsed('A1%', {
-          type: 'UnaryExpression', operator: '%',
+          type: 'UnaryExpression',
+          operator: '%',
           arguments: [ { type: 'ReferenceIdentifier', value: 'A1', kind: 'range' } ]
         });
 
         isParsed('1%', {
-          type: 'UnaryExpression', operator: '%',
+          type: 'UnaryExpression',
+          operator: '%',
           arguments: [ { type: 'Literal', value: 1, raw: '1' } ]
         });
 
         isParsed('(1)%', {
-          type: 'UnaryExpression', operator: '%',
+          type: 'UnaryExpression',
+          operator: '%',
           arguments: [ { type: 'Literal', value: 1, raw: '1' } ]
         });
       });
@@ -386,31 +412,37 @@ describe('parser', () => {
         isParsed('-1', { type: 'Literal', value: -1, raw: '-1' });
 
         isParsed('-1', {
-          type: 'UnaryExpression', operator: '-',
+          type: 'UnaryExpression',
+          operator: '-',
           arguments: [ { type: 'Literal', value: 1, raw: '1' } ]
         }, { negativeNumbers: false });
 
         isParsed('-"1"', {
-          type: 'UnaryExpression', operator: '-',
+          type: 'UnaryExpression',
+          operator: '-',
           arguments: [ { type: 'Literal', value: '1', raw: '"1"' } ]
         });
 
         isParsed('-A1:B2', {
-          type: 'UnaryExpression', operator: '-',
+          type: 'UnaryExpression',
+          operator: '-',
           arguments: [ { type: 'ReferenceIdentifier', value: 'A1:B2', kind: 'range' } ]
         });
       });
 
       test('double negative', () => {
         isParsed('--1', {
-          type: 'UnaryExpression', operator: '-',
+          type: 'UnaryExpression',
+          operator: '-',
           arguments: [ { type: 'Literal', value: -1, raw: '-1' } ]
         });
 
         isParsed('--1', {
-          type: 'UnaryExpression', operator: '-',
+          type: 'UnaryExpression',
+          operator: '-',
           arguments: [ {
-            type: 'UnaryExpression', operator: '-',
+            type: 'UnaryExpression',
+            operator: '-',
             arguments: [ { type: 'Literal', value: 1, raw: '1' } ]
           } ]
         }, { negativeNumbers: false });
@@ -425,22 +457,26 @@ describe('parser', () => {
     describe('unary operator +', () => {
       test('positive operator', () => {
         isParsed('+1', {
-          type: 'UnaryExpression', operator: '+',
+          type: 'UnaryExpression',
+          operator: '+',
           arguments: [ { type: 'Literal', value: 1, raw: '1' } ]
         });
 
         isParsed('+(1)', {
-          type: 'UnaryExpression', operator: '+',
+          type: 'UnaryExpression',
+          operator: '+',
           arguments: [ { type: 'Literal', value: 1, raw: '1' } ]
         });
 
         isParsed('+"1"', {
-          type: 'UnaryExpression', operator: '+',
+          type: 'UnaryExpression',
+          operator: '+',
           arguments: [ { type: 'Literal', value: '1', raw: '"1"' } ]
         });
 
         isParsed('+A1:B2', {
-          type: 'UnaryExpression', operator: '+',
+          type: 'UnaryExpression',
+          operator: '+',
           arguments: [ { type: 'ReferenceIdentifier', value: 'A1:B2', kind: 'range' } ]
         });
       });
@@ -454,19 +490,22 @@ describe('parser', () => {
     describe('unary operator #', () => {
       test('spill operator', () => {
         isParsed('D9#', {
-          type: 'UnaryExpression', operator: '#',
+          type: 'UnaryExpression',
+          operator: '#',
           arguments: [ { type: 'ReferenceIdentifier', value: 'D9', kind: 'range' } ]
         });
 
         isParsed('A1:B2#', { // this parses but is a runtime error in Excel
-          type: 'UnaryExpression', operator: '#',
+          type: 'UnaryExpression',
+          operator: '#',
           arguments: [ { type: 'ReferenceIdentifier', value: 'A1:B2', kind: 'range' } ]
         });
 
         isParsed('(A1):(B2)#', { // this parses but is a runtime error in Excel
-          type: 'UnaryExpression', operator: '#',
-          arguments: [ {
-            type: 'BinaryExpression', operator: ':',
+          type: 'UnaryExpression',
+          operator: '#',
+          arguments: [ { type: 'BinaryExpression',
+            operator: ':',
             arguments: [
               { type: 'ReferenceIdentifier', value: 'A1', kind: 'range' },
               { type: 'ReferenceIdentifier', value: 'B2', kind: 'range' }
@@ -474,9 +513,10 @@ describe('parser', () => {
         });
 
         isParsed('(A1,B2)#', {
-          type: 'UnaryExpression', operator: '#',
-          arguments: [ {
-            type: 'BinaryExpression', operator: ',',
+          type: 'UnaryExpression',
+          operator: '#',
+          arguments: [ { type: 'BinaryExpression',
+            operator: ',',
             arguments: [
               { type: 'ReferenceIdentifier', value: 'A1', kind: 'range' },
               { type: 'ReferenceIdentifier', value: 'B2', kind: 'range' }
@@ -484,9 +524,10 @@ describe('parser', () => {
         });
 
         isParsed('(A1 B2)#', {
-          type: 'UnaryExpression', operator: '#',
-          arguments: [ {
-            type: 'BinaryExpression', operator: ' ',
+          type: 'UnaryExpression',
+          operator: '#',
+          arguments: [ { type: 'BinaryExpression',
+            operator: ' ',
             arguments: [
               { type: 'ReferenceIdentifier', value: 'A1', kind: 'range' },
               { type: 'ReferenceIdentifier', value: 'B2', kind: 'range' }
@@ -494,12 +535,14 @@ describe('parser', () => {
         });
 
         isParsed('#REF!#', {
-          type: 'UnaryExpression', operator: '#',
+          type: 'UnaryExpression',
+          operator: '#',
           arguments: [ { type: 'ErrorLiteral', value: '#REF!', raw: '#REF!' } ]
         });
 
         isParsed('INDIRECT("d9")#', {
-          type: 'UnaryExpression', operator: '#',
+          type: 'UnaryExpression',
+          operator: '#',
           arguments: [ {
             type: 'CallExpression',
             callee: { type: 'Identifier', name: 'INDIRECT' },
@@ -522,32 +565,38 @@ describe('parser', () => {
     describe('unary operator @', () => {
       test('implicit intersection operator', () => {
         isParsed('@1', {
-          type: 'UnaryExpression', operator: '@',
+          type: 'UnaryExpression',
+          operator: '@',
           arguments: [ { type: 'Literal', raw: '1', value: 1 } ]
         });
 
         isParsed('@"foo"', {
-          type: 'UnaryExpression', operator: '@',
+          type: 'UnaryExpression',
+          operator: '@',
           arguments: [ { type: 'Literal', raw: '"foo"', value: 'foo' } ]
         });
 
         isParsed('@D9', {
-          type: 'UnaryExpression', operator: '@',
+          type: 'UnaryExpression',
+          operator: '@',
           arguments: [ { type: 'ReferenceIdentifier', value: 'D9', kind: 'range' } ]
         });
 
         isParsed('@A1:B2', {
-          type: 'UnaryExpression', operator: '@',
+          type: 'UnaryExpression',
+          operator: '@',
           arguments: [ { type: 'ReferenceIdentifier', value: 'A1:B2', kind: 'range' } ]
         });
 
         isParsed('@#REF!', {
-          type: 'UnaryExpression', operator: '@',
+          type: 'UnaryExpression',
+          operator: '@',
           arguments: [ { type: 'ErrorLiteral', value: '#REF!', raw: '#REF!' } ]
         });
 
         isParsed('@FOO()', {
-          type: 'UnaryExpression', operator: '@',
+          type: 'UnaryExpression',
+          operator: '@',
           arguments: [ {
             type: 'CallExpression',
             callee: { type: 'Identifier', name: 'FOO' },
@@ -564,13 +613,14 @@ describe('parser', () => {
   });
 
   describe('parse binary operators', () => {
-    const operators = ['+', '-', '^', '*', '/', '&', '=', '<', '>', '<=', '>=', '<>'];
+    const operators = [ '+', '-', '^', '*', '/', '&', '=', '<', '>', '<=', '>=', '<>' ];
 
     operators.forEach(op => {
       describe(`binary operator ${op}`, () => {
         test(`basic ${op} operations`, () => {
           isParsed(`1${op}2`, {
-            type: 'BinaryExpression', operator: op,
+            type: 'BinaryExpression',
+            operator: op,
             arguments: [
               { type: 'Literal', value: 1, raw: '1' },
               { type: 'Literal', value: 2, raw: '2' }
@@ -578,9 +628,11 @@ describe('parser', () => {
           });
 
           isParsed(`1${op}2${op}3`, {
-            type: 'BinaryExpression', operator: op,
+            type: 'BinaryExpression',
+            operator: op,
             arguments: [
-              { type: 'BinaryExpression', operator: op,
+              { type: 'BinaryExpression',
+                operator: op,
                 arguments: [
                   { type: 'Literal', value: 1, raw: '1' },
                   { type: 'Literal', value: 2, raw: '2' }
@@ -592,7 +644,8 @@ describe('parser', () => {
 
         test(`${op} with strings`, () => {
           isParsed(`"foo"${op}"bar"`, {
-            type: 'BinaryExpression', operator: op,
+            type: 'BinaryExpression',
+            operator: op,
             arguments: [
               { type: 'Literal', value: 'foo', raw: '"foo"' },
               { type: 'Literal', value: 'bar', raw: '"bar"' }
@@ -602,23 +655,27 @@ describe('parser', () => {
 
         test(`${op} with arrays`, () => {
           isParsed(`{1,2}${op}{3,4}`, {
-            type: 'BinaryExpression', operator: op,
+            type: 'BinaryExpression',
+            operator: op,
             arguments: [
-              { type: 'ArrayExpression', elements: [ [
-                { type: 'Literal', value: 1, raw: '1' },
-                { type: 'Literal', value: 2, raw: '2' }
-              ] ] },
-              { type: 'ArrayExpression', elements: [ [
-                { type: 'Literal', value: 3, raw: '3' },
-                { type: 'Literal', value: 4, raw: '4' }
-              ] ] }
+              { type: 'ArrayExpression',
+                elements: [ [
+                  { type: 'Literal', value: 1, raw: '1' },
+                  { type: 'Literal', value: 2, raw: '2' }
+                ] ] },
+              { type: 'ArrayExpression',
+                elements: [ [
+                  { type: 'Literal', value: 3, raw: '3' },
+                  { type: 'Literal', value: 4, raw: '4' }
+                ] ] }
             ]
           });
         });
 
         test(`${op} with function calls`, () => {
           isParsed(`FOO()${op}BAR()`, {
-            type: 'BinaryExpression', operator: op,
+            type: 'BinaryExpression',
+            operator: op,
             arguments: [
               { type: 'CallExpression', callee: { type: 'Identifier', name: 'FOO' }, arguments: [] },
               { type: 'CallExpression', callee: { type: 'Identifier', name: 'BAR' }, arguments: [] }
@@ -648,29 +705,29 @@ describe('parser', () => {
     rangeOps.forEach(([ op, opName ]) => {
       describe(`${opName} operator "${op}"`, () => {
         test('basic range operations', () => {
-          isParsed(`named1${op}named2`, {
-            type: 'BinaryExpression', operator: op,
+          isParsed(`named1${op}named2`, { type: 'BinaryExpression',
+            operator: op,
             arguments: [
               { type: 'ReferenceIdentifier', value: 'named1', kind: 'name' },
               { type: 'ReferenceIdentifier', value: 'named2', kind: 'name' }
             ] });
 
-          isParsed(`A1${op}named2`, {
-            type: 'BinaryExpression', operator: op,
+          isParsed(`A1${op}named2`, { type: 'BinaryExpression',
+            operator: op,
             arguments: [
               { type: 'ReferenceIdentifier', value: 'A1', kind: 'range' },
               { type: 'ReferenceIdentifier', value: 'named2', kind: 'name' }
             ] });
 
-          isParsed(`named1${op}B2`, {
-            type: 'BinaryExpression', operator: op,
+          isParsed(`named1${op}B2`, { type: 'BinaryExpression',
+            operator: op,
             arguments: [
               { type: 'ReferenceIdentifier', value: 'named1', kind: 'name' },
               { type: 'ReferenceIdentifier', value: 'B2', kind: 'range' }
             ] });
 
-          isParsed(`(A1)${op}(B2)`, {
-            type: 'BinaryExpression', operator: op,
+          isParsed(`(A1)${op}(B2)`, { type: 'BinaryExpression',
+            operator: op,
             arguments: [
               { type: 'ReferenceIdentifier', value: 'A1', kind: 'range' },
               { type: 'ReferenceIdentifier', value: 'B2', kind: 'range' }
@@ -678,8 +735,8 @@ describe('parser', () => {
         });
 
         test('range operator with whitespace', () => {
-          isParsed(`A1 ${op} B2`, {
-            type: 'BinaryExpression', operator: op,
+          isParsed(`A1 ${op} B2`, { type: 'BinaryExpression',
+            operator: op,
             arguments: [
               { type: 'ReferenceIdentifier', value: 'A1', kind: 'range' },
               { type: 'ReferenceIdentifier', value: 'B2', kind: 'range' }
@@ -698,15 +755,15 @@ describe('parser', () => {
         });
 
         test('range operations with REF errors', () => {
-          isParsed(`A1${op}#REF!`, {
-            type: 'BinaryExpression', operator: op,
+          isParsed(`A1${op}#REF!`, { type: 'BinaryExpression',
+            operator: op,
             arguments: [
               { type: 'ReferenceIdentifier', value: 'A1', kind: 'range' },
               { type: 'ErrorLiteral', value: '#REF!', raw: '#REF!' }
             ] });
 
-          isParsed(`#REF!${op}B2`, {
-            type: 'BinaryExpression', operator: op,
+          isParsed(`#REF!${op}B2`, { type: 'BinaryExpression',
+            operator: op,
             arguments: [
               { type: 'ErrorLiteral', value: '#REF!', raw: '#REF!' },
               { type: 'ReferenceIdentifier', value: 'B2', kind: 'range' }
@@ -714,10 +771,11 @@ describe('parser', () => {
         });
 
         test('range operations with complex expressions', () => {
-          isParsed(`(A1,B2)${op}C3`, {
-            type: 'BinaryExpression', operator: op,
+          isParsed(`(A1,B2)${op}C3`, { type: 'BinaryExpression',
+            operator: op,
             arguments: [
-              { type: 'BinaryExpression', operator: ',',
+              { type: 'BinaryExpression',
+                operator: ',',
                 arguments: [
                   { type: 'ReferenceIdentifier', value: 'A1', kind: 'range' },
                   { type: 'ReferenceIdentifier', value: 'B2', kind: 'range' }
@@ -725,21 +783,23 @@ describe('parser', () => {
               { type: 'ReferenceIdentifier', value: 'C3', kind: 'range' }
             ] });
 
-          isParsed(`C3${op}(A1,B2)`, {
-            type: 'BinaryExpression', operator: op,
+          isParsed(`C3${op}(A1,B2)`, { type: 'BinaryExpression',
+            operator: op,
             arguments: [
               { type: 'ReferenceIdentifier', value: 'C3', kind: 'range' },
-              { type: 'BinaryExpression', operator: ',',
+              { type: 'BinaryExpression',
+                operator: ',',
                 arguments: [
                   { type: 'ReferenceIdentifier', value: 'A1', kind: 'range' },
                   { type: 'ReferenceIdentifier', value: 'B2', kind: 'range' }
                 ] }
             ] });
 
-          isParsed(`(A1 B2)${op}C3`, {
-            type: 'BinaryExpression', operator: op,
+          isParsed(`(A1 B2)${op}C3`, { type: 'BinaryExpression',
+            operator: op,
             arguments: [
-              { type: 'BinaryExpression', operator: ' ',
+              { type: 'BinaryExpression',
+                operator: ' ',
                 arguments: [
                   { type: 'ReferenceIdentifier', value: 'A1', kind: 'range' },
                   { type: 'ReferenceIdentifier', value: 'B2', kind: 'range' }
@@ -747,21 +807,23 @@ describe('parser', () => {
               { type: 'ReferenceIdentifier', value: 'C3', kind: 'range' }
             ] });
 
-          isParsed(`C3${op}(A1 B2)`, {
-            type: 'BinaryExpression', operator: op,
+          isParsed(`C3${op}(A1 B2)`, { type: 'BinaryExpression',
+            operator: op,
             arguments: [
               { type: 'ReferenceIdentifier', value: 'C3', kind: 'range' },
-              { type: 'BinaryExpression', operator: ' ',
+              { type: 'BinaryExpression',
+                operator: ' ',
                 arguments: [
                   { type: 'ReferenceIdentifier', value: 'A1', kind: 'range' },
                   { type: 'ReferenceIdentifier', value: 'B2', kind: 'range' }
                 ] }
             ] });
 
-          isParsed(`(A1:(B2))${op}C3`, {
-            type: 'BinaryExpression', operator: op,
+          isParsed(`(A1:(B2))${op}C3`, { type: 'BinaryExpression',
+            operator: op,
             arguments: [
-              { type: 'BinaryExpression', operator: ':',
+              { type: 'BinaryExpression',
+                operator: ':',
                 arguments: [
                   { type: 'ReferenceIdentifier', value: 'A1', kind: 'range' },
                   { type: 'ReferenceIdentifier', value: 'B2', kind: 'range' }
@@ -769,11 +831,12 @@ describe('parser', () => {
               { type: 'ReferenceIdentifier', value: 'C3', kind: 'range' }
             ] });
 
-          isParsed(`C3${op}(A1:(B2))`, {
-            type: 'BinaryExpression', operator: op,
+          isParsed(`C3${op}(A1:(B2))`, { type: 'BinaryExpression',
+            operator: op,
             arguments: [
               { type: 'ReferenceIdentifier', value: 'C3', kind: 'range' },
-              { type: 'BinaryExpression', operator: ':',
+              { type: 'BinaryExpression',
+                operator: ':',
                 arguments: [
                   { type: 'ReferenceIdentifier', value: 'A1', kind: 'range' },
                   { type: 'ReferenceIdentifier', value: 'B2', kind: 'range' }
@@ -805,15 +868,15 @@ describe('parser', () => {
 
           refFunctions.forEach(([ funcName, shouldWork ]) => {
             if (shouldWork) {
-              isParsed(`${funcName}()${op}C3`, {
-                type: 'BinaryExpression', operator: op,
+              isParsed(`${funcName}()${op}C3`, { type: 'BinaryExpression',
+                operator: op,
                 arguments: [
                   { type: 'CallExpression', callee: { type: 'Identifier', name: funcName }, arguments: [] },
                   { type: 'ReferenceIdentifier', value: 'C3', kind: 'range' }
                 ] });
 
-              isParsed(`C3${op}${funcName}()`, {
-                type: 'BinaryExpression', operator: op,
+              isParsed(`C3${op}${funcName}()`, { type: 'BinaryExpression',
+                operator: op,
                 arguments: [
                   { type: 'ReferenceIdentifier', value: 'C3', kind: 'range' },
                   { type: 'CallExpression', callee: { type: 'Identifier', name: funcName }, arguments: [] }
@@ -832,7 +895,8 @@ describe('parser', () => {
   describe('advanced parsing features', () => {
     test('union operators are normalized', () => {
       isParsed('A1 B2', {
-        type: 'BinaryExpression', operator: ' ',
+        type: 'BinaryExpression',
+        operator: ' ',
         arguments: [
           { type: 'ReferenceIdentifier', value: 'A1', kind: 'range' },
           { type: 'ReferenceIdentifier', value: 'B2', kind: 'range' }
@@ -840,7 +904,8 @@ describe('parser', () => {
       });
 
       isParsed('A1    B2', {
-        type: 'BinaryExpression', operator: ' ',
+        type: 'BinaryExpression',
+        operator: ' ',
         arguments: [
           { type: 'ReferenceIdentifier', value: 'A1', kind: 'range' },
           { type: 'ReferenceIdentifier', value: 'B2', kind: 'range' }
@@ -886,49 +951,65 @@ describe('parser', () => {
       // UnaryExpression
       isParsed(
         '=-A1',
-        { type: 'UnaryExpression', loc: [ 1, 4 ], operator: '-', arguments: [
-          { type: 'ReferenceIdentifier', value: 'A1', kind: 'range', loc: [ 2, 4 ] }
-        ] },
+        { type: 'UnaryExpression',
+          loc: [ 1, 4 ],
+          operator: '-',
+          arguments: [
+            { type: 'ReferenceIdentifier', value: 'A1', kind: 'range', loc: [ 2, 4 ] }
+          ] },
         { withLocation: true }
       );
 
       isParsed(
         '=10%',
-        { type: 'UnaryExpression', loc: [ 1, 4 ], operator: '%', arguments: [
-          { type: 'Literal', value: 10, loc: [ 1, 3 ], raw: '10' }
-        ] },
+        { type: 'UnaryExpression',
+          loc: [ 1, 4 ],
+          operator: '%',
+          arguments: [
+            { type: 'Literal', value: 10, loc: [ 1, 3 ], raw: '10' }
+          ] },
         { withLocation: true }
       );
 
       isParsed(
         '=-(123)',
-        { type: 'UnaryExpression', loc: [ 1, 6 ], operator: '-', arguments: [
-          { type: 'Literal', value: 123, loc: [ 3, 6 ], raw: '123' }
-        ] },
+        { type: 'UnaryExpression',
+          loc: [ 1, 6 ],
+          operator: '-',
+          arguments: [
+            { type: 'Literal', value: 123, loc: [ 3, 6 ], raw: '123' }
+          ] },
         { withLocation: true }
       );
 
       isParsed(
         '(123+(234))',
-        { type: 'BinaryExpression', loc: [ 1, 9 ], operator: '+', arguments: [
-          { type: 'Literal', value: 123, loc: [ 1, 4 ], raw: '123' },
-          { type: 'Literal', value: 234, loc: [ 6, 9 ], raw: '234' }
-        ] },
+        { type: 'BinaryExpression',
+          loc: [ 1, 9 ],
+          operator: '+',
+          arguments: [
+            { type: 'Literal', value: 123, loc: [ 1, 4 ], raw: '123' },
+            { type: 'Literal', value: 234, loc: [ 6, 9 ], raw: '234' }
+          ] },
         { withLocation: true }
       );
 
       isParsed(
         '=(A1 B2)',
-        { type: 'BinaryExpression', loc: [ 2, 7 ], operator: ' ', arguments: [
-          { type: 'ReferenceIdentifier', value: 'A1', kind: 'range', loc: [ 2, 4 ] },
-          { type: 'ReferenceIdentifier', value: 'B2', kind: 'range', loc: [ 5, 7 ] }
-        ] },
+        { type: 'BinaryExpression',
+          loc: [ 2, 7 ],
+          operator: ' ',
+          arguments: [
+            { type: 'ReferenceIdentifier', value: 'A1', kind: 'range', loc: [ 2, 4 ] },
+            { type: 'ReferenceIdentifier', value: 'B2', kind: 'range', loc: [ 5, 7 ] }
+          ] },
         { withLocation: true }
       );
 
       isParsed(
         '=SUM(4,5)',
-        { type: 'CallExpression', loc: [ 1, 9 ],
+        { type: 'CallExpression',
+          loc: [ 1, 9 ],
           callee: { type: 'Identifier', name: 'SUM', loc: [ 1, 4 ] },
           arguments: [
             { type: 'Literal', value: 4, loc: [ 5, 6 ], raw: '4' },
@@ -940,12 +1021,14 @@ describe('parser', () => {
       // ArrayExpression
       isParsed(
         '={ 1, 2; 3, 4 }',
-        { type: 'ArrayExpression', loc: [ 1, 15 ], elements: [
-          [ { type: 'Literal', value: 1, loc: [ 3, 4 ], raw: '1' },
-            { type: 'Literal', value: 2, loc: [ 6, 7 ], raw: '2' } ],
-          [ { type: 'Literal', value: 3, loc: [ 9, 10 ], raw: '3' },
-            { type: 'Literal', value: 4, loc: [ 12, 13 ], raw: '4' } ]
-        ] },
+        { type: 'ArrayExpression',
+          loc: [ 1, 15 ],
+          elements: [
+            [ { type: 'Literal', value: 1, loc: [ 3, 4 ], raw: '1' },
+              { type: 'Literal', value: 2, loc: [ 6, 7 ], raw: '2' } ],
+            [ { type: 'Literal', value: 3, loc: [ 9, 10 ], raw: '3' },
+              { type: 'Literal', value: 4, loc: [ 12, 13 ], raw: '4' } ]
+          ] },
         { withLocation: true }
       );
     });
@@ -953,54 +1036,67 @@ describe('parser', () => {
     test('whitespace handling in various contexts', () => {
       // whitespace in arrays
       isParsed('=SORT({ A:A, B:B })',
-        { type: 'CallExpression', callee: { type: 'Identifier', name: 'SORT' },
+        { type: 'CallExpression',
+          callee: { type: 'Identifier', name: 'SORT' },
           arguments: [
-            { type: 'ArrayExpression', elements: [
-              [ { type: 'ReferenceIdentifier', value: 'A:A', kind: 'beam' },
-                { type: 'ReferenceIdentifier', value: 'B:B', kind: 'beam' } ]
-            ] }
+            { type: 'ArrayExpression',
+              elements: [
+                [ { type: 'ReferenceIdentifier', value: 'A:A', kind: 'beam' },
+                  { type: 'ReferenceIdentifier', value: 'B:B', kind: 'beam' } ]
+              ] }
           ] },
         { permitArrayRanges: true });
 
       // whitespace in arguments
       isParsed('=A2:A5=XLOOKUP(B1,C:C, D:D)',
-        { type: 'BinaryExpression', operator: '=', arguments: [
-          { type: 'ReferenceIdentifier', value: 'A2:A5', kind: 'range' },
-          { type: 'CallExpression', callee: { type: 'Identifier', name: 'XLOOKUP' },
-            arguments: [
-              { type: 'ReferenceIdentifier', value: 'B1', kind: 'range' },
-              { type: 'ReferenceIdentifier', value: 'C:C', kind: 'beam' },
-              { type: 'ReferenceIdentifier', value: 'D:D', kind: 'beam' }
-            ] }
-        ] },
+        { type: 'BinaryExpression',
+          operator: '=',
+          arguments: [
+            { type: 'ReferenceIdentifier', value: 'A2:A5', kind: 'range' },
+            { type: 'CallExpression',
+              callee: { type: 'Identifier', name: 'XLOOKUP' },
+              arguments: [
+                { type: 'ReferenceIdentifier', value: 'B1', kind: 'range' },
+                { type: 'ReferenceIdentifier', value: 'C:C', kind: 'beam' },
+                { type: 'ReferenceIdentifier', value: 'D:D', kind: 'beam' }
+              ] }
+          ] },
         { permitArrayRanges: true });
 
       // whitespace surrounding comma
       isParsed('=SUM(12 , B:B)',
-        { type: 'CallExpression', callee: { type: 'Identifier', name: 'SUM' }, arguments: [
-          { type: 'Literal', value: 12, raw: '12' },
-          { type: 'ReferenceIdentifier', value: 'B:B', kind: 'beam' }
-        ] },
+        { type: 'CallExpression',
+          callee: { type: 'Identifier', name: 'SUM' },
+          arguments: [
+            { type: 'Literal', value: 12, raw: '12' },
+            { type: 'ReferenceIdentifier', value: 'B:B', kind: 'beam' }
+          ] },
         { permitArrayCalls: true });
 
       // whitespace tailing operator
       isParsed('=A:A= C1',
-        { type: 'BinaryExpression', operator: '=', arguments: [
-          { type: 'ReferenceIdentifier', value: 'A:A', kind: 'beam' },
-          { type: 'ReferenceIdentifier', value: 'C1', kind: 'range' }
-        ] },
+        { type: 'BinaryExpression',
+          operator: '=',
+          arguments: [
+            { type: 'ReferenceIdentifier', value: 'A:A', kind: 'beam' },
+            { type: 'ReferenceIdentifier', value: 'C1', kind: 'range' }
+          ] },
         { permitArrayCalls: true });
     });
 
     test('parser can permit xlsx mode references', () => {
       isInvalidExpr('=SUM([Workbook.xlsx]!A1+[Workbook.xlsx]!Table1[#Data])');
       isParsed('=SUM([Workbook.xlsx]!A1+[Workbook.xlsx]!Table1[#Data])',
-        { type: 'CallExpression', callee: { type: 'Identifier', name: 'SUM' }, arguments: [
-          { type: 'BinaryExpression', operator: '+', arguments: [
-            { type: 'ReferenceIdentifier', value: '[Workbook.xlsx]!A1', kind: 'range' },
-            { type: 'ReferenceIdentifier', value: '[Workbook.xlsx]!Table1[#Data]', kind: 'table' }
-          ] }
-        ] },
+        { type: 'CallExpression',
+          callee: { type: 'Identifier', name: 'SUM' },
+          arguments: [
+            { type: 'BinaryExpression',
+              operator: '+',
+              arguments: [
+                { type: 'ReferenceIdentifier', value: '[Workbook.xlsx]!A1', kind: 'range' },
+                { type: 'ReferenceIdentifier', value: '[Workbook.xlsx]!Table1[#Data]', kind: 'table' }
+              ] }
+          ] },
         { xlsx: true });
     });
 
@@ -1166,8 +1262,7 @@ describe('parser', () => {
           declarations: [
             { type: 'LetDeclarator',
               id: { type: 'Identifier', name: 'a' },
-              init: { type: 'Literal', value: 1, raw: '1' }
-            }
+              init: { type: 'Literal', value: 1, raw: '1' } }
           ],
           body: { type: 'ReferenceIdentifier', value: 'a', kind: 'name' }
         },
@@ -1188,7 +1283,9 @@ describe('parser', () => {
       isParsed('foo#()', {
         type: 'CallExpression',
         callee: {
-          type: 'UnaryExpression', operator: '#', arguments: [
+          type: 'UnaryExpression',
+          operator: '#',
+          arguments: [
             { type: 'ReferenceIdentifier', value: 'foo', kind: 'name' }
           ]
         },
@@ -1248,12 +1345,16 @@ describe('parser', () => {
             init: { type: 'Literal', value: 1, raw: '1' } }
         ],
         body: {
-          type: 'BinaryExpression', operator: '+', arguments: [
+          type: 'BinaryExpression',
+          operator: '+',
+          arguments: [
             { type: 'ReferenceIdentifier', value: 'a', kind: 'name' },
-            { type: 'BinaryExpression', operator: '*', arguments: [
-              { type: 'ReferenceIdentifier', value: 'b', kind: 'name' },
-              { type: 'ReferenceIdentifier', value: 'c', kind: 'name' }
-            ] }
+            { type: 'BinaryExpression',
+              operator: '*',
+              arguments: [
+                { type: 'ReferenceIdentifier', value: 'b', kind: 'name' },
+                { type: 'ReferenceIdentifier', value: 'c', kind: 'name' }
+              ] }
           ]
         }
       });
@@ -1264,8 +1365,7 @@ describe('parser', () => {
         declarations: [
           { type: 'LetDeclarator',
             id: { type: 'Identifier', name: 'r' },
-            init: { type: 'Literal', value: 1, raw: '1' }
-          },
+            init: { type: 'Literal', value: 1, raw: '1' } },
           {
             type: 'LetDeclarator',
             id: { type: 'Identifier', name: 'c' },
@@ -1297,7 +1397,8 @@ describe('parser', () => {
     test('looseRefCalls: true relaxes ref function restrictions', () => {
       isInvalidExpr('A1:TESTFN()');
       isParsed('A1:TESTFN()', {
-        type: 'BinaryExpression', operator: ':',
+        type: 'BinaryExpression',
+        operator: ':',
         arguments: [
           { type: 'ReferenceIdentifier', value: 'A1', kind: 'range' },
           { type: 'CallExpression', callee: { type: 'Identifier', name: 'TESTFN' }, arguments: [] }

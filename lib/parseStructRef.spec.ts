@@ -1,8 +1,7 @@
-/* eslint-disable object-property-newline, object-curly-newline */
 import { describe, test, expect } from 'vitest';
 import { parseStructRef } from './parseStructRef.js';
 
-function isSREqual(expr: string, expected: any, opts?: any) {
+function isSREqual (expr: string, expected: any, opts?: any) {
   if (expected) {
     expected = opts?.xlsx
       ? {

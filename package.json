@@ -16,6 +16,7 @@
   "scripts": {
     "preversion": "npm test && npm run lint",
     "version": "npm run build",
+    "typecheck": "tsc --noEmit",
     "lint": "eslint lib/*.js",
     "benchmark": "node benchmark/benchmark.js",
     "test": "vitest run",
@@ -25,7 +26,7 @@
   },
   "tsup": {
     "entry": [
-      "lib/index.js"
+      "lib/index.ts"
     ],
     "format": [
       "esm",
