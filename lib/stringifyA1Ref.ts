@@ -1,6 +1,6 @@
 import { stringifyPrefix, stringifyPrefixAlt } from './stringifyPrefix.ts';
 import type { ReferenceA1, ReferenceA1Xlsx, ReferenceName, ReferenceNameXlsx } from './extraTypes.ts';
-import { toA1 } from './a1.ts';
+import { stringifyA1Range } from './stringifyA1Range.ts';
 
 /**
  * Get an A1-style string representation of a reference object.
@@ -34,6 +34,6 @@ export function stringifyA1Ref (
     ? stringifyPrefixAlt(refObject as ReferenceA1Xlsx | ReferenceNameXlsx)
     : stringifyPrefix(refObject as ReferenceA1 | ReferenceName);
   return prefix + (
-    'name' in refObject ? refObject.name : toA1(refObject.range)
+    'name' in refObject ? refObject.name : stringifyA1Range(refObject.range)
   );
 }

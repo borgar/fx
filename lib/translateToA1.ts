@@ -1,6 +1,6 @@
 import { MAX_ROWS, MAX_COLS, ERROR } from './constants.ts';
 import { stringifyA1Ref } from './stringifyA1Ref.ts';
-import { parseR1C1Ref } from './rc.ts';
+import { parseR1C1Ref } from './parseR1C1Ref.ts';
 import { tokenize } from './lexer.ts';
 import { isRange } from './isType.ts';
 import { fromA1 } from './fromA1.ts';

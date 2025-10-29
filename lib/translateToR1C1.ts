@@ -1,5 +1,5 @@
 import { parseA1Ref } from './parseA1Ref.ts';
-import { stringifyR1C1Ref } from './rc.ts';
+import { stringifyR1C1Ref } from './stringifyR1C1Ref.ts';
 import { tokenize } from './lexer.ts';
 import { isRange } from './isType.ts';
 import { fromA1 } from './fromA1.ts';
