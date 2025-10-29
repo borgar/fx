@@ -1,7 +1,7 @@
 /* eslint-disable @stylistic/object-property-newline */
 import { describe, test, expect } from 'vitest';
 import { toRelative, toAbsolute } from './a1.ts';
-import type { RangeA1 } from './extraTypes.ts';
+import type { RangeA1 } from './types.ts';
 
 describe('A1 utilities', () => {
   test('toAbsolute and toRelative', () => {

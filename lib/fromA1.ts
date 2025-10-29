@@ -1,5 +1,5 @@
 import { MAX_COLS, MAX_ROWS } from './constants.ts';
-import type { RangeA1 } from './extraTypes.ts';
+import type { RangeA1 } from './types.ts';
 
 export function fromRow (rowStr: string): number {
   return +rowStr - 1;

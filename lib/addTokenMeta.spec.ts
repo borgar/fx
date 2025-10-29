@@ -1,7 +1,7 @@
 import { describe, test, expect } from 'vitest';
 import { FX_PREFIX, OPERATOR, NUMBER, REF_RANGE, REF_BEAM, FUNCTION, WHITESPACE, REF_STRUCT } from './constants.ts';
 import { addTokenMeta } from './addTokenMeta.ts';
-import { tokenize } from './lexer.ts';
+import { tokenize } from './tokenize.ts';
 
 function isMetaTokens (expr: string, expected: any[], context?: any, opts?: any) {
   const actual = addTokenMeta(tokenize(expr, opts), context);

@@ -6,7 +6,7 @@
 ** - R[1]C1:R[2]C2 will also work, but
 ** - R[1]C[1]:R2C2 doesn't have a direct rectangle represention without context.
 */
-import type { ReferenceName, ReferenceNameXlsx, ReferenceR1C1, ReferenceR1C1Xlsx } from './extraTypes.ts';
+import type { ReferenceName, ReferenceNameXlsx, ReferenceR1C1, ReferenceR1C1Xlsx } from './types.ts';
 import { fromR1C1 } from './fromR1C1.ts';
 import { parseRefCtx, parseRefXlsx, type RefParseDataXls, type RefParseDataCtx } from './parseRef.ts';
 

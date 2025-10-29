@@ -1,5 +1,5 @@
 import { CONTEXT, CONTEXT_QUOTE } from '../constants.js';
-import type { Token } from '../extraTypes.ts';
+import type { Token } from '../types.ts';
 
 const QUOT_SINGLE = 39; // '
 const BR_OPEN = 91; // [

@@ -4,7 +4,7 @@ import {
   OPERATOR, BOOLEAN, ERROR, NUMBER, FUNCTION, WHITESPACE, STRING,
   REF_RANGE, REF_BEAM, REF_NAMED, REF_TERNARY, CONTEXT, CONTEXT_QUOTE, NEWLINE
 } from './constants.ts';
-import { tokenize } from './lexer.ts';
+import { tokenize } from './tokenize.ts';
 
 function isTokens (expr: string, result: any[], opts?: any) {
   expect(tokenize(expr, { negativeNumbers: false, ...opts })).toEqual(result);

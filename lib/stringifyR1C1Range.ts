@@ -1,6 +1,6 @@
 import { rangeOperator } from './a1.ts';
 import { MAX_ROWS, MAX_COLS } from './constants.ts';
-import type { RangeR1C1 } from './extraTypes.ts';
+import type { RangeR1C1 } from './types.ts';
 
 const clamp = (min: number, val: number, max: number) => Math.min(Math.max(val, min), max);
 
@@ -15,7 +15,7 @@ function toCoord (value: number, isAbs: boolean): string {
  * Stringify a range object into R1C1 syntax.
  * @internal
  */
-export function toR1C1 (range: RangeR1C1): string {
+export function stringifyR1C1Range (range: RangeR1C1): string {
   let { r0, c0, r1, c1 } = range;
   const { $c0, $c1, $r0, $r1 } = range;
   const nullR0 = r0 == null;

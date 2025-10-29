@@ -12,7 +12,7 @@ import {
 } from './constants.ts';
 import { mergeRefTokens } from './mergeRefTokens.ts';
 import { lexers, type PartLexer } from './lexers/sets.ts';
-import type { Token } from './extraTypes.ts';
+import type { Token } from './types.ts';
 
 const reLetLambda = /^l(?:ambda|et)$/i;
 const isType = (t: Token, type: string) => t && t.type === type;

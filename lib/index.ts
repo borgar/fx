@@ -1,5 +1,5 @@
-export { tokenize, type TokenizeOptions } from './lexer.ts';
-export { parse, type ParseOptions } from './parser.ts';
+export { tokenize, type TokenizeOptions } from './tokenize.ts';
+export { parse, type ParseOptions } from './parse.ts';
 export { addTokenMeta } from './addTokenMeta.ts';
 export { translateToR1C1, type TranslateToR1C1Options } from './translateToR1C1.ts';
 export { translateToA1, type TranslateToA1Options } from './translateToA1.ts';
@@ -42,7 +42,7 @@ export type {
   ReferenceR1C1Xlsx,
   ReferenceStruct,
   ReferenceStructXlsx
-} from './extraTypes.ts';
+} from './types.ts';
 
 import {
   // token types

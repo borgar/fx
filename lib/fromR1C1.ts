@@ -6,7 +6,7 @@
 ** - R[1]C1:R[2]C2 will also work, but
 ** - R[1]C[1]:R2C2 doesn't have a direct rectangle represention without context.
 */
-import type { RangeR1C1 } from './extraTypes.ts';
+import type { RangeR1C1 } from './types.ts';
 
 function trimDirection (head: boolean, tail: boolean): 'both' | 'head' | 'tail' | undefined {
   if (head && tail) {

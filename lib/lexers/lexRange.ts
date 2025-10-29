@@ -1,4 +1,4 @@
-import type { Token } from '../extraTypes.ts';
+import type { Token } from '../types.ts';
 import { lexRangeA1 } from './lexRangeA1.js';
 import { lexRangeR1C1 } from './lexRangeR1C1.js';
 

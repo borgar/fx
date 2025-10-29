@@ -6,9 +6,9 @@
 ** - R[1]C1:R[2]C2 will also work, but
 ** - R[1]C[1]:R2C2 doesn't have a direct rectangle represention without context.
 */
-import type { ReferenceName, ReferenceNameXlsx, ReferenceR1C1, ReferenceR1C1Xlsx } from './extraTypes.ts';
+import type { ReferenceName, ReferenceNameXlsx, ReferenceR1C1, ReferenceR1C1Xlsx } from './types.ts';
 import { stringifyPrefix, stringifyPrefixAlt } from './stringifyPrefix.ts';
-import { toR1C1 } from './toR1C1.ts';
+import { stringifyR1C1Range } from './stringifyR1C1Range.ts';
 
 /**
  * Get an R1C1-style string representation of a reference object.
@@ -45,6 +45,6 @@ export function stringifyR1C1Ref (
     // @ts-expect-error -- We want speed, not type infrencecing here.
     refObject.name
       ? (refObject as ReferenceName).name
-      : toR1C1((refObject as ReferenceR1C1).range)
+      : stringifyR1C1Range((refObject as ReferenceR1C1).range)
   );
 }

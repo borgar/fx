@@ -1,4 +1,4 @@
-import type { Token, TokenEnhanced } from './extraTypes.ts';
+import type { Token, TokenEnhanced } from './types.ts';
 
 export function cloneToken<T extends Token | TokenEnhanced> (token: T): T {
   // Token

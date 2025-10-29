@@ -1,6 +1,6 @@
 import { describe, test, expect } from 'vitest';
 import { translateToA1 } from './translateToA1.ts';
-import { tokenize } from './lexer.ts';
+import { tokenize } from './tokenize.ts';
 import { addTokenMeta } from './addTokenMeta.ts';
 import { ERROR, FUNCTION, FX_PREFIX, OPERATOR, REF_RANGE, REF_BEAM, REF_STRUCT } from './constants.ts';
 

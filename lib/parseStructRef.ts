@@ -1,4 +1,4 @@
-import type { ReferenceStruct, ReferenceStructXlsx } from './extraTypes.ts';
+import type { ReferenceStruct, ReferenceStructXlsx } from './types.ts';
 import { parseRefCtx, parseRefXlsx } from './parseRef.ts';
 import { parseSRange } from './parseSRange.ts';
 

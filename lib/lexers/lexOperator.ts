@@ -1,5 +1,5 @@
 import { OPERATOR } from '../constants.js';
-import type { Token } from '../extraTypes.ts';
+import type { Token } from '../types.ts';
 
 export function lexOperator (str: string, pos: number): Token | undefined {
   const c0 = str.charCodeAt(pos);

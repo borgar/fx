@@ -1,5 +1,5 @@
 import { ERROR } from '../constants.js';
-import type { Token } from '../extraTypes.ts';
+import type { Token } from '../types.ts';
 
 const re_ERROR = /#(?:NAME\?|FIELD!|CALC!|VALUE!|REF!|DIV\/0!|NULL!|NUM!|N\/A|GETTING_DATA\b|SPILL!|UNKNOWN!|SYNTAX\?|ERROR!|CONNECT!|BLOCKED!|EXTERNAL!)/iy;
 const HASH = 35;

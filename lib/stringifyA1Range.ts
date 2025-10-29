@@ -1,6 +1,6 @@
 import { MAX_ROWS, MAX_COLS } from './constants.ts';
 import { toCol } from './toCol.ts';
-import type { RangeA1 } from './extraTypes.ts';
+import type { RangeA1 } from './types.ts';
 import { rangeOperator } from './a1.ts';
 
 const clamp = (min: number, val: number, max: number) => Math.min(Math.max(val, min), max);

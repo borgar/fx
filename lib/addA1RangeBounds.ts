@@ -1,5 +1,5 @@
 import { MAX_ROWS, MAX_COLS } from './constants.ts';
-import type { RangeA1 } from './extraTypes.ts';
+import type { RangeA1 } from './types.ts';
 
 /**
  * Fill the any missing bounds in range objects. Top will be set to 0, bottom to

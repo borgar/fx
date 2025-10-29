@@ -4,7 +4,7 @@ import {
   FUNCTION, OPERATOR,
   ERROR, STRING, NUMBER, BOOLEAN
 } from './constants.ts';
-import type { Token } from './extraTypes.ts';
+import type { Token } from './types.ts';
 
 /**
  * Determines whether the specified token is a range.

@@ -1,5 +1,5 @@
 import { OPERATOR } from '../constants.js';
-import type { Token } from '../extraTypes.ts';
+import type { Token } from '../types.ts';
 import { advRangeOp } from './advRangeOp.js';
 
 const EXCL = 33; // !

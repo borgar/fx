@@ -1,5 +1,5 @@
 import { BOOLEAN } from '../constants.js';
-import type { Token } from '../extraTypes.ts';
+import type { Token } from '../types.ts';
 
 export function lexBoolean (str: string, pos: number): Token | undefined {
   // "true" (case insensitive)

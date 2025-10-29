@@ -4,9 +4,9 @@ import { stringifyA1Ref } from './stringifyA1Ref.ts';
 import { addA1RangeBounds } from './addA1RangeBounds.ts';
 import { parseStructRef } from './parseStructRef.ts';
 import { stringifyStructRef } from './stringifyStructRef.ts';
-import { tokenize } from './lexer.ts';
+import { tokenize } from './tokenize.ts';
 import { REF_STRUCT } from './constants.ts';
-import type { ReferenceA1, ReferenceA1Xlsx, Token } from './extraTypes.ts';
+import type { ReferenceA1, ReferenceA1Xlsx, Token } from './types.ts';
 
 // There is no R1C1 counterpart to this. This is because without an anchor cell
 // it is impossible to determine if a relative+absolute range (R[1]C[1]:R5C5)

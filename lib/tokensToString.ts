@@ -1,4 +1,4 @@
-import type { Token } from './extraTypes.ts';
+import type { Token } from './types.ts';
 
 export function stringifyTokens (tokens: Token[]): string {
   let s = '';

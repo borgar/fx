@@ -1,5 +1,5 @@
 import { NEWLINE } from '../constants.js';
-import type { Token } from '../extraTypes.ts';
+import type { Token } from '../types.ts';
 
 export function lexNewLine (str: string, pos: number): Token | undefined {
   const start = pos;

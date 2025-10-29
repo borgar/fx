@@ -1,5 +1,5 @@
 import { REF_RANGE, REF_BEAM, REF_TERNARY, MAX_COLS, MAX_ROWS } from '../constants.js';
-import type { Token } from '../extraTypes.ts';
+import type { Token } from '../types.ts';
 import { advRangeOp } from './advRangeOp.js';
 import { canEndRange, canEndPartialRange } from './canEndRange.js';
 

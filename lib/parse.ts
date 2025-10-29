@@ -38,8 +38,8 @@ import {
   REF_BEAM
 } from './constants.ts';
 
-import { tokenize } from './lexer.ts';
-import type { Token } from './extraTypes.ts';
+import { tokenize } from './tokenize.ts';
+import type { Token } from './types.ts';
 import type { ArrayExpression, AstExpression, BinaryExpression, CallExpression, Identifier, LambdaExpression, LetDeclarator, LetExpression, UnaryExpression } from './astTypes.ts';
 
 const END = '(END)';

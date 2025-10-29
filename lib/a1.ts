@@ -1,4 +1,4 @@
-import type { RangeA1 } from './extraTypes.ts';
+import type { RangeA1 } from './types.ts';
 
 export function toRelative (range: RangeA1): RangeA1 {
   return Object.assign({}, range, { $left: false, $right: false, $top: false, $bottom: false });

@@ -5,7 +5,7 @@ import type {
   ReferenceA1Xlsx,
   ReferenceStructXlsx,
   ReferenceR1C1Xlsx
-} from './extraTypes.ts';
+} from './types.ts';
 
 const reBannedChars = /[^0-9A-Za-z._¡¤§¨ª\u00ad¯-\uffff]/;
 

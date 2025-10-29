@@ -1,10 +1,10 @@
 import { MAX_ROWS, MAX_COLS, ERROR } from './constants.ts';
 import { stringifyA1Ref } from './stringifyA1Ref.ts';
 import { parseR1C1Ref } from './parseR1C1Ref.ts';
-import { tokenize } from './lexer.ts';
+import { tokenize } from './tokenize.ts';
 import { isRange } from './isType.ts';
 import { fromA1 } from './fromA1.ts';
-import type { RangeA1, ReferenceR1C1, ReferenceR1C1Xlsx, Token } from './extraTypes.ts';
+import type { RangeA1, ReferenceR1C1, ReferenceR1C1Xlsx, Token } from './types.ts';
 import { stringifyTokens } from './tokensToString.ts';
 import { cloneToken } from './cloneToken.ts';
 

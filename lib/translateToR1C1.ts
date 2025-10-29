@@ -1,9 +1,9 @@
 import { parseA1Ref } from './parseA1Ref.ts';
 import { stringifyR1C1Ref } from './stringifyR1C1Ref.ts';
-import { tokenize } from './lexer.ts';
+import { tokenize } from './tokenize.ts';
 import { isRange } from './isType.ts';
 import { fromA1 } from './fromA1.ts';
-import type { RangeR1C1, ReferenceA1, ReferenceA1Xlsx, Token } from './extraTypes.ts';
+import type { RangeR1C1, ReferenceA1, ReferenceA1Xlsx, Token } from './types.ts';
 import { stringifyTokens } from './tokensToString.ts';
 import { cloneToken } from './cloneToken.ts';
 

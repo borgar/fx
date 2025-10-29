@@ -1,14 +1,14 @@
 /* eslint-disable no-console */
 import { readFileSync } from 'node:fs';
 import benchmark from 'benchmark';
-import { tokenize as tokenizeCurr } from '../lib/lexer.js';
-import { parse as parseCurr } from '../lib/parser.js';
-import { parseA1Ref as parseA1RefCurr } from '../lib/a1.js';
+import { tokenize as tokenizeCurr } from '../lib/tokenize.js';
+import { parse as parseCurr } from '../lib/parse.js';
+import { parseA1Ref as parseA1RefCurr } from '../lib/parseA1Ref.js';
 import {
   tokenize as tokenizePrev,
   parse as parsePrev,
   parseA1Ref as parseA1RefPrev
-} from '../dist/fx.js';
+} from '../dist/index.js';
 
 const formulas = JSON.parse(readFileSync('benchmark/formulas.json', 'utf8'));
 const refs = JSON.parse(readFileSync('benchmark/refs.json', 'utf8'));

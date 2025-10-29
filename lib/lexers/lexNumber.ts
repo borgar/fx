@@ -1,5 +1,5 @@
 import { NUMBER } from '../constants.js';
-import type { Token } from '../extraTypes.ts';
+import type { Token } from '../types.ts';
 
 function advDigits (str: string, pos: number): number {
   const start = pos;

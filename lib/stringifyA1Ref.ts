@@ -1,5 +1,5 @@
 import { stringifyPrefix, stringifyPrefixAlt } from './stringifyPrefix.ts';
-import type { ReferenceA1, ReferenceA1Xlsx, ReferenceName, ReferenceNameXlsx } from './extraTypes.ts';
+import type { ReferenceA1, ReferenceA1Xlsx, ReferenceName, ReferenceNameXlsx } from './types.ts';
 import { stringifyA1Range } from './stringifyA1Range.ts';
 
 /**

@@ -1,9 +1,9 @@
 import { describe, test, expect } from 'vitest';
 import { MAX_COLS, MAX_ROWS } from './constants.ts';
-import { toR1C1 } from './toR1C1.ts';
+import { stringifyR1C1Range } from './stringifyR1C1Range.ts';
 
 function isR1C1Rendered (range: any, expected: string) {
-  expect(toR1C1(range)).toBe(expected);
+  expect(stringifyR1C1Range(range)).toBe(expected);
 }
 
 describe('R1C1 serialization', () => {

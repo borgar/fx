@@ -12,7 +12,7 @@ import { lexStructured } from './lexStructured.js';
 import { lexNumber } from './lexNumber.js';
 import { lexNamed } from './lexNamed.js';
 import { lexRefOp } from './lexRefOp.js';
-import type { Token } from '../extraTypes.ts';
+import type { Token } from '../types.ts';
 
 export type PartLexer = (
   str: string,

@@ -1,4 +1,4 @@
-import type { ReferenceStruct, ReferenceStructXlsx } from './extraTypes.ts';
+import type { ReferenceStruct, ReferenceStructXlsx } from './types.ts';
 import { stringifyPrefix, stringifyPrefixAlt } from './stringifyPrefix.ts';
 
 function quoteColname (str: string): string {

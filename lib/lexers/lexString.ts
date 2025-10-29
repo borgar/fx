@@ -1,5 +1,5 @@
 import { STRING } from '../constants.js';
-import type { Token } from '../extraTypes.ts';
+import type { Token } from '../types.ts';
 
 const QUOT = 34;
 

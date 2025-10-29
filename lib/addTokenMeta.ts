@@ -1,7 +1,7 @@
 import { REF_RANGE, REF_BEAM, REF_TERNARY, UNKNOWN, REF_STRUCT } from './constants.ts';
 import { parseA1Ref } from './parseA1Ref.ts';
 import { parseStructRef } from './parseStructRef.ts';
-import type { ReferenceA1Xlsx, ReferenceStructXlsx, Token, TokenEnhanced } from './extraTypes.ts';
+import type { ReferenceA1Xlsx, ReferenceStructXlsx, Token, TokenEnhanced } from './types.ts';
 
 function getIDer (): () => string {
   let i = 1;

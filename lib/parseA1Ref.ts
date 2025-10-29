@@ -1,6 +1,6 @@
 import { parseRefCtx, parseRefXlsx } from './parseRef.ts';
 import { fromA1 } from './fromA1.ts';
-import type { ReferenceA1, ReferenceA1Xlsx, ReferenceName, ReferenceNameXlsx } from './extraTypes.ts';
+import type { ReferenceA1, ReferenceA1Xlsx, ReferenceName, ReferenceNameXlsx } from './types.ts';
 
 /**
  * Parse a string reference into an object representing it.

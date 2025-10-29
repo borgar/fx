@@ -10,8 +10,8 @@ import {
   OPERATOR
 } from './constants.ts';
 import { lexersRefs } from './lexers/sets.ts';
-import { getTokens } from './lexer.ts';
-import type { Token } from './extraTypes.ts';
+import { getTokens } from './tokenize.ts';
+import type { Token } from './types.ts';
 
 // Liberally split a context string up into parts.
 // Permits any combination of braced and unbraced items.

@@ -1,5 +1,5 @@
 import { REF_NAMED } from '../constants.js';
-import type { Token } from '../extraTypes.ts';
+import type { Token } from '../types.ts';
 
 // The advertized named ranges rules are a bit off from what Excel seems to do.
 // In the "extended range" of chars, it looks like it allows most things above
