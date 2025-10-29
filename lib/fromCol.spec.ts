@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest';
-import { fromCol } from './fromCol.js';
+import { fromCol } from './fromCol.ts';
 
 describe('fromCol parses column id strings to numbers', () => {
   test('single letter columns', () => {

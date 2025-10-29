@@ -16,7 +16,7 @@ import {
   isFxPrefix,
   isOperator,
   isError
-} from './isType.js';
+} from './isType.ts';
 import {
   UNARY,
   BINARY,
@@ -36,9 +36,9 @@ import {
   REF_NAMED,
   REF_STRUCT,
   REF_BEAM
-} from './constants.js';
+} from './constants.ts';
 
-import { tokenize } from './lexer.js';
+import { tokenize } from './lexer.ts';
 import type { Token } from './extraTypes.ts';
 import type { ArrayExpression, AstExpression, BinaryExpression, CallExpression, Identifier, LambdaExpression, LetDeclarator, LetExpression, UnaryExpression } from './astTypes.ts';
 
@@ -679,6 +679,60 @@ prefix('{', function (this: ArrayExpression & { value?: string }) {
   return this;
 });
 
+export type ParseOptions = {
+  /**
+   * Enable parsing names as well as ranges.
+   * @defaultValue true
+   */
+  allowNamed?: boolean,
+  /**
+   * Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`.
+   * These are supported by Google Sheets but not Excel. See: References.md.
+   * @defaultValue false
+   */
+  allowTernary?: boolean,
+  /**
+   * Merges unary minuses with their immediately following number tokens (`-`,`1`) => `-1`
+   * (alternatively these will be unary operations in the tree).
+   * @defaultValue true
+   */
+  negativeNumbers?: boolean,
+  /**
+   * Ranges are allowed as elements of arrays. This is a feature in Google Sheets while Excel
+   * does not allow it.
+   * @defaultValue false
+   */
+  permitArrayRanges?: boolean,
+  /**
+   * Function calls are allowed as elements of arrays. This is a feature in Google Sheets
+   * while Excel does not allow it.
+   * @defaultValue false
+   */
+  permitArrayCalls?: boolean,
+  /**
+   * Permits any function call where otherwise only functions that return references would
+   * be permitted.
+   * @defaultValue false
+   */
+  looseRefCalls?: boolean,
+  /**
+   * Ranges are expected to be in the R1C1 style format rather than the more popular A1 style.
+   * @defaultValue false
+   */
+  r1c1?: boolean,
+  /**
+   * Nodes will include source position offsets to the tokens: `{ loc: [ start, end ] }`
+   * @defaultValue false
+   */
+  withLocation?: boolean,
+  /**
+   * Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks.
+   * See: [Prefixes.md](./Prefixes.md)
+   * @defaultValue false
+   */
+  xlsx?: boolean,
+};
+
 /**
  * Parses a string formula or list of tokens into an AST.
  *
@@ -690,30 +744,12 @@ prefix('{', function (this: ArrayExpression & { value?: string }) {
  *
  * @see nodeTypes
  * @param formula An Excel formula string (an Excel expression) or an array of tokens.
- * @param [options.allowNamed=true]  Enable parsing names as well as ranges.
- * @param [options.allowTernary=false]  Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: References.md.
- * @param [options.negativeNumbers=true]  Merges unary minuses with their immediately following number tokens (`-`,`1`) => `-1` (alternatively these will be unary operations in the tree).
- * @param [options.permitArrayRanges=false]  Ranges are allowed as elements of arrays. This is a feature in Google Sheets while Excel does not allow it.
- * @param [options.permitArrayCalls=false]  Function calls are allowed as elements of arrays. This is a feature in Google Sheets while Excel does not allow it.
- * @param [options.looseRefCalls=false]  Permits any function call where otherwise only functions that return references would be permitted.
- * @param [options.r1c1=false]  Ranges are expected to be in the R1C1 style format rather than the more popular A1 style.
- * @param [options.withLocation=false]  Nodes will include source position offsets to the tokens: `{ loc: [ start, end ] }`
- * @param [options.xlsx=false]  Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md)
+ * @param options Options for the parser behavior.
  * @returns An AST of nodes
  */
 export function parse (
   formula: string | Token[],
-  options: {
-    allowNamed?: boolean,
-    allowTernary?: boolean,
-    negativeNumbers?: boolean,
-    permitArrayRanges?: boolean,
-    permitArrayCalls?: boolean,
-    looseRefCalls?: boolean,
-    withLocation?: boolean,
-    r1c1?: boolean,
-    xlsx?: boolean,
-  }
+  options: ParseOptions = {}
 ): AstExpression {
   if (typeof formula === 'string') {
     tokens = tokenize(formula, {

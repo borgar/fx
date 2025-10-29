@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest';
-import { parseStructRef } from './parseStructRef.js';
+import { parseStructRef } from './parseStructRef.ts';
 
 function isSREqual (expr: string, expected: any, opts?: any) {
   if (expected) {

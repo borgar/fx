@@ -26,10 +26,10 @@ import {
   tokenTypes,
   translateToA1,
   translateToR1C1
-} from './index.js';
+} from './index.ts';
 
 // What happens when B2:A1 -> should work!
-describe('fx main interface', t => {
+describe('fx main interface', () => {
   it('addA1RangeBounds exists', () => {
     expect(typeof addA1RangeBounds === 'function').toBeTruthy();
   });

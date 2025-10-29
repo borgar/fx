@@ -1,4 +1,4 @@
-import { isWS } from './lexers/lexWhitespace.js';
+import { isWS } from './lexers/lexWhitespace.ts';
 
 const AT = 64; // @
 const BR_CLOSE = 93; // ]

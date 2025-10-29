@@ -1,6 +1,6 @@
-/* eslint-disable object-property-newline */
+/* eslint-disable @stylistic/object-property-newline */
 import { describe, test, expect } from 'vitest';
-import { fromRow, fromA1 } from './fromA1.js';
+import { fromRow, fromA1 } from './fromA1.ts';
 
 describe('fromRow', () => {
   test('fromRow converts row strings to zero-based indices', () => {

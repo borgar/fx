@@ -1,10 +1,10 @@
 import { describe, test, expect } from 'vitest';
-import { tokenize } from './lexer.js';
-import { addTokenMeta } from './addTokenMeta.js';
-import { fixRanges } from './fixRanges.js';
-import { FUNCTION, FX_PREFIX, OPERATOR, REF_RANGE, REF_STRUCT, REF_TERNARY } from './constants.js';
+import { tokenize } from './lexer.ts';
+import { addTokenMeta } from './addTokenMeta.ts';
+import { fixRanges } from './fixRanges.ts';
+import { FUNCTION, FX_PREFIX, OPERATOR, REF_RANGE, REF_STRUCT, REF_TERNARY } from './constants.ts';
 
-function isFixed(expr: string, expected: string, options = {}) {
+function isFixed (expr: string, expected: string, options = {}) {
   const result = fixRanges(expr, options);
   expect(result).toBe(expected);
 }

@@ -4,8 +4,8 @@ import {
   FX_PREFIX, WHITESPACE, NEWLINE,
   FUNCTION, OPERATOR,
   ERROR, STRING, NUMBER, BOOLEAN
-} from './constants.js';
-import { isRange, isReference, isLiteral, isError, isWhitespace, isFunction, isFxPrefix, isOperator } from './isType.js';
+} from './constants.ts';
+import { isRange, isReference, isLiteral, isError, isWhitespace, isFunction, isFxPrefix, isOperator } from './isType.ts';
 
 describe('isRange', () => {
   test('returns false for non-range types', () => {

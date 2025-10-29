@@ -6,11 +6,11 @@
 ** - R[1]C1:R[2]C2 will also work, but
 ** - R[1]C[1]:R2C2 doesn't have a direct rectangle represention without context.
 */
-import { rangeOperator } from './a1.js';
-import { MAX_ROWS, MAX_COLS } from './constants.js';
+import { rangeOperator } from './a1.ts';
+import { MAX_ROWS, MAX_COLS } from './constants.ts';
 import type { RangeR1C1, ReferenceName, ReferenceNameXlsx, ReferenceR1C1, ReferenceR1C1Xlsx } from './extraTypes.ts';
-import { parseRefCtx, parseRefXlsx, type RefParseDataXls, type RefParseDataCtx } from './parseRef.js';
-import { stringifyPrefix, stringifyPrefixAlt } from './stringifyPrefix.js';
+import { parseRefCtx, parseRefXlsx, type RefParseDataXls, type RefParseDataCtx } from './parseRef.ts';
+import { stringifyPrefix, stringifyPrefixAlt } from './stringifyPrefix.ts';
 
 const clamp = (min: number, val: number, max: number) => Math.min(Math.max(val, min), max);
 

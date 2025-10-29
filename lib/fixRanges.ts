@@ -1,8 +1,10 @@
 import { isRange } from './isType.ts';
-import { parseA1Ref, stringifyA1Ref, addA1RangeBounds } from './a1.ts';
+import { parseA1Ref } from './parseA1Ref.ts';
+import { stringifyA1Ref } from './stringifyA1Ref.ts';
+import { addA1RangeBounds } from './addA1RangeBounds.ts';
 import { parseStructRef } from './parseStructRef.ts';
 import { stringifyStructRef } from './stringifyStructRef.ts';
-import { tokenize } from './lexer.js';
+import { tokenize } from './lexer.ts';
 import { REF_STRUCT } from './constants.ts';
 import type { ReferenceA1, ReferenceA1Xlsx, Token } from './extraTypes.ts';
 

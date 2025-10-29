@@ -29,5 +29,8 @@ export const ARRAY = 'ArrayExpression';
 export const IDENTIFIER = 'Identifier';
 export const LET_DECL = 'LetDeclarator';
 
-export const MAX_COLS = (2 ** 14) - 1; // 16383
-export const MAX_ROWS = (2 ** 20) - 1; // 1048575
+/** The maximum number of columns a spreadsheet reference may hold (16383). */
+export const MAX_COLS = (2 ** 14) - 1;
+
+/** The maximum number of rows a spreadsheet reference may hold (1048575). */
+export const MAX_ROWS = (2 ** 20) - 1;

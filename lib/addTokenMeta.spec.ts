@@ -1,9 +1,9 @@
 import { describe, test, expect } from 'vitest';
-import { FX_PREFIX, OPERATOR, NUMBER, REF_RANGE, REF_BEAM, FUNCTION, WHITESPACE, REF_STRUCT } from './constants.js';
-import { addTokenMeta } from './addTokenMeta.js';
-import { tokenize } from './lexer.js';
+import { FX_PREFIX, OPERATOR, NUMBER, REF_RANGE, REF_BEAM, FUNCTION, WHITESPACE, REF_STRUCT } from './constants.ts';
+import { addTokenMeta } from './addTokenMeta.ts';
+import { tokenize } from './lexer.ts';
 
-function isMetaTokens(expr: string, expected: any[], context?: any, opts?: any) {
+function isMetaTokens (expr: string, expected: any[], context?: any, opts?: any) {
   const actual = addTokenMeta(tokenize(expr, opts), context);
   if (actual.length === expected.length) {
     actual.forEach((d, i) => {

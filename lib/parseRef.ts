@@ -8,9 +8,9 @@ import {
   REF_BEAM,
   REF_STRUCT,
   OPERATOR
-} from './constants.js';
-import { lexersRefs } from './lexers/sets.js';
-import { getTokens } from './lexer.js';
+} from './constants.ts';
+import { lexersRefs } from './lexers/sets.ts';
+import { getTokens } from './lexer.ts';
 import type { Token } from './extraTypes.ts';
 
 // Liberally split a context string up into parts.
@@ -170,7 +170,7 @@ type ParseRefOptions = {
 export type RefParseDataXls = RefParseData & { workbookName: string, sheetName: string };
 export type RefParseDataCtx = RefParseData & { context: string[] };
 
-export function parseRefCtx (ref: string, opts: ParseRefOptions= {}): RefParseDataCtx | null {
+export function parseRefCtx (ref: string, opts: ParseRefOptions = {}): RefParseDataCtx | null {
   const options = {
     withLocation: opts.withLocation ?? false,
     mergeRefs: opts.mergeRefs ?? false,

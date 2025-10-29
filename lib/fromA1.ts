@@ -1,4 +1,4 @@
-import { MAX_COLS, MAX_ROWS } from './constants.js';
+import { MAX_COLS, MAX_ROWS } from './constants.ts';
 import type { RangeA1 } from './extraTypes.ts';
 
 export function fromRow (rowStr: string): number {

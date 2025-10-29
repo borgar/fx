@@ -1,6 +1,6 @@
-import { REF_RANGE, REF_BEAM, REF_TERNARY, UNKNOWN, REF_STRUCT } from './constants.js';
-import { parseA1Ref } from './a1.js';
-import { parseStructRef } from './parseStructRef.js';
+import { REF_RANGE, REF_BEAM, REF_TERNARY, UNKNOWN, REF_STRUCT } from './constants.ts';
+import { parseA1Ref } from './parseA1Ref.ts';
+import { parseStructRef } from './parseStructRef.ts';
 import type { ReferenceA1Xlsx, ReferenceStructXlsx, Token, TokenEnhanced } from './extraTypes.ts';
 
 function getIDer (): () => string {

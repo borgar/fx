@@ -1,5 +1,5 @@
 import type { ReferenceStruct, ReferenceStructXlsx } from './extraTypes.ts';
-import { stringifyPrefix, stringifyPrefixAlt } from './stringifyPrefix.js';
+import { stringifyPrefix, stringifyPrefixAlt } from './stringifyPrefix.ts';
 
 function quoteColname (str: string): string {
   return str.replace(/([[\]#'@])/g, '\'$1');

@@ -1,7 +1,7 @@
 import { describe, test, expect } from 'vitest';
-import { splitPrefix } from './parseRef.js';
+import { splitPrefix } from './parseRef.ts';
 
-function testStr(str: string, opt: boolean, expected: any) {
+function testStr (str: string, opt: boolean, expected: any) {
   expect(splitPrefix(str, opt)).toEqual(expected);
 }
 

@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest';
-import { parse } from './parser.js';
+import { parse } from './parser.ts';
 
 function isParsed (expr: string, expected: any, opts?: any) {
   const result = parse(expr, { allowTernary: true, withLocation: false, ...opts });

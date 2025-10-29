@@ -1,121 +1,12 @@
-import { MAX_ROWS, MAX_COLS, ERROR } from './constants.js';
-import { parseA1Ref, stringifyA1Ref } from './a1.js';
-import { parseR1C1Ref, stringifyR1C1Ref } from './rc.js';
-import { tokenize } from './lexer.js';
-import { isRange } from './isType.js';
-import { fromA1 } from './fromA1.js';
-import type { RangeA1, RangeR1C1, ReferenceA1, ReferenceA1Xlsx, ReferenceR1C1, ReferenceR1C1Xlsx, Token, TokenEnhanced } from './extraTypes.ts';
+import { MAX_ROWS, MAX_COLS, ERROR } from './constants.ts';
+import { stringifyA1Ref } from './stringifyA1Ref.ts';
+import { parseR1C1Ref } from './rc.ts';
+import { tokenize } from './lexer.ts';
+import { isRange } from './isType.ts';
+import { fromA1 } from './fromA1.ts';
+import type { RangeA1, ReferenceR1C1, ReferenceR1C1Xlsx, Token } from './extraTypes.ts';
 import { stringifyTokens } from './tokensToString.ts';
-
-const calc = (abs: boolean, vX: number, aX: number): number => {
-  if (vX == null) {
-    return null;
-  }
-  return abs ? vX : vX - aX;
-};
-
-function cloneToken<T extends Token | TokenEnhanced> (token: T): T {
-  // Token
-  const newToken: Partial<TokenEnhanced> = {
-    type: token.type,
-    value: token.value
-  };
-  if (token.loc) {
-    newToken.loc = token.loc;
-  }
-  if (token.unterminated != null) {
-    newToken.unterminated = token.unterminated;
-  }
-  // TokenEnhanced
-  if (typeof token.index === 'number') {
-    newToken.index = token.index;
-    if (typeof token.groupId === 'string') {
-      newToken.groupId = token.groupId;
-    }
-    if (typeof token.depth === 'number') {
-      newToken.depth = token.depth;
-    }
-    if (typeof token.error === 'boolean') {
-      newToken.error = token.error;
-    }
-  }
-  return newToken as T;
-}
-
-/**
- * Translates ranges in a formula or list of tokens from absolute A1 syntax to
- * relative R1C1 syntax.
- *
- * ```js
- * translateToR1C1("=SUM(E10,$E$2,Sheet!$E$3)", "D10");
- * // => "=SUM(RC[1],R2C5,Sheet!R3C5)");
- * ```
- *
- * @param {(string | Array<import('./extraTypes.js').Token>)} formula A string (an Excel formula) or a token list that should be adjusted.
- * @param {string} anchorCell A simple string reference to an A1 cell ID (`AF123` or`$C$5`).
- * @param {object} [options={}] The options
- * @param {boolean} [options.xlsx=false]  Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md)
- * @param {boolean} [options.allowTernary=true]  Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: References.md.
- * @returns {(string | Array<import('./extraTypes.js').Token>)} A formula string or token list (depending on which was input)
- */
-export function translateToR1C1 (
-  formula: (string | Token[]),
-  anchorCell: string, { xlsx = false, allowTernary = true }: { xlsx?: boolean; allowTernary?: boolean; } = {}
-): (string | Token[]) {
-  const anchorRange = fromA1(anchorCell);
-  if (!anchorRange) {
-    throw new Error('translateToR1C1 got an invalid anchorCell: ' + anchorCell);
-  }
-  const { top, left } = anchorRange;
-  const isString = typeof formula === 'string';
-
-  const tokens = isString
-    ? tokenize(formula, { withLocation: false, mergeRefs: false, r1c1: false, xlsx, allowTernary })
-    : formula;
-
-  let offsetSkew = 0;
-  const refOpts = { xlsx, allowTernary };
-  const outTokens = [];
-  for (let token of tokens) {
-    if (isRange(token)) {
-      token = cloneToken(token);
-      const tokenValue = token.value;
-      const ref = parseA1Ref(tokenValue, refOpts) as (ReferenceA1 | ReferenceA1Xlsx);
-      const d = ref.range;
-      const range: RangeR1C1 = {};
-      range.r0 = calc(d.$top, d.top, top);
-      range.r1 = calc(d.$bottom, d.bottom, top);
-      range.c0 = calc(d.$left, d.left, left);
-      range.c1 = calc(d.$right, d.right, left);
-      range.$r0 = d.$top;
-      range.$r1 = d.$bottom;
-      range.$c0 = d.$left;
-      range.$c1 = d.$right;
-      if (d.trim) {
-        range.trim = d.trim;
-      }
-      // @ts-expect-error -- reusing the object, switching it to R1C1 by swapping the range
-      ref.range = range;
-      token.value = stringifyR1C1Ref(ref, refOpts);
-      // if token includes offsets, those offsets are now likely wrong!
-      if (token.loc) {
-        token.loc[0] += offsetSkew;
-        offsetSkew += token.value.length - tokenValue.length;
-        token.loc[1] += offsetSkew;
-      }
-    }
-    else if (offsetSkew && token.loc && !isString) {
-      token = cloneToken(token);
-      token.loc[0] += offsetSkew;
-      token.loc[1] += offsetSkew;
-    }
-    outTokens[outTokens.length] = token;
-  }
-
-  return isString
-    ? stringifyTokens(outTokens)
-    : outTokens;
-}
+import { cloneToken } from './cloneToken.ts';
 
 function toFixed (val, abs, base, max, wrapEdges = true) {
   let v = val;
@@ -142,28 +33,28 @@ function toFixed (val, abs, base, max, wrapEdges = true) {
   return v;
 }
 
-type TranslateToA1Options = {
+export type TranslateToA1Options = {
   /**
   * Wrap out-of-bounds ranges around sheet edges rather than turning them to #REF! errors.
-  * @default {true}
+  * @defaultValue true
   */
   wrapEdges?: boolean,
   /**
   * Should ranges be treated as whole references (`Sheet1!A1:B2`) or as separate tokens
   * for each part: (`Sheet1`,`!`,`A1`,`:`,`B2`).
-  * @default {true}
+  * @defaultValue true
   */
   mergeRefs?: boolean,
   /**
   * Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks.
   * See: [Prefixes.md](./Prefixes.md)
-  * @default {false}
+  * @defaultValue false
   */
   xlsx?: boolean,
   /**
   * Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`.
   * These are supported by Google Sheets but not Excel. See: References.md.
-  * @default {true}
+  * @defaultValue true
   */
   allowTernary?: boolean,
 };

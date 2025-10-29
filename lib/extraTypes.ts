@@ -74,23 +74,13 @@ export type RangeA1 = {
   trim?: 'head' | 'tail' | 'both' | null;
 };
 
-export type ReferenceCtx = {
-  /** A collection of scopes for the reference */
-  context?: string[];
-};
-
-export type ReferenceXlsxProps = {
-  /** A context workbook scope */
-  workbookName?: string;
-  /** A context sheet scope */
-  sheetName?: string;
-};
-
 /**
- * A reference containing an A1 style range. See [Prefixes.md] for
+ * A reference containing an A1 style range. See [Prefixes.md](Prefixes.md) for
  * documentation on how scopes work in Fx.
  */
-export type ReferenceA1 = ReferenceCtx & {
+export type ReferenceA1 = {
+  /** A collection of scopes for the reference */
+  context?: string[];
   /** The reference's range */
   range: RangeA1;
 };
@@ -99,7 +89,11 @@ export type ReferenceA1 = ReferenceCtx & {
  * A reference containing an A1 style range. See [Prefixes.md] for
  * documentation on how scopes work in Fx.
  */
-export type ReferenceA1Xlsx = ReferenceXlsxProps & {
+export type ReferenceA1Xlsx = {
+  /** A context workbook scope */
+  workbookName?: string;
+  /** A context sheet scope */
+  sheetName?: string;
   /** The reference's range */
   range: RangeA1;
 };
@@ -108,7 +102,9 @@ export type ReferenceA1Xlsx = ReferenceXlsxProps & {
  * A reference containing a name. See [Prefixes.md] for
  * documentation on how scopes work in Fx.
  */
-export type ReferenceName = ReferenceCtx & {
+export type ReferenceName = {
+  /** A collection of scopes for the reference */
+  context?: string[];
   /** The reference's name */
   name: string;
 };
@@ -117,7 +113,11 @@ export type ReferenceName = ReferenceCtx & {
  * A reference containing a name. See [Prefixes.md] for
  * documentation on how scopes work in Fx.
  */
-export type ReferenceNameXlsx = ReferenceXlsxProps & {
+export type ReferenceNameXlsx = {
+  /** A context workbook scope */
+  workbookName?: string;
+  /** A context sheet scope */
+  sheetName?: string;
   /** The reference's name */
   name: string;
 };
@@ -126,7 +126,9 @@ export type ReferenceNameXlsx = ReferenceXlsxProps & {
  * A reference containing a R1C1 style range. See [Prefixes.md] for
  * documentation on how scopes work in Fx.
  */
-export type ReferenceR1C1 = ReferenceCtx & {
+export type ReferenceR1C1 = {
+  /** A collection of scopes for the reference */
+  context?: string[];
   /** The reference's range */
   range: RangeR1C1;
 };
@@ -135,7 +137,11 @@ export type ReferenceR1C1 = ReferenceCtx & {
  * A reference containing a R1C1 style range. See [Prefixes.md] for
  * documentation on how scopes work in Fx.
  */
-export type ReferenceR1C1Xlsx = ReferenceXlsxProps & {
+export type ReferenceR1C1Xlsx = {
+  /** A context workbook scope */
+  workbookName?: string;
+  /** A context sheet scope */
+  sheetName?: string;
   /** The reference's range */
   range: RangeR1C1;
 };
@@ -144,7 +150,9 @@ export type ReferenceR1C1Xlsx = ReferenceXlsxProps & {
  * A reference containing a table slice definition. See [Prefixes.md] for
  * documentation on how scopes work in Fx.
  */
-export type ReferenceStruct = ReferenceCtx & {
+export type ReferenceStruct = {
+  /** A collection of scopes for the reference */
+  context?: string[];
   /** The sections this reference targets */
   sections?: string[];
   /** The sections this reference targets */
@@ -157,7 +165,11 @@ export type ReferenceStruct = ReferenceCtx & {
  * A reference containing a table slice definition. See [Prefixes.md] for
  * documentation on how scopes work in Fx.
  */
-export type ReferenceStructXlsx = ReferenceXlsxProps & {
+export type ReferenceStructXlsx = {
+  /** A context workbook scope */
+  workbookName?: string;
+  /** A context sheet scope */
+  sheetName?: string;
   /** The sections this reference targets */
   sections?: string[];
   /** The sections this reference targets */

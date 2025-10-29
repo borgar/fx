@@ -3,7 +3,7 @@ import {
   FX_PREFIX, WHITESPACE, NEWLINE,
   FUNCTION, OPERATOR,
   ERROR, STRING, NUMBER, BOOLEAN
-} from './constants.js';
+} from './constants.ts';
 import type { Token } from './extraTypes.ts';
 
 /**

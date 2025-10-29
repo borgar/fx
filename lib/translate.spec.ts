@@ -1,7 +1,8 @@
 import { describe, test, expect } from 'vitest';
-import { translateToR1C1, translateToA1 } from './translate.js';
+import { translateToR1C1 } from './translateToR1C1.ts';
+import { translateToA1 } from './translateToA1.ts';
 
-function okayRoundTrip(expr: string, anchor: string, options?: any) {
+function okayRoundTrip (expr: string, anchor: string, options?: any) {
   const rc = translateToR1C1(expr, anchor, options);
   const a1 = translateToA1(rc, anchor, options);
   expect(a1).toBe(expr);

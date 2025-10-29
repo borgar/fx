@@ -1,10 +1,10 @@
 import { describe, test, expect } from 'vitest';
-import { translateToR1C1 } from './translate.js';
-import { tokenize } from './lexer.js';
-import { addTokenMeta } from './addTokenMeta.js';
-import { FUNCTION, FX_PREFIX, OPERATOR, REF_RANGE, REF_BEAM, REF_STRUCT } from './constants.js';
+import { translateToR1C1 } from './translateToR1C1.ts';
+import { tokenize } from './lexer.ts';
+import { addTokenMeta } from './addTokenMeta.ts';
+import { FUNCTION, FX_PREFIX, OPERATOR, REF_RANGE, REF_BEAM, REF_STRUCT } from './constants.ts';
 
-function isA2R(expr: string, anchor: string, result: string) {
+function isA2R (expr: string, anchor: string, result: string) {
   expect(translateToR1C1(expr, anchor)).toBe(result);
 }
 
@@ -186,7 +186,7 @@ describe('translate works with merged ranges', () => {
 });
 
 describe('translate works with xlsx mode', () => {
-  function testExpr(expr: string, anchor: string, expected: any[]) {
+  function testExpr (expr: string, anchor: string, expected: any[]) {
     const opts = { mergeRefs: true, xlsx: true, r1c1: false };
     const tokens = tokenize(expr, opts);
     expect(translateToR1C1(tokens, anchor, opts)).toEqual(expected);
@@ -212,7 +212,7 @@ describe('translate works with xlsx mode', () => {
 });
 
 describe('translate works with trimmed ranges', () => {
-  function testExpr(expr: string, anchor: string, expected: any[]) {
+  function testExpr (expr: string, anchor: string, expected: any[]) {
     const opts = { mergeRefs: true, xlsx: true, r1c1: false };
     expect(translateToR1C1(tokenize(expr, opts), anchor, opts)).toEqual(expected);
   }

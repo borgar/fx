@@ -1,6 +1,5 @@
-/* eslint-disable object-property-newline, object-curly-newline */
 import { describe, test, expect } from 'vitest';
-import { stringifyStructRef } from './stringifyStructRef.js';
+import { stringifyStructRef } from './stringifyStructRef.ts';
 
 describe('serialize structured references', () => {
   test('simple column references', () => {

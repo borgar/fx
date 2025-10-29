@@ -1,7 +1,7 @@
 /* eslint-disable @stylistic/object-property-newline */
 import { describe, test, expect } from 'vitest';
-import { MAX_COLS, MAX_ROWS } from './constants.js';
-import { parseR1C1Ref, stringifyR1C1Ref, toR1C1 } from './rc.js';
+import { MAX_COLS, MAX_ROWS } from './constants.ts';
+import { parseR1C1Ref, stringifyR1C1Ref, toR1C1 } from './rc.ts';
 
 function isRCEqual (expr: string, expected: any, opts?: any) {
   if (expected) {

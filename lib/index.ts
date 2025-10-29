@@ -1,10 +1,11 @@
-export { tokenize } from './lexer.js';
-export { parse } from './parser.js';
-export { addTokenMeta } from './addTokenMeta.js';
-export { translateToR1C1, translateToA1 } from './translate.js';
-export { MAX_COLS, MAX_ROWS } from './constants.js';
-export { mergeRefTokens } from './mergeRefTokens.js';
-export { fixRanges } from './fixRanges.js';
+export { tokenize, type TokenizeOptions } from './lexer.ts';
+export { parse, type ParseOptions } from './parser.ts';
+export { addTokenMeta } from './addTokenMeta.ts';
+export { translateToR1C1, type TranslateToR1C1Options } from './translateToR1C1.ts';
+export { translateToA1, type TranslateToA1Options } from './translateToA1.ts';
+export { MAX_COLS, MAX_ROWS } from './constants.ts';
+export { mergeRefTokens } from './mergeRefTokens.ts';
+export { fixRanges } from './fixRanges.ts';
 export {
   isError,
   isFunction,
@@ -14,24 +15,36 @@ export {
   isRange,
   isReference,
   isWhitespace
-} from './isType.js';
+} from './isType.ts';
 
-export { fromCol } from './fromCol.js';
-export { toCol } from './toCol.js';
+export { fromCol } from './fromCol.ts';
+export { toCol } from './toCol.ts';
 
-export {
-  parseA1Ref,
-  stringifyA1Ref,
-  addA1RangeBounds
-} from './a1.js';
+export { parseA1Ref } from './parseA1Ref.ts';
+export { stringifyA1Ref } from './stringifyA1Ref.ts';
+
+export { addA1RangeBounds } from './addA1RangeBounds.ts';
 
 export {
   parseR1C1Ref,
   stringifyR1C1Ref
-} from './rc.js';
+} from './rc.ts';
 
-export { stringifyStructRef } from './stringifyStructRef.js';
-export { parseStructRef } from './parseStructRef.js';
+export { stringifyStructRef } from './stringifyStructRef.ts';
+export { parseStructRef } from './parseStructRef.ts';
+
+export type {
+  RangeA1,
+  RangeR1C1,
+  Token,
+  TokenEnhanced,
+  ReferenceA1,
+  ReferenceA1Xlsx,
+  ReferenceR1C1,
+  ReferenceR1C1Xlsx,
+  ReferenceStruct,
+  ReferenceStructXlsx
+} from './extraTypes.ts';
 
 import {
   // token types
@@ -61,12 +74,12 @@ import {
   CALL,
   ARRAY,
   IDENTIFIER
-} from './constants.js';
+} from './constants.ts';
 
 /**
  * A dictionary of the types used to identify token variants.
  *
- * @property {string} OPERATOR - Newline (`\n`)
+ * @property {string} OPERATOR - Unary or binary operator (`+`, `%`)
  * @property {string} BOOLEAN - Boolean literal (`TRUE`)
  * @property {string} ERROR - Error literal (`#VALUE!`)
  * @property {string} NUMBER - Number literal (`123.4`, `-1.5e+2`)
@@ -127,3 +140,4 @@ export const nodeTypes = Object.freeze({
   ARRAY,
   IDENTIFIER
 });
+

@@ -9,9 +9,9 @@ import {
   FUNCTION,
   OPERATOR_TRIM,
   REF_RANGE
-} from './constants.js';
-import { mergeRefTokens } from './mergeRefTokens.js';
-import { lexers, type PartLexer } from './lexers/sets.js';
+} from './constants.ts';
+import { mergeRefTokens } from './mergeRefTokens.ts';
+import { lexers, type PartLexer } from './lexers/sets.ts';
 import type { Token } from './extraTypes.ts';
 
 const reLetLambda = /^l(?:ambda|et)$/i;
@@ -86,11 +86,10 @@ export function getTokens (fx: string, tokenHandlers: PartLexer[], options: GetT
   let unknownRC = 0;
   const trimOps = [];
 
-  let tail0; // last non-whitespace token
-  /** @type {import('./extraTypes.js').Token} */
-  let tail1; // penultimate non-whitespace token
-  let lastToken; // last token
-  const pushToken = token => {
+  let tail0: Token; // last non-whitespace token
+  let tail1: Token; // penultimate non-whitespace token
+  let lastToken: Token; // last token
+  const pushToken = (token: Token) => {
     let tokenType = token.type;
     const isCurrUnknown = tokenType === UNKNOWN;
     const isLastUnknown = lastToken && lastToken.type === UNKNOWN;
@@ -218,38 +217,38 @@ export function getTokens (fx: string, tokenHandlers: PartLexer[], options: GetT
   return tokens;
 }
 
-export type TokenizesOptions = {
+export type TokenizeOptions = {
   /**
    * Nodes will include source position offsets to the tokens: `{ loc: [ start, end ] }`
-   * @defaultValue {true}
+   * @defaultValue true
    */
   withLocation?: boolean,
   /**
    * Should ranges be returned as whole references (`Sheet1!A1:B2`) or as separate tokens for each
    * part: (`Sheet1`,`!`,`A1`,`:`,`B2`). This is the same as calling [`mergeRefTokens`](#mergeRefTokens)
-   * @defaultValue {true}
+   * @defaultValue true
    */
   mergeRefs?: boolean,
   /**
    * Merges unary minuses with their immediately following number tokens (`-`,`1`) => `-1`
    * (alternatively these will be unary operations in the tree).
-   * @defaultValue {true}
+   * @defaultValue true
    */
   negativeNumbers?: boolean
   /**
    * Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported
    * by Google Sheets but not Excel. See: References.md.
-   * @defaultValue {false}
+   * @defaultValue false
    */
   allowTernary?: boolean
   /**
    * Ranges are expected to be in the R1C1 style format rather than the more popular A1 style.
-   * @defaultValue {false}
+   * @defaultValue false
    */
   r1c1?: boolean
   /**
    * Enables a `[1]Sheet1!A1` or `[1]!name` syntax form for external workbooks found only in XLSX files.
-   * @defaultValue {false}
+   * @defaultValue false
    */
   xlsx?: boolean
 };
@@ -273,7 +272,7 @@ export type TokenizesOptions = {
  * [`tokenTypes` export]{@link tokenTypes} on the package
  * (`import {tokenTypes} from '@borgar/fx';`).
  *
- * To support syntax highlighting as you type, `STRING` tokens are allowed to be
+ * _Warning:_ To support syntax highlighting as you type, `STRING` tokens are allowed to be
  * "unterminated". For example, the incomplete formula `="Hello world` would be
  * tokenized as:
  *
@@ -285,13 +284,13 @@ export type TokenizesOptions = {
  * ```
  *
  * @see tokenTypes
- * @param formula An Excel formula string (an Excel expression) or an array of tokens.
+ * @param formula An Excel formula string (an Excel expression).
  * @param [options]  Options
  * @returns An array of Tokens
  */
 export function tokenize (
   formula: string,
-  options: TokenizesOptions = {}
+  options: TokenizeOptions = {}
 ): Token[] {
   return getTokens(formula, lexers, options);
 }

@@ -1,7 +1,7 @@
 import { describe, test, expect } from 'vitest';
-import { CONTEXT, FUNCTION, FX_PREFIX, OPERATOR, REF_RANGE, REF_BEAM, REF_NAMED, REF_TERNARY, UNKNOWN } from './constants.js';
-import { mergeRefTokens } from './mergeRefTokens.js';
-import { tokenize } from './lexer.js';
+import { CONTEXT, FUNCTION, FX_PREFIX, OPERATOR, REF_RANGE, REF_BEAM, REF_NAMED, REF_TERNARY, UNKNOWN } from './constants.ts';
+import { mergeRefTokens } from './mergeRefTokens.ts';
+import { tokenize } from './lexer.ts';
 
 describe('mergeRefTokens', () => {
   test('merges reference tokens and preserves metadata', () => {

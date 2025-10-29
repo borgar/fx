@@ -3,10 +3,10 @@ import {
   FX_PREFIX, UNKNOWN,
   OPERATOR, WHITESPACE,
   REF_NAMED, CONTEXT_QUOTE, REF_STRUCT, REF_RANGE
-} from './constants.js';
-import { tokenize } from './lexer.js';
+} from './constants.ts';
+import { tokenize } from './lexer.ts';
 
-function isTokens(expr: string, result: any[], opts?: any) {
+function isTokens (expr: string, result: any[], opts?: any) {
   expect(tokenize(expr, { negativeNumbers: false, ...opts })).toEqual(result);
 }
 
