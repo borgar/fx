@@ -1,6 +1,6 @@
 import { describe, test, expect } from 'vitest';
 import { translateFormulaToA1, translateTokensToA1 } from './translateToA1.ts';
-import { tokenize } from './tokenize.ts';
+import { tokenize, tokenizeXlsx } from './tokenize.ts';
 import { addTokenMeta } from './addTokenMeta.ts';
 import { ERROR, FUNCTION, FX_PREFIX, OPERATOR, REF_RANGE, REF_BEAM, REF_STRUCT } from './constants.ts';
 
@@ -198,15 +198,24 @@ describe('translate works with merged ranges', () => {
 });
 
 describe('translate works with xlsx mode references', () => {
-  function testExpr (expr: string, anchor: string, expected: any[]) {
-    const opts = { mergeRefs: true, xlsx: true, r1c1: true };
-    expect(translateTokensToA1(tokenize(expr, opts), anchor, opts)).toEqual(expected);
+  function testExpr (expr: string, anchor: string, expected: any[], xlsx = true) {
+    const tokens = xlsx
+      ? tokenizeXlsx(expr, { mergeRefs: true, r1c1: true })
+      : tokenize(expr, { mergeRefs: true, r1c1: true });
+    expect(translateTokensToA1(tokens, anchor)).toEqual(expected);
   }
 
   test('XLSX workbook references', () => {
     testExpr("'[My Fancy Workbook.xlsx]'!R1C", 'B2', [
       { type: REF_RANGE, value: "'[My Fancy Workbook.xlsx]'!B$1" }
     ]);
+
+    expect(translateTokensToA1([ { type: 'range', value: 'foo!R1C' } ], 'B2'))
+      .toEqual([ { type: 'range', value: 'foo!B$1' } ]);
+    expect(translateTokensToA1([ { type: 'range', value: '[foo]!R1C' } ], 'B2'))
+      .toEqual([ { type: 'range', value: '[foo]!B$1' } ]);
+    expect(translateTokensToA1([ { type: 'range', value: '[foo]bar!R1C' } ], 'B2'))
+      .toEqual([ { type: 'range', value: '[foo]bar!B$1' } ]);
 
     testExpr('[Workbook.xlsx]!R1C', 'B2', [
       { type: REF_RANGE, value: '[Workbook.xlsx]!B$1' }
@@ -224,8 +233,8 @@ describe('translate works with xlsx mode references', () => {
 
 describe('translate works with trimmed ranges', () => {
   function testExpr (expr: string, anchor: string, expected: any[]) {
-    const opts = { mergeRefs: true, xlsx: true, r1c1: true };
-    expect(translateTokensToA1(tokenize(expr, opts), anchor, opts)).toEqual(expected);
+    const opts = { mergeRefs: true, r1c1: true };
+    expect(translateTokensToA1(tokenizeXlsx(expr, opts), anchor)).toEqual(expected);
   }
 
   test('trimmed range translation', () => {

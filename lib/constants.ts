@@ -1,5 +1,5 @@
 export const OPERATOR = 'operator';
-export const OPERATOR_TRIM = 'operator-trim';
+export const OPERATOR_TRIM = 'operator-trim'; // internal only
 export const BOOLEAN = 'bool';
 export const ERROR = 'error';
 export const NUMBER = 'number';

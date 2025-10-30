@@ -1,14 +1,19 @@
 import { MAX_ROWS, MAX_COLS, ERROR } from './constants.ts';
-import { stringifyA1Ref, stringifyA1RefXlsx } from './stringifyA1Ref.ts';
-import { parseR1C1Ref, parseR1C1RefXlsx } from './parseR1C1Ref.ts';
-import { tokenize, tokenizeXlsx } from './tokenize.ts';
+import { stringifyA1RefXlsx } from './stringifyA1Ref.ts';
+import { parseR1C1RefXlsx } from './parseR1C1Ref.ts';
+import { tokenizeXlsx } from './tokenize.ts';
 import { isRange } from './isType.ts';
 import { fromA1 } from './fromA1.ts';
-import type { RangeA1, ReferenceR1C1, ReferenceR1C1Xlsx, Token } from './types.ts';
+import type { RangeA1, ReferenceR1C1Xlsx, Token } from './types.ts';
 import { stringifyTokens } from './stringifyTokens.ts';
 import { cloneToken } from './cloneToken.ts';
 
-function toFixed (val, abs, base, max, wrapEdges = true) {
+// Turn on the most permissive setting when parsing ranges so we don't have to think about
+// this option. We already know that range tokens are legal, so we're not going to encounter
+// ternary ranges who's validity we need to worry about.
+const REF_OPTS = { allowTernary: true };
+
+function toFixed (val: number, abs: boolean, base: number, max: number, wrapEdges = true) {
   let v = val;
   if (v != null && !abs) {
     v = base + val;
@@ -33,30 +38,12 @@ function toFixed (val, abs, base, max, wrapEdges = true) {
   return v;
 }
 
-export type TranslateToA1Options = {
+export type TranslateTokensToA1Options = {
   /**
   * Wrap out-of-bounds ranges around sheet edges rather than turning them to #REF! errors.
   * @defaultValue true
   */
   wrapEdges?: boolean,
-  /**
-  * Should ranges be treated as whole references (`Sheet1!A1:B2`) or as separate tokens
-  * for each part: (`Sheet1`,`!`,`A1`,`:`,`B2`).
-  * @defaultValue true
-  */
-  mergeRefs?: boolean,
-  /**
-  * Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks.
-  * See: [Prefixes.md](./Prefixes.md)
-  * @defaultValue false
-  */
-  xlsx?: boolean,
-  /**
-  * Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`.
-  * These are supported by Google Sheets but not Excel. See: References.md.
-  * @defaultValue true
-  */
-  allowTernary?: boolean,
 };
 
 /**
@@ -88,38 +75,30 @@ export type TranslateToA1Options = {
  *
  * @param formula A string (an Excel formula) or a token list that should be adjusted.
  * @param anchorCell A simple string reference to an A1 cell ID (`AF123` or`$C$5`).
- * @param {boolean} [options.wrapEdges]  Wrap out-of-bounds ranges around sheet edges rather than turning them to #REF! errors
- * @param {boolean} [options.mergeRefs]  Should ranges be treated as whole references (`Sheet1!A1:B2`) or as separate tokens for each part: (`Sheet1`,`!`,`A1`,`:`,`B2`).
- * @param {boolean} [options.xlsx]  Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md)
- * @param {boolean} [options.allowTernary]  Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: References.md.
+ * @param options Translation options.
  * @returns A formula string or token list (depending on which was input)
  */
 export function translateTokensToA1 (
   tokens: Token[],
   anchorCell: string,
-  options: TranslateToA1Options = {}
+  options: TranslateTokensToA1Options = {}
 ): Token[] {
   const anchorRange = fromA1(anchorCell);
   if (!anchorRange) {
     throw new Error('translateToR1C1 got an invalid anchorCell: ' + anchorCell);
   }
   const { top, left } = anchorRange;
-  const {
-    wrapEdges = true,
-    allowTernary = true,
-    xlsx = false
-  } = options;
+  const { wrapEdges = true } = options;
 
   let offsetSkew = 0;
-  const refOpts = { allowTernary: allowTernary };
   const outTokens = [];
   for (let token of tokens) {
     if (isRange(token)) {
       token = cloneToken(token);
       const tokenValue = token.value;
-      const ref = xlsx
-        ? parseR1C1RefXlsx(tokenValue, refOpts) as ReferenceR1C1Xlsx
-        : parseR1C1Ref(tokenValue, refOpts) as ReferenceR1C1;
+      // We can get away with using the xlsx ref-parser here because it is more permissive
+      // and we will end up with the same prefix after serialization anyway:
+      const ref = parseR1C1RefXlsx(tokenValue, REF_OPTS) as ReferenceR1C1Xlsx;
       const d = ref.range;
       const range: RangeA1 = { top: 0, left: 0 };
       const r0 = toFixed(d.r0, d.$r0, top, MAX_ROWS, wrapEdges);
@@ -162,7 +141,7 @@ export function translateTokensToA1 (
       else {
         ref.range = range;
         // @ts-expect-error -- reusing the object, switching it to A1 by swapping the range
-        token.value = xlsx ? stringifyA1RefXlsx(ref) : stringifyA1Ref(ref);
+        token.value = stringifyA1RefXlsx(ref);
       }
       // if token includes offsets, those offsets are now likely wrong!
       if (token.loc) {
@@ -181,6 +160,26 @@ export function translateTokensToA1 (
 
   return outTokens;
 }
+
+export type TranslateFormulaToA1Options = {
+  /**
+  * Wrap out-of-bounds ranges around sheet edges rather than turning them to #REF! errors.
+  * @defaultValue true
+  */
+  wrapEdges?: boolean,
+  /**
+  * Should ranges be treated as whole references (`Sheet1!A1:B2`) or as separate tokens
+  * for each part: (`Sheet1`,`!`,`A1`,`:`,`B2`).
+  * @defaultValue true
+  */
+  mergeRefs?: boolean,
+  /**
+  * Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`.
+  * These are supported by Google Sheets but not Excel. See: References.md.
+  * @defaultValue true
+  */
+  allowTernary?: boolean,
+};
 
 /**
  * Translates ranges in a formula from relative R1C1 syntax to absolute A1 syntax.
@@ -205,28 +204,20 @@ export function translateTokensToA1 (
  *
  * @param formula A string (an Excel formula) or a token list that should be adjusted.
  * @param anchorCell A simple string reference to an A1 cell ID (`AF123` or`$C$5`).
- * @param {boolean} [options.wrapEdges]  Wrap out-of-bounds ranges around sheet edges rather than turning them to #REF! errors
- * @param {boolean} [options.xlsx]  Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md)
+ * @param options Translation options.
  * @returns A formula string or token list (depending on which was input)
  */
 export function translateFormulaToA1 (
   formula: string,
   anchorCell: string,
-  options: TranslateToA1Options = {}
+  options: TranslateFormulaToA1Options = {}
 ): string {
   if (typeof formula === 'string') {
-    const tokens = options.xlsx
-      ? tokenizeXlsx(formula, {
-        allowTernary: options.allowTernary ?? true,
-        mergeRefs: options.mergeRefs,
-        r1c1: true
-      })
-      : tokenize(formula, {
-        allowTernary: options.allowTernary ?? true,
-        mergeRefs: options.mergeRefs,
-        r1c1: true
-      });
-    return stringifyTokens(translateTokensToA1(tokens, anchorCell, options));
+    return stringifyTokens(translateTokensToA1(tokenizeXlsx(formula, {
+      allowTernary: options.allowTernary ?? true,
+      mergeRefs: options.mergeRefs,
+      r1c1: true
+    }), anchorCell, options));
   }
   throw new Error('translateFormulaToA1 expects a formula string');
 }

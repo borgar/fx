@@ -1,7 +1,10 @@
 export { tokenize, type TokenizeOptions } from './tokenize.ts';
 export { parse, type ParseOptions } from './parse.ts';
 export { translateFormulaToR1C1, translateTokensToR1C1, type TranslateToR1C1Options } from './translateToR1C1.ts';
-export { translateFormulaToA1, translateTokensToA1, type TranslateToA1Options } from './translateToA1.ts';
+export {
+  translateFormulaToA1, type TranslateFormulaToA1Options,
+  translateTokensToA1, type TranslateTokensToA1Options
+} from './translateToA1.ts';
 export { MAX_COLS, MAX_ROWS } from './constants.ts';
 export { mergeRefTokens } from './mergeRefTokens.ts';
 export { fixTokenRanges, fixFormulaRanges, type FixRangesOptions } from './fixRanges.ts';
@@ -72,7 +75,10 @@ import {
   ERROR_LITERAL,
   CALL,
   ARRAY,
-  IDENTIFIER
+  IDENTIFIER,
+  LAMBDA,
+  LET,
+  LET_DECL
 } from './constants.ts';
 
 /**
@@ -137,6 +143,8 @@ export const nodeTypes = Object.freeze({
   ERROR: ERROR_LITERAL,
   CALL,
   ARRAY,
-  IDENTIFIER
+  IDENTIFIER,
+  LAMBDA,
+  LET,
+  LET_DECL
 });
-
