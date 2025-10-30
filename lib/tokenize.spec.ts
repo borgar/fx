@@ -4,7 +4,7 @@ import {
   OPERATOR, BOOLEAN, ERROR, NUMBER, FUNCTION, WHITESPACE, STRING,
   REF_RANGE, REF_BEAM, REF_NAMED, REF_TERNARY, CONTEXT, CONTEXT_QUOTE, NEWLINE
 } from './constants.ts';
-import { tokenize } from './tokenize.ts';
+import { tokenize, tokenizeXlsx } from './tokenize.ts';
 
 function isTokens (expr: string, result: any[], opts?: any) {
   expect(tokenize(expr, { negativeNumbers: false, ...opts })).toEqual(result);
@@ -2058,5 +2058,20 @@ describe('lexer', () => {
         { type: WHITESPACE, value: '\r' }
       ]);
     });
+  });
+
+  test('xlsx vs non-xlsx modes work as exptected', () => {
+    // to the tokenizer, the only difference between the two variants is
+    // that [x]!A1 is forbidden in the default one
+    expect(tokenize('[foo]bar!A1')).toEqual([ { type: REF_RANGE, value: '[foo]bar!A1' } ]);
+    expect(tokenize('[foo]!A1')).toEqual([
+      { type: UNKNOWN, value: '[foo]' },
+      { type: OPERATOR, value: '!' },
+      { type: REF_RANGE, value: 'A1' }
+    ]);
+    expect(tokenize('foo!A1')).toEqual([ { type: REF_RANGE, value: 'foo!A1' } ]);
+    expect(tokenizeXlsx('[foo]bar!A1')).toEqual([ { type: REF_RANGE, value: '[foo]bar!A1' } ]);
+    expect(tokenizeXlsx('[foo]!A1')).toEqual([ { type: REF_RANGE, value: '[foo]!A1' } ]);
+    expect(tokenizeXlsx('foo!A1')).toEqual([ { type: REF_RANGE, value: 'foo!A1' } ]);
   });
 });

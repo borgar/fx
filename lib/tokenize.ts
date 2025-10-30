@@ -246,11 +246,6 @@ export type TokenizeOptions = {
    * @defaultValue false
    */
   r1c1?: boolean
-  /**
-   * Enables a `[1]Sheet1!A1` or `[1]!name` syntax form for external workbooks found only in XLSX files.
-   * @defaultValue false
-   */
-  xlsx?: boolean
 };
 
 /**
@@ -293,4 +288,54 @@ export function tokenize (
   options: TokenizeOptions = {}
 ): Token[] {
   return getTokens(formula, lexers, options);
+}
+
+/**
+ * Breaks a string formula into a list of tokens.
+ *
+ * The returned output will be an array of objects representing the tokens:
+ *
+ * ```js
+ * [
+ *   { type: FX_PREFIX, value: '=' },
+ *   { type: FUNCTION, value: 'SUM' },
+ *   { type: OPERATOR, value: '(' },
+ *   { type: REF_RANGE, value: 'A1:B2' },
+ *   { type: OPERATOR, value: ')' }
+ * ]
+ * ```
+ *
+ * Token types may be found as an Object as the
+ * [`tokenTypes` export]{@link tokenTypes} on the package
+ * (`import {tokenTypes} from '@borgar/fx';`).
+ *
+ * _Warning:_ To support syntax highlighting as you type, `STRING` tokens are allowed to be
+ * "unterminated". For example, the incomplete formula `="Hello world` would be
+ * tokenized as:
+ *
+ * ```js
+ * [
+ *   { type: FX_PREFIX, value: '=' },
+ *   { type: STRING, value: '"Hello world', unterminated: true },
+ * ]
+ * ```
+ *
+ * @see tokenTypes
+ * @param formula An Excel formula string (an Excel expression).
+ * @param [options]  Options
+ * @returns An array of Tokens
+ */
+export function tokenizeXlsx (
+  formula: string,
+  options: TokenizeOptions = {}
+): Token[] {
+  const opts = {
+    withLocation: options.withLocation ?? false,
+    mergeRefs: options.mergeRefs ?? true,
+    allowTernary: options.allowTernary ?? false,
+    negativeNumbers: options.negativeNumbers ?? true,
+    r1c1: options.r1c1 ?? false,
+    xlsx: true
+  };
+  return getTokens(formula, lexers, opts);
 }
