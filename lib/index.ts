@@ -20,7 +20,7 @@ export {
 export { fromCol } from './fromCol.ts';
 export { toCol } from './toCol.ts';
 
-export { parseA1Ref } from './parseA1Ref.ts';
+export { parseA1Ref, parseA1RefXlsx, type ParseA1RefOptions } from './parseA1Ref.ts';
 export { stringifyA1Ref } from './stringifyA1Ref.ts';
 
 export { addA1RangeBounds } from './addA1RangeBounds.ts';

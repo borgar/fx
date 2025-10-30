@@ -1,5 +1,5 @@
 import { isRange } from './isType.ts';
-import { parseA1Ref } from './parseA1Ref.ts';
+import { parseA1Ref, parseA1RefXlsx } from './parseA1Ref.ts';
 import { stringifyA1Ref } from './stringifyA1Ref.ts';
 import { addA1RangeBounds } from './addA1RangeBounds.ts';
 import { parseStructRef } from './parseStructRef.ts';
@@ -93,7 +93,9 @@ export function fixTokenRanges (
       token.value = newValue;
     }
     else if (isRange(token)) {
-      const ref = parseA1Ref(token.value, { xlsx, allowTernary: true }) as ReferenceA1 | ReferenceA1Xlsx;
+      const ref = xlsx
+        ? parseA1RefXlsx(token.value, { allowTernary: true }) as ReferenceA1Xlsx
+        : parseA1Ref(token.value, { allowTernary: true }) as ReferenceA1;
       const range = ref.range;
       // fill missing dimensions?
       if (addBounds) {

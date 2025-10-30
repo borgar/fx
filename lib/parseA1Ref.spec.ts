@@ -1,10 +1,15 @@
 /* eslint-disable @stylistic/object-property-newline */
 import { describe, test, expect } from 'vitest';
-import { parseA1Ref } from './parseA1Ref.ts';
+import { parseA1Ref, parseA1RefXlsx, type ParseA1RefOptions } from './parseA1Ref.ts';
 
-function isA1Equal (expr: string, expected: any, opts?: any) {
+type IsA1EqualOptions = ParseA1RefOptions & {
+  xlsx?: boolean,
+};
+
+function isA1Equal (expr: string, expected: any, opts?: IsA1EqualOptions) {
+  const xlsx = !!(opts?.xlsx);
   if (expected) {
-    expected = opts?.xlsx
+    expected = xlsx
       ? { workbookName: '', sheetName: '', ...expected }
       : { context: [], ...expected };
     Object.assign(expected, expected);
@@ -17,7 +22,7 @@ function isA1Equal (expr: string, expected: any, opts?: any) {
       };
     }
   }
-  expect(parseA1Ref(expr, opts)).toEqual(expected);
+  expect(xlsx ? parseA1RefXlsx(expr, opts) : parseA1Ref(expr, opts)).toEqual(expected);
 }
 
 describe('parse A1 references', () => {

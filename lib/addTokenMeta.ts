@@ -1,5 +1,5 @@
 import { REF_RANGE, REF_BEAM, REF_TERNARY, UNKNOWN, REF_STRUCT } from './constants.ts';
-import { parseA1Ref } from './parseA1Ref.ts';
+import { parseA1RefXlsx } from './parseA1Ref.ts';
 import { parseStructRef } from './parseStructRef.ts';
 import type { ReferenceA1Xlsx, ReferenceStructXlsx, Token, TokenEnhanced } from './types.ts';
 
@@ -204,7 +204,7 @@ export function addTokenMeta (tokenlist: Token[], { sheetName = '', workbookName
       token.type === REF_BEAM ||
       token.type === REF_TERNARY
     ) {
-      const ref = parseA1Ref(token.value, { allowTernary: true, xlsx: true });
+      const ref = parseA1RefXlsx(token.value, { allowTernary: true });
       if (ref && 'range' in ref) {
         addContext(ref, sheetName, workbookName);
         token.groupId = knownRefs.getGroupId(ref);

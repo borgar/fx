@@ -1,4 +1,4 @@
-import { parseA1Ref } from './parseA1Ref.ts';
+import { parseA1Ref, parseA1RefXlsx } from './parseA1Ref.ts';
 import { stringifyR1C1Ref } from './stringifyR1C1Ref.ts';
 import { tokenize } from './tokenize.ts';
 import { isRange } from './isType.ts';
@@ -66,7 +66,9 @@ export function translateToR1C1 (
     if (isRange(token)) {
       token = cloneToken(token);
       const tokenValue = token.value;
-      const ref = parseA1Ref(tokenValue, refOpts) as (ReferenceA1 | ReferenceA1Xlsx);
+      const ref = xlsx
+        ? parseA1RefXlsx(tokenValue, refOpts) as ReferenceA1Xlsx
+        : parseA1Ref(tokenValue, refOpts) as ReferenceA1;
       const d = ref.range;
       const range: RangeR1C1 = {};
       range.r0 = calc(d.$top, d.top, top);
