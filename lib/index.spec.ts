@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
   addA1RangeBounds,
-  addTokenMeta,
   fixTokenRanges,
   fixFormulaRanges,
   fromCol,
@@ -33,9 +32,6 @@ import {
 describe('fx main interface', () => {
   it('addA1RangeBounds exists', () => {
     expect(typeof addA1RangeBounds === 'function').toBeTruthy();
-  });
-  it('addTokenMeta exists', () => {
-    expect(typeof addTokenMeta === 'function').toBeTruthy();
   });
   it('fixTokenRanges exists', () => {
     expect(typeof fixTokenRanges === 'function').toBeTruthy();

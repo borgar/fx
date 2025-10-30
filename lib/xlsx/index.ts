@@ -1,6 +1,7 @@
 export * from '../index.ts';
 
-// export { addTokenMeta } from './addTokenMeta.ts';
+// only exported here, not in the parent module (because it assumes xlsx tokens)
+export { addTokenMeta } from '../addTokenMeta.ts';
 
 // needs work:
 // export { translateToR1C1, type TranslateToR1C1Options } from './translateToR1C1.ts';
