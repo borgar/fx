@@ -38,7 +38,6 @@ import {
   REF_BEAM
 } from './constants.ts';
 
-import { tokenize } from './tokenize.ts';
 import type { Token } from './types.ts';
 import type { ArrayExpression, AstExpression, BinaryExpression, CallExpression, Identifier, LambdaExpression, LetDeclarator, LetExpression, UnaryExpression } from './astTypes.ts';
 
@@ -681,23 +680,6 @@ prefix('{', function (this: ArrayExpression & { value?: string }) {
 
 export type ParseOptions = {
   /**
-   * Enable parsing names as well as ranges.
-   * @defaultValue true
-   */
-  allowNamed?: boolean,
-  /**
-   * Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`.
-   * These are supported by Google Sheets but not Excel. See: References.md.
-   * @defaultValue false
-   */
-  allowTernary?: boolean,
-  /**
-   * Merges unary minuses with their immediately following number tokens (`-`,`1`) => `-1`
-   * (alternatively these will be unary operations in the tree).
-   * @defaultValue true
-   */
-  negativeNumbers?: boolean,
-  /**
    * Ranges are allowed as elements of arrays. This is a feature in Google Sheets while Excel
    * does not allow it.
    * @defaultValue false
@@ -715,29 +697,13 @@ export type ParseOptions = {
    * @defaultValue false
    */
   looseRefCalls?: boolean,
-  /**
-   * Ranges are expected to be in the R1C1 style format rather than the more popular A1 style.
-   * @defaultValue false
-   */
-  r1c1?: boolean,
-  /**
-   * Nodes will include source position offsets to the tokens: `{ loc: [ start, end ] }`
-   * @defaultValue false
-   */
-  withLocation?: boolean,
-  /**
-   * Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks.
-   * See: [Prefixes.md](./Prefixes.md)
-   * @defaultValue false
-   */
-  xlsx?: boolean,
 };
 
 /**
  * Parses a string formula or list of tokens into an AST.
  *
- * The parser requires `mergeRefs` to have been `true` in tokenlist options,
- * because it does not recognize reference context tokens.
+ * The parser assumes `mergeRefs` and `negativeNumbers` were `true` when the tokens were generated.
+ * It does not recognize reference context tokens or deal with unary minuses in arrays.
  *
  * The AST Abstract Syntax Tree's format is documented in
  * [AST_format.md](./AST_format.md)
@@ -748,21 +714,11 @@ export type ParseOptions = {
  * @returns An AST of nodes
  */
 export function parse (
-  formula: string | Token[],
+  tokenlist: Token[],
   options: ParseOptions = {}
 ): AstExpression {
-  if (typeof formula === 'string') {
-    tokens = tokenize(formula, {
-      withLocation: false,
-      ...options,
-      mergeRefs: true
-    });
-  }
-  else if (Array.isArray(formula)) {
-    tokens = formula;
-  }
-  else {
-    throw new Error('Parse requires a string or array of tokens.');
+  if (!Array.isArray(tokenlist)) {
+    throw new Error('Parse requires an array of tokens.');
   }
   // allow ranges in array "literals"?
   permitArrayRanges = options?.permitArrayRanges;
@@ -770,7 +726,8 @@ export function parse (
   permitArrayCalls = options?.permitArrayCalls;
   // allow any function call in range operations?
   looseRefCalls = options?.looseRefCalls;
-  // set index to start
+  // assign the tokenlist and set index to start
+  tokens = tokenlist;
   tokenIndex = 0;
   // discard redundant whitespace and = prefix
   while (isWhitespace(tokens[tokenIndex]) || isFxPrefix(tokens[tokenIndex])) {

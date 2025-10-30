@@ -1,14 +1,15 @@
 import { describe, test, expect } from 'vitest';
 import { parse } from './parse.ts';
+import { tokenize } from './tokenize.ts';
 
 function isParsed (expr: string, expected: any, opts?: any) {
-  const result = parse(expr, { allowTernary: true, withLocation: false, ...opts });
+  const result = parse(tokenize(expr, { ...opts, allowTernary: true }), opts);
   const cleaned = JSON.parse(JSON.stringify(result));
   expect(cleaned).toEqual(expected);
 }
 
 function isInvalidExpr (expr: string, opts?: any) {
-  expect(() => parse(expr, { allowTernary: true, ...opts })).toThrow();
+  expect(() => parse(tokenize(expr, { allowTernary: true }), { allowTernary: true, ...opts })).toThrow();
 }
 
 describe('parser', () => {
