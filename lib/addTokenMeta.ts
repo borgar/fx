@@ -1,6 +1,6 @@
 import { REF_RANGE, REF_BEAM, REF_TERNARY, UNKNOWN, REF_STRUCT } from './constants.ts';
 import { parseA1RefXlsx } from './parseA1Ref.ts';
-import { parseStructRef } from './parseStructRef.ts';
+import { parseStructRefXlsx } from './parseStructRef.ts';
 import type { ReferenceA1Xlsx, ReferenceStructXlsx, Token, TokenEnhanced } from './types.ts';
 
 function getIDer (): () => string {
@@ -211,7 +211,7 @@ export function addTokenMeta (tokenlist: Token[], { sheetName = '', workbookName
       }
     }
     else if (token.type === REF_STRUCT) {
-      const ref = parseStructRef(token.value, { xlsx: true });
+      const ref = parseStructRefXlsx(token.value);
       if (ref) {
         addContext(ref, sheetName, workbookName);
         token.groupId = knownRefs.getGroupId(ref);

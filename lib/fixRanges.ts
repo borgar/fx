@@ -2,7 +2,7 @@ import { isRange } from './isType.ts';
 import { parseA1Ref, parseA1RefXlsx } from './parseA1Ref.ts';
 import { stringifyA1Ref } from './stringifyA1Ref.ts';
 import { addA1RangeBounds } from './addA1RangeBounds.ts';
-import { parseStructRef } from './parseStructRef.ts';
+import { parseStructRef, parseStructRefXlsx } from './parseStructRef.ts';
 import { stringifyStructRef, stringifyStructRefXlsx } from './stringifyStructRef.ts';
 import { tokenize } from './tokenize.ts';
 import { REF_STRUCT } from './constants.ts';
@@ -85,7 +85,7 @@ export function fixTokenRanges (
     const token = cloneToken(t);
     let offsetDelta = 0;
     if (token.type === REF_STRUCT) {
-      const sref = parseStructRef(token.value, { xlsx });
+      const sref = xlsx ? parseStructRefXlsx(token.value) : parseStructRef(token.value);
       const newValue = xlsx
         ? stringifyStructRefXlsx(sref, { thisRow })
         : stringifyStructRef(sref, { thisRow });

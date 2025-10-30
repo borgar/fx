@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest';
-import { parseStructRef } from './parseStructRef.ts';
+import { parseStructRef, parseStructRefXlsx } from './parseStructRef.ts';
 
 function isSREqual (expr: string, expected: any, opts?: any) {
   if (expected) {
@@ -20,7 +20,7 @@ function isSREqual (expr: string, expected: any, opts?: any) {
         ...expected
       };
   }
-  expect(parseStructRef(expr, opts)).toEqual(expected);
+  expect(opts?.xlsx ? parseStructRefXlsx(expr) : parseStructRef(expr)).toEqual(expected);
 }
 
 describe('parse structured references', () => {
