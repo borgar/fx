@@ -1,5 +1,5 @@
 import { parseA1Ref, parseA1RefXlsx } from './parseA1Ref.ts';
-import { stringifyR1C1Ref } from './stringifyR1C1Ref.ts';
+import { stringifyR1C1Ref, stringifyR1C1RefXlsx } from './stringifyR1C1Ref.ts';
 import { tokenize } from './tokenize.ts';
 import { isRange } from './isType.ts';
 import { fromA1 } from './fromA1.ts';
@@ -84,7 +84,7 @@ export function translateToR1C1 (
       }
       // @ts-expect-error -- reusing the object, switching it to R1C1 by swapping the range
       ref.range = range;
-      token.value = stringifyR1C1Ref(ref, refOpts);
+      token.value = xlsx ? stringifyR1C1RefXlsx(ref) : stringifyR1C1Ref(ref);
       // if token includes offsets, those offsets are now likely wrong!
       if (token.loc) {
         token.loc[0] += offsetSkew;

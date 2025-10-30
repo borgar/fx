@@ -1,6 +1,6 @@
 import { isRange } from './isType.ts';
 import { parseA1Ref, parseA1RefXlsx } from './parseA1Ref.ts';
-import { stringifyA1Ref } from './stringifyA1Ref.ts';
+import { stringifyA1Ref, stringifyA1RefXlsx } from './stringifyA1Ref.ts';
 import { addA1RangeBounds } from './addA1RangeBounds.ts';
 import { parseStructRef, parseStructRefXlsx } from './parseStructRef.ts';
 import { stringifyStructRef, stringifyStructRefXlsx } from './stringifyStructRef.ts';
@@ -101,7 +101,7 @@ export function fixTokenRanges (
       if (addBounds) {
         addA1RangeBounds(range);
       }
-      const newValue = stringifyA1Ref(ref, { xlsx });
+      const newValue = xlsx ? stringifyA1RefXlsx(ref) : stringifyA1Ref(ref);
       offsetDelta = newValue.length - token.value.length;
       token.value = newValue;
     }

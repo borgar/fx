@@ -31,20 +31,38 @@ import { stringifyR1C1Range } from './stringifyR1C1Range.ts';
  * ```
  *
  * @param refObject A reference object
+ * @returns The reference in R1C1-style string format
+ */
+export function stringifyR1C1Ref (refObject: ReferenceR1C1 | ReferenceName): string {
+  const prefix = stringifyPrefix(refObject as ReferenceR1C1);
+  return prefix + ('name' in refObject ? refObject.name : stringifyR1C1Range(refObject.range));
+}
+
+/**
+ * Get an R1C1-style string representation of a reference object.
+ *
+ * ```js
+ * stringifyR1C1Ref({
+ *   sheetName: 'Sheet1',
+ *   range: {
+ *     r0: 9,
+ *     c0: 8,
+ *     r1: 9,
+ *     c1: 8,
+ *     $c0: true,
+ *     $c1: true
+ *     $r0: false,
+ *     $r1: false
+ *   }
+ * });
+ * // => 'Sheet1!R[9]C9:R[9]C9'
+ * ```
+ *
+ * @param refObject A reference object
  * @param [options.xlsx=false]  Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md)
  * @returns The reference in R1C1-style string format
  */
-export function stringifyR1C1Ref (
-  refObject: ReferenceR1C1 | ReferenceR1C1Xlsx | ReferenceName | ReferenceNameXlsx,
-  { xlsx = false }: { xlsx?: boolean; } = {}
-): string {
-  const prefix = xlsx
-    ? stringifyPrefixXlsx(refObject as ReferenceR1C1Xlsx)
-    : stringifyPrefix(refObject as ReferenceR1C1);
-  return prefix + (
-    // @ts-expect-error -- We want speed, not type infrencecing here.
-    refObject.name
-      ? (refObject as ReferenceName).name
-      : stringifyR1C1Range((refObject as ReferenceR1C1).range)
-  );
+export function stringifyR1C1RefXlsx (refObject: ReferenceR1C1Xlsx | ReferenceNameXlsx): string {
+  const prefix = stringifyPrefixXlsx(refObject);
+  return prefix + ('name' in refObject ? refObject.name : stringifyR1C1Range(refObject.range));
 }

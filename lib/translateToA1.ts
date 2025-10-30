@@ -1,5 +1,5 @@
 import { MAX_ROWS, MAX_COLS, ERROR } from './constants.ts';
-import { stringifyA1Ref } from './stringifyA1Ref.ts';
+import { stringifyA1Ref, stringifyA1RefXlsx } from './stringifyA1Ref.ts';
 import { parseR1C1Ref, parseR1C1RefXlsx } from './parseR1C1Ref.ts';
 import { tokenize } from './tokenize.ts';
 import { isRange } from './isType.ts';
@@ -124,7 +124,7 @@ export function translateToA1 (
     : formula;
 
   let offsetSkew = 0;
-  const refOpts = { xlsx: xlsx, allowTernary: allowTernary };
+  const refOpts = { allowTernary: allowTernary };
   const outTokens = [];
   for (let token of tokens) {
     if (isRange(token)) {
@@ -175,7 +175,7 @@ export function translateToA1 (
       else {
         ref.range = range;
         // @ts-expect-error -- reusing the object, switching it to A1 by swapping the range
-        token.value = stringifyA1Ref(ref, refOpts);
+        token.value = xlsx ? stringifyA1RefXlsx(ref) : stringifyA1Ref(ref);
       }
       // if token includes offsets, those offsets are now likely wrong!
       if (token.loc) {

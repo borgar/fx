@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest';
-import { stringifyR1C1Ref } from './stringifyR1C1Ref.ts';
+import { stringifyR1C1Ref, stringifyR1C1RefXlsx } from './stringifyR1C1Ref.ts';
 
 describe('stringifyR1C1Ref', () => {
   const rangeA1 = { r0: 2, c0: 4, r1: 2, c1: 4 };
@@ -33,7 +33,7 @@ describe('stringifyR1C1Ref in XLSX mode', () => {
   const rangeA1 = { r0: 2, c0: 4, r1: 2, c1: 4 };
 
   function testRef (ref: any, expected: string) {
-    expect(stringifyR1C1Ref(ref, { xlsx: true })).toBe(expected);
+    expect(stringifyR1C1RefXlsx(ref)).toBe(expected);
   }
 
   test('basic stringification', () => {
