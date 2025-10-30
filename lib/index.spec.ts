@@ -24,7 +24,8 @@ import {
   toCol,
   tokenize,
   tokenTypes,
-  translateToA1,
+  translateFormulaToA1,
+  translateTokensToA1,
   translateToR1C1
 } from './index.ts';
 
@@ -96,8 +97,11 @@ describe('fx main interface', () => {
   it('tokenize exists', () => {
     expect(typeof tokenize === 'function').toBeTruthy();
   });
-  it('translateToA1 exists', () => {
-    expect(typeof translateToA1 === 'function').toBeTruthy();
+  it('translateFormulaToA1 exists', () => {
+    expect(typeof translateFormulaToA1 === 'function').toBeTruthy();
+  });
+  it('translateTokensToA1 exists', () => {
+    expect(typeof translateTokensToA1 === 'function').toBeTruthy();
   });
   it('translateToR1C1 exists', () => {
     expect(typeof translateToR1C1 === 'function').toBeTruthy();

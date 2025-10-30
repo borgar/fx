@@ -60,8 +60,7 @@ export type TranslateToA1Options = {
 };
 
 /**
- * Translates ranges in a formula or list of tokens from relative R1C1 syntax to
- * absolute A1 syntax.
+ * Translates ranges in a list of tokens from relative R1C1 syntax to absolute A1 syntax.
  *
  * ```js
  * translateToA1("=SUM(RC[1],R2C5,Sheet!R3C5)", "D10");
@@ -95,39 +94,21 @@ export type TranslateToA1Options = {
  * @param {boolean} [options.allowTernary]  Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: References.md.
  * @returns A formula string or token list (depending on which was input)
  */
-export function translateToA1 (
-  formula: string | Token[],
+export function translateTokensToA1 (
+  tokens: Token[],
   anchorCell: string,
   options: TranslateToA1Options = {}
-): string | Token[] {
+): Token[] {
   const anchorRange = fromA1(anchorCell);
   if (!anchorRange) {
     throw new Error('translateToR1C1 got an invalid anchorCell: ' + anchorCell);
   }
   const { top, left } = anchorRange;
-  const isString = typeof formula === 'string';
   const {
     wrapEdges = true,
-    mergeRefs = true,
     allowTernary = true,
     xlsx = false
   } = options;
-
-  const tokens = isString
-    ? xlsx
-      ? tokenizeXlsx(formula, {
-        withLocation: false,
-        mergeRefs: mergeRefs,
-        allowTernary: allowTernary,
-        r1c1: true
-      })
-      : tokenize(formula, {
-        withLocation: false,
-        mergeRefs: mergeRefs,
-        allowTernary: allowTernary,
-        r1c1: true
-      })
-    : formula;
 
   let offsetSkew = 0;
   const refOpts = { allowTernary: allowTernary };
@@ -190,7 +171,7 @@ export function translateToA1 (
         token.loc[1] += offsetSkew;
       }
     }
-    else if (offsetSkew && token.loc && !isString) {
+    else if (offsetSkew && token.loc) {
       token = cloneToken(token);
       token.loc[0] += offsetSkew;
       token.loc[1] += offsetSkew;
@@ -198,7 +179,54 @@ export function translateToA1 (
     outTokens[outTokens.length] = token;
   }
 
-  return isString
-    ? stringifyTokens(outTokens)
-    : outTokens;
+  return outTokens;
+}
+
+/**
+ * Translates ranges in a formula from relative R1C1 syntax to absolute A1 syntax.
+ *
+ * ```js
+ * translateToA1("=SUM(RC[1],R2C5,Sheet!R3C5)", "D10");
+ * // => "=SUM(E10,$E$2,Sheet!$E$3)");
+ * ```
+ *
+ * If an input range is -1,-1 relative rows/columns and the anchor is A1, the
+ * resulting range will (by default) wrap around to the bottom of the sheet
+ * resulting in the range XFD1048576. This may not be what you want so may set
+ * `wrapEdges` to false which will instead turn the range into a `#REF!` error.
+ *
+ * ```js
+ * translateToA1("=R[-1]C[-1]", "A1");
+ * // => "=XFD1048576");
+ *
+ * translateToA1("=R[-1]C[-1]", "A1", { wrapEdges: false });
+ * // => "=#REF!");
+ * ```
+ *
+ * @param formula A string (an Excel formula) or a token list that should be adjusted.
+ * @param anchorCell A simple string reference to an A1 cell ID (`AF123` or`$C$5`).
+ * @param {boolean} [options.wrapEdges]  Wrap out-of-bounds ranges around sheet edges rather than turning them to #REF! errors
+ * @param {boolean} [options.xlsx]  Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md)
+ * @returns A formula string or token list (depending on which was input)
+ */
+export function translateFormulaToA1 (
+  formula: string,
+  anchorCell: string,
+  options: TranslateToA1Options = {}
+): string {
+  if (typeof formula === 'string') {
+    const tokens = options.xlsx
+      ? tokenizeXlsx(formula, {
+        allowTernary: options.allowTernary ?? true,
+        mergeRefs: options.mergeRefs,
+        r1c1: true
+      })
+      : tokenize(formula, {
+        allowTernary: options.allowTernary ?? true,
+        mergeRefs: options.mergeRefs,
+        r1c1: true
+      });
+    return stringifyTokens(translateTokensToA1(tokens, anchorCell, options));
+  }
+  throw new Error('translateFormulaToA1 expects a formula string');
 }

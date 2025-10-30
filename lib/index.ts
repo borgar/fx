@@ -1,7 +1,7 @@
 export { tokenize, type TokenizeOptions } from './tokenize.ts';
 export { parse, type ParseOptions } from './parse.ts';
 export { translateToR1C1, type TranslateToR1C1Options } from './translateToR1C1.ts';
-export { translateToA1, type TranslateToA1Options } from './translateToA1.ts';
+export { translateFormulaToA1, translateTokensToA1, type TranslateToA1Options } from './translateToA1.ts';
 export { MAX_COLS, MAX_ROWS } from './constants.ts';
 export { mergeRefTokens } from './mergeRefTokens.ts';
 export { fixTokenRanges, fixFormulaRanges, type FixRangesOptions } from './fixRanges.ts';

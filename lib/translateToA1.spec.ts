@@ -1,11 +1,11 @@
 import { describe, test, expect } from 'vitest';
-import { translateToA1 } from './translateToA1.ts';
+import { translateFormulaToA1, translateTokensToA1 } from './translateToA1.ts';
 import { tokenize } from './tokenize.ts';
 import { addTokenMeta } from './addTokenMeta.ts';
 import { ERROR, FUNCTION, FX_PREFIX, OPERATOR, REF_RANGE, REF_BEAM, REF_STRUCT } from './constants.ts';
 
 function isR2A (expr: string, anchor: string, result: string, opts?: any) {
-  expect(translateToA1(expr, anchor, opts)).toBe(result);
+  expect(translateFormulaToA1(expr, anchor, opts)).toBe(result);
 }
 
 describe('translate absolute cells from RC to A1', () => {
@@ -130,10 +130,10 @@ describe('translate bounds coords from RC to A1', () => {
 
   test('out of bounds references with wrapEdges disabled', () => {
     const f1 = '=R[-1]C[-1]';
-    expect(translateToA1(f1, 'A1', { wrapEdges: false })).toBe('=#REF!');
+    expect(translateFormulaToA1(f1, 'A1', { wrapEdges: false })).toBe('=#REF!');
 
     const tokens = addTokenMeta(tokenize('SUM(Sheet1!R[-1]C[-1])', { r1c1: true, withLocation: true }));
-    expect(translateToA1(tokens, 'A1', { wrapEdges: false })).toEqual([
+    expect(translateTokensToA1(tokens, 'A1', { wrapEdges: false })).toEqual([
       { type: FUNCTION, value: 'SUM', loc: [ 0, 3 ], index: 0, depth: 0 },
       { type: OPERATOR, value: '(', loc: [ 3, 4 ], index: 1, depth: 1, groupId: 'fxg1' },
       { type: ERROR, value: '#REF!', loc: [ 4, 9 ], index: 2, depth: 1 },
@@ -141,10 +141,10 @@ describe('translate bounds coords from RC to A1', () => {
     ]);
 
     const f2 = '=Sheet4!R[-2]C[-2]:R[-1]C[-1]';
-    expect(translateToA1(f2, 'B2', { wrapEdges: false })).toBe('=#REF!');
+    expect(translateFormulaToA1(f2, 'B2', { wrapEdges: false })).toBe('=#REF!');
 
     const f3 = '=Sheet4!R[-2]C[-2]:R[-1]C[-1]';
-    expect(translateToA1(f3, 'B2', { wrapEdges: false, mergeRefs: false })).toBe('=Sheet4!#REF!:A1');
+    expect(translateFormulaToA1(f3, 'B2', { wrapEdges: false, mergeRefs: false })).toBe('=Sheet4!#REF!:A1');
   });
 });
 
@@ -193,14 +193,14 @@ describe('translate works with merged ranges', () => {
       { type: REF_BEAM, value: 'Sheet2!B:B', loc: [ 36, 46 ], index: 14, depth: 1 },
       { type: OPERATOR, value: ')', loc: [ 46, 47 ], index: 15, depth: 1, groupId: 'fxg3' }
     ];
-    expect(translateToA1(tokens, 'D10')).toEqual(expected);
+    expect(translateTokensToA1(tokens, 'D10')).toEqual(expected);
   });
 });
 
 describe('translate works with xlsx mode references', () => {
   function testExpr (expr: string, anchor: string, expected: any[]) {
     const opts = { mergeRefs: true, xlsx: true, r1c1: true };
-    expect(translateToA1(tokenize(expr, opts), anchor, opts)).toEqual(expected);
+    expect(translateTokensToA1(tokenize(expr, opts), anchor, opts)).toEqual(expected);
   }
 
   test('XLSX workbook references', () => {
@@ -225,7 +225,7 @@ describe('translate works with xlsx mode references', () => {
 describe('translate works with trimmed ranges', () => {
   function testExpr (expr: string, anchor: string, expected: any[]) {
     const opts = { mergeRefs: true, xlsx: true, r1c1: true };
-    expect(translateToA1(tokenize(expr, opts), anchor, opts)).toEqual(expected);
+    expect(translateTokensToA1(tokenize(expr, opts), anchor, opts)).toEqual(expected);
   }
 
   test('trimmed range translation', () => {
