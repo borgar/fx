@@ -1,6 +1,6 @@
 import { MAX_ROWS, MAX_COLS, ERROR } from './constants.ts';
 import { stringifyA1Ref } from './stringifyA1Ref.ts';
-import { parseR1C1Ref } from './parseR1C1Ref.ts';
+import { parseR1C1Ref, parseR1C1RefXlsx } from './parseR1C1Ref.ts';
 import { tokenize } from './tokenize.ts';
 import { isRange } from './isType.ts';
 import { fromA1 } from './fromA1.ts';
@@ -130,7 +130,9 @@ export function translateToA1 (
     if (isRange(token)) {
       token = cloneToken(token);
       const tokenValue = token.value;
-      const ref = parseR1C1Ref(tokenValue, refOpts) as (ReferenceR1C1 | ReferenceR1C1Xlsx);
+      const ref = xlsx
+        ? parseR1C1RefXlsx(tokenValue, refOpts) as ReferenceR1C1Xlsx
+        : parseR1C1Ref(tokenValue, refOpts) as ReferenceR1C1;
       const d = ref.range;
       const range: RangeA1 = { top: 0, left: 0 };
       const r0 = toFixed(d.r0, d.$r0, top, MAX_ROWS, wrapEdges);

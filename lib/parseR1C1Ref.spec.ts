@@ -1,10 +1,17 @@
 /* eslint-disable @stylistic/object-property-newline */
 import { describe, test, expect } from 'vitest';
-import { parseR1C1Ref } from './parseR1C1Ref.ts';
+import { parseR1C1Ref, parseR1C1RefXlsx } from './parseR1C1Ref.ts';
 
-function isRCEqual (expr: string, expected: any, opts?: any) {
+type Options = {
+  allowNamed?: boolean;
+  allowTernary?: boolean;
+  xlsx?: boolean;
+};
+
+function isRCEqual (expr: string, expected: any, opts?: Options) {
+  const xlsx = !!opts?.xlsx;
   if (expected) {
-    expected = (opts?.xlsx)
+    expected = xlsx
       ? { workbookName: '', sheetName: '', ...expected }
       : { context: [], ...expected };
     if (expected.range && typeof expected.range === 'object') {
@@ -16,7 +23,7 @@ function isRCEqual (expr: string, expected: any, opts?: any) {
       };
     }
   }
-  expect(parseR1C1Ref(expr, opts)).toEqual(expected);
+  expect(xlsx ? parseR1C1RefXlsx(expr, opts) : parseR1C1Ref(expr, opts)).toEqual(expected);
 }
 
 describe('parse single R1C1 references', () => {
