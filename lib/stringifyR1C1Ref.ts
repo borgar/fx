@@ -7,7 +7,7 @@
 ** - R[1]C[1]:R2C2 doesn't have a direct rectangle represention without context.
 */
 import type { ReferenceName, ReferenceNameXlsx, ReferenceR1C1, ReferenceR1C1Xlsx } from './types.ts';
-import { stringifyPrefix, stringifyPrefixAlt } from './stringifyPrefix.ts';
+import { stringifyPrefix, stringifyPrefixXlsx } from './stringifyPrefix.ts';
 import { stringifyR1C1Range } from './stringifyR1C1Range.ts';
 
 /**
@@ -39,7 +39,7 @@ export function stringifyR1C1Ref (
   { xlsx = false }: { xlsx?: boolean; } = {}
 ): string {
   const prefix = xlsx
-    ? stringifyPrefixAlt(refObject as ReferenceR1C1Xlsx)
+    ? stringifyPrefixXlsx(refObject as ReferenceR1C1Xlsx)
     : stringifyPrefix(refObject as ReferenceR1C1);
   return prefix + (
     // @ts-expect-error -- We want speed, not type infrencecing here.

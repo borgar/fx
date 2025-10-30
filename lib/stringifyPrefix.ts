@@ -29,7 +29,7 @@ export function stringifyPrefix (ref: ReferenceA1 | ReferenceStruct | ReferenceR
   return pre ? pre + '!' : pre;
 }
 
-export function stringifyPrefixAlt (ref: ReferenceA1Xlsx | ReferenceStructXlsx | ReferenceR1C1Xlsx): string {
+export function stringifyPrefixXlsx (ref: ReferenceA1Xlsx | ReferenceStructXlsx | ReferenceR1C1Xlsx): string {
   let pre = '';
   let quote = 0;
   const { workbookName, sheetName } = ref;

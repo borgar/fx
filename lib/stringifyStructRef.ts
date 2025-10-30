@@ -1,5 +1,5 @@
 import type { ReferenceStruct, ReferenceStructXlsx } from './types.ts';
-import { stringifyPrefix, stringifyPrefixAlt } from './stringifyPrefix.ts';
+import { stringifyPrefix, stringifyPrefixXlsx } from './stringifyPrefix.ts';
 
 function quoteColname (str: string): string {
   return str.replace(/([[\]#'@])/g, '\'$1');
@@ -14,7 +14,7 @@ function toSentenceCase (str: string): string {
 }
 
 /**
- * Get a string representation of a structured reference object.
+ * Returns a string representation of a structured reference object.
  *
  * ```js
  * stringifyStructRef({
@@ -30,7 +30,7 @@ function toSentenceCase (str: string): string {
  * @param [options={}]  Options
  * @param [options.xlsx=false]  Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md)
  * @param [options.thisRow=false]  Enforces using the `[#This Row]` instead of the `@` shorthand when serializing structured ranges.
- * @returns The structured reference in string format
+ * @returns The given structured reference in string format
  */
 export function stringifyStructRef (
   refObject: ReferenceStruct | ReferenceStructXlsx,
@@ -38,7 +38,7 @@ export function stringifyStructRef (
 ): string {
   const { xlsx, thisRow } = options;
   let s = xlsx
-    ? stringifyPrefixAlt(refObject)
+    ? stringifyPrefixXlsx(refObject)
     : stringifyPrefix(refObject);
 
   if (refObject.table) {

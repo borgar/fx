@@ -1,4 +1,4 @@
-import { stringifyPrefix, stringifyPrefixAlt } from './stringifyPrefix.ts';
+import { stringifyPrefix, stringifyPrefixXlsx } from './stringifyPrefix.ts';
 import type { ReferenceA1, ReferenceA1Xlsx, ReferenceName, ReferenceNameXlsx } from './types.ts';
 import { stringifyA1Range } from './stringifyA1Range.ts';
 
@@ -31,7 +31,7 @@ export function stringifyA1Ref (
   { xlsx = false }: { xlsx?: boolean; } = {}
 ): string {
   const prefix = xlsx
-    ? stringifyPrefixAlt(refObject as ReferenceA1Xlsx | ReferenceNameXlsx)
+    ? stringifyPrefixXlsx(refObject as ReferenceA1Xlsx | ReferenceNameXlsx)
     : stringifyPrefix(refObject as ReferenceA1 | ReferenceName);
   return prefix + (
     'name' in refObject ? refObject.name : stringifyA1Range(refObject.range)
