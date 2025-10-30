@@ -1,11 +1,11 @@
 import { describe, test, expect } from 'vitest';
-import { translateToR1C1 } from './translateToR1C1.ts';
+import { translateFormulaToR1C1, translateTokensToR1C1 } from './translateToR1C1.ts';
 import { tokenize } from './tokenize.ts';
 import { addTokenMeta } from './addTokenMeta.ts';
 import { FUNCTION, FX_PREFIX, OPERATOR, REF_RANGE, REF_BEAM, REF_STRUCT } from './constants.ts';
 
 function isA2R (expr: string, anchor: string, result: string) {
-  expect(translateToR1C1(expr, anchor)).toBe(result);
+  expect(translateFormulaToR1C1(expr, anchor)).toBe(result);
 }
 
 describe('translate absolute cells from A1 to RC', () => {
@@ -181,7 +181,7 @@ describe('translate works with merged ranges', () => {
       { type: REF_BEAM, value: 'Sheet2!C[-2]', loc: [ 35, 47 ], index: 14, depth: 1, groupId: 'fxg6' },
       { type: OPERATOR, value: ')', loc: [ 47, 48 ], index: 15, depth: 1, groupId: 'fxg7' }
     ];
-    expect(translateToR1C1(tokens, 'D10')).toEqual(expected);
+    expect(translateTokensToR1C1(tokens, 'D10')).toEqual(expected);
   });
 });
 
@@ -189,7 +189,7 @@ describe('translate works with xlsx mode', () => {
   function testExpr (expr: string, anchor: string, expected: any[]) {
     const opts = { mergeRefs: true, xlsx: true, r1c1: false };
     const tokens = tokenize(expr, opts);
-    expect(translateToR1C1(tokens, anchor, opts)).toEqual(expected);
+    expect(translateTokensToR1C1(tokens, anchor, opts)).toEqual(expected);
   }
 
   test('XLSX workbook references', () => {
@@ -214,7 +214,7 @@ describe('translate works with xlsx mode', () => {
 describe('translate works with trimmed ranges', () => {
   function testExpr (expr: string, anchor: string, expected: any[]) {
     const opts = { mergeRefs: true, xlsx: true, r1c1: false };
-    expect(translateToR1C1(tokenize(expr, opts), anchor, opts)).toEqual(expected);
+    expect(translateTokensToR1C1(tokenize(expr, opts), anchor, opts)).toEqual(expected);
   }
 
   test('trimmed range translation', () => {

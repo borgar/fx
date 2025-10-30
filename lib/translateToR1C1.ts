@@ -34,7 +34,7 @@ export type TranslateToR1C1Options = {
  * relative R1C1 syntax.
  *
  * ```js
- * translateToR1C1("=SUM(E10,$E$2,Sheet!$E$3)", "D10");
+ * translateFormulaToR1C1("=SUM(E10,$E$2,Sheet!$E$3)", "D10");
  * // => "=SUM(RC[1],R2C5,Sheet!R3C5)");
  * ```
  *
@@ -43,23 +43,17 @@ export type TranslateToR1C1Options = {
  * @param [options={}] The options
  * @returns A formula string or token list (depending on which was input)
  */
-export function translateToR1C1 (
-  formula: (string | Token[]),
+export function translateTokensToR1C1 (
+  tokens: Token[],
   anchorCell: string,
-  { xlsx = false, allowTernary = true }: TranslateToR1C1Options = {}
-): (string | Token[]) {
+  options: TranslateToR1C1Options = {}
+): Token[] {
+  const { xlsx = false, allowTernary = true } = options;
   const anchorRange = fromA1(anchorCell);
   if (!anchorRange) {
-    throw new Error('translateToR1C1 got an invalid anchorCell: ' + anchorCell);
+    throw new Error('translateTokensToR1C1 got an invalid anchorCell: ' + anchorCell);
   }
   const { top, left } = anchorRange;
-  const isString = typeof formula === 'string';
-
-  const tokens = isString
-    ? xlsx
-      ? tokenizeXlsx(formula, { withLocation: false, mergeRefs: false, r1c1: false, allowTernary })
-      : tokenize(formula, { withLocation: false, mergeRefs: false, r1c1: false, allowTernary })
-    : formula;
 
   let offsetSkew = 0;
   const refOpts = { xlsx, allowTernary };
@@ -86,7 +80,9 @@ export function translateToR1C1 (
       }
       // @ts-expect-error -- reusing the object, switching it to R1C1 by swapping the range
       ref.range = range;
-      token.value = xlsx ? stringifyR1C1RefXlsx(ref) : stringifyR1C1Ref(ref);
+      token.value = xlsx
+        ? stringifyR1C1RefXlsx(ref)
+        : stringifyR1C1Ref(ref);
       // if token includes offsets, those offsets are now likely wrong!
       if (token.loc) {
         token.loc[0] += offsetSkew;
@@ -94,7 +90,7 @@ export function translateToR1C1 (
         token.loc[1] += offsetSkew;
       }
     }
-    else if (offsetSkew && token.loc && !isString) {
+    else if (offsetSkew && token.loc) {
       token = cloneToken(token);
       token.loc[0] += offsetSkew;
       token.loc[1] += offsetSkew;
@@ -102,7 +98,39 @@ export function translateToR1C1 (
     outTokens[outTokens.length] = token;
   }
 
-  return isString
-    ? stringifyTokens(outTokens)
-    : outTokens;
+  return outTokens;
+}
+
+/**
+ * Translates ranges in a formula or list of tokens from absolute A1 syntax to
+ * relative R1C1 syntax.
+ *
+ * ```js
+ * translateFormulaToR1C1("=SUM(E10,$E$2,Sheet!$E$3)", "D10");
+ * // => "=SUM(RC[1],R2C5,Sheet!R3C5)");
+ * ```
+ *
+ * @param formula A string (an Excel formula) or a token list that should be adjusted.
+ * @param anchorCell A simple string reference to an A1 cell ID (`AF123` or`$C$5`).
+ * @param [options={}] The options
+ * @returns A formula string or token list (depending on which was input)
+ */
+export function translateFormulaToR1C1 (
+  formula: string,
+  anchorCell: string,
+  options: TranslateToR1C1Options = {}
+): string {
+  if (typeof formula === 'string') {
+    const tokens = options.xlsx
+      ? tokenizeXlsx(formula, {
+        mergeRefs: false,
+        allowTernary: options.allowTernary ?? true
+      })
+      : tokenize(formula, {
+        mergeRefs: false,
+        allowTernary: options.allowTernary ?? true
+      });
+    return stringifyTokens(translateTokensToR1C1(tokens, anchorCell, options));
+  }
+  throw new Error('translateFormulaToA1 expects a formula string');
 }

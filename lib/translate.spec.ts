@@ -1,9 +1,9 @@
 import { describe, test, expect } from 'vitest';
-import { translateToR1C1 } from './translateToR1C1.ts';
+import { translateFormulaToR1C1 } from './translateToR1C1.ts';
 import { translateFormulaToA1 } from './translateToA1.ts';
 
 function okayRoundTrip (expr: string, anchor: string, options?: any) {
-  const rc = translateToR1C1(expr, anchor, options) as string;
+  const rc = translateFormulaToR1C1(expr, anchor, options);
   const a1 = translateFormulaToA1(rc, anchor, options);
   expect(a1).toBe(expr);
 }

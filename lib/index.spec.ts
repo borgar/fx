@@ -26,7 +26,8 @@ import {
   tokenTypes,
   translateFormulaToA1,
   translateTokensToA1,
-  translateToR1C1
+  translateFormulaToR1C1,
+  translateTokensToR1C1
 } from './index.ts';
 
 // What happens when B2:A1 -> should work!
@@ -103,8 +104,11 @@ describe('fx main interface', () => {
   it('translateTokensToA1 exists', () => {
     expect(typeof translateTokensToA1 === 'function').toBeTruthy();
   });
-  it('translateToR1C1 exists', () => {
-    expect(typeof translateToR1C1 === 'function').toBeTruthy();
+  it('translateFormulaToR1C1 exists', () => {
+    expect(typeof translateFormulaToR1C1 === 'function').toBeTruthy();
+  });
+  it('translateTokensToR1C1 exists', () => {
+    expect(typeof translateTokensToR1C1 === 'function').toBeTruthy();
   });
   it('nodeTypes exists', () => {
     expect(typeof nodeTypes === 'object').toBeTruthy();
