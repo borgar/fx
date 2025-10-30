@@ -4,7 +4,7 @@ import { stringifyA1Ref, stringifyA1RefXlsx } from './stringifyA1Ref.ts';
 import { addA1RangeBounds } from './addA1RangeBounds.ts';
 import { parseStructRef, parseStructRefXlsx } from './parseStructRef.ts';
 import { stringifyStructRef, stringifyStructRefXlsx } from './stringifyStructRef.ts';
-import { tokenize } from './tokenize.ts';
+import { tokenize, type TokenizeOptions } from './tokenize.ts';
 import { REF_STRUCT } from './constants.ts';
 import type { ReferenceA1, ReferenceA1Xlsx, Token } from './types.ts';
 import { cloneToken } from './cloneToken.ts';
@@ -138,7 +138,7 @@ export function fixTokenRanges (
  */
 export function fixFormulaRanges (
   formula: string,
-  options: FixRangesOptions = {}
+  options: FixRangesOptions & TokenizeOptions = {}
 ): string {
   if (typeof formula !== 'string') {
     throw new Error('fixFormulaRanges expects a string formula');

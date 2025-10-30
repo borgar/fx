@@ -1,7 +1,10 @@
 {
   "plugin": [ "typedoc-plugin-markdown" ],
   "out": "./tempdocs",
-  "entryPoints": [ "lib/index.ts" ],
+  "entryPoints": [
+    "lib/index.ts",
+    "lib/xlsx/index.ts"
+  ],
   "cleanOutputDir": true,
   "readme": "none",
   "headings": {

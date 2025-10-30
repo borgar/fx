@@ -1,6 +1,6 @@
 import { parseA1Ref, parseA1RefXlsx } from './parseA1Ref.ts';
 import { stringifyR1C1Ref, stringifyR1C1RefXlsx } from './stringifyR1C1Ref.ts';
-import { tokenize } from './tokenize.ts';
+import { tokenize, tokenizeXlsx } from './tokenize.ts';
 import { isRange } from './isType.ts';
 import { fromA1 } from './fromA1.ts';
 import type { RangeR1C1, ReferenceA1, ReferenceA1Xlsx, Token } from './types.ts';
@@ -56,7 +56,9 @@ export function translateToR1C1 (
   const isString = typeof formula === 'string';
 
   const tokens = isString
-    ? tokenize(formula, { withLocation: false, mergeRefs: false, r1c1: false, xlsx, allowTernary })
+    ? xlsx
+      ? tokenizeXlsx(formula, { withLocation: false, mergeRefs: false, r1c1: false, allowTernary })
+      : tokenize(formula, { withLocation: false, mergeRefs: false, r1c1: false, allowTernary })
     : formula;
 
   let offsetSkew = 0;

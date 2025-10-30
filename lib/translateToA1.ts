@@ -1,7 +1,7 @@
 import { MAX_ROWS, MAX_COLS, ERROR } from './constants.ts';
 import { stringifyA1Ref, stringifyA1RefXlsx } from './stringifyA1Ref.ts';
 import { parseR1C1Ref, parseR1C1RefXlsx } from './parseR1C1Ref.ts';
-import { tokenize } from './tokenize.ts';
+import { tokenize, tokenizeXlsx } from './tokenize.ts';
 import { isRange } from './isType.ts';
 import { fromA1 } from './fromA1.ts';
 import type { RangeA1, ReferenceR1C1, ReferenceR1C1Xlsx, Token } from './types.ts';
@@ -114,13 +114,19 @@ export function translateToA1 (
   } = options;
 
   const tokens = isString
-    ? tokenize(formula, {
-      withLocation: false,
-      mergeRefs: mergeRefs,
-      xlsx: xlsx,
-      allowTernary: allowTernary,
-      r1c1: true
-    })
+    ? xlsx
+      ? tokenizeXlsx(formula, {
+        withLocation: false,
+        mergeRefs: mergeRefs,
+        allowTernary: allowTernary,
+        r1c1: true
+      })
+      : tokenize(formula, {
+        withLocation: false,
+        mergeRefs: mergeRefs,
+        allowTernary: allowTernary,
+        r1c1: true
+      })
     : formula;
 
   let offsetSkew = 0;

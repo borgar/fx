@@ -20,7 +20,7 @@ export {
 export { fromCol } from './fromCol.ts';
 export { toCol } from './toCol.ts';
 
-export { parseA1Ref, parseA1RefXlsx, type ParseA1RefOptions } from './parseA1Ref.ts';
+export { parseA1Ref, type ParseA1RefOptions } from './parseA1Ref.ts';
 export { stringifyA1Ref } from './stringifyA1Ref.ts';
 
 export { addA1RangeBounds } from './addA1RangeBounds.ts';
@@ -28,7 +28,7 @@ export { addA1RangeBounds } from './addA1RangeBounds.ts';
 export { parseR1C1Ref } from './parseR1C1Ref.ts';
 export { stringifyR1C1Ref } from './stringifyR1C1Ref.ts';
 
-export { stringifyStructRef, stringifyStructRefXlsx } from './stringifyStructRef.ts';
+export { stringifyStructRef } from './stringifyStructRef.ts';
 export { parseStructRef } from './parseStructRef.ts';
 
 export type {
