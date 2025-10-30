@@ -1,25 +1,26 @@
 import { describe, test, expect } from 'vitest';
 import { tokenize } from './tokenize.ts';
 import { addTokenMeta } from './addTokenMeta.ts';
-import { fixRanges } from './fixRanges.ts';
+import { fixFormulaRanges, fixTokenRanges } from './fixRanges.ts';
 import { FUNCTION, FX_PREFIX, OPERATOR, REF_RANGE, REF_STRUCT, REF_TERNARY } from './constants.ts';
 
 function isFixed (expr: string, expected: string, options = {}) {
-  const result = fixRanges(expr, options);
+  const result = fixFormulaRanges(expr, options);
   expect(result).toBe(expected);
 }
 
 describe('fixRanges basics', () => {
   test('throws on non-string inputs', () => {
-    expect(() => fixRanges(123 as any)).toThrow();
-    expect(() => fixRanges(null as any)).toThrow();
+    expect(() => fixTokenRanges(123 as any)).toThrow();
+    expect(() => fixTokenRanges(null as any)).toThrow();
+    expect(() => fixFormulaRanges(123 as any)).toThrow();
+    expect(() => fixFormulaRanges(null as any)).toThrow();
   });
 
   test('emits new array instance and preserves meta', () => {
     const fx = '=SUM([wb]Sheet1!B2:A1)';
     const tokens = addTokenMeta(tokenize(fx, { mergeRefs: true }));
-    tokens[3].foo = 'bar';
-    const fixedTokens = fixRanges(tokens);
+    const fixedTokens = fixTokenRanges(tokens);
 
     expect(tokens).not.toBe(fixedTokens);
     expect(tokens[3]).not.toBe(fixedTokens[3]);
@@ -29,8 +30,7 @@ describe('fixRanges basics', () => {
       value: '[wb]Sheet1!B2:A1',
       index: 3,
       depth: 1,
-      groupId: 'fxg1',
-      foo: 'bar'
+      groupId: 'fxg1'
     });
 
     expect(fixedTokens[3]).toEqual({
@@ -38,8 +38,7 @@ describe('fixRanges basics', () => {
       value: '[wb]Sheet1!A1:B2',
       index: 3,
       depth: 1,
-      groupId: 'fxg1',
-      foo: 'bar'
+      groupId: 'fxg1'
     });
   });
 
@@ -49,7 +48,7 @@ describe('fixRanges basics', () => {
       { withLocation: true, mergeRefs: true, allowTernary: true }
     );
 
-    expect(fixRanges(tokensWithRanges, { addBounds: true })).toEqual([
+    expect(fixTokenRanges(tokensWithRanges, { addBounds: true })).toEqual([
       { type: FX_PREFIX, value: '=', loc: [ 0, 1 ] },
       { type: FUNCTION, value: 'SUM', loc: [ 1, 4 ] },
       { type: OPERATOR, value: '(', loc: [ 4, 5 ] },

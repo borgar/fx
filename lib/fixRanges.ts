@@ -7,15 +7,35 @@ import { stringifyStructRef, stringifyStructRefXlsx } from './stringifyStructRef
 import { tokenize } from './tokenize.ts';
 import { REF_STRUCT } from './constants.ts';
 import type { ReferenceA1, ReferenceA1Xlsx, Token } from './types.ts';
+import { cloneToken } from './cloneToken.ts';
+import { stringifyTokens } from './tokensToString.ts';
 
 // There is no R1C1 counterpart to this. This is because without an anchor cell
 // it is impossible to determine if a relative+absolute range (R[1]C[1]:R5C5)
 // needs to be flipped or not. The solution is to convert to A1 first:
 // translateToRC(fixRanges(translateToA1(...)))
 
+export type FixRangesOptions = {
+  /**
+   * Fill in any undefined bounds of range objects. Top to 0, bottom to 1048575, left to 0, and right to 16383.
+   * @defaultValue false
+   */
+  addBounds?: boolean,
+  /**
+   * Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks.
+   * See: [Prefixes.md](./Prefixes.md)
+   * @defaultValue false
+   */
+  xlsx?: boolean,
+  /**
+   * Enforces using the `[#This Row]` instead of the `@` shorthand when serializing structured ranges.
+   * @defaultValue false
+   */
+  thisRow?: boolean,
+};
+
 /**
- * Normalizes A1 style ranges and structured references in a formula or list of
- * tokens.
+ * Normalizes A1 style ranges and structured references in a list of tokens.
  *
  * It ensures that that the top and left coordinates of an A1 range are on the
  * left-hand side of a colon operator:
@@ -42,42 +62,27 @@ import type { ReferenceA1, ReferenceA1Xlsx, Token } from './types.ts';
  * B2:2 → B2:XFD2
  * ```
  *
- * Structured ranges are normalized cleaned up to have consistent order and
- * capitalization of sections as well as removing redundant ones.
+ * Structured ranges are normalized to have consistent order and capitalization
+ * of sections as well as removing redundant ones.
  *
- * Returns the same formula with the ranges updated. If an array of tokens was
- * supplied, then a new array is returned.
+ * Returns a new array of tokens with values and position data updated.
  *
- * @param formula A string (an Excel formula) or a token list that should be adjusted.
- * @param [options={}]  Options
- * @param [options.addBounds=false]  Fill in any undefined bounds of range objects. Top to 0, bottom to 1048575, left to 0, and right to 16383.
- * @param [options.xlsx=false]  Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md)
- * @param [options.thisRow=false]  Enforces using the `[#This Row]` instead of the `@` shorthand when serializing structured ranges.
- * @returns A formula string or token list (depending on which was input)
+ * @param tokens A list of tokens to be adjusted.
+ * @param [options]  Options
+ * @returns A token list with ranges adjusted
  */
-export function fixRanges (
-  formula: (string | Token[]),
-  options: { addBounds?: boolean; xlsx?: boolean; thisRow?: boolean; } = {}
-): (string | Token[]) {
-  if (typeof formula === 'string') {
-    return (fixRanges(tokenize(formula, options), options) as Token[])
-      .map(d => d.value)
-      .join('');
-  }
-  if (!Array.isArray(formula)) {
+export function fixTokenRanges (
+  tokens: Token[],
+  options: FixRangesOptions = {}
+): Token[] {
+  if (!Array.isArray(tokens)) {
     throw new Error('fixRanges expects an array of tokens');
   }
-  // @ts-expect-error -- Accidents may happen in JS land
-  const { addBounds, r1c1, xlsx, thisRow } = options;
-  if (r1c1) {
-    throw new Error('fixRanges does not have an R1C1 mode');
-  }
+  const { addBounds, xlsx, thisRow } = options;
   let offsetSkew = 0;
-  return formula.map(t => {
-    const token = { ...t };
-    if (t.loc) {
-      token.loc = [ ...t.loc ];
-    }
+  const output: Token[] = [];
+  for (const t of tokens) {
+    const token = cloneToken(t);
     let offsetDelta = 0;
     if (token.type === REF_STRUCT) {
       const sref = parseStructRef(token.value, { xlsx });
@@ -111,6 +116,35 @@ export function fixRanges (
     else {
       offsetSkew += offsetDelta;
     }
-    return token;
-  });
+    output.push(token);
+  }
+
+  return output;
+}
+
+/**
+ * Normalizes A1 style ranges and structured references in a formula.
+ *
+ * Internally it uses {@link fixTokenRanges} so see it's documentation for details.
+ *
+ * Returns the same formula with the ranges updated. If an array of tokens was
+ * supplied, then a new array is returned.
+ *
+ * @param formula A string (an Excel formula) or a token list that should be adjusted.
+ * @param [options]  Options
+ * @returns A formula string with ranges adjusted
+ */
+export function fixFormulaRanges (
+  formula: string,
+  options: FixRangesOptions = {}
+): string {
+  if (typeof formula !== 'string') {
+    throw new Error('fixFormulaRanges expects a string formula');
+  }
+  return stringifyTokens(
+    fixTokenRanges(
+      tokenize(formula, options),
+      options
+    )
+  );
 }

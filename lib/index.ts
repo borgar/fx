@@ -5,7 +5,7 @@ export { translateToR1C1, type TranslateToR1C1Options } from './translateToR1C1.
 export { translateToA1, type TranslateToA1Options } from './translateToA1.ts';
 export { MAX_COLS, MAX_ROWS } from './constants.ts';
 export { mergeRefTokens } from './mergeRefTokens.ts';
-export { fixRanges } from './fixRanges.ts';
+export { fixTokenRanges, fixFormulaRanges, type FixRangesOptions } from './fixRanges.ts';
 export {
   isError,
   isFunction,

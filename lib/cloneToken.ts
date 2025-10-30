@@ -7,7 +7,7 @@ export function cloneToken<T extends Token | TokenEnhanced> (token: T): T {
     value: token.value
   };
   if (token.loc) {
-    newToken.loc = token.loc;
+    newToken.loc = [ token.loc[0], token.loc[1] ];
   }
   if (token.unterminated != null) {
     newToken.unterminated = token.unterminated;
