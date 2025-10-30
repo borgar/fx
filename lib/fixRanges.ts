@@ -8,7 +8,7 @@ import { tokenize, type TokenizeOptions, tokenizeXlsx } from './tokenize.ts';
 import { REF_STRUCT } from './constants.ts';
 import type { ReferenceA1, ReferenceA1Xlsx, Token } from './types.ts';
 import { cloneToken } from './cloneToken.ts';
-import { stringifyTokens } from './tokensToString.ts';
+import { stringifyTokens } from './stringifyTokens.ts';
 
 // There is no R1C1 counterpart to this. This is because without an anchor cell
 // it is impossible to determine if a relative+absolute range (R[1]C[1]:R5C5)

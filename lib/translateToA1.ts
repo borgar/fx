@@ -5,7 +5,7 @@ import { tokenize, tokenizeXlsx } from './tokenize.ts';
 import { isRange } from './isType.ts';
 import { fromA1 } from './fromA1.ts';
 import type { RangeA1, ReferenceR1C1, ReferenceR1C1Xlsx, Token } from './types.ts';
-import { stringifyTokens } from './tokensToString.ts';
+import { stringifyTokens } from './stringifyTokens.ts';
 import { cloneToken } from './cloneToken.ts';
 
 function toFixed (val, abs, base, max, wrapEdges = true) {

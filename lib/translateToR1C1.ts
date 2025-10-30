@@ -4,7 +4,7 @@ import { tokenize, tokenizeXlsx } from './tokenize.ts';
 import { isRange } from './isType.ts';
 import { fromA1 } from './fromA1.ts';
 import type { RangeR1C1, ReferenceA1, ReferenceA1Xlsx, Token } from './types.ts';
-import { stringifyTokens } from './tokensToString.ts';
+import { stringifyTokens } from './stringifyTokens.ts';
 import { cloneToken } from './cloneToken.ts';
 
 const calc = (abs: boolean, vX: number, aX: number): number => {

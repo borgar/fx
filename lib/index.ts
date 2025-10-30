@@ -30,6 +30,8 @@ export { stringifyR1C1Ref } from './stringifyR1C1Ref.ts';
 export { stringifyStructRef } from './stringifyStructRef.ts';
 export { parseStructRef } from './parseStructRef.ts';
 
+export { stringifyTokens } from './stringifyTokens.ts';
+
 export type {
   RangeA1,
   RangeR1C1,
