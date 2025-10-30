@@ -1,11 +1,13 @@
 import { describe, test, expect } from 'vitest';
 import { tokenize } from './tokenize.ts';
 import { addTokenMeta } from './addTokenMeta.ts';
-import { fixFormulaRanges, fixTokenRanges } from './fixRanges.ts';
+import { fixFormulaRanges, fixFormulaRangesXlsx, fixTokenRanges, fixTokenRangesXlsx } from './fixRanges.ts';
 import { FUNCTION, FX_PREFIX, OPERATOR, REF_RANGE, REF_STRUCT, REF_TERNARY } from './constants.ts';
 
-function isFixed (expr: string, expected: string, options = {}) {
-  const result = fixFormulaRanges(expr, options);
+function isFixed (expr: string, expected: string, options: any = {}) {
+  const result = options.xlsx
+    ? fixFormulaRangesXlsx(expr, options)
+    : fixFormulaRanges(expr, options);
   expect(result).toBe(expected);
 }
 
@@ -15,6 +17,10 @@ describe('fixRanges basics', () => {
     expect(() => fixTokenRanges(null as any)).toThrow();
     expect(() => fixFormulaRanges(123 as any)).toThrow();
     expect(() => fixFormulaRanges(null as any)).toThrow();
+    expect(() => fixTokenRangesXlsx(123 as any)).toThrow();
+    expect(() => fixTokenRangesXlsx(null as any)).toThrow();
+    expect(() => fixFormulaRangesXlsx(123 as any)).toThrow();
+    expect(() => fixFormulaRangesXlsx(null as any)).toThrow();
   });
 
   test('emits new array instance and preserves meta', () => {

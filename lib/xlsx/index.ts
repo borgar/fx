@@ -8,7 +8,11 @@ export { addTokenMeta } from '../addTokenMeta.ts';
 // export { translateToA1, type TranslateToA1Options } from './translateToA1.ts';
 
 // needs work:
-// export { fixTokenRanges, fixFormulaRanges, type FixRangesOptions } from './fixRanges.ts';
+export {
+  fixTokenRangesXlsx as fixTokenRanges,
+  fixFormulaRangesXlsx as fixFormulaRanges,
+  type FixRangesOptions
+} from '../fixRanges.ts';
 
 export { parseA1RefXlsx as parseA1Ref, type ParseA1RefOptions } from '../parseA1Ref.ts';
 export { parseR1C1RefXlsx as parseR1C1Ref } from '../parseR1C1Ref.ts';
