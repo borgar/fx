@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest';
-import { stringifyStructRef } from './stringifyStructRef.ts';
+import { stringifyStructRef, stringifyStructRefXlsx } from './stringifyStructRef.ts';
 
 describe('serialize structured references', () => {
   test('simple column references', () => {
@@ -74,49 +74,51 @@ describe('serialize structured references', () => {
 
 describe('structured references serialize in xlsx mode', () => {
   test('context vs workbookName/sheetName handling', () => {
-    expect(stringifyStructRef({
+    expect(stringifyStructRefXlsx({
+      // @ts-expect-error -- this is testing invalid input
       context: [ 'Lorem', 'Ipsum' ],
       columns: [ 'foo' ]
-    }, { xlsx: true })).toBe('[foo]');
+    })).toBe('[foo]');
 
     expect(stringifyStructRef({
+      // @ts-expect-error -- this is testing invalid input
       workbookName: 'Lorem',
       sheetName: 'Ipsum',
       columns: [ 'foo' ]
-    }, { xlsx: false })).toBe('[foo]');
+    })).toBe('[foo]');
 
-    expect(stringifyStructRef({
+    expect(stringifyStructRefXlsx({
       workbookName: 'Lorem',
       sheetName: 'Ipsum',
       columns: [ 'foo' ]
-    }, { xlsx: true })).toBe('[Lorem]Ipsum![foo]');
+    })).toBe('[Lorem]Ipsum![foo]');
   });
 
   test('workbook and sheet name handling', () => {
-    expect(stringifyStructRef({
+    expect(stringifyStructRefXlsx({
       workbookName: 'Lorem',
       columns: [ 'foo' ]
-    }, { xlsx: true })).toBe('[Lorem]![foo]');
+    })).toBe('[Lorem]![foo]');
 
-    expect(stringifyStructRef({
+    expect(stringifyStructRefXlsx({
       sheetName: 'Ipsum',
       columns: [ 'foo' ]
-    }, { xlsx: true })).toBe('Ipsum![foo]');
+    })).toBe('Ipsum![foo]');
   });
 });
 
 describe('longform serialize (in xlsx mode)', () => {
   test('thisRow option affects output format', () => {
-    expect(stringifyStructRef({
+    expect(stringifyStructRefXlsx({
       table: 'Table2',
       columns: [ 'col1' ],
       sections: [ 'this row' ]
-    }, { xlsx: true, thisRow: true })).toBe('Table2[[#This row],[col1]]');
+    }, { thisRow: true })).toBe('Table2[[#This row],[col1]]');
 
     expect(stringifyStructRef({
       table: 'Table2',
       columns: [ 'col1' ],
       sections: [ 'this row' ]
-    }, { xlsx: false, thisRow: true })).toBe('Table2[[#This row],[col1]]');
+    }, { thisRow: true })).toBe('Table2[[#This row],[col1]]');
   });
 });

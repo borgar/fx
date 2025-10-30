@@ -13,34 +13,8 @@ function toSentenceCase (str: string): string {
   return str[0].toUpperCase() + str.slice(1).toLowerCase();
 }
 
-/**
- * Returns a string representation of a structured reference object.
- *
- * ```js
- * stringifyStructRef({
- *   context: [ 'workbook.xlsx' ],
- *   sections: [ 'data' ],
- *   columns: [ 'my column', '@foo' ],
- *   table: 'tableName',
- * });
- * // => 'workbook.xlsx!tableName[[#Data],[Column1]:[Column2]]'
- * ```
- *
- * @param refObject A structured reference object
- * @param [options={}]  Options
- * @param [options.xlsx=false]  Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md)
- * @param [options.thisRow=false]  Enforces using the `[#This Row]` instead of the `@` shorthand when serializing structured ranges.
- * @returns The given structured reference in string format
- */
-export function stringifyStructRef (
-  refObject: ReferenceStruct | ReferenceStructXlsx,
-  options: { xlsx?: boolean; thisRow?: boolean; } = {}
-): string {
-  const { xlsx, thisRow } = options;
-  let s = xlsx
-    ? stringifyPrefixXlsx(refObject)
-    : stringifyPrefix(refObject);
-
+export function stringifySRef (refObject: ReferenceStruct, thisRow = false) {
+  let s = '';
   if (refObject.table) {
     s += refObject.table;
   }
@@ -81,4 +55,49 @@ export function stringifyStructRef (
     s += ']';
   }
   return s;
+}
+
+/**
+ * Returns a string representation of a structured reference object.
+ *
+ * ```js
+ * stringifyStructRef({
+ *   context: [ 'workbook.xlsx' ],
+ *   sections: [ 'data' ],
+ *   columns: [ 'my column', '@foo' ],
+ *   table: 'tableName',
+ * });
+ * // => 'workbook.xlsx!tableName[[#Data],[Column1]:[Column2]]'
+ * ```
+ *
+ * @param refObject A structured reference object
+ * @param [options={}]  Options
+ * @param [options.thisRow=false]  Enforces using the `[#This Row]` instead of the `@` shorthand when serializing structured ranges.
+ * @returns The given structured reference in string format
+ */
+export function stringifyStructRef (refObject: ReferenceStruct, options: { thisRow?: boolean; } = {}): string {
+  return stringifyPrefix(refObject) + stringifySRef(refObject, !!options.thisRow);
+}
+
+/**
+ * Returns a string representation of a structured reference object.
+ *
+ * ```js
+ * stringifyStructRef({
+ *   workbookName: 'workbook.xlsx',
+ *   sheetName: '',
+ *   sections: [ 'data' ],
+ *   columns: [ 'my column', '@foo' ],
+ *   table: 'tableName',
+ * });
+ * // => 'workbook.xlsx!tableName[[#Data],[Column1]:[Column2]]'
+ * ```
+ *
+ * @param refObject A structured reference object
+ * @param [options={}]  Options
+ * @param [options.thisRow=false]  Enforces using the `[#This Row]` instead of the `@` shorthand when serializing structured ranges.
+ * @returns The given structured reference in string format
+ */
+export function stringifyStructRefXlsx (refObject: ReferenceStructXlsx, options: { thisRow?: boolean; } = {}): string {
+  return stringifyPrefixXlsx(refObject) + stringifySRef(refObject, !!options.thisRow);
 }
