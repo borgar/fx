@@ -1,3 +1,15 @@
+/**
+ * A tokenizer, parser, and other utilities to work with Excel formula code.
+ *
+ * The xslx entry-point methods expect and return the variant of references that uses properties.
+ * If you are not using xlsx files you should use the {@link fx} variant methods.
+ *
+ * See [Prefixes.md](./Prefixes.md) for documentation on how scopes work in Fx.
+ *
+ * @packageDocumentation
+ * @module fx/xlsx
+ */
+
 export * from '../index.ts';
 
 // only exported here, not in the parent module (because it assumes xlsx tokens)

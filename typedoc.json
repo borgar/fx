@@ -1,7 +1,9 @@
 {
-  "plugin": [ "typedoc-plugin-markdown" ],
+  "plugin": [
+    "typedoc-plugin-markdown",
+    "./typedoc-ignore-links.ts"
+  ],
   "out": "./tempdocs",
-  "name": "fx",
   "entryPoints": [
     "lib/index.ts",
     "lib/xlsx/index.ts"
@@ -20,11 +22,20 @@
   "expandParameters": true,
   "propertiesFormat": "table",
   "parametersFormat": "table",
+  "interfacePropertiesFormat": "table",
+  "typeAliasPropertiesFormat": "table",
+  "propertyMembersFormat": "table",
+  "typeDeclarationFormat": "table",
   "disableSources": true,
   "excludeInternal": true,
   "excludePrivate": true,
   "excludeProtected": true,
   "pageTitleTemplates": {
     "member": "{name}"
+  },
+  "validation": {
+    "invalidLink": false,
+    "notExported": true,
+    "notDocumented": true,
   }
 }

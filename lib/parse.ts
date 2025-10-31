@@ -678,6 +678,9 @@ prefix('{', function (this: ArrayExpression & { value?: string }) {
   return this;
 });
 
+/**
+ * Options for {@link parse}.
+ */
 export type OptsParse = {
   /**
    * Ranges are allowed as elements of arrays. This is a feature in Google Sheets while Excel

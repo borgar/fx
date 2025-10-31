@@ -11,6 +11,11 @@
       "require": "./dist/index.cjs",
       "types": "./dist/index.d.cts",
       "default": "./dist/index.js"
+    },
+    "./xlsx": {
+      "require": "./xlsx/dist/index.cjs",
+      "types": "./xlsx/dist/index.d.cts",
+      "default": "./xlsx/dist/index.js"
     }
   },
   "scripts": {
@@ -26,7 +31,8 @@
   },
   "tsup": {
     "entry": [
-      "lib/index.ts"
+      "lib/index.ts",
+      "lib/xlsx/index.ts"
     ],
     "format": [
       "esm",

@@ -16,7 +16,9 @@ export type SourceLocation = number[];
  * You can use this field to determine which interface a node implements.
  */
 export type Node = {
+  /** The type of this AST node. */
   type: string;
+  /** The original source position of the node. */
   loc?: SourceLocation;
 };
 
@@ -25,8 +27,11 @@ export type Node = {
  * and will always be a static string representing the name of a function call or parameter.
  */
 export type Identifier = {
+  /** The type of this AST node. */
   type: 'Identifier';
+  /** The original source position of the node. */
   loc?: SourceLocation;
+  /** The identifying name. */
   name: string;
 } & Node;
 
@@ -34,9 +39,13 @@ export type Identifier = {
  * An identifier for a range or a name.
  */
 export type ReferenceIdentifier = {
+  /** The type of this AST node. */
   type: 'ReferenceIdentifier';
+  /** The original source position of the node. */
   loc?: SourceLocation;
+  /** The untouched reference value. */
   value: string;
+  /** The kind of reference the value holds. */
   kind: 'name' | 'range' | 'beam' | 'table';
 } & Node;
 
@@ -45,9 +54,13 @@ export type ReferenceIdentifier = {
  * Literal errors have their own variant type.
  */
 export type Literal = {
+  /** The type of this AST node. */
   type: 'Literal';
+  /** The original source position of the node. */
   loc?: SourceLocation;
+  /** The untouched literal source. */
   raw: string;
+  /** The value of the literal. */
   value: string | number | boolean;
 } & Node;
 
@@ -55,9 +68,13 @@ export type Literal = {
  * An Error expression.
  */
 export type ErrorLiteral = {
+  /** The type of this AST node. */
   type: 'ErrorLiteral';
+  /** The original source position of the node. */
   loc?: SourceLocation;
+  /** The untouched literal source. */
   raw: string;
+  /** The value of the error. */
   value: string;
 } & Node;
 
@@ -65,9 +82,13 @@ export type ErrorLiteral = {
  * A unary operator expression.
  */
 export type UnaryExpression = {
+  /** The type of this AST node. */
   type: 'UnaryExpression';
+  /** The original source position of the node. */
   loc?: SourceLocation;
+  /** The expression's operator. */
   operator: UnaryOperator;
+  /** The arguments for the operator. */
   arguments: AstExpression[];
 } & Node;
 
@@ -82,9 +103,13 @@ export type UnaryOperator = (
  * A binary operator expression.
  */
 export type BinaryExpression = {
+  /** The type of this AST node. */
   type: 'BinaryExpression';
+  /** The original source position of the node. */
   loc?: SourceLocation;
+  /** The expression's operator. */
   operator: BinaryOperator;
+  /** The arguments for the operator. */
   arguments: AstExpression[];
 } & Node;
 
@@ -105,9 +130,13 @@ export type BinaryOperator = (
  * A function call expression.
  */
 export type CallExpression = {
+  /** The type of this AST node. */
   type: 'CallExpression';
+  /** The original source position of the node. */
   loc?: SourceLocation;
+  /** The function being called. */
   callee: Identifier;
+  /** The arguments for the function. */
   arguments: AstExpression[];
 } & Node;
 
@@ -129,9 +158,13 @@ export type ArrayExpression = {
  * A LAMBDA expression.
  */
 export type LambdaExpression = {
+  /** The type of this AST node. */
   type: 'LambdaExpression';
+  /** The original source position of the node. */
   loc?: SourceLocation;
+  /** The LAMBDA's parameters. */
   params: Identifier[];
+  /** The LAMBDA's expression. */
   body: AstExpression | null;
 } & Node;
 
@@ -139,9 +172,13 @@ export type LambdaExpression = {
  * A LET expression.
  */
 export type LetExpression = {
+  /** The type of this AST node. */
   type: 'LetExpression';
+  /** The original source position of the node. */
   loc?: SourceLocation;
+  /** The LET's variable declarations. */
   declarations: LetDeclarator[];
+  /** The LET's scoped expression. */
   body: AstExpression | null;
 } & Node;
 
@@ -149,14 +186,18 @@ export type LetExpression = {
  * A LET parameter declaration.
  */
 export type LetDeclarator = {
+  /** The type of this AST node. */
   type: 'LetDeclarator';
+  /** The original source position of the node. */
   loc?: SourceLocation;
+  /** The name of the variable. */
   id: Identifier;
+  /** The variable's initializing expression. */
   init: AstExpression | null;
 } & Node;
 
 /**
- * Represent an evaluatable expression.
+ * Represents an evaluate-able expression.
  */
 export type AstExpression =
   ReferenceIdentifier |
