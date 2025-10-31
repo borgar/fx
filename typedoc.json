@@ -1,6 +1,7 @@
 {
   "plugin": [ "typedoc-plugin-markdown" ],
   "out": "./tempdocs",
+  "name": "fx",
   "entryPoints": [
     "lib/index.ts",
     "lib/xlsx/index.ts"
@@ -13,14 +14,13 @@
   },
   "hidePageHeader": true,
   "hideBreadcrumbs": true,
+  "hideGenerator": true,
   "useCodeBlocks": true,
   "expandObjects": true,
   "expandParameters": true,
   "propertiesFormat": "table",
   "parametersFormat": "table",
   "disableSources": true,
-  "excludeTags": ["@pattern", "@min", "@max"],
-  "notRenderedTags": ["@pattern", "@min", "@max"],
   "excludeInternal": true,
   "excludePrivate": true,
   "excludeProtected": true,

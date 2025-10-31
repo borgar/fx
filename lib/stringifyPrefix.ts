@@ -4,12 +4,16 @@ import type {
   ReferenceR1C1,
   ReferenceA1Xlsx,
   ReferenceStructXlsx,
-  ReferenceR1C1Xlsx
+  ReferenceR1C1Xlsx,
+  ReferenceName,
+  ReferenceNameXlsx
 } from './types.ts';
 
 const reBannedChars = /[^0-9A-Za-z._¡¤§¨ª\u00ad¯-\uffff]/;
 
-export function stringifyPrefix (ref: ReferenceA1 | ReferenceStruct | ReferenceR1C1): string {
+export function stringifyPrefix (
+  ref: ReferenceA1 | ReferenceName | ReferenceStruct | ReferenceR1C1
+): string {
   let pre = '';
   let quote = 0;
   let nth = 0;
@@ -29,7 +33,9 @@ export function stringifyPrefix (ref: ReferenceA1 | ReferenceStruct | ReferenceR
   return pre ? pre + '!' : pre;
 }
 
-export function stringifyPrefixXlsx (ref: ReferenceA1Xlsx | ReferenceStructXlsx | ReferenceR1C1Xlsx): string {
+export function stringifyPrefixXlsx (
+  ref: ReferenceA1Xlsx | ReferenceNameXlsx | ReferenceStructXlsx | ReferenceR1C1Xlsx
+): string {
   let pre = '';
   let quote = 0;
   const { workbookName, sheetName } = ref;

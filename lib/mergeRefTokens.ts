@@ -81,7 +81,7 @@ const matcher = (tokens: Token[], currNode, anchorIndex, index = 0) => {
  * as whole references (`Sheet1!A1:B2`) rather than separate tokens for each
  * part: (`Sheet1`,`!`,`A1`,`:`,`B2`).
  *
- * @param tokenlist An array of tokens (from `tokenize()`)
+ * @param tokenlist An array of tokens.
  * @returns A new list of tokens with range parts merged.
  */
 export function mergeRefTokens (tokenlist: Token[]): Token[] {

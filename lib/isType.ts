@@ -16,7 +16,7 @@ import type { Token } from './types.ts';
  * @param token A token
  * @returns True if the specified token is range, False otherwise.
  */
-export function isRange (token: Partial<Token> & Pick<Token, 'type'> | null | undefined): boolean {
+export function isRange (token?: Pick<Token, 'type'> | null): boolean {
   return !!token && (
     token.type === REF_RANGE ||
     token.type === REF_BEAM ||
@@ -31,10 +31,10 @@ export function isRange (token: Partial<Token> & Pick<Token, 'type'> | null | un
  * REF_TERNARY (`A1:A`, `A1:1`, `1:A1`, or `A:A1`), REF_BEAM (`A:A` or `1:1`),
  * or REF_NAMED (`myrange`). In all other cases `false` is returned.
  *
- * @param {any} token The token
- * @returns {boolean} True if the specified token is reference, False otherwise.
+ * @param token The token
+ * @returns True if the specified token is reference, False otherwise.
  */
-export function isReference (token: Partial<Token> & Pick<Token, 'type'> | null | undefined): boolean {
+export function isReference (token?: Pick<Token, 'type'> | null): boolean {
   return !!token && (
     token.type === REF_RANGE ||
     token.type === REF_BEAM ||
@@ -51,10 +51,10 @@ export function isReference (token: Partial<Token> & Pick<Token, 'type'> | null 
  * ERROR (`#VALUE!`), NUMBER (123.4), or STRING (`"lorem ipsum"`). In all other
  * cases `false` is returned.
  *
- * @param {any} token The token
- * @returns {boolean} True if the specified token is literal, False otherwise.
+ * @param token The token
+ * @returns True if the specified token is literal, False otherwise.
  */
-export function isLiteral (token: Partial<Token> & Pick<Token, 'type'> | null | undefined): boolean {
+export function isLiteral (token?: Pick<Token, 'type'> | null): boolean {
   return !!token && (
     token.type === BOOLEAN ||
     token.type === ERROR ||
@@ -69,10 +69,10 @@ export function isLiteral (token: Partial<Token> & Pick<Token, 'type'> | null | 
  * Returns `true` if the input is a token of type ERROR (`#VALUE!`). In all
  * other cases `false` is returned.
  *
- * @param {any} token The token
- * @returns {boolean} True if the specified token is error, False otherwise.
+ * @param token The token
+ * @returns True if the specified token is error, False otherwise.
  */
-export function isError (token: Partial<Token> & Pick<Token, 'type'> | null | undefined): boolean {
+export function isError (token?: Pick<Token, 'type'> | null): boolean {
   return !!token && token.type === ERROR;
 }
 
@@ -82,10 +82,10 @@ export function isError (token: Partial<Token> & Pick<Token, 'type'> | null | un
  * Returns `true` if the input is a token of type WHITESPACE (` `) or
  * NEWLINE (`\n`). In all other cases `false` is returned.
  *
- * @param {any} token The token
- * @returns {boolean} True if the specified token is whitespace, False otherwise.
+ * @param token The token
+ * @returns True if the specified token is whitespace, False otherwise.
  */
-export function isWhitespace (token: Partial<Token> & Pick<Token, 'type'> | null | undefined): boolean {
+export function isWhitespace (token?: Pick<Token, 'type'> | null): boolean {
   return !!token && (
     token.type === WHITESPACE ||
     token.type === NEWLINE
@@ -98,10 +98,10 @@ export function isWhitespace (token: Partial<Token> & Pick<Token, 'type'> | null
  * Returns `true` if the input is a token of type FUNCTION.
  * In all other cases `false` is returned.
  *
- * @param {any} token The token
- * @returns {boolean} True if the specified token is function, False otherwise.
+ * @param token The token
+ * @returns True if the specified token is function, False otherwise.
  */
-export function isFunction (token: Partial<Token> & Pick<Token, 'type'> | null | undefined): boolean {
+export function isFunction (token?: Pick<Token, 'type'> | null): boolean {
   return !!token && token.type === FUNCTION;
 }
 
@@ -109,10 +109,10 @@ export function isFunction (token: Partial<Token> & Pick<Token, 'type'> | null |
  * Returns `true` if the input is a token of type FX_PREFIX (leading `=` in
  * formula). In all other cases `false` is returned.
  *
- * @param {any} token The token
- * @returns {boolean} True if the specified token is effects prefix, False otherwise.
+ * @param token The token
+ * @returns True if the specified token is effects prefix, False otherwise.
  */
-export function isFxPrefix (token: Partial<Token> & Pick<Token, 'type'> | null | undefined): boolean {
+export function isFxPrefix (token?: Pick<Token, 'type'> | null): boolean {
   return !!token && token.type === FX_PREFIX;
 }
 
@@ -122,9 +122,9 @@ export function isFxPrefix (token: Partial<Token> & Pick<Token, 'type'> | null |
  * Returns `true` if the input is a token of type OPERATOR (`+` or `:`). In all
  * other cases `false` is returned.
  *
- * @param {any} token The token
- * @returns {boolean} True if the specified token is operator, False otherwise.
+ * @param token The token
+ * @returns True if the specified token is operator, False otherwise.
  */
-export function isOperator (token: Partial<Token> & Pick<Token, 'type'> | null | undefined): boolean {
+export function isOperator (token?: Pick<Token, 'type'> | null): boolean {
   return !!token && token.type === OPERATOR;
 }

@@ -1,13 +1,13 @@
-export { tokenize, type TokenizeOptions } from './tokenize.ts';
-export { parse, type ParseOptions } from './parse.ts';
-export { translateFormulaToR1C1, translateTokensToR1C1, type TranslateToR1C1Options } from './translateToR1C1.ts';
+export { tokenize, type OptsTokenize } from './tokenize.ts';
+export { parse, type OptsParse } from './parse.ts';
+export { translateFormulaToR1C1, translateTokensToR1C1, type OptsTranslateToR1C1 } from './translateToR1C1.ts';
 export {
-  translateFormulaToA1, type TranslateFormulaToA1Options,
-  translateTokensToA1, type TranslateTokensToA1Options
+  translateFormulaToA1, type OptsTranslateFormulaToA1,
+  translateTokensToA1, type OptsTranslateTokensToA1
 } from './translateToA1.ts';
 export { MAX_COLS, MAX_ROWS } from './constants.ts';
 export { mergeRefTokens } from './mergeRefTokens.ts';
-export { fixTokenRanges, fixFormulaRanges, type FixRangesOptions } from './fixRanges.ts';
+export { fixTokenRanges, fixFormulaRanges, type OptsFixRanges } from './fixRanges.ts';
 export {
   isError,
   isFunction,
@@ -18,21 +18,29 @@ export {
   isReference,
   isWhitespace
 } from './isType.ts';
-
+export {
+  isArrayNode,
+  isBinaryNode,
+  isCallNode,
+  isErrorNode,
+  isExpressionNode,
+  isIdentifierNode,
+  isLambdaNode,
+  isLetDeclaratorNode,
+  isLetNode,
+  isLiteralNode,
+  isReferenceNode,
+  isUnaryNode
+} from './isNodeType.ts';
 export { fromCol } from './fromCol.ts';
 export { toCol } from './toCol.ts';
-
-export { parseA1Ref, type ParseA1RefOptions } from './parseA1Ref.ts';
+export { parseA1Ref, type OptsParseA1Ref } from './parseA1Ref.ts';
 export { stringifyA1Ref } from './stringifyA1Ref.ts';
-
 export { addA1RangeBounds } from './addA1RangeBounds.ts';
-
-export { parseR1C1Ref } from './parseR1C1Ref.ts';
+export { parseR1C1Ref, type OptsParseR1C1Ref } from './parseR1C1Ref.ts';
 export { stringifyR1C1Ref } from './stringifyR1C1Ref.ts';
-
-export { stringifyStructRef } from './stringifyStructRef.ts';
+export { stringifyStructRef, type OptsStringifyStructRef } from './stringifyStructRef.ts';
 export { parseStructRef } from './parseStructRef.ts';
-
 export { stringifyTokens } from './stringifyTokens.ts';
 
 export type {
@@ -45,8 +53,11 @@ export type {
   ReferenceR1C1,
   ReferenceR1C1Xlsx,
   ReferenceStruct,
-  ReferenceStructXlsx
+  ReferenceStructXlsx,
+  ReferenceName,
+  ReferenceNameXlsx
 } from './types.ts';
+export type * from './astTypes.ts';
 
 import {
   // token types
@@ -84,23 +95,23 @@ import {
 /**
  * A dictionary of the types used to identify token variants.
  *
- * @property {string} OPERATOR - Unary or binary operator (`+`, `%`)
- * @property {string} BOOLEAN - Boolean literal (`TRUE`)
- * @property {string} ERROR - Error literal (`#VALUE!`)
- * @property {string} NUMBER - Number literal (`123.4`, `-1.5e+2`)
- * @property {string} FUNCTION - Function name (`SUM`)
- * @property {string} NEWLINE - Newline character (`\n`)
- * @property {string} WHITESPACE - Whitespace character sequence (` `)
- * @property {string} STRING - String literal (`"Lorem ipsum"`)
- * @property {string} CONTEXT - Reference context ([Workbook.xlsx]Sheet1)
- * @property {string} CONTEXT_QUOTE - Quoted reference context (`'[My workbook.xlsx]Sheet1'`)
- * @property {string} REF_RANGE - A range identifier (`A1`)
- * @property {string} REF_BEAM - A range "beam" identifier (`A:A` or `1:1`)
- * @property {string} REF_TERNARY - A ternary range identifier (`B2:B`)
- * @property {string} REF_NAMED - A name / named range identifier (`income`)
- * @property {string} REF_STRUCT - A structured reference identifier (`table[[Column1]:[Column2]]`)
- * @property {string} FX_PREFIX - A leading equals sign at the start of a formula (`=`)
- * @property {string} UNKNOWN - Any unidentifiable range of characters.
+ * @prop OPERATOR - Unary or binary operator (`+`, `%`)
+ * @prop BOOLEAN - Boolean literal (`TRUE`)
+ * @prop ERROR - Error literal (`#VALUE!`)
+ * @prop NUMBER - Number literal (`123.4`, `-1.5e+2`)
+ * @prop FUNCTION - Function name (`SUM`)
+ * @prop NEWLINE - Newline character (`\n`)
+ * @prop WHITESPACE - Whitespace character sequence (` `)
+ * @prop STRING - String literal (`"Lorem ipsum"`)
+ * @prop CONTEXT - Reference context ([Workbook.xlsx]Sheet1)
+ * @prop CONTEXT_QUOTE - Quoted reference context (`'[My workbook.xlsx]Sheet1'`)
+ * @prop REF_RANGE - A range identifier (`A1`)
+ * @prop REF_BEAM - A range "beam" identifier (`A:A` or `1:1`)
+ * @prop REF_TERNARY - A ternary range identifier (`B2:B`)
+ * @prop REF_NAMED - A name / named range identifier (`income`)
+ * @prop REF_STRUCT - A structured reference identifier (`table[[Column1]:[Column2]]`)
+ * @prop FX_PREFIX - A leading equals sign at the start of a formula (`=`)
+ * @prop UNKNOWN - Any unidentifiable range of characters.
  */
 export const tokenTypes = Object.freeze({
   OPERATOR,

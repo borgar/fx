@@ -19,27 +19,30 @@ const calc = (abs: boolean, vX: number, aX: number): number => {
   return abs ? vX : vX - aX;
 };
 
-export type TranslateToR1C1Options = {
+/**
+ * Options for {@link translateFormulaToR1C1}.
+ */
+export type OptsTranslateToR1C1 = {
   /**
-  * Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`.
-  * These are supported by Google Sheets but not Excel. See: References.md.
-  * @defaultValue true
-  */
+   * Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`.
+   * These are supported by Google Sheets but not Excel.
+   * See: [References.md](./References.md).
+   * @defaultValue true
+   */
   allowTernary?: boolean,
 };
 
 /**
- * Translates ranges in a formula or list of tokens from absolute A1 syntax to
- * relative R1C1 syntax.
+ * Translates ranges in a list of tokens from absolute A1 syntax to relative R1C1 syntax.
  *
  * ```js
  * translateFormulaToR1C1("=SUM(E10,$E$2,Sheet!$E$3)", "D10");
  * // => "=SUM(RC[1],R2C5,Sheet!R3C5)");
  * ```
  *
- * @param formula A string (an Excel formula) or a token list that should be adjusted.
+ * @param tokens A token list that should be adjusted.
  * @param anchorCell A simple string reference to an A1 cell ID (`AF123` or`$C$5`).
- * @returns A formula string or token list (depending on which was input)
+ * @returns A token list.
  */
 export function translateTokensToR1C1 (
   tokens: Token[],
@@ -95,23 +98,22 @@ export function translateTokensToR1C1 (
 }
 
 /**
- * Translates ranges in a formula or list of tokens from absolute A1 syntax to
- * relative R1C1 syntax.
+ * Translates ranges in a formula from absolute A1 syntax to relative R1C1 syntax.
  *
  * ```js
  * translateFormulaToR1C1("=SUM(E10,$E$2,Sheet!$E$3)", "D10");
  * // => "=SUM(RC[1],R2C5,Sheet!R3C5)");
  * ```
  *
- * @param formula A string (an Excel formula) or a token list that should be adjusted.
+ * @param formula An Excel formula that should be adjusted.
  * @param anchorCell A simple string reference to an A1 cell ID (`AF123` or`$C$5`).
  * @param [options={}] The options
- * @returns A formula string or token list (depending on which was input)
+ * @returns A formula string.
  */
 export function translateFormulaToR1C1 (
   formula: string,
   anchorCell: string,
-  options: TranslateToR1C1Options = {}
+  options: OptsTranslateToR1C1 = {}
 ): string {
   if (typeof formula === 'string') {
     const tokens = tokenizeXlsx(formula, {

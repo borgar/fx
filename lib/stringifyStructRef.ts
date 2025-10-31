@@ -6,6 +6,7 @@ function quoteColname (str: string): string {
 }
 
 function needsBraces (str: string): boolean {
+  // FIXME: we can flip this to speed it up.
   return !/^[a-zA-Z0-9\u00a1-\uffff]+$/.test(str);
 }
 
@@ -58,6 +59,17 @@ export function stringifySRef (refObject: ReferenceStruct, thisRow = false) {
 }
 
 /**
+ * Options for {@link stringifyStructRef}
+ */
+export type OptsStringifyStructRef = {
+  /**
+   * Enforces using the `[#This Row]` instead of the `@` shorthand when serializing structured ranges.
+   * @defaultValue false
+   */
+  thisRow?: boolean;
+};
+
+/**
  * Returns a string representation of a structured reference object.
  *
  * ```js
@@ -70,12 +82,11 @@ export function stringifySRef (refObject: ReferenceStruct, thisRow = false) {
  * // => 'workbook.xlsx!tableName[[#Data],[Column1]:[Column2]]'
  * ```
  *
- * @param refObject A structured reference object
- * @param [options={}]  Options
- * @param [options.thisRow=false]  Enforces using the `[#This Row]` instead of the `@` shorthand when serializing structured ranges.
- * @returns The given structured reference in string format
+ * @param refObject A structured reference object.
+ * @param [options={}] Options.
+ * @returns The given structured reference in string format.
  */
-export function stringifyStructRef (refObject: ReferenceStruct, options: { thisRow?: boolean; } = {}): string {
+export function stringifyStructRef (refObject: ReferenceStruct, options: OptsStringifyStructRef = {}): string {
   return stringifyPrefix(refObject) + stringifySRef(refObject, !!options.thisRow);
 }
 
@@ -93,11 +104,10 @@ export function stringifyStructRef (refObject: ReferenceStruct, options: { thisR
  * // => 'workbook.xlsx!tableName[[#Data],[Column1]:[Column2]]'
  * ```
  *
- * @param refObject A structured reference object
- * @param [options={}]  Options
- * @param [options.thisRow=false]  Enforces using the `[#This Row]` instead of the `@` shorthand when serializing structured ranges.
- * @returns The given structured reference in string format
+ * @param refObject A structured reference object.
+ * @param [options] Options.
+ * @returns The given structured reference in string format.
  */
-export function stringifyStructRefXlsx (refObject: ReferenceStructXlsx, options: { thisRow?: boolean; } = {}): string {
+export function stringifyStructRefXlsx (refObject: ReferenceStructXlsx, options: OptsStringifyStructRef = {}): string {
   return stringifyPrefixXlsx(refObject) + stringifySRef(refObject, !!options.thisRow);
 }

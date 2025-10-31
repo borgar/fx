@@ -678,7 +678,7 @@ prefix('{', function (this: ArrayExpression & { value?: string }) {
   return this;
 });
 
-export type ParseOptions = {
+export type OptsParse = {
   /**
    * Ranges are allowed as elements of arrays. This is a feature in Google Sheets while Excel
    * does not allow it.
@@ -703,19 +703,21 @@ export type ParseOptions = {
  * Parses a string formula or list of tokens into an AST.
  *
  * The parser assumes `mergeRefs` and `negativeNumbers` were `true` when the tokens were generated.
- * It does not recognize reference context tokens or deal with unary minuses in arrays.
+ * It does not yet recognize reference context tokens or know how to deal with unary minuses in
+ * arrays.
  *
  * The AST Abstract Syntax Tree's format is documented in
- * [AST_format.md](./AST_format.md)
+ * [AST_format.md](./AST_format.md).
  *
- * @see nodeTypes
- * @param formula An Excel formula string (an Excel expression) or an array of tokens.
- * @param options Options for the parser behavior.
- * @returns An AST of nodes
+ * @see {@link nodeTypes}
+ * @see {@link tokenize}
+ * @param tokenlist An array of tokens.
+ * @param options Options for the parsers behavior.
+ * @returns An AST of nodes.
  */
 export function parse (
   tokenlist: Token[],
-  options: ParseOptions = {}
+  options: OptsParse = {}
 ): AstExpression {
   if (!Array.isArray(tokenlist)) {
     throw new Error('Parse requires an array of tokens.');

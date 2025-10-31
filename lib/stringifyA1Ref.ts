@@ -22,8 +22,8 @@ import { stringifyA1Range } from './stringifyA1Range.ts';
  * // => 'Sheet1!A$1:$B2'
  * ```
  *
- * @param refObject A reference object
- * @returns The reference in A1-style string format
+ * @param refObject A reference object.
+ * @returns The reference in A1-style string format.
  */
 export function stringifyA1Ref (refObject: ReferenceA1 | ReferenceName): string {
   const prefix = stringifyPrefix(refObject);
@@ -50,8 +50,8 @@ export function stringifyA1Ref (refObject: ReferenceA1 | ReferenceName): string 
  * // => 'Sheet1!A$1:$B2'
  * ```
  *
- * @param refObject A reference object
- * @returns The reference in A1-style string format
+ * @param refObject A reference object.
+ * @returns The reference in A1-style string format.
  */
 export function stringifyA1RefXlsx (refObject: ReferenceA1Xlsx | ReferenceNameXlsx): string {
   const prefix = stringifyPrefixXlsx(refObject);

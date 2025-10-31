@@ -38,7 +38,10 @@ function toFixed (val: number, abs: boolean, base: number, max: number, wrapEdge
   return v;
 }
 
-export type TranslateTokensToA1Options = {
+/**
+ * Options for {@link translateTokensToA1}
+ */
+export type OptsTranslateTokensToA1 = {
   /**
   * Wrap out-of-bounds ranges around sheet edges rather than turning them to #REF! errors.
   * @defaultValue true
@@ -57,7 +60,7 @@ export type TranslateTokensToA1Options = {
  * If an input range is -1,-1 relative rows/columns and the anchor is A1, the
  * resulting range will (by default) wrap around to the bottom of the sheet
  * resulting in the range XFD1048576. This may not be what you want so may set
- * `wrapEdges` to false which will instead turn the range into a `#REF!` error.
+ * `{ wrapEdges }` to false which will instead turn the range into a `#REF!` error.
  *
  * ```js
  * translateToA1("=R[-1]C[-1]", "A1");
@@ -73,15 +76,15 @@ export type TranslateTokensToA1Options = {
  * `=Sheet3!#REF!:F3`. These are valid formulas in the Excel formula language
  * and Excel will accept them, but they are not supported in Google Sheets.
  *
- * @param formula A string (an Excel formula) or a token list that should be adjusted.
+ * @param tokens A token list that should be adjusted.
  * @param anchorCell A simple string reference to an A1 cell ID (`AF123` or`$C$5`).
  * @param options Translation options.
- * @returns A formula string or token list (depending on which was input)
+ * @returns A token list.
  */
 export function translateTokensToA1 (
   tokens: Token[],
   anchorCell: string,
-  options: TranslateTokensToA1Options = {}
+  options: OptsTranslateTokensToA1 = {}
 ): Token[] {
   const anchorRange = fromA1(anchorCell);
   if (!anchorRange) {
@@ -161,7 +164,10 @@ export function translateTokensToA1 (
   return outTokens;
 }
 
-export type TranslateFormulaToA1Options = {
+/**
+ * Options for {@link translateFormulaToA1}.
+ */
+export type OptsTranslateFormulaToA1 = {
   /**
   * Wrap out-of-bounds ranges around sheet edges rather than turning them to #REF! errors.
   * @defaultValue true
@@ -191,8 +197,8 @@ export type TranslateFormulaToA1Options = {
  *
  * If an input range is -1,-1 relative rows/columns and the anchor is A1, the
  * resulting range will (by default) wrap around to the bottom of the sheet
- * resulting in the range XFD1048576. This may not be what you want so may set
- * `wrapEdges` to false which will instead turn the range into a `#REF!` error.
+ * resulting in the range XFD1048576. This may not be what you want so you can set
+ * `{ wrapEdges }` to false which will instead turn the range into a `#REF!` error.
  *
  * ```js
  * translateToA1("=R[-1]C[-1]", "A1");
@@ -202,15 +208,15 @@ export type TranslateFormulaToA1Options = {
  * // => "=#REF!");
  * ```
  *
- * @param formula A string (an Excel formula) or a token list that should be adjusted.
+ * @param formula An Excel formula string that should be adjusted.
  * @param anchorCell A simple string reference to an A1 cell ID (`AF123` or`$C$5`).
  * @param options Translation options.
- * @returns A formula string or token list (depending on which was input)
+ * @returns A formula string.
  */
 export function translateFormulaToA1 (
   formula: string,
   anchorCell: string,
-  options: TranslateFormulaToA1Options = {}
+  options: OptsTranslateFormulaToA1 = {}
 ): string {
   if (typeof formula === 'string') {
     return stringifyTokens(translateTokensToA1(tokenizeXlsx(formula, {

@@ -3,8 +3,8 @@ import type { Token } from './types.ts';
 /**
  * Collapses a list of tokens into a formula string.
  *
- * @param tokens The tokens
- * @return Formula string
+ * @param tokens A list of tokens.
+ * @returns A formula string.
  */
 export function stringifyTokens (tokens: Token[]): string {
   let s = '';

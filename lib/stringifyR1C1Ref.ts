@@ -30,11 +30,11 @@ import { stringifyR1C1Range } from './stringifyR1C1Range.ts';
  * // => 'Sheet1!R[9]C9:R[9]C9'
  * ```
  *
- * @param refObject A reference object
- * @returns The reference in R1C1-style string format
+ * @param refObject A reference object.
+ * @returns The reference in R1C1-style string format.
  */
 export function stringifyR1C1Ref (refObject: ReferenceR1C1 | ReferenceName): string {
-  const prefix = stringifyPrefix(refObject as ReferenceR1C1);
+  const prefix = stringifyPrefix(refObject);
   return prefix + ('name' in refObject ? refObject.name : stringifyR1C1Range(refObject.range));
 }
 
@@ -58,9 +58,8 @@ export function stringifyR1C1Ref (refObject: ReferenceR1C1 | ReferenceName): str
  * // => 'Sheet1!R[9]C9:R[9]C9'
  * ```
  *
- * @param refObject A reference object
- * @param [options.xlsx=false]  Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md)
- * @returns The reference in R1C1-style string format
+ * @param refObject A reference object.
+ * @returns The reference in R1C1-style string format.
  */
 export function stringifyR1C1RefXlsx (refObject: ReferenceR1C1Xlsx | ReferenceNameXlsx): string {
   const prefix = stringifyPrefixXlsx(refObject);

@@ -11,6 +11,24 @@ import { fromR1C1 } from './fromR1C1.ts';
 import { parseRefCtx, parseRefXlsx } from './parseRef.ts';
 
 /**
+ * Options for {@link parseR1C1Ref}.
+ */
+export type OptsParseR1C1Ref = {
+  /**
+   * Enable parsing names as well as ranges.
+   * @defaultValue true
+   */
+  allowNamed?: boolean;
+  /**
+   * Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`.
+   * These are supported by Google Sheets but not Excel.
+   * See: [References.md](./References.md).
+   * @defaultValue false
+   */
+  allowTernary?: boolean;
+};
+
+/**
  * Parse a string reference into an object representing it.
  *
  * ```js
@@ -30,16 +48,14 @@ import { parseRefCtx, parseRefXlsx } from './parseRef.ts';
  * // }
  * ```
  *
- * @param refString An R1C1-style reference string
- * @param [options.allowNamed=true]  Enable parsing names as well as ranges.
- * @param [options.allowTernary=false]  Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: References.md.
- * @param [options.xlsx=false]  Switches to the `[1]Sheet1!A1` or `[1]!name` prefix syntax form for external workbooks. See: [Prefixes.md](./Prefixes.md)
- * @returns An object representing a valid reference or null if it is invalid.
+ * @param refString An R1C1-style reference string.
+ * @param [options] Options.
+ * @returns An object representing a valid reference or `undefined` if it is invalid.
  */
 export function parseR1C1Ref (
   refString: string,
-  options: { allowNamed?: boolean; allowTernary?: boolean; } = {}
-): ReferenceR1C1 | ReferenceR1C1Xlsx | ReferenceName | ReferenceNameXlsx | null {
+  options: OptsParseR1C1Ref = {}
+): ReferenceR1C1 | ReferenceName | undefined {
   const {
     allowNamed = true,
     allowTernary = false
@@ -58,7 +74,6 @@ export function parseR1C1Ref (
       }
     }
   }
-  return null;
 }
 
 /**
@@ -81,15 +96,14 @@ export function parseR1C1Ref (
  * // }
  * ```
  *
- * @param refString An R1C1-style reference string
- * @param [options.allowNamed=true]  Enable parsing names as well as ranges.
- * @param [options.allowTernary=false]  Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: References.md.
- * @returns An object representing a valid reference or null if it is invalid.
+ * @param refString An R1C1-style reference string.
+ * @param [options] Options.
+ * @returns An object representing a valid reference or `undefined` if it is invalid.
  */
 export function parseR1C1RefXlsx (
   refString: string,
-  options: { allowNamed?: boolean; allowTernary?: boolean; } = {}
-): ReferenceR1C1 | ReferenceName | null {
+  options: OptsParseR1C1Ref = {}
+): ReferenceR1C1Xlsx | ReferenceNameXlsx | undefined {
   const {
     allowNamed = true,
     allowTernary = false
@@ -108,5 +122,4 @@ export function parseR1C1RefXlsx (
       }
     }
   }
-  return null;
 }

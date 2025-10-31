@@ -2,13 +2,13 @@
 import { describe, test, expect } from 'vitest';
 import { parseR1C1Ref, parseR1C1RefXlsx } from './parseR1C1Ref.ts';
 
-type Options = {
+type OptsIsRCEqual = {
   allowNamed?: boolean;
   allowTernary?: boolean;
   xlsx?: boolean;
 };
 
-function isRCEqual (expr: string, expected: any, opts?: Options) {
+function isRCEqual (expr: string, expected: any, opts?: OptsIsRCEqual) {
   const xlsx = !!opts?.xlsx;
   if (expected) {
     expected = xlsx

@@ -2,13 +2,13 @@ const charFrom = String.fromCharCode;
 
 /**
  * Convert a 0 based offset number to a column string
- * representation (`2` = `"C"`).
+ * representation (`0` = `"A"`, `2` = `"C"`).
  *
  * The method expects a number between 0 and 16383. Other input will
  * return garbage.
  *
- * @param {number} columnIndex Zero based column index number
- * @returns {string} The column string identifier
+ * @param columnIndex Zero based column index number
+ * @returns The column string identifier
  */
 export function toCol (columnIndex: number): string {
   return (

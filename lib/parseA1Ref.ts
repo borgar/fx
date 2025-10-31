@@ -2,7 +2,10 @@ import { parseRefCtx, parseRefXlsx } from './parseRef.ts';
 import { fromA1 } from './fromA1.ts';
 import type { ReferenceA1, ReferenceA1Xlsx, ReferenceName, ReferenceNameXlsx } from './types.ts';
 
-export type ParseA1RefOptions = {
+/**
+ * Options for {@link parseA1Ref}.
+ */
+export type OptsParseA1Ref = {
   /**
    * Enable parsing names as well as ranges.
    * @defaultValue true
@@ -39,13 +42,14 @@ export type ParseA1RefOptions = {
  * For A:A or A1:A style ranges, `null` will be used for any dimensions that the
  * syntax does not specify.
  *
- * @param refString  An A1-style reference string
- * @returns An object representing a valid reference or null if it is invalid.
+ * @param refString An A1-style reference string.
+ * @param options Options.
+ * @returns An object representing a valid reference or `undefined` if it is invalid.
  */
 export function parseA1Ref (
   refString: string,
-  { allowNamed = true, allowTernary = false }: ParseA1RefOptions = {}
-): ReferenceA1 | ReferenceName | null {
+  { allowNamed = true, allowTernary = false }: OptsParseA1Ref = {}
+): ReferenceA1 | ReferenceName | undefined {
   const d = parseRefCtx(refString, { allowNamed, allowTernary, r1c1: false });
   if (d) {
     if (d.name) {
@@ -58,7 +62,6 @@ export function parseA1Ref (
       }
     }
   }
-  return null;
 }
 
 /**
@@ -85,13 +88,14 @@ export function parseA1Ref (
  * For A:A or A1:A style ranges, `null` will be used for any dimensions that the
  * syntax does not specify.
  *
- * @param refString  An A1-style reference string
- * @returns An object representing a valid reference or null if it is invalid.
+ * @param refString An A1-style reference string.
+ * @param options Options.
+ * @returns An object representing a valid reference or `undefined` if it is invalid.
  */
 export function parseA1RefXlsx (
   refString: string,
-  { allowNamed = true, allowTernary = false }: ParseA1RefOptions = {}
-): ReferenceA1Xlsx | ReferenceNameXlsx | null {
+  { allowNamed = true, allowTernary = false }: OptsParseA1Ref = {}
+): ReferenceA1Xlsx | ReferenceNameXlsx | undefined {
   const d = parseRefXlsx(refString, { allowNamed, allowTernary, r1c1: false });
   if (d) {
     if (d.name) {
@@ -106,5 +110,4 @@ export function parseA1RefXlsx (
       }
     }
   }
-  return null;
 }

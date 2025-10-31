@@ -1,8 +1,8 @@
 /* eslint-disable @stylistic/object-property-newline */
 import { describe, test, expect } from 'vitest';
-import { parseA1Ref, parseA1RefXlsx, type ParseA1RefOptions } from './parseA1Ref.ts';
+import { parseA1Ref, parseA1RefXlsx, type OptsParseA1Ref } from './parseA1Ref.ts';
 
-type IsA1EqualOptions = ParseA1RefOptions & {
+type IsA1EqualOptions = OptsParseA1Ref & {
   xlsx?: boolean,
 };
 

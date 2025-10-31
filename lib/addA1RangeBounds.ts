@@ -7,33 +7,27 @@ import type { RangeA1 } from './types.ts';
  *
  * ```js
  * addA1RangeBounds({
- *   context: [ 'Sheet1' ],
- *   range: {
- *     top: 0,
- *     left: 0,
- *     bottom: 1,
- *     $top: true,
- *     $left: false,
- *     $bottom: false,
- *   }
+ *   top: 0,
+ *   left: 0,
+ *   bottom: 1,
+ *   $top: true,
+ *   $left: false,
+ *   $bottom: false,
  * });
  * // => {
- * //   context: [ 'Sheet1' ],
- * //   range: {
- * //     top: 0,
- * //     left: 0,
- * //     bottom: 1,
- * //     right: 16383,
- * //     $top: true,
- * //     $left: false,
- * //     $bottom: false,
- * //     $right: false
- * //   }
+ * //   top: 0,
+ * //   left: 0,
+ * //   bottom: 1,
+ * //   right: 16383,  // ← Added
+ * //   $top: true,
+ * //   $left: false,
+ * //   $bottom: false,
+ * //   $right: false  // ← Added
  * // }
  * ```
  *
  * @param range The range part of a reference object.
- * @returns same range with missing bounds filled in.
+ * @returns The same range with missing bounds filled in.
  */
 export function addA1RangeBounds (range: RangeA1): RangeA1 {
   if (range.top == null) {

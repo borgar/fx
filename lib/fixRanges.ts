@@ -4,7 +4,7 @@ import { stringifyA1Ref, stringifyA1RefXlsx } from './stringifyA1Ref.ts';
 import { addA1RangeBounds } from './addA1RangeBounds.ts';
 import { parseStructRef, parseStructRefXlsx } from './parseStructRef.ts';
 import { stringifyStructRef, stringifyStructRefXlsx } from './stringifyStructRef.ts';
-import { tokenize, type TokenizeOptions, tokenizeXlsx } from './tokenize.ts';
+import { tokenize, type OptsTokenize, tokenizeXlsx } from './tokenize.ts';
 import { REF_STRUCT } from './constants.ts';
 import type { ReferenceA1, ReferenceA1Xlsx, Token } from './types.ts';
 import { cloneToken } from './cloneToken.ts';
@@ -15,7 +15,10 @@ import { stringifyTokens } from './stringifyTokens.ts';
 // needs to be flipped or not. The solution is to convert to A1 first:
 // translateToRC(fixRanges(translateToA1(...)))
 
-export type FixRangesOptions = {
+/**
+ * Options for {@link fixTokenRanges} and {@link fixFormulaRanges}.
+ */
+export type OptsFixRanges = {
   /**
    * Fill in any undefined bounds of range objects. Top to 0, bottom to 1048575, left to 0, and right to 16383.
    * @defaultValue false
@@ -43,9 +46,8 @@ export type FixRangesOptions = {
  * A1:A1 → A1
  * ```
  *
- * When `{ addBounds: true }` is passed as an option, the missing bounds are
- * also added. This can be done to ensure Excel compatible ranges. The fixes
- * then additionally include:
+ * When `{ addBounds }` option is set to true, the missing bounds are also added.
+ * This can be done to ensure Excel compatible ranges. The fixes then additionally include:
  *
  * ```
  * 1:A1 → A1:1 → 1:1
@@ -62,12 +64,12 @@ export type FixRangesOptions = {
  * Returns a new array of tokens with values and position data updated.
  *
  * @param tokens A list of tokens to be adjusted.
- * @param [options]  Options
- * @returns A token list with ranges adjusted
+ * @param [options]  Options.
+ * @returns A token list with ranges adjusted.
  */
 export function fixTokenRanges (
   tokens: Token[],
-  options: FixRangesOptions = {}
+  options: OptsFixRanges = {}
 ): Token[] {
   if (!Array.isArray(tokens)) {
     throw new Error('fixRanges expects an array of tokens');
@@ -129,9 +131,8 @@ export function fixTokenRanges (
  * A1:A1 → A1
  * ```
  *
- * When `{ addBounds: true }` is passed as an option, the missing bounds are
- * also added. This can be done to ensure Excel compatible ranges. The fixes
- * then additionally include:
+ * When `{ addBounds }` option is set to true, the missing bounds are also added.
+ * This can be done to ensure Excel compatible ranges. The fixes then additionally include:
  *
  * ```
  * 1:A1 → A1:1 → 1:1
@@ -148,12 +149,12 @@ export function fixTokenRanges (
  * Returns a new array of tokens with values and position data updated.
  *
  * @param tokens A list of tokens to be adjusted.
- * @param [options]  Options
- * @returns A token list with ranges adjusted
+ * @param [options]  Options.
+ * @returns A token list with ranges adjusted.
  */
 export function fixTokenRangesXlsx (
   tokens: Token[],
-  options: FixRangesOptions = {}
+  options: OptsFixRanges = {}
 ): Token[] {
   if (!Array.isArray(tokens)) {
     throw new Error('fixRanges expects an array of tokens');
@@ -214,7 +215,7 @@ export function fixTokenRangesXlsx (
  */
 export function fixFormulaRanges (
   formula: string,
-  options: FixRangesOptions & TokenizeOptions = {}
+  options: OptsFixRanges & OptsTokenize = {}
 ): string {
   if (typeof formula !== 'string') {
     throw new Error('fixFormulaRanges expects a string formula');
@@ -241,7 +242,7 @@ export function fixFormulaRanges (
  */
 export function fixFormulaRangesXlsx (
   formula: string,
-  options: FixRangesOptions & TokenizeOptions = {}
+  options: OptsFixRanges & OptsTokenize = {}
 ): string {
   if (typeof formula !== 'string') {
     throw new Error('fixFormulaRanges expects a string formula');

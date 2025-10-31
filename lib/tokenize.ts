@@ -56,7 +56,7 @@ function fixRCNames (tokens: Token[]): Token[] {
   return tokens;
 }
 
-type GetTokensOptions = {
+type OptsGetTokens = {
   withLocation?: boolean,
   mergeRefs?: boolean,
   negativeNumbers?: boolean
@@ -65,7 +65,7 @@ type GetTokensOptions = {
   xlsx?: boolean
 };
 
-export function getTokens (fx: string, tokenHandlers: PartLexer[], options: GetTokensOptions = {}) {
+export function getTokens (fx: string, tokenHandlers: PartLexer[], options: OptsGetTokens = {}) {
   const {
     withLocation = false,
     mergeRefs = true,
@@ -217,7 +217,10 @@ export function getTokens (fx: string, tokenHandlers: PartLexer[], options: GetT
   return tokens;
 }
 
-export type TokenizeOptions = {
+/**
+ * Options for {@link tokenize}.
+ */
+export type OptsTokenize = {
   /**
    * Nodes will include source position offsets to the tokens: `{ loc: [ start, end ] }`
    * @defaultValue true
@@ -237,7 +240,7 @@ export type TokenizeOptions = {
   negativeNumbers?: boolean
   /**
    * Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported
-   * by Google Sheets but not Excel. See: References.md.
+   * by Google Sheets but not Excel. See: [References.md](./References.md).
    * @defaultValue false
    */
   allowTernary?: boolean
@@ -263,9 +266,8 @@ export type TokenizeOptions = {
  * ]
  * ```
  *
- * Token types may be found as an Object as the
- * [`tokenTypes` export]{@link tokenTypes} on the package
- * (`import {tokenTypes} from '@borgar/fx';`).
+ * A collection of token types may be found as an object as the {@link tokenTypes}
+ * export on the package.
  *
  * _Warning:_ To support syntax highlighting as you type, `STRING` tokens are allowed to be
  * "unterminated". For example, the incomplete formula `="Hello world` would be
@@ -278,14 +280,16 @@ export type TokenizeOptions = {
  * ]
  * ```
  *
- * @see tokenTypes
+ * Parsers will need to handle this.
+ *
+ * @see {@link tokenTypes}
  * @param formula An Excel formula string (an Excel expression).
  * @param [options]  Options
  * @returns An array of Tokens
  */
 export function tokenize (
   formula: string,
-  options: TokenizeOptions = {}
+  options: OptsTokenize = {}
 ): Token[] {
   return getTokens(formula, lexers, options);
 }
@@ -305,9 +309,8 @@ export function tokenize (
  * ]
  * ```
  *
- * Token types may be found as an Object as the
- * [`tokenTypes` export]{@link tokenTypes} on the package
- * (`import {tokenTypes} from '@borgar/fx';`).
+ * A collection of token types may be found as an object as the {@link tokenTypes}
+ * export on the package.
  *
  * _Warning:_ To support syntax highlighting as you type, `STRING` tokens are allowed to be
  * "unterminated". For example, the incomplete formula `="Hello world` would be
@@ -320,14 +323,14 @@ export function tokenize (
  * ]
  * ```
  *
- * @see tokenTypes
+ * @see {@link tokenTypes}
  * @param formula An Excel formula string (an Excel expression).
  * @param [options]  Options
  * @returns An array of Tokens
  */
 export function tokenizeXlsx (
   formula: string,
-  options: TokenizeOptions = {}
+  options: OptsTokenize = {}
 ): Token[] {
   const opts = {
     withLocation: options.withLocation ?? false,

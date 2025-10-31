@@ -18,12 +18,12 @@ import { parseSRange } from './parseSRange.ts';
  * For A:A or A1:A style ranges, `null` will be used for any dimensions that the
  * syntax does not specify:
  *
- * See [References.md](./References.md)
+ * See [References.md](./References.md).
  *
- * @param ref  A structured reference string
- * @returns An object representing a valid reference or null if it is invalid.
+ * @param ref A structured reference string
+ * @returns An object representing a valid reference or `undefined` if it is invalid.
  */
-export function parseStructRef (ref: string): ReferenceStruct | null {
+export function parseStructRef (ref: string): ReferenceStruct | undefined {
   const r = parseRefCtx(ref);
   if (r && r.struct) {
     const structData = parseSRange(r.struct);
@@ -36,16 +36,15 @@ export function parseStructRef (ref: string): ReferenceStruct | null {
       };
     }
   }
-  return null;
 }
 
 /**
  * Parse a structured reference string into an object representing it.
  *
  * ```js
- * parseStructRef('workbook.xlsx!tableName[[#Data],[Column1]:[Column2]]');
+ * parseStructRef('[workbook.xlsx]!tableName[[#Data],[Column1]:[Column2]]');
  * // => {
- * //   context: [ 'workbook.xlsx' ],
+ * //   workbookName: 'workbook.xlsx',
  * //   sections: [ 'data' ],
  * //   columns: [ 'my column', '@foo' ],
  * //   table: 'tableName',
@@ -55,12 +54,12 @@ export function parseStructRef (ref: string): ReferenceStruct | null {
  * For A:A or A1:A style ranges, `null` will be used for any dimensions that the
  * syntax does not specify:
  *
- * See [References.md](./References.md)
+ * See [References.md](./References.md).
  *
- * @param ref  A structured reference string
+ * @param ref A structured reference string
  * @returns An object representing a valid reference or null if it is invalid.
  */
-export function parseStructRefXlsx (ref: string): ReferenceStructXlsx | null {
+export function parseStructRefXlsx (ref: string): ReferenceStructXlsx | undefined {
   const r = parseRefXlsx(ref);
   if (r && r.struct) {
     const structData = parseSRange(r.struct);
@@ -74,5 +73,4 @@ export function parseStructRefXlsx (ref: string): ReferenceStructXlsx | null {
       };
     }
   }
-  return null;
 }

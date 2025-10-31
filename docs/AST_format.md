@@ -45,7 +45,7 @@ interface ReferenceIdentifier extends Node {
 }
 ```
 
-An identifier for a range or a named. The 
+An identifier for a range or a name.
 
 
 ## Literal
@@ -140,7 +140,7 @@ interface ArrayExpression extends Node {
 }
 ```
 
-An array expression. Excel does not have empty or sparse arrays and restricts array elements to literals. Google Sheets allows `ReferenceIdentifier`s as elements of arrays, the fx parser as an option for this but it is off by default.
+An array expression. Excel does not have empty or sparse arrays and restricts array elements to literals. Google Sheets allows `ReferenceIdentifier`s as elements of arrays, the fx parser has an option for this but it is off by default.
 
 ## LambdaExpression
 
