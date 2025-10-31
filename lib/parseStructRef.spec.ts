@@ -52,8 +52,8 @@ describe('parse structured references', () => {
   });
 
   test('invalid references', () => {
-    isSREqual('[column name]!foo', null);
-    isSREqual('[foo]bar', null);
+    isSREqual('[column name]!foo', undefined);
+    isSREqual('[foo]bar', undefined);
   });
 
   test('column range references', () => {

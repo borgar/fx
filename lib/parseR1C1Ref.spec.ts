@@ -64,7 +64,7 @@ describe('parse single R1C1 references', () => {
     isRCEqual('R0C0', { name: 'R0C0' });
     isRCEqual('R1C1', { range: { r0: 0, c0: 0, r1: 0, c1: 0, $c0: true, $c1: true, $r0: true, $r1: true } });
     isRCEqual('R10C8', { range: { r0: 9, c0: 7, r1: 9, c1: 7, $c0: true, $c1: true, $r0: true, $r1: true } });
-    isRCEqual('R-10C-8', null);
+    isRCEqual('R-10C-8', undefined);
   });
 
   test('relative cell parts', () => {
@@ -83,9 +83,9 @@ describe('parse single R1C1 references', () => {
 
   test('out of bounds references', () => {
     isRCEqual('R1048577', { name: 'R1048577' });
-    isRCEqual('R[1048576]', null);
+    isRCEqual('R[1048576]', undefined);
     isRCEqual('C16385', { name: 'C16385' });
-    isRCEqual('C[16384]', null);
+    isRCEqual('C[16384]', undefined);
   });
 });
 
@@ -93,8 +93,8 @@ describe('R1C1 partial ranges', () => {
   const opts = { allowTernary: true };
 
   test('partials are not allowed by default', () => {
-    isRCEqual('R[-5]C[-2]:C[-2]', null);
-    isRCEqual('R1:R1C1', null);
+    isRCEqual('R[-5]C[-2]:C[-2]', undefined);
+    isRCEqual('R1:R1C1', undefined);
   });
 
   test('beam type partials', () => {
@@ -146,8 +146,8 @@ describe('parse joined R1C1 references', () => {
   });
 
   test('invalid range combinations', () => {
-    isRCEqual('R0:R0', null);
-    isRCEqual('C0:C0', null);
+    isRCEqual('R0:R0', undefined);
+    isRCEqual('C0:C0', undefined);
   });
 
   test('complex range references', () => {
@@ -165,12 +165,12 @@ describe('parse joined R1C1 references', () => {
   });
 
   test('invalid mixed references', () => {
-    isRCEqual('R:C', null);
-    isRCEqual('R:RC', null);
-    isRCEqual('RC:R', null);
-    isRCEqual('RC:C', null);
-    isRCEqual('C:R', null);
-    isRCEqual('C:RC', null);
+    isRCEqual('R:C', undefined);
+    isRCEqual('R:RC', undefined);
+    isRCEqual('RC:R', undefined);
+    isRCEqual('RC:C', undefined);
+    isRCEqual('C:R', undefined);
+    isRCEqual('C:RC', undefined);
   });
 });
 
@@ -309,10 +309,10 @@ describe('R1C1 trimmed ranges', () => {
       isRCEqual('R[10]:.R[10]', { range: { r0: 10, r1: 10, trim: 'tail' } }, opt);
       isRCEqual('R[10].:.R[10]', { range: { r0: 10, r1: 10, trim: 'both' } }, opt);
 
-      isRCEqual('R[2]C[2]:R[4]', null, { ...opt });
-      isRCEqual('R[2]C[2]:C[4]', null, { ...opt });
-      isRCEqual('R[2]C[2].:.R[4]', null, { ...opt });
-      isRCEqual('R[2]C[2].:.C[4]', null, { ...opt });
+      isRCEqual('R[2]C[2]:R[4]', undefined, { ...opt });
+      isRCEqual('R[2]C[2]:C[4]', undefined, { ...opt });
+      isRCEqual('R[2]C[2].:.R[4]', undefined, { ...opt });
+      isRCEqual('R[2]C[2].:.C[4]', undefined, { ...opt });
 
       isRCEqual('R[2]C[2]:R[4]', { range: { r0: 2, r1: 4, c0: 2 } }, { allowTernary: true, ...opt });
       isRCEqual('R[2]C[2]:C[4]', { range: { r0: 2, c0: 2, c1: 4 } }, { allowTernary: true, ...opt });

@@ -108,11 +108,11 @@ describe('parse A1 references', () => {
   });
 
   test('invalid references', () => {
-    isA1Equal('[Workbook.xlsx]!A1', null);
-    isA1Equal('[Workbook.xlsx]!A1:B2', null);
-    isA1Equal('[Workbook.xlsx]!A:A', null);
-    isA1Equal('[Workbook.xlsx]!1:1', null);
-    isA1Equal('[]Sheet1!A1', null);
+    isA1Equal('[Workbook.xlsx]!A1', undefined);
+    isA1Equal('[Workbook.xlsx]!A1:B2', undefined);
+    isA1Equal('[Workbook.xlsx]!A:A', undefined);
+    isA1Equal('[Workbook.xlsx]!1:1', undefined);
+    isA1Equal('[]Sheet1!A1', undefined);
   });
 
   test('named ranges', () => {
@@ -128,16 +128,16 @@ describe('parse A1 references', () => {
       name: 'namedrange'
     });
 
-    isA1Equal('[Workbook.xlsx]!namedrange', null);
+    isA1Equal('[Workbook.xlsx]!namedrange', undefined);
     isA1Equal('pensioneligibilitypartner1', { name: 'pensioneligibilitypartner1' });
     isA1Equal('XFE1048577', { name: 'XFE1048577' });
   });
 
   test('named ranges with allowNamed: false', () => {
-    isA1Equal('namedrange', null, { allowNamed: false });
-    isA1Equal('Workbook.xlsx!namedrange', null, { allowNamed: false });
-    isA1Equal('pensioneligibilitypartner1', null, { allowNamed: false });
-    isA1Equal('XFE1048577', null, { allowNamed: false });
+    isA1Equal('namedrange', undefined, { allowNamed: false });
+    isA1Equal('Workbook.xlsx!namedrange', undefined, { allowNamed: false });
+    isA1Equal('pensioneligibilitypartner1', undefined, { allowNamed: false });
+    isA1Equal('XFE1048577', undefined, { allowNamed: false });
   });
 });
 
@@ -251,8 +251,8 @@ describe('A1 partial ranges', () => {
   const opt = { allowTernary: true };
 
   test('partial ranges not allowed by default', () => {
-    isA1Equal('A10:A', null);
-    isA1Equal('B3:2', null);
+    isA1Equal('A10:A', undefined);
+    isA1Equal('B3:2', undefined);
   });
 
   test('unbounded bottom ranges', () => {
@@ -307,10 +307,10 @@ describe('A1 trimmed ranges', () => {
       isA1Equal('10:.10', { range: { top: 9, left: null, bottom: 9, right: null, trim: 'tail' } }, opt);
       isA1Equal('10.:.10', { range: { top: 9, left: null, bottom: 9, right: null, trim: 'both' } }, opt);
 
-      isA1Equal('J10:J', null, { ...opt });
-      isA1Equal('J10:10', null, { ...opt });
-      isA1Equal('J10.:.J', null, { ...opt });
-      isA1Equal('J10.:.10', null, { ...opt });
+      isA1Equal('J10:J', undefined, { ...opt });
+      isA1Equal('J10:10', undefined, { ...opt });
+      isA1Equal('J10.:.J', undefined, { ...opt });
+      isA1Equal('J10.:.10', undefined, { ...opt });
       isA1Equal('J10:J', { range: { top: 9, left: 9, bottom: null, right: 9 } }, { allowTernary: true, ...opt });
       isA1Equal('J10:10', { range: { top: 9, left: 9, bottom: 9, right: null } }, { allowTernary: true, ...opt });
       isA1Equal('J10.:.J', { range: { top: 9, left: 9, bottom: null, right: 9, trim: 'both' } }, { allowTernary: true, ...opt });
@@ -321,9 +321,9 @@ describe('A1 trimmed ranges', () => {
 
 describe('A1 trimmed ranges vs named ranges', () => {
   test('named ranges cannot be trimmed', () => {
-    isA1Equal('name1.:.name1', null);
-    isA1Equal('name1.:.foo', null);
-    isA1Equal('foo.:.name1', null);
+    isA1Equal('name1.:.name1', undefined);
+    isA1Equal('name1.:.foo', undefined);
+    isA1Equal('foo.:.name1', undefined);
   });
 
   test('trimmed column references', () => {
