@@ -194,5 +194,4 @@ export function fromA1 (str, allowTernary = true): RangeA1 | null {
       }
     }
   }
-  return null;
 }

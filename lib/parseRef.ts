@@ -202,7 +202,6 @@ export function parseRefCtx (ref: string, opts: ParseRefOptions = {}): RefParseD
       }
     }
   }
-  return null;
 }
 
 export function parseRefXlsx (ref: string, opts: ParseRefOptions = {}): RefParseDataXls | null {
@@ -238,5 +237,4 @@ export function parseRefXlsx (ref: string, opts: ParseRefOptions = {}): RefParse
       }
     }
   }
-  return null;
 }

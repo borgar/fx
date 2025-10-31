@@ -71,7 +71,7 @@ function parseR1C1Part (ref: string): [number, number, boolean, boolean] {
  * @internal
  */
 export function fromR1C1 (rangeString: string): RangeR1C1 | null {
-  let final: RangeR1C1 | null = null;
+  let final: RangeR1C1 | null = undefined;
   const [ part1, op, part2, overflow ] = rangeString.split(/(\.?:\.?)/);
   if (overflow) {
     return null;

@@ -192,19 +192,19 @@ test('fromA1 handles partial row ranges', () => {
 });
 
 test('fromA1 returns null for invalid references', () => {
-  expect(fromA1('')).toBe(null);
-  expect(fromA1('A')).toBe(null);
-  expect(fromA1('1')).toBe(null);
-  expect(fromA1('$A')).toBe(null);
-  expect(fromA1('$1')).toBe(null);
-  expect(fromA1('AAAA1')).toBe(null);
-  expect(fromA1('A0')).toBe(null);
-  expect(fromA1('A10000000')).toBe(null);
-  expect(fromA1('123ABC')).toBe(null);
-  expect(fromA1('A1:B2:C3')).toBe(null);
-  expect(fromA1('A1::B2')).toBe(null);
-  expect(fromA1('A1B2')).toBe(null);
-  expect(fromA1('$$$A1')).toBe(null);
+  expect(fromA1('')).toBe(undefined);
+  expect(fromA1('A')).toBe(undefined);
+  expect(fromA1('1')).toBe(undefined);
+  expect(fromA1('$A')).toBe(undefined);
+  expect(fromA1('$1')).toBe(undefined);
+  expect(fromA1('AAAA1')).toBe(undefined);
+  expect(fromA1('A0')).toBe(undefined);
+  expect(fromA1('A10000000')).toBe(undefined);
+  expect(fromA1('123ABC')).toBe(undefined);
+  expect(fromA1('A1:B2:C3')).toBe(undefined);
+  expect(fromA1('A1::B2')).toBe(undefined);
+  expect(fromA1('A1B2')).toBe(undefined);
+  expect(fromA1('$$$A1')).toBe(undefined);
 });
 
 test('fromA1 handles maximum valid values', () => {
@@ -212,8 +212,8 @@ test('fromA1 handles maximum valid values', () => {
     top: 1048575, left: 16383, bottom: 1048575, right: 16383,
     $top: false, $left: false, $bottom: false, $right: false
   });
-  expect(fromA1('XFD1048577')).toBe(null);
-  expect(fromA1('XFE1048576')).toBe(null);
+  expect(fromA1('XFD1048577')).toBe(undefined);
+  expect(fromA1('XFE1048576')).toBe(undefined);
 });
 
 test('fromA1 handles case insensitivity', () => {
