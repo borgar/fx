@@ -1,4 +1,4 @@
-import { BOOLEAN } from '../constants.js';
+import { BOOLEAN } from '../constants.ts';
 import type { Token } from '../types.ts';
 
 export function lexBoolean (str: string, pos: number): Token | undefined {

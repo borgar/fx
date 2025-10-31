@@ -1,4 +1,4 @@
-import { OPERATOR_TRIM } from '../constants.js';
+import { OPERATOR_TRIM } from '../constants.ts';
 import type { Token } from '../types.ts';
 
 const PERIOD = 46;

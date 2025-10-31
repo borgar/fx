@@ -1,6 +1,6 @@
 import type { Token } from '../types.ts';
-import { lexRangeA1 } from './lexRangeA1.js';
-import { lexRangeR1C1 } from './lexRangeR1C1.js';
+import { lexRangeA1 } from './lexRangeA1.ts';
+import { lexRangeR1C1 } from './lexRangeR1C1.ts';
 
 type LexRangeOptions = {
   allowTernary: boolean,

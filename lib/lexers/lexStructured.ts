@@ -1,6 +1,6 @@
-import { parseSRange } from '../parseSRange.js';
-import { REF_STRUCT } from '../constants.js';
-import { isWS } from './lexWhitespace.js';
+import { parseSRange } from '../parseSRange.ts';
+import { REF_STRUCT } from '../constants.ts';
+import { isWS } from './lexWhitespace.ts';
 import type { Token } from '../types.ts';
 
 const EXCL = 33; // !

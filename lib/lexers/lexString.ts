@@ -1,4 +1,4 @@
-import { STRING } from '../constants.js';
+import { STRING } from '../constants.ts';
 import type { Token } from '../types.ts';
 
 const QUOT = 34;

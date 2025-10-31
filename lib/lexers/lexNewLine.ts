@@ -1,4 +1,4 @@
-import { NEWLINE } from '../constants.js';
+import { NEWLINE } from '../constants.ts';
 import type { Token } from '../types.ts';
 
 export function lexNewLine (str: string, pos: number): Token | undefined {

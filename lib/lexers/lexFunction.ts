@@ -1,4 +1,4 @@
-import { FUNCTION } from '../constants.js';
+import { FUNCTION } from '../constants.ts';
 import type { Token } from '../types.ts';
 
 const PAREN_OPEN = 40;

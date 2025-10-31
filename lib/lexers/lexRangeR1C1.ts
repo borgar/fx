@@ -1,7 +1,7 @@
-import { REF_RANGE, REF_BEAM, REF_TERNARY, MAX_COLS, MAX_ROWS } from '../constants.js';
+import { REF_RANGE, REF_BEAM, REF_TERNARY, MAX_COLS, MAX_ROWS } from '../constants.ts';
 import type { Token } from '../types.ts';
-import { advRangeOp } from './advRangeOp.js';
-import { canEndRange } from './canEndRange.js';
+import { advRangeOp } from './advRangeOp.ts';
+import { canEndRange } from './canEndRange.ts';
 
 const BR_OPEN = 91; // [
 const BR_CLOSE = 93; // ]

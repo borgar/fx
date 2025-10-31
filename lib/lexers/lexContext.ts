@@ -1,4 +1,4 @@
-import { CONTEXT, CONTEXT_QUOTE } from '../constants.js';
+import { CONTEXT, CONTEXT_QUOTE } from '../constants.ts';
 import type { Token } from '../types.ts';
 
 const QUOT_SINGLE = 39; // '

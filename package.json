@@ -23,7 +23,7 @@
     "version": "npm run build",
     "typecheck": "tsc --noEmit",
     "lint": "eslint lib/*.ts",
-    "benchmark": "node benchmark/benchmark.js",
+    "benchmark": "node --experimental-strip-types benchmark/benchmark.ts",
     "test": "vitest run",
     "build:all": "npm run build:docs && npm run build",
     "build:docs": "typedoc && concat-md tempdocs > docs/API.md && rm -rf tempdocs",

@@ -1,4 +1,4 @@
-import { ERROR } from '../constants.js';
+import { ERROR } from '../constants.ts';
 import type { Token } from '../types.ts';
 
 const re_ERROR = /#(?:NAME\?|FIELD!|CALC!|VALUE!|REF!|DIV\/0!|NULL!|NUM!|N\/A|GETTING_DATA\b|SPILL!|UNKNOWN!|SYNTAX\?|ERROR!|CONNECT!|BLOCKED!|EXTERNAL!)/iy;

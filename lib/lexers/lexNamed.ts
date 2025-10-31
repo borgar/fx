@@ -1,4 +1,4 @@
-import { REF_NAMED } from '../constants.js';
+import { REF_NAMED } from '../constants.ts';
 import type { Token } from '../types.ts';
 
 // The advertized named ranges rules are a bit off from what Excel seems to do.

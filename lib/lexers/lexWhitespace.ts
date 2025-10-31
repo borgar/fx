@@ -1,4 +1,4 @@
-import { WHITESPACE } from '../constants.js';
+import { WHITESPACE } from '../constants.ts';
 import type { Token } from '../types.ts';
 
 export function isWS (c) {

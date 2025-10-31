@@ -1,4 +1,4 @@
-import { OPERATOR } from '../constants.js';
+import { OPERATOR } from '../constants.ts';
 import type { Token } from '../types.ts';
 
 export function lexOperator (str: string, pos: number): Token | undefined {

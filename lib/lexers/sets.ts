@@ -1,17 +1,17 @@
-import { lexError } from './lexError.js';
-import { lexRangeTrim } from './lexRangeTrim.js';
-import { lexOperator } from './lexOperator.js';
-import { lexFunction } from './lexFunction.js';
-import { lexBoolean } from './lexBoolean.js';
-import { lexNewLine } from './lexNewLine.js';
-import { lexWhitespace } from './lexWhitespace.js';
-import { lexString } from './lexString.js';
-import { lexContext } from './lexContext.js';
-import { lexRange } from './lexRange.js';
-import { lexStructured } from './lexStructured.js';
-import { lexNumber } from './lexNumber.js';
-import { lexNamed } from './lexNamed.js';
-import { lexRefOp } from './lexRefOp.js';
+import { lexError } from './lexError.ts';
+import { lexRangeTrim } from './lexRangeTrim.ts';
+import { lexOperator } from './lexOperator.ts';
+import { lexFunction } from './lexFunction.ts';
+import { lexBoolean } from './lexBoolean.ts';
+import { lexNewLine } from './lexNewLine.ts';
+import { lexWhitespace } from './lexWhitespace.ts';
+import { lexString } from './lexString.ts';
+import { lexContext } from './lexContext.ts';
+import { lexRange } from './lexRange.ts';
+import { lexStructured } from './lexStructured.ts';
+import { lexNumber } from './lexNumber.ts';
+import { lexNamed } from './lexNamed.ts';
+import { lexRefOp } from './lexRefOp.ts';
 import type { Token } from '../types.ts';
 
 export type PartLexer = (

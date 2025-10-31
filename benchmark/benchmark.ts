@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
 import { readFileSync } from 'node:fs';
 import benchmark from 'benchmark';
-import { tokenize as tokenizeCurr } from '../lib/tokenize.js';
-import { parse as parseCurr } from '../lib/parse.js';
-import { parseA1Ref as parseA1RefCurr } from '../lib/parseA1Ref.js';
+import { tokenize as tokenizeCurr } from '../lib/tokenize.ts';
+import { parse as parseCurr } from '../lib/parse.ts';
+import { parseA1Ref as parseA1RefCurr } from '../lib/parseA1Ref.ts';
 import {
   tokenize as tokenizePrev,
   parse as parsePrev,

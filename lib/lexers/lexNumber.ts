@@ -1,4 +1,4 @@
-import { NUMBER } from '../constants.js';
+import { NUMBER } from '../constants.ts';
 import type { Token } from '../types.ts';
 
 function advDigits (str: string, pos: number): number {

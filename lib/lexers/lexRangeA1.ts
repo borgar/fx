@@ -1,7 +1,7 @@
-import { REF_RANGE, REF_BEAM, REF_TERNARY, MAX_COLS, MAX_ROWS } from '../constants.js';
+import { REF_RANGE, REF_BEAM, REF_TERNARY, MAX_COLS, MAX_ROWS } from '../constants.ts';
 import type { Token } from '../types.ts';
-import { advRangeOp } from './advRangeOp.js';
-import { canEndRange, canEndPartialRange } from './canEndRange.js';
+import { advRangeOp } from './advRangeOp.ts';
+import { canEndRange, canEndPartialRange } from './canEndRange.ts';
 
 function advA1Col (str: string, pos: number): number {
   // [A-Z]{1,3}
