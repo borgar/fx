@@ -189,7 +189,7 @@ describe('translate works with xlsx mode', () => {
   function testExpr (expr: string, anchor: string, expected: any[]) {
     const opts = { mergeRefs: true, xlsx: true, r1c1: false };
     const tokens = tokenize(expr, opts);
-    expect(translateTokensToR1C1(tokens, anchor, opts)).toEqual(expected);
+    expect(translateTokensToR1C1(tokens, anchor)).toEqual(expected);
   }
 
   test('XLSX workbook references', () => {
@@ -214,7 +214,7 @@ describe('translate works with xlsx mode', () => {
 describe('translate works with trimmed ranges', () => {
   function testExpr (expr: string, anchor: string, expected: any[]) {
     const opts = { mergeRefs: true, xlsx: true, r1c1: false };
-    expect(translateTokensToR1C1(tokenize(expr, opts), anchor, opts)).toEqual(expected);
+    expect(translateTokensToR1C1(tokenize(expr, opts), anchor)).toEqual(expected);
   }
 
   test('trimmed range translation', () => {
