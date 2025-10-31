@@ -6,8 +6,7 @@ function quoteColname (str: string): string {
 }
 
 function needsBraces (str: string): boolean {
-  // FIXME: we can flip this to speed it up.
-  return !/^[a-zA-Z0-9\u00a1-\uffff]+$/.test(str);
+  return /[^a-zA-Z0-9\u00a1-\uffff]/.test(str);
 }
 
 function toSentenceCase (str: string): string {
