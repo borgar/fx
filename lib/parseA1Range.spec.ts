@@ -1,6 +1,6 @@
 /* eslint-disable @stylistic/object-property-newline */
 import { describe, test, expect } from 'vitest';
-import { fromRow, fromA1 } from './fromA1.ts';
+import { fromRow, parseA1Range } from './parseA1Range.ts';
 
 describe('fromRow', () => {
   test('fromRow converts row strings to zero-based indices', () => {
@@ -12,214 +12,214 @@ describe('fromRow', () => {
   });
 });
 
-describe('fromA1', () => {
-  test('fromA1 parses simple cell references', () => {
-    expect(fromA1('A1')).toEqual({
+describe('parseA1Range', () => {
+  test('parseA1Range parses simple cell references', () => {
+    expect(parseA1Range('A1')).toEqual({
       top: 0, left: 0, bottom: 0, right: 0,
       $top: false, $left: false, $bottom: false, $right: false
     });
 
-    expect(fromA1('B2')).toEqual({
+    expect(parseA1Range('B2')).toEqual({
       top: 1, left: 1, bottom: 1, right: 1,
       $top: false, $left: false, $bottom: false, $right: false
     });
 
-    expect(fromA1('Z10')).toEqual({
+    expect(parseA1Range('Z10')).toEqual({
       top: 9, left: 25, bottom: 9, right: 25,
       $top: false, $left: false, $bottom: false, $right: false
     });
 
-    expect(fromA1('AA100')).toEqual({
+    expect(parseA1Range('AA100')).toEqual({
       top: 99, left: 26, bottom: 99, right: 26,
       $top: false, $left: false, $bottom: false, $right: false
     });
   });
 });
 
-test('fromA1 parses absolute cell references', () => {
-  expect(fromA1('$A$1')).toEqual({
+test('parseA1Range parses absolute cell references', () => {
+  expect(parseA1Range('$A$1')).toEqual({
     top: 0, left: 0, bottom: 0, right: 0,
     $top: true, $left: true, $bottom: true, $right: true
   });
 
-  expect(fromA1('$A1')).toEqual({
+  expect(parseA1Range('$A1')).toEqual({
     top: 0, left: 0, bottom: 0, right: 0,
     $top: false, $left: true, $bottom: false, $right: true
   });
 
-  expect(fromA1('A$1')).toEqual({
+  expect(parseA1Range('A$1')).toEqual({
     top: 0, left: 0, bottom: 0, right: 0,
     $top: true, $left: false, $bottom: true, $right: false
   });
 });
 
-test('fromA1 parses range references', () => {
-  expect(fromA1('A1:B2')).toEqual({
+test('parseA1Range parses range references', () => {
+  expect(parseA1Range('A1:B2')).toEqual({
     top: 0, left: 0, bottom: 1, right: 1,
     $top: false, $left: false, $bottom: false, $right: false
   });
 
-  expect(fromA1('A1:Z10')).toEqual({
+  expect(parseA1Range('A1:Z10')).toEqual({
     top: 0, left: 0, bottom: 9, right: 25,
     $top: false, $left: false, $bottom: false, $right: false
   });
 
-  expect(fromA1('B2:D4')).toEqual({
+  expect(parseA1Range('B2:D4')).toEqual({
     top: 1, left: 1, bottom: 3, right: 3,
     $top: false, $left: false, $bottom: false, $right: false
   });
 });
 
-test('fromA1 parses range references with mixed absolute/relative', () => {
-  expect(fromA1('$A$1:B2')).toEqual({
+test('parseA1Range parses range references with mixed absolute/relative', () => {
+  expect(parseA1Range('$A$1:B2')).toEqual({
     top: 0, left: 0, bottom: 1, right: 1,
     $top: true, $left: true, $bottom: false, $right: false
   });
 
-  expect(fromA1('A1:$B$2')).toEqual({
+  expect(parseA1Range('A1:$B$2')).toEqual({
     top: 0, left: 0, bottom: 1, right: 1,
     $top: false, $left: false, $bottom: true, $right: true
   });
 
-  expect(fromA1('$A1:B$2')).toEqual({
+  expect(parseA1Range('$A1:B$2')).toEqual({
     top: 0, left: 0, bottom: 1, right: 1,
     $top: false, $left: true, $bottom: true, $right: false
   });
 });
 
-test('fromA1 normalizes reversed ranges', () => {
-  expect(fromA1('B2:A1')).toEqual({
+test('parseA1Range normalizes reversed ranges', () => {
+  expect(parseA1Range('B2:A1')).toEqual({
     top: 0, left: 0, bottom: 1, right: 1,
     $top: false, $left: false, $bottom: false, $right: false
   });
 
-  expect(fromA1('Z10:A1')).toEqual({
+  expect(parseA1Range('Z10:A1')).toEqual({
     top: 0, left: 0, bottom: 9, right: 25,
     $top: false, $left: false, $bottom: false, $right: false
   });
 });
 
-test('fromA1 parses column ranges', () => {
-  expect(fromA1('A:A')).toEqual({
+test('parseA1Range parses column ranges', () => {
+  expect(parseA1Range('A:A')).toEqual({
     top: null, left: 0, bottom: null, right: 0,
     $top: false, $left: false, $bottom: false, $right: false
   });
 
-  expect(fromA1('A:C')).toEqual({
+  expect(parseA1Range('A:C')).toEqual({
     top: null, left: 0, bottom: null, right: 2,
     $top: false, $left: false, $bottom: false, $right: false
   });
 
-  expect(fromA1('C:A')).toEqual({
+  expect(parseA1Range('C:A')).toEqual({
     top: null, left: 0, bottom: null, right: 2,
     $top: false, $left: false, $bottom: false, $right: false
   });
 
-  expect(fromA1('$A:C')).toEqual({
+  expect(parseA1Range('$A:C')).toEqual({
     top: null, left: 0, bottom: null, right: 2,
     $top: false, $left: true, $bottom: false, $right: false
   });
 
-  expect(fromA1('A:$C')).toEqual({
+  expect(parseA1Range('A:$C')).toEqual({
     top: null, left: 0, bottom: null, right: 2,
     $top: false, $left: false, $bottom: false, $right: true
   });
 });
 
-test('fromA1 parses row ranges', () => {
-  expect(fromA1('1:1')).toEqual({
+test('parseA1Range parses row ranges', () => {
+  expect(parseA1Range('1:1')).toEqual({
     top: 0, left: null, bottom: 0, right: null,
     $top: false, $left: false, $bottom: false, $right: false
   });
 
-  expect(fromA1('1:3')).toEqual({
+  expect(parseA1Range('1:3')).toEqual({
     top: 0, left: null, bottom: 2, right: null,
     $top: false, $left: false, $bottom: false, $right: false
   });
 
-  expect(fromA1('3:1')).toEqual({
+  expect(parseA1Range('3:1')).toEqual({
     top: 0, left: null, bottom: 2, right: null,
     $top: false, $left: false, $bottom: false, $right: false
   });
 
-  expect(fromA1('$1:3')).toEqual({
+  expect(parseA1Range('$1:3')).toEqual({
     top: 0, left: null, bottom: 2, right: null,
     $top: true, $left: false, $bottom: false, $right: false
   });
 
-  expect(fromA1('1:$3')).toEqual({
+  expect(parseA1Range('1:$3')).toEqual({
     top: 0, left: null, bottom: 2, right: null,
     $top: false, $left: false, $bottom: true, $right: false
   });
 });
 
-test('fromA1 parses trimmed ranges', () => {
-  expect(fromA1('A1.:B2')).toEqual({
+test('parseA1Range parses trimmed ranges', () => {
+  expect(parseA1Range('A1.:B2')).toEqual({
     top: 0, left: 0, bottom: 1, right: 1,
     $top: false, $left: false, $bottom: false, $right: false,
     trim: 'head'
   });
 
-  expect(fromA1('A1:.B2')).toEqual({
+  expect(parseA1Range('A1:.B2')).toEqual({
     top: 0, left: 0, bottom: 1, right: 1,
     $top: false, $left: false, $bottom: false, $right: false,
     trim: 'tail'
   });
 
-  expect(fromA1('A1.:.B2')).toEqual({
+  expect(parseA1Range('A1.:.B2')).toEqual({
     top: 0, left: 0, bottom: 1, right: 1,
     $top: false, $left: false, $bottom: false, $right: false,
     trim: 'both'
   });
 });
 
-test('fromA1 handles partial column ranges', () => {
+test('parseA1Range handles partial column ranges', () => {
   const range = {
     top: 0, left: 0, bottom: null, right: 2,
     $top: false, $left: false, $bottom: false, $right: false
   };
-  expect(fromA1('A1:C')).toEqual(range);
-  expect(fromA1('C:A1')).toEqual(range);
+  expect(parseA1Range('A1:C')).toEqual(range);
+  expect(parseA1Range('C:A1')).toEqual(range);
 });
 
-test('fromA1 handles partial row ranges', () => {
+test('parseA1Range handles partial row ranges', () => {
   const range = {
     top: 0, left: 0, bottom: 2, right: null,
     $top: false, $left: false, $bottom: false, $right: false
   };
-  expect(fromA1('A1:3')).toEqual(range);
-  expect(fromA1('3:A1')).toEqual(range);
+  expect(parseA1Range('A1:3')).toEqual(range);
+  expect(parseA1Range('3:A1')).toEqual(range);
 });
 
-test('fromA1 returns null for invalid references', () => {
-  expect(fromA1('')).toBe(undefined);
-  expect(fromA1('A')).toBe(undefined);
-  expect(fromA1('1')).toBe(undefined);
-  expect(fromA1('$A')).toBe(undefined);
-  expect(fromA1('$1')).toBe(undefined);
-  expect(fromA1('AAAA1')).toBe(undefined);
-  expect(fromA1('A0')).toBe(undefined);
-  expect(fromA1('A10000000')).toBe(undefined);
-  expect(fromA1('123ABC')).toBe(undefined);
-  expect(fromA1('A1:B2:C3')).toBe(undefined);
-  expect(fromA1('A1::B2')).toBe(undefined);
-  expect(fromA1('A1B2')).toBe(undefined);
-  expect(fromA1('$$$A1')).toBe(undefined);
+test('parseA1Range returns null for invalid references', () => {
+  expect(parseA1Range('')).toBe(undefined);
+  expect(parseA1Range('A')).toBe(undefined);
+  expect(parseA1Range('1')).toBe(undefined);
+  expect(parseA1Range('$A')).toBe(undefined);
+  expect(parseA1Range('$1')).toBe(undefined);
+  expect(parseA1Range('AAAA1')).toBe(undefined);
+  expect(parseA1Range('A0')).toBe(undefined);
+  expect(parseA1Range('A10000000')).toBe(undefined);
+  expect(parseA1Range('123ABC')).toBe(undefined);
+  expect(parseA1Range('A1:B2:C3')).toBe(undefined);
+  expect(parseA1Range('A1::B2')).toBe(undefined);
+  expect(parseA1Range('A1B2')).toBe(undefined);
+  expect(parseA1Range('$$$A1')).toBe(undefined);
 });
 
-test('fromA1 handles maximum valid values', () => {
-  expect(fromA1('XFD1048576')).toEqual({
+test('parseA1Range handles maximum valid values', () => {
+  expect(parseA1Range('XFD1048576')).toEqual({
     top: 1048575, left: 16383, bottom: 1048575, right: 16383,
     $top: false, $left: false, $bottom: false, $right: false
   });
-  expect(fromA1('XFD1048577')).toBe(undefined);
-  expect(fromA1('XFE1048576')).toBe(undefined);
+  expect(parseA1Range('XFD1048577')).toBe(undefined);
+  expect(parseA1Range('XFE1048576')).toBe(undefined);
 });
 
-test('fromA1 handles case insensitivity', () => {
-  const lower = fromA1('a1');
-  const upper = fromA1('A1');
-  const mixed = fromA1('aA1');
+test('parseA1Range handles case insensitivity', () => {
+  const lower = parseA1Range('a1');
+  const upper = parseA1Range('A1');
+  const mixed = parseA1Range('aA1');
 
   expect(lower).toEqual(upper);
   expect(lower).toEqual({

@@ -1,6 +1,8 @@
 import { MAX_COLS, MAX_ROWS } from './constants.ts';
 import type { RangeA1 } from './types.ts';
 
+type TrimString = 'both' | 'head' | 'tail';
+
 export function fromRow (rowStr: string): number {
   return +rowStr - 1;
 }
@@ -16,7 +18,7 @@ const CHAR_0 = 48;
 const CHAR_1 = 49;
 const CHAR_9 = 57;
 
-function advRangeOp (str: string, pos: number): [ number, string ] {
+function advRangeOp (str: string, pos: number): [ number, TrimString | '' ] {
   const c0 = str.charCodeAt(pos);
   if (c0 === CHAR_PERIOD) {
     const c1 = str.charCodeAt(pos + 1);
@@ -99,7 +101,7 @@ function makeRange (
   $bottom: boolean | null,
   right: number | null,
   $right: boolean | null,
-  trim
+  trim: TrimString | ''
 ): RangeA1 {
   // flip left/right and top/bottom as needed
   // for partial ranges we perfer the coord on the left-side of the:
@@ -116,9 +118,16 @@ function makeRange (
   return range;
 }
 
-export function fromA1 (str, allowTernary = true): RangeA1 | null {
+/**
+ * Parse A1-style range string into a RangeA1 object.
+ *
+ * @param rangeString A1-style range string.
+ * @param [allowTernary] Permit ternary ranges like A2:A or B2:2.
+ * @return A reference object.
+ */
+export function parseA1Range (rangeString: string, allowTernary = true): RangeA1 | undefined {
   let p = 0;
-  const [ leftChars, left, $left ] = advA1Col(str, p);
+  const [ leftChars, left, $left ] = advA1Col(rangeString, p);
   let right = 0;
   let $right = false;
   let bottom = 0;
@@ -132,26 +141,26 @@ export function fromA1 (str, allowTernary = true): RangeA1 | null {
     //  LBR: could be A:A1 (if allowTernary)
     //  L R: could be A:A
     p += leftChars;
-    const [ topChars, top, $top ] = advA1Row(str, p);
+    const [ topChars, top, $top ] = advA1Row(rangeString, p);
     p += topChars;
-    const [ op, trim ] = advRangeOp(str, p);
+    const [ op, trim ] = advRangeOp(rangeString, p);
     if (op) {
       p += op;
-      [ rightChars, right, $right ] = advA1Col(str, p);
+      [ rightChars, right, $right ] = advA1Col(rangeString, p);
       p += rightChars;
-      [ bottomChars, bottom, $bottom ] = advA1Row(str, p);
+      [ bottomChars, bottom, $bottom ] = advA1Row(rangeString, p);
       p += bottomChars;
       if (topChars && bottomChars && rightChars) {
-        if (p === str.length) {
+        if (p === rangeString.length) {
           return makeRange(top, $top, left, $left, bottom, $bottom, right, $right, trim);
         }
       }
       else if (!topChars && !bottomChars) {
-        if (p === str.length) {
+        if (p === rangeString.length) {
           return makeRange(null, false, left, $left, null, false, right, $right, trim);
         }
       }
-      else if (allowTernary && (bottomChars || rightChars) && p === str.length) {
+      else if (allowTernary && (bottomChars || rightChars) && p === rangeString.length) {
         if (!topChars) {
           return makeRange(null, false, left, $left, bottom, $bottom, right, $right, trim);
         }
@@ -164,30 +173,30 @@ export function fromA1 (str, allowTernary = true): RangeA1 | null {
       }
     }
     // LT  : this is A1
-    if (topChars && p === str.length) {
+    if (topChars && p === rangeString.length) {
       return makeRange(top, $top, left, $left, top, $top, left, $left, trim);
     }
   }
   else {
     // T B : could be 1:1
     // T BR: could be 1:A1 (if allowTernary)
-    const [ topChars, top, $top ] = advA1Row(str, p);
+    const [ topChars, top, $top ] = advA1Row(rangeString, p);
     if (topChars) {
       p += topChars;
-      const [ op, trim ] = advRangeOp(str, p);
+      const [ op, trim ] = advRangeOp(rangeString, p);
       if (op) {
         p += op;
-        [ rightChars, right, $right ] = advA1Col(str, p);
+        [ rightChars, right, $right ] = advA1Col(rangeString, p);
         p += rightChars;
-        [ bottomChars, bottom, $bottom ] = advA1Row(str, p);
+        [ bottomChars, bottom, $bottom ] = advA1Row(rangeString, p);
         p += bottomChars;
         if (rightChars && bottomChars && allowTernary) {
-          if (p === str.length) {
+          if (p === rangeString.length) {
             return makeRange(top, $top, null, false, bottom, $bottom, right, $right, trim);
           }
         }
         else if (!rightChars && bottomChars) {
-          if (p === str.length) {
+          if (p === rangeString.length) {
             return makeRange(top, $top, null, false, bottom, $bottom, null, false, trim);
           }
         }

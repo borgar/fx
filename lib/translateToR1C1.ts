@@ -1,6 +1,6 @@
 import { stringifyR1C1RefXlsx } from './stringifyR1C1Ref.ts';
 import { tokenizeXlsx } from './tokenize.ts';
-import { fromA1 } from './fromA1.ts';
+import { parseA1Range } from './parseA1Range.ts';
 import type { RangeR1C1, ReferenceA1Xlsx, Token } from './types.ts';
 import { stringifyTokens } from './stringifyTokens.ts';
 import { cloneToken } from './cloneToken.ts';
@@ -28,10 +28,10 @@ function quickParseA1 (ref: string): ReferenceA1Xlsx {
     else {
       splitContext(ref.slice(0, split), data, true);
     }
-    data.range = fromA1(ref.slice(split + 1));
+    data.range = parseA1Range(ref.slice(split + 1));
   }
   else {
-    data.range = fromA1(ref);
+    data.range = parseA1Range(ref);
   }
   return data as ReferenceA1Xlsx;
 }
@@ -65,7 +65,7 @@ export function translateTokensToR1C1 (
   tokens: Token[],
   anchorCell: string
 ): Token[] {
-  const anchorRange = fromA1(anchorCell);
+  const anchorRange = parseA1Range(anchorCell);
   if (!anchorRange) {
     throw new Error('translateTokensToR1C1 got an invalid anchorCell: ' + anchorCell);
   }

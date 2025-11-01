@@ -7,7 +7,7 @@
 ** - R[1]C[1]:R2C2 doesn't have a direct rectangle represention without context.
 */
 import type { ReferenceName, ReferenceNameXlsx, ReferenceR1C1, ReferenceR1C1Xlsx } from './types.ts';
-import { fromR1C1 } from './fromR1C1.ts';
+import { parseR1C1Range } from './parseR1C1Range.ts';
 import { parseRefCtx, parseRefXlsx } from './parseRef.ts';
 
 /**
@@ -67,8 +67,8 @@ export function parseR1C1Ref (
     }
     else if (d.r0) {
       const range = d.r1
-        ? fromR1C1(d.r0 + d.operator + d.r1)
-        : fromR1C1(d.r0);
+        ? parseR1C1Range(d.r0 + d.operator + d.r1)
+        : parseR1C1Range(d.r0);
       if (range) {
         return { context: d.context, range } as ReferenceR1C1;
       }
@@ -115,8 +115,8 @@ export function parseR1C1RefXlsx (
     }
     else if (d.r0) {
       const range = d.r1
-        ? fromR1C1(d.r0 + d.operator + d.r1)
-        : fromR1C1(d.r0);
+        ? parseR1C1Range(d.r0 + d.operator + d.r1)
+        : parseR1C1Range(d.r0);
       if (range) {
         return { workbookName: (d).workbookName, sheetName: (d).sheetName, range } as ReferenceR1C1Xlsx;
       }

@@ -67,10 +67,12 @@ function parseR1C1Part (ref: string): [number, number, boolean, boolean] {
 }
 
 /**
- * Parse a simple string reference to an R1C1 range into a range object.
- * @internal
+ * Parse R1C1-style range string into a RangeR1C1 object.
+ *
+ * @param rangeString R1C1-style range string.
+ * @return A reference object.
  */
-export function fromR1C1 (rangeString: string): RangeR1C1 | null {
+export function parseR1C1Range (rangeString: string): RangeR1C1 | null {
   let final: RangeR1C1 | null = undefined;
   const [ part1, op, part2, overflow ] = rangeString.split(/(\.?:\.?)/);
   if (overflow) {

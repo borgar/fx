@@ -1,5 +1,5 @@
 import { parseRefCtx, parseRefXlsx } from './parseRef.ts';
-import { fromA1 } from './fromA1.ts';
+import { parseA1Range } from './parseA1Range.ts';
 import type { ReferenceA1, ReferenceA1Xlsx, ReferenceName, ReferenceNameXlsx } from './types.ts';
 
 /**
@@ -56,7 +56,7 @@ export function parseA1Ref (
       return { context: d.context, name: d.name };
     }
     else if (d.r0) {
-      const range = fromA1(d.r1 ? d.r0 + d.operator + d.r1 : d.r0);
+      const range = parseA1Range(d.r1 ? d.r0 + d.operator + d.r1 : d.r0);
       if (range) {
         return { context: d.context, range };
       }
@@ -103,7 +103,7 @@ export function parseA1RefXlsx (
     }
     else if (d.r0) {
       if (d.r0) {
-        const range = fromA1(d.r1 ? d.r0 + d.operator + d.r1 : d.r0);
+        const range = parseA1Range(d.r1 ? d.r0 + d.operator + d.r1 : d.r0);
         if (range) {
           return { workbookName: d.workbookName, sheetName: d.sheetName, range };
         }

@@ -45,15 +45,17 @@ export {
   isReferenceNode,
   isUnaryNode
 } from './isNodeType.ts';
-export { fromCol } from './fromCol.ts';
-export { toCol } from './toCol.ts';
-export { parseA1Ref, type OptsParseA1Ref } from './parseA1Ref.ts';
-export { stringifyA1Ref } from './stringifyA1Ref.ts';
 export { addA1RangeBounds } from './addA1RangeBounds.ts';
+export { toCol } from './toCol.ts';
+export { fromCol } from './fromCol.ts';
+export { parseA1Range } from './parseA1Range.ts';
+export { parseA1Ref, type OptsParseA1Ref } from './parseA1Ref.ts';
+export { parseR1C1Range } from './parseR1C1Range.ts';
 export { parseR1C1Ref, type OptsParseR1C1Ref } from './parseR1C1Ref.ts';
+export { parseStructRef } from './parseStructRef.ts';
+export { stringifyA1Ref } from './stringifyA1Ref.ts';
 export { stringifyR1C1Ref } from './stringifyR1C1Ref.ts';
 export { stringifyStructRef, type OptsStringifyStructRef } from './stringifyStructRef.ts';
-export { parseStructRef } from './parseStructRef.ts';
 export { stringifyTokens } from './stringifyTokens.ts';
 export type {
   RangeA1,
