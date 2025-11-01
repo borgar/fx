@@ -48,7 +48,7 @@ export function splitPrefix (str: string, stringsOnly = false) {
   return parts;
 }
 
-function splitContext (contextString, data, xlsx) {
+export function splitContext (contextString, data, xlsx) {
   const ctx = splitPrefix(contextString, !xlsx);
   if (xlsx) {
     if (ctx.length > 1) {

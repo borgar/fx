@@ -1,16 +1,11 @@
-import { parseA1RefXlsx } from './parseA1Ref.ts';
 import { stringifyR1C1RefXlsx } from './stringifyR1C1Ref.ts';
 import { tokenizeXlsx } from './tokenize.ts';
-import { isRange } from './isType.ts';
 import { fromA1 } from './fromA1.ts';
 import type { RangeR1C1, ReferenceA1Xlsx, Token } from './types.ts';
 import { stringifyTokens } from './stringifyTokens.ts';
 import { cloneToken } from './cloneToken.ts';
-
-// Turn on the most permissive setting when parsing ranges so we don't have to think about
-// this option. We already know that range tokens are legal, so we're not going to encounter
-// ternary ranges who's validity we need to worry about.
-const REF_OPTS = { allowTernary: true };
+import { REF_BEAM, REF_RANGE, REF_TERNARY } from './constants.ts';
+import { splitContext } from './parseRef.ts';
 
 const calc = (abs: boolean, vX: number, aX: number): number => {
   if (vX == null) {
@@ -18,6 +13,28 @@ const calc = (abs: boolean, vX: number, aX: number): number => {
   }
   return abs ? vX : vX - aX;
 };
+
+// We already know here that we're holding a token value from
+// one of: REF_RANGE | REF_BEAM | REF_TERNARY
+// So we can quickly scan for ! shortcut a bunch of parsing:
+const unquote = d => d.slice(1, -1).replace(/''/g, "'");
+function quickParseA1 (ref: string): ReferenceA1Xlsx {
+  const split = ref.lastIndexOf('!');
+  const data: Partial<ReferenceA1Xlsx> = {};
+  if (split > -1) {
+    if (ref.startsWith('\'')) {
+      splitContext(unquote(ref.slice(0, split)), data, true);
+    }
+    else {
+      splitContext(ref.slice(0, split), data, true);
+    }
+    data.range = fromA1(ref.slice(split + 1));
+  }
+  else {
+    data.range = fromA1(ref);
+  }
+  return data as ReferenceA1Xlsx;
+}
 
 /**
  * Options for {@link translateFormulaToR1C1}.
@@ -57,12 +74,13 @@ export function translateTokensToR1C1 (
   let offsetSkew = 0;
   const outTokens = [];
   for (let token of tokens) {
-    if (isRange(token)) {
+    const tokenType = token?.type;
+    if (tokenType === REF_RANGE || tokenType === REF_BEAM || tokenType === REF_TERNARY) {
       token = cloneToken(token);
       const tokenValue = token.value;
       // We can get away with using the xlsx ref-parser here because it is more permissive
       // and we will end up with the same prefix after serialization anyway:
-      const ref = parseA1RefXlsx(tokenValue, REF_OPTS) as ReferenceA1Xlsx;
+      const ref = quickParseA1(tokenValue);
       const d = ref.range;
       const range: RangeR1C1 = {};
       range.r0 = calc(d.$top, d.top, top);
