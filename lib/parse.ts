@@ -712,6 +712,7 @@ export type OptsParse = {
  * The AST Abstract Syntax Tree's format is documented in
  * [AST_format.md](./AST_format.md).
  *
+ * @see {@link OptsParse}
  * @see {@link nodeTypes}
  * @see {@link tokenize}
  * @param tokenlist An array of tokens.

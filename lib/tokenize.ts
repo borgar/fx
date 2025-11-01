@@ -282,6 +282,7 @@ export type OptsTokenize = {
  *
  * Parsers will need to handle this.
  *
+ * @see {@link OptsTokenize}
  * @see {@link tokenTypes}
  * @param formula An Excel formula string (an Excel expression).
  * @param [options]  Options
@@ -323,6 +324,7 @@ export function tokenize (
  * ]
  * ```
  *
+ * @see {@link OptsTokenize}
  * @see {@link tokenTypes}
  * @param formula An Excel formula string (an Excel expression).
  * @param [options]  Options

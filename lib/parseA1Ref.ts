@@ -42,6 +42,7 @@ export type OptsParseA1Ref = {
  * For A:A or A1:A style ranges, `null` will be used for any dimensions that the
  * syntax does not specify.
  *
+ * @see {@link OptsParseA1Ref}
  * @param refString An A1-style reference string.
  * @param options Options.
  * @returns An object representing a valid reference or `undefined` if it is invalid.
@@ -88,6 +89,7 @@ export function parseA1Ref (
  * For A:A or A1:A style ranges, `null` will be used for any dimensions that the
  * syntax does not specify.
  *
+ * @see {@link OptsParseA1Ref}
  * @param refString An A1-style reference string.
  * @param options Options.
  * @returns An object representing a valid reference or `undefined` if it is invalid.

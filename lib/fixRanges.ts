@@ -63,6 +63,7 @@ export type OptsFixRanges = {
  *
  * Returns a new array of tokens with values and position data updated.
  *
+ * @see {@link OptsFixRanges}
  * @param tokens A list of tokens to be adjusted.
  * @param [options]  Options.
  * @returns A token list with ranges adjusted.
@@ -148,6 +149,7 @@ export function fixTokenRanges (
  *
  * Returns a new array of tokens with values and position data updated.
  *
+ * @see {@link OptsFixRanges}
  * @param tokens A list of tokens to be adjusted.
  * @param [options]  Options.
  * @returns A token list with ranges adjusted.
@@ -209,6 +211,7 @@ export function fixTokenRangesXlsx (
  * Returns the same formula with the ranges updated. If an array of tokens was
  * supplied, then a new array is returned.
  *
+ * @see {@link OptsFixRanges} & {@link OptsTokenize}
  * @param formula A string (an Excel formula) or a token list that should be adjusted.
  * @param [options]  Options
  * @returns A formula string with ranges adjusted
@@ -236,6 +239,7 @@ export function fixFormulaRanges (
  * Returns the same formula with the ranges updated. If an array of tokens was
  * supplied, then a new array is returned.
  *
+ * @see {@link OptsFixRanges} & {@link OptsTokenize}
  * @param formula A string (an Excel formula) or a token list that should be adjusted.
  * @param [options]  Options
  * @returns A formula string with ranges adjusted

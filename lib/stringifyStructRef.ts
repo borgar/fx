@@ -81,6 +81,7 @@ export type OptsStringifyStructRef = {
  * // => 'workbook.xlsx!tableName[[#Data],[Column1]:[Column2]]'
  * ```
  *
+ * @see {@link OptsStringifyStructRef}
  * @param refObject A structured reference object.
  * @param [options={}] Options.
  * @returns The given structured reference in string format.

@@ -123,6 +123,7 @@ export function translateTokensToR1C1 (
  * // => "=SUM(RC[1],R2C5,Sheet!R3C5)");
  * ```
  *
+ * @see {@link OptsTranslateToR1C1}
  * @param formula An Excel formula that should be adjusted.
  * @param anchorCell A simple string reference to an A1 cell ID (`AF123` or`$C$5`).
  * @param [options={}] The options

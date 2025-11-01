@@ -76,6 +76,7 @@ export type OptsTranslateTokensToA1 = {
  * `=Sheet3!#REF!:F3`. These are valid formulas in the Excel formula language
  * and Excel will accept them, but they are not supported in Google Sheets.
  *
+ * @see {@link OptsTranslateTokensToA1}
  * @param tokens A token list that should be adjusted.
  * @param anchorCell A simple string reference to an A1 cell ID (`AF123` or`$C$5`).
  * @param options Translation options.
@@ -208,6 +209,7 @@ export type OptsTranslateFormulaToA1 = {
  * // => "=#REF!");
  * ```
  *
+ * @see {@link OptsTranslateFormulaToA1}
  * @param formula An Excel formula string that should be adjusted.
  * @param anchorCell A simple string reference to an A1 cell ID (`AF123` or`$C$5`).
  * @param options Translation options.

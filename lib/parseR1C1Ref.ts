@@ -48,6 +48,7 @@ export type OptsParseR1C1Ref = {
  * // }
  * ```
  *
+ * @see {@link OptsParseR1C1Ref}
  * @param refString An R1C1-style reference string.
  * @param [options] Options.
  * @returns An object representing a valid reference or `undefined` if it is invalid.
@@ -96,6 +97,7 @@ export function parseR1C1Ref (
  * // }
  * ```
  *
+ * @see {@link OptsParseR1C1Ref}
  * @param refString An R1C1-style reference string.
  * @param [options] Options.
  * @returns An object representing a valid reference or `undefined` if it is invalid.
