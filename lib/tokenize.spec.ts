@@ -1444,6 +1444,19 @@ describe('lexer', () => {
         { type: FX_PREFIX, value: '=' },
         { type: BOOLEAN, value: 'TRUE' }
       ]);
+      isTokens('true!A1', [
+        { type: BOOLEAN, value: 'true' },
+        { type: OPERATOR, value: '!' },
+        { type: REF_RANGE, value: 'A1' }
+      ]);
+      isTokens('truesheet!A1', [
+        { type: REF_RANGE, value: 'truesheet!A1' }
+      ]);
+      isTokens('true()', [
+        { type: FUNCTION, value: 'true' },
+        { type: OPERATOR, value: '(' },
+        { type: OPERATOR, value: ')' }
+      ]);
     });
 
     test('false values', () => {
@@ -1458,6 +1471,19 @@ describe('lexer', () => {
       isTokens('=FALSE', [
         { type: FX_PREFIX, value: '=' },
         { type: BOOLEAN, value: 'FALSE' }
+      ]);
+      isTokens('false!A1', [
+        { type: BOOLEAN, value: 'false' },
+        { type: OPERATOR, value: '!' },
+        { type: REF_RANGE, value: 'A1' }
+      ]);
+      isTokens('falsesheet!A1', [
+        { type: REF_RANGE, value: 'falsesheet!A1' }
+      ]);
+      isTokens('false()', [
+        { type: FUNCTION, value: 'false' },
+        { type: OPERATOR, value: '(' },
+        { type: OPERATOR, value: ')' }
       ]);
     });
   });
