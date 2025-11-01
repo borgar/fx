@@ -8,7 +8,7 @@ const EXCL = 33; // !
 
 // xlsx xml uses a variant of the syntax that has external references in
 // bracets. Any of: [1]Sheet1!A1, '[1]Sheet one'!A1, [1]!named
-export function lexContext (str: string, pos: number, options: { xlsx: boolean }): Token | undefined {
+export function lexContextQuoted (str: string, pos: number, options: { xlsx: boolean }): Token | undefined {
   const c0 = str.charCodeAt(pos);
   let br1: number;
   let br2: number;
@@ -45,8 +45,15 @@ export function lexContext (str: string, pos: number, options: { xlsx: boolean }
       pos++;
     }
   }
-  // unquoted context
-  else if (c0 !== EXCL) {
+}
+
+// xlsx xml uses a variant of the syntax that has external references in
+// bracets. Any of: [1]Sheet1!A1, '[1]Sheet one'!A1, [1]!named
+export function lexContextUnquoted (str: string, pos: number, options: { xlsx: boolean }): Token | undefined {
+  const c0 = str.charCodeAt(pos);
+  let br1: number;
+  let br2: number;
+  if (c0 !== QUOT_SINGLE && c0 !== EXCL) {
     const start = pos;
     while (pos < str.length) {
       const c = str.charCodeAt(pos);
