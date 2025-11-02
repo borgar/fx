@@ -1,11 +1,8 @@
 {
   "name": "@borgar/fx",
-  "version": "4.13.0",
+  "version": "5.0.0",
   "description": "Utilities for working with Excel formulas",
   "type": "module",
-  "source": "lib/index.ts",
-  "main": "dist/index.cjs",
-  "types": "dist/index.d.cts",
   "exports": {
     ".": {
       "require": "./dist/index.cjs",
@@ -13,21 +10,23 @@
       "default": "./dist/index.js"
     },
     "./xlsx": {
-      "require": "./xlsx/dist/index.cjs",
-      "types": "./xlsx/dist/index.d.cts",
-      "default": "./xlsx/dist/index.js"
+      "require": "./dist/xlsx/index.cjs",
+      "types": "./dist/xlsx/index.d.cts",
+      "default": "./dist/xlsx/index.js"
     }
   },
+  "module": "./dist/index.js",
+  "typings": "./dist/index.d.cts",
   "scripts": {
-    "preversion": "npm test && npm run lint",
-    "version": "npm run build",
-    "typecheck": "tsc --noEmit",
-    "lint": "eslint lib/*.ts",
     "benchmark": "node --experimental-strip-types benchmark/benchmark.ts",
+    "lint": "eslint lib/*.ts",
     "test": "vitest run",
-    "build:all": "npm run build:docs && npm run build",
-    "build:docs": "typedoc && concat-md tempdocs > docs/API.md && rm -rf tempdocs",
-    "build": "tsup"
+    "typecheck": "tsc --noEmit",
+    "check": "npm run test && npm run lint && npm run typecheck",
+    "build": "tsup",
+    "build:all": "npm run docs && npm run build",
+    "docs": "typedoc && concat-md tempdocs > docs/API.md && rm -rf tempdocs",
+    "release": "git diff --exit-code && tsup && npm publish && V=$(jq -r .version package.json) && git tag -a $V -m $V && git push origin $V && gh release create $V --generate-notes"
   },
   "tsup": {
     "entry": [
@@ -67,12 +66,12 @@
     "@borgar/eslint-config": "~4.0.1",
     "concat-md": "~0.5.1",
     "benchmark": "~2.1.4",
-    "eslint": "~9.37.0",
+    "eslint": "~9.39.0",
     "typescript": "~5.9.3",
-    "typescript-eslint": "~8.46.0",
-    "vitest": "~3.2.4",
-    "globals": "~16.4.0",
-    "typedoc": "~0.28.13",
+    "typescript-eslint": "~8.46.2",
+    "vitest": "~4.0.6",
+    "globals": "~16.5.0",
+    "typedoc": "~0.28.14",
     "typedoc-plugin-markdown": "~4.9.0",
     "tsup": "~8.5.0"
   }
