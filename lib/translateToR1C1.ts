@@ -4,8 +4,11 @@ import { parseA1Range } from './parseA1Range.ts';
 import type { RangeR1C1, ReferenceA1Xlsx, Token } from './types.ts';
 import { stringifyTokens } from './stringifyTokens.ts';
 import { cloneToken } from './cloneToken.ts';
-import { REF_BEAM, REF_RANGE, REF_TERNARY } from './constants.ts';
+import { FUNCTION, OPERATOR, REF_BEAM, REF_RANGE, REF_TERNARY } from './constants.ts';
 import { splitContext } from './parseRef.ts';
+import { isRCTokenValue } from './isRCTokenValue.ts';
+
+const reLetLambda = /^l(?:ambda|et)$/i;
 
 const calc = (abs: boolean, vX: number, aX: number): number => {
   if (vX == null) {
@@ -70,33 +73,58 @@ export function translateTokensToR1C1 (
     throw new Error('translateTokensToR1C1 got an invalid anchorCell: ' + anchorCell);
   }
   const { top, left } = anchorRange;
+  let withinCall = 0;
+  let parenDepth = 0;
 
   let offsetSkew = 0;
   const outTokens = [];
   for (let token of tokens) {
     const tokenType = token?.type;
+    if (tokenType === OPERATOR) {
+      if (token.value === '(') {
+        parenDepth++;
+        const lastToken = outTokens.at(-1);
+        if (lastToken.type === FUNCTION) {
+          if (reLetLambda.test(lastToken.value)) {
+            withinCall = parenDepth;
+          }
+        }
+      }
+      else if (token.value === ')') {
+        parenDepth--;
+        if (parenDepth < withinCall) {
+          withinCall = 0;
+        }
+      }
+    }
     if (tokenType === REF_RANGE || tokenType === REF_BEAM || tokenType === REF_TERNARY) {
       token = cloneToken(token);
       const tokenValue = token.value;
       // We can get away with using the xlsx ref-parser here because it is more permissive
       // and we will end up with the same prefix after serialization anyway:
       const ref = quickParseA1(tokenValue);
-      const d = ref.range;
-      const range: RangeR1C1 = {};
-      range.r0 = calc(d.$top, d.top, top);
-      range.r1 = calc(d.$bottom, d.bottom, top);
-      range.c0 = calc(d.$left, d.left, left);
-      range.c1 = calc(d.$right, d.right, left);
-      range.$r0 = d.$top;
-      range.$r1 = d.$bottom;
-      range.$c0 = d.$left;
-      range.$c1 = d.$right;
-      if (d.trim) {
-        range.trim = d.trim;
+      if (ref) {
+        const d = ref.range;
+        const range: RangeR1C1 = {};
+        range.r0 = calc(d.$top, d.top, top);
+        range.r1 = calc(d.$bottom, d.bottom, top);
+        range.c0 = calc(d.$left, d.left, left);
+        range.c1 = calc(d.$right, d.right, left);
+        range.$r0 = d.$top;
+        range.$r1 = d.$bottom;
+        range.$c0 = d.$left;
+        range.$c1 = d.$right;
+        if (d.trim) {
+          range.trim = d.trim;
+        }
+        // @ts-expect-error -- reusing the object, switching it to R1C1 by swapping the range
+        ref.range = range;
+        let val = stringifyR1C1RefXlsx(ref);
+        if (isRCTokenValue(val) && withinCall) {
+          val += '[0]';
+        }
+        token.value = val;
       }
-      // @ts-expect-error -- reusing the object, switching it to R1C1 by swapping the range
-      ref.range = range;
-      token.value = stringifyR1C1RefXlsx(ref);
       // if token includes offsets, those offsets are now likely wrong!
       if (token.loc) {
         token.loc[0] += offsetSkew;

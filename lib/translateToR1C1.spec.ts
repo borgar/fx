@@ -2,7 +2,7 @@ import { describe, test, expect } from 'vitest';
 import { translateFormulaToR1C1, translateTokensToR1C1 } from './translateToR1C1.ts';
 import { tokenize } from './tokenize.ts';
 import { addTokenMeta } from './addTokenMeta.ts';
-import { FUNCTION, FX_PREFIX, OPERATOR, REF_RANGE, REF_BEAM, REF_STRUCT } from './constants.ts';
+import { FUNCTION, FX_PREFIX, OPERATOR, REF_RANGE, REF_BEAM, REF_STRUCT, REF_NAMED, NUMBER } from './constants.ts';
 
 function isA2R (expr: string, anchor: string, result: string) {
   expect(translateFormulaToR1C1(expr, anchor)).toBe(result);
@@ -219,9 +219,74 @@ describe('translate works with trimmed ranges', () => {
 
   test('trimmed range translation', () => {
     testExpr('Sheet!A1.:.B2*Sheet2!AZ.:.ZZ', 'B2', [
-      { type: 'range', value: 'Sheet!R[-1]C[-1].:.RC' },
-      { type: 'operator', value: '*' },
-      { type: 'range_beam', value: 'Sheet2!C[50].:.C[700]' }
+      { type: REF_RANGE, value: 'Sheet!R[-1]C[-1].:.RC' },
+      { type: OPERATOR, value: '*' },
+      { type: REF_BEAM, value: 'Sheet2!C[50].:.C[700]' }
+    ]);
+  });
+});
+
+describe('translate does not create invalid LET arguments', () => {
+  // Unlike with LET(c,1,c) is not valid syntax with the R1C1 notation in Excel.
+  //
+  // If you create a cell with this expression in A1 mode and flip to R1C1, Excel
+  // will not change it when expressing it, but will not allow you to re-enter it.
+  //
+  // Excel will always save the formula such as the arguments will have a "_xlpm."
+  // prefix: _xlfn.LET(_xlpm.c,1,_xlpm.c)
+  //
+  // However, that is also invalid syntax in the exposed/common Excel formula syntax.
+  // To counter this, fx does the following:
+  //
+  // tokenize:
+  //    Supports _xlpm.c in both modes.
+  //    Assumes c, C, r and R are names when encountered as tokens within LET functions.
+  // translateTokensToR1C1:
+  //    Tries to be unabiguous by serializing "c" ranges in within LET as C[0].
+  //    Same goes for "r" to R[0]. Prefixed names are left as they are.
+  //    This way round-tripping is possible.
+  function testExpr (expr: string, anchor: string, expected: any[]) {
+    const opts = { mergeRefs: true, xlsx: true, r1c1: false };
+    expect(translateTokensToR1C1(tokenize(expr, opts), anchor)).toEqual(expected);
+  }
+
+  test('preserve C + R argument names', () => {
+    isA2R('=LET(c,1,c)', 'B2', '=LET(c,1,c)');
+    isA2R('=LET(r,1,r)', 'B2', '=LET(r,1,r)');
+    // ensure that we disambiguate C and R ranges
+    isA2R('=LET(c,B:B,c+B:B)', 'B2', '=LET(c,C[0],c+C[0])');
+    isA2R('=LET(r,2:2,r+2:2)', 'B2', '=LET(r,R[0],r+R[0])');
+    // prefixed parameters work too
+    isA2R('=LET(_xlpm.c,1,_xlpm.c)', 'B2', '=LET(_xlpm.c,1,_xlpm.c)');
+    isA2R('=LET(_xlpm.r,1,_xlpm.r)', 'B2', '=LET(_xlpm.r,1,_xlpm.r)');
+
+    testExpr('=LET(c,1,c)', 'B2', [
+      { type: FX_PREFIX, value: '=' },
+      { type: FUNCTION, value: 'LET' },
+      { type: OPERATOR, value: '(' },
+      { type: REF_NAMED, value: 'c' },
+      { type: OPERATOR, value: ',' },
+      { type: NUMBER, value: '1' },
+      { type: OPERATOR, value: ',' },
+      { type: REF_NAMED, value: 'c' },
+      { type: OPERATOR, value: ')' }
+    ]);
+  });
+
+  test('ensure that C + R ranges are unambiguous', () => {
+    isA2R('=LET(c,B:B,c)', 'B2', '=LET(c,C[0],c)');
+    isA2R('=LET(r,2:2,r)', 'B2', '=LET(r,R[0],r)');
+
+    testExpr('=LET(c,B:B,c)', 'B2', [
+      { type: FX_PREFIX, value: '=' },
+      { type: FUNCTION, value: 'LET' },
+      { type: OPERATOR, value: '(' },
+      { type: REF_NAMED, value: 'c' },
+      { type: OPERATOR, value: ',' },
+      { type: REF_BEAM, value: 'C[0]' },
+      { type: OPERATOR, value: ',' },
+      { type: REF_NAMED, value: 'c' },
+      { type: OPERATOR, value: ')' }
     ]);
   });
 });

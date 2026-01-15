@@ -103,49 +103,51 @@ export function translateTokensToA1 (
       // We can get away with using the xlsx ref-parser here because it is more permissive
       // and we will end up with the same prefix after serialization anyway:
       const ref = parseR1C1RefXlsx(tokenValue, REF_OPTS) as ReferenceR1C1Xlsx;
-      const d = ref.range;
-      const range: RangeA1 = { top: 0, left: 0 };
-      const r0 = toFixed(d.r0, d.$r0, top, MAX_ROWS, wrapEdges);
-      const r1 = toFixed(d.r1, d.$r1, top, MAX_ROWS, wrapEdges);
-      if (r0 > r1) {
-        range.top = r1;
-        range.$top = d.$r1;
-        range.bottom = r0;
-        range.$bottom = d.$r0;
-      }
-      else {
-        range.top = r0;
-        range.$top = d.$r0;
-        range.bottom = r1;
-        range.$bottom = d.$r1;
-      }
-      const c0 = toFixed(d.c0, d.$c0, left, MAX_COLS, wrapEdges);
-      const c1 = toFixed(d.c1, d.$c1, left, MAX_COLS, wrapEdges);
-      if (c0 > c1) {
-        range.left = c1;
-        range.$left = d.$c1;
-        range.right = c0;
-        range.$right = d.$c0;
-      }
-      else {
-        range.left = c0;
-        range.$left = d.$c0;
-        range.right = c1;
-        range.$right = d.$c1;
-      }
-      if (d.trim) {
-        range.trim = d.trim;
-      }
-      if (isNaN(r0) || isNaN(r1) || isNaN(c0) || isNaN(c1)) {
-        // convert to ref error
-        token.type = ERROR;
-        token.value = '#REF!';
-        delete token.groupId;
-      }
-      else {
-        ref.range = range;
-        // @ts-expect-error -- reusing the object, switching it to A1 by swapping the range
-        token.value = stringifyA1RefXlsx(ref);
+      if (ref) {
+        const d = ref.range;
+        const range: RangeA1 = { top: 0, left: 0 };
+        const r0 = toFixed(d.r0, d.$r0, top, MAX_ROWS, wrapEdges);
+        const r1 = toFixed(d.r1, d.$r1, top, MAX_ROWS, wrapEdges);
+        if (r0 > r1) {
+          range.top = r1;
+          range.$top = d.$r1;
+          range.bottom = r0;
+          range.$bottom = d.$r0;
+        }
+        else {
+          range.top = r0;
+          range.$top = d.$r0;
+          range.bottom = r1;
+          range.$bottom = d.$r1;
+        }
+        const c0 = toFixed(d.c0, d.$c0, left, MAX_COLS, wrapEdges);
+        const c1 = toFixed(d.c1, d.$c1, left, MAX_COLS, wrapEdges);
+        if (c0 > c1) {
+          range.left = c1;
+          range.$left = d.$c1;
+          range.right = c0;
+          range.$right = d.$c0;
+        }
+        else {
+          range.left = c0;
+          range.$left = d.$c0;
+          range.right = c1;
+          range.$right = d.$c1;
+        }
+        if (d.trim) {
+          range.trim = d.trim;
+        }
+        if (isNaN(r0) || isNaN(r1) || isNaN(c0) || isNaN(c1)) {
+          // convert to ref error
+          token.type = ERROR;
+          token.value = '#REF!';
+          delete token.groupId;
+        }
+        else {
+          ref.range = range;
+          // @ts-expect-error -- reusing the object, switching it to A1 by swapping the range
+          token.value = stringifyA1RefXlsx(ref);
+        }
       }
       // if token includes offsets, those offsets are now likely wrong!
       if (token.loc) {
