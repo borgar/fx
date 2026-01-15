@@ -2100,4 +2100,76 @@ describe('lexer', () => {
     expect(tokenizeXlsx('[foo]!A1')).toEqual([ { type: REF_RANGE, value: '[foo]!A1' } ]);
     expect(tokenizeXlsx('foo!A1')).toEqual([ { type: REF_RANGE, value: 'foo!A1' } ]);
   });
+
+  test('r and c as LET arguments in R1C1 mode', () => {
+    // Unlike with LET(c,1,c) is not valid syntax with the R1C1 notation in Excel.
+    //
+    // If you create a cell with this expression in A1 mode and flip to R1C1, Excel
+    // will not change it when expressing it, but will not allow you to re-enter it.
+    //
+    // Excel will always save the formula such as the arguments will have a "_xlpm."
+    // prefix: _xlfn.LET(_xlpm.c,1,_xlpm.c)
+    //
+    // However, that is also invalid syntax in the exposed/common Excel formula syntax.
+    // To counter this, fx does the following:
+    //
+    // tokenize:
+    //    Supports _xlpm.c in both modes.
+    //    Assumes c, C, r and R are names when encountered as tokens within LET functions.
+    // translateTokensToR1C1:
+    //    Tries to be unabiguous by serializing "c" ranges in within LET as C[0].
+    //    Same goes for "r" to R[0]. Prefixed names are left as they are.
+    //    This way round-tripping is possible.
+    expect(tokenize('LET(c,1,c)', { r1c1: true })).toEqual([
+      { type: FUNCTION, value: 'LET' },
+      { type: OPERATOR, value: '(' },
+      { type: REF_NAMED, value: 'c' },
+      { type: OPERATOR, value: ',' },
+      { type: NUMBER, value: '1' },
+      { type: OPERATOR, value: ',' },
+      { type: REF_NAMED, value: 'c' },
+      { type: OPERATOR, value: ')' }
+    ]);
+    expect(tokenize('LET(r,1,r)', { r1c1: true })).toEqual([
+      { type: FUNCTION, value: 'LET' },
+      { type: OPERATOR, value: '(' },
+      { type: REF_NAMED, value: 'r' },
+      { type: OPERATOR, value: ',' },
+      { type: NUMBER, value: '1' },
+      { type: OPERATOR, value: ',' },
+      { type: REF_NAMED, value: 'r' },
+      { type: OPERATOR, value: ')' }
+    ]);
+    // Even if the second C could be identified as a range,
+    // which requires a parse-tree of some sort, the the "c+C"
+    // would both have to be names as arguments are
+    // case-insensitive:
+    expect(tokenize('LET(c,C,c+C)', { r1c1: true })).toEqual([
+      { type: FUNCTION, value: 'LET' },
+      { type: OPERATOR, value: '(' },
+      { type: REF_NAMED, value: 'c' },
+      { type: OPERATOR, value: ',' },
+      { type: REF_NAMED, value: 'C' }, // beam
+      { type: OPERATOR, value: ',' },
+      { type: REF_NAMED, value: 'c' },
+      { type: OPERATOR, value: '+' },
+      { type: REF_NAMED, value: 'C' }, // beam
+      { type: OPERATOR, value: ')' }
+    ]);
+    expect(tokenize('LET(c,C,SUM(c,C))', { r1c1: true })).toEqual([
+      { type: FUNCTION, value: 'LET' },
+      { type: OPERATOR, value: '(' },
+      { type: REF_NAMED, value: 'c' },
+      { type: OPERATOR, value: ',' },
+      { type: REF_NAMED, value: 'C' },
+      { type: OPERATOR, value: ',' },
+      { type: FUNCTION, value: 'SUM' },
+      { type: OPERATOR, value: '(' },
+      { type: REF_NAMED, value: 'c' },
+      { type: OPERATOR, value: ',' },
+      { type: REF_NAMED, value: 'C' },
+      { type: OPERATOR, value: ')' },
+      { type: OPERATOR, value: ')' }
+    ]);
+  });
 });

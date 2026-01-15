@@ -245,3 +245,87 @@ describe('translate works with trimmed ranges', () => {
     ]);
   });
 });
+
+describe('translate r & c as LET parameters', () => {
+  // Unlike in A1, LET(c,1,c) is not valid syntax with the R1C1 notation in Excel.
+  // If you create a cell with this expression in A1 mode and flip to R1C1, Excel
+  // will not change it when expressing it, but will not allow you to re-enter it.
+  //
+  // Excel will always save the formula such as the arguments will have a "_xlpm."
+  // prefix: _xlfn.LET(_xlpm.c,1,_xlpm.c)
+  //
+  // However, that is also invalid syntax in the exposed/common Excel formula syntax.
+  // To counter this, fx does the following:
+  //
+  // tokenize:
+  //    Supports _xlpm.c in both modes.
+  //    Assumes c, C, r and R are names when encountered as tokens within LET functions.
+  // translateTokensToR1C1:
+  //    Tries to be unambiguous by serializing "c" ranges in within LET as C[0].
+  //    Same goes for "r" to R[0]. Prefixed names are left as they are.
+  //    This way round-tripping is possible.
+  function testExpr (expr: string, anchor: string, expected: any[]) {
+    const opts = { mergeRefs: true, r1c1: true };
+    expect(translateTokensToA1(tokenizeXlsx(expr, opts), anchor)).toEqual(expected);
+  }
+
+  test('translate prefixed r & c in LET', () => {
+    testExpr('_xlfn.LET(_xlpm.c,3,_xlpm.c)', 'B2', [
+      { type: 'func', value: '_xlfn.LET' },
+      { type: 'operator', value: '(' },
+      { type: 'range_named', value: '_xlpm.c' },
+      { type: 'operator', value: ',' },
+      { type: 'number', value: '3' },
+      { type: 'operator', value: ',' },
+      { type: 'range_named', value: '_xlpm.c' },
+      { type: 'operator', value: ')' }
+    ]);
+
+    testExpr('_xlfn.LET(_xlpm.r,3,_xlpm.r)', 'B2', [
+      { type: 'func', value: '_xlfn.LET' },
+      { type: 'operator', value: '(' },
+      { type: 'range_named', value: '_xlpm.r' },
+      { type: 'operator', value: ',' },
+      { type: 'number', value: '3' },
+      { type: 'operator', value: ',' },
+      { type: 'range_named', value: '_xlpm.r' },
+      { type: 'operator', value: ')' }
+    ]);
+  });
+
+  test('Converting ', () => {
+    // The syntax is invalid so it will regress:
+    isR2A('=LET(r,R,r+R)', 'B4', '=LET(r,R,r+R)');
+    isR2A('=LET(c,C,c+C)', 'B4', '=LET(c,C,c+C)');
+    // R[0] and C[0] work as expected
+    isR2A('=LET(r,R[0],r+R[0])', 'B4', '=LET(r,4:4,r+4:4)');
+    isR2A('=LET(c,C[0],c+C[0])', 'B4', '=LET(c,B:B,c+B:B)');
+    // prefixed parameters work too
+    isR2A('=LET(_xlpm.r,R[0],_xlpm.r+R[0])', 'B4', '=LET(_xlpm.r,4:4,_xlpm.r+4:4)');
+    isR2A('=LET(_xlpm.c,C[0],_xlpm.c+C[0])', 'B4', '=LET(_xlpm.c,B:B,_xlpm.c+B:B)');
+  });
+
+  test('translate r & c in LET', () => {
+    testExpr('LET(c,3,c)', 'B2', [
+      { type: 'func', value: 'LET' },
+      { type: 'operator', value: '(' },
+      { type: 'range_named', value: 'c' },
+      { type: 'operator', value: ',' },
+      { type: 'number', value: '3' },
+      { type: 'operator', value: ',' },
+      { type: 'range_named', value: 'c' },
+      { type: 'operator', value: ')' }
+    ]);
+
+    testExpr('LET(r,3,r)', 'B2', [
+      { type: 'func', value: 'LET' },
+      { type: 'operator', value: '(' },
+      { type: 'range_named', value: 'r' },
+      { type: 'operator', value: ',' },
+      { type: 'number', value: '3' },
+      { type: 'operator', value: ',' },
+      { type: 'range_named', value: 'r' },
+      { type: 'operator', value: ')' }
+    ]);
+  });
+});

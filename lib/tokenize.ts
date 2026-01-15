@@ -8,11 +8,13 @@ import {
   WHITESPACE,
   FUNCTION,
   OPERATOR_TRIM,
-  REF_RANGE
+  REF_RANGE,
+  REF_BEAM
 } from './constants.ts';
 import { mergeRefTokens } from './mergeRefTokens.ts';
 import { lexers, type PartLexer } from './lexers/sets.ts';
 import type { Token } from './types.ts';
+import { isRCTokenValue } from './isRCTokenValue.ts';
 
 const reLetLambda = /^l(?:ambda|et)$/i;
 const isType = (t: Token, type: string) => t && t.type === type;
@@ -27,12 +29,13 @@ const causesBinaryMinus = (token: Token) => {
   );
 };
 
-function fixRCNames (tokens: Token[]): Token[] {
+function fixRCNames (tokens: Token[], r1c1Mode?: boolean): Token[] {
   let withinCall = 0;
   let parenDepth = 0;
   let lastToken: Token;
   for (const token of tokens) {
-    if (token.type === OPERATOR) {
+    const tokenType = token.type;
+    if (tokenType === OPERATOR) {
       if (token.value === '(') {
         parenDepth++;
         if (lastToken.type === FUNCTION) {
@@ -48,7 +51,10 @@ function fixRCNames (tokens: Token[]): Token[] {
         }
       }
     }
-    else if (withinCall && token.type === UNKNOWN && /^[rc]$/.test(token.value)) {
+    else if (withinCall && tokenType === UNKNOWN && isRCTokenValue(token.value)) {
+      token.type = REF_NAMED;
+    }
+    else if (withinCall && r1c1Mode && tokenType === REF_BEAM && isRCTokenValue(token.value)) {
       token.type = REF_NAMED;
     }
     lastToken = token;
@@ -159,10 +165,12 @@ export function getTokens (fx: string, tokenHandlers: PartLexer[], options: Opts
         letOrLambda++;
       }
     }
-    // make a note if we found a R or C unknown
-    if (token.type === UNKNOWN && token.value.length === 1) {
-      const valLC = token.value.toLowerCase();
-      unknownRC += (valLC === 'r' || valLC === 'c') ? 1 : 0;
+    // Make a note if we found a R or C unknown or REF_BEAM token in R1C1 mode.
+    // It seemse unlikely that anyone does `F2 = LET(c,1,c+F:F)` as this is a
+    // circular reference (and not a very useful one), so we're assuming that
+    // all "c" or "r" tokens found within the LET are names.
+    if (token.value.length === 1 && (token.type === UNKNOWN || (opts.r1c1 && token.type === REF_BEAM))) {
+      unknownRC += isRCTokenValue(token.value) ? 1 : 0;
     }
 
     if (negativeNumbers && token.type === NUMBER) {
@@ -195,7 +203,7 @@ export function getTokens (fx: string, tokenHandlers: PartLexer[], options: Opts
   // if we encountered both a LAMBDA/LET call, and unknown 'r' or 'c' tokens
   // we'll turn the unknown tokens into names within the call.
   if (unknownRC && letOrLambda) {
-    fixRCNames(tokens);
+    fixRCNames(tokens, opts.r1c1);
   }
 
   // Any OPERATOR_TRIM tokens have been indexed already, they now need to be
