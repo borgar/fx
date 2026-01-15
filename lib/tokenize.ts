@@ -169,12 +169,8 @@ export function getTokens (fx: string, tokenHandlers: PartLexer[], options: Opts
     // It seemse unlikely that anyone does `F2 = LET(c,1,c+F:F)` as this is a
     // circular reference (and not a very useful one), so we're assuming that
     // all "c" or "r" tokens found within the LET are names.
-    if (token.value.length === 1 && (
-      token.type === UNKNOWN ||
-      (opts.r1c1 && token.type === REF_BEAM)
-    )) {
-      const valLC = token.value.toLowerCase();
-      unknownRC += (valLC === 'r' || valLC === 'c') ? 1 : 0;
+    if (token.value.length === 1 && (token.type === UNKNOWN || (opts.r1c1 && token.type === REF_BEAM))) {
+      unknownRC += isRCTokenValue(token.value) ? 1 : 0;
     }
 
     if (negativeNumbers && token.type === NUMBER) {
