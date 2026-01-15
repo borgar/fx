@@ -227,8 +227,7 @@ describe('translate works with trimmed ranges', () => {
 });
 
 describe('translate does not create invalid LET arguments', () => {
-  // Unlike with LET(c,1,c) is not valid syntax with the R1C1 notation in Excel.
-  //
+  // Unlike in A1, LET(c,1,c) is not valid syntax with the R1C1 notation in Excel.
   // If you create a cell with this expression in A1 mode and flip to R1C1, Excel
   // will not change it when expressing it, but will not allow you to re-enter it.
   //
