@@ -77,14 +77,14 @@ export function translateTokensToR1C1 (
   let parenDepth = 0;
 
   let offsetSkew = 0;
-  const outTokens = [];
+  const outTokens: Token[] = [];
   for (let token of tokens) {
     const tokenType = token?.type;
     if (tokenType === OPERATOR) {
       if (token.value === '(') {
         parenDepth++;
-        const lastToken = outTokens.at(-1);
-        if (lastToken.type === FUNCTION) {
+        const lastToken = outTokens[outTokens.length - 1];
+        if (lastToken && lastToken.type === FUNCTION) {
           if (reLetLambda.test(lastToken.value)) {
             withinCall = parenDepth;
           }
