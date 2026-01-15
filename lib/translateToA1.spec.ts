@@ -261,7 +261,7 @@ describe('translate r & c as LET parameters', () => {
   //    Supports _xlpm.c in both modes.
   //    Assumes c, C, r and R are names when encountered as tokens within LET functions.
   // translateTokensToR1C1:
-  //    Tries to be unabiguous by serializing "c" ranges in within LET as C[0].
+  //    Tries to be unambiguous by serializing "c" ranges in within LET as C[0].
   //    Same goes for "r" to R[0]. Prefixed names are left as they are.
   //    This way round-tripping is possible.
   function testExpr (expr: string, anchor: string, expected: any[]) {
