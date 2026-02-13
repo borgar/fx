@@ -14,6 +14,9 @@ export const REF_BEAM = 'range_beam';
 export const REF_TERNARY = 'range_ternary';
 export const REF_NAMED = 'range_named';
 export const REF_STRUCT = 'structured';
+// TODO: in future, we should type the difference between A1:B1 (REF_RANGE) and
+//       A1 (REF_CELL) but this will require a major version bump.
+export const REF_CELL = 'cell'; // internal only
 export const FX_PREFIX = 'fx_prefix';
 export const UNKNOWN = 'unknown';
 

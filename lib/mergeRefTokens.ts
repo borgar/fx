@@ -1,27 +1,29 @@
-import { CONTEXT, CONTEXT_QUOTE, REF_RANGE, REF_NAMED, REF_BEAM, REF_TERNARY, OPERATOR, REF_STRUCT } from './constants.ts';
+import { CONTEXT, CONTEXT_QUOTE, REF_RANGE, REF_NAMED, REF_BEAM, REF_TERNARY, OPERATOR, REF_STRUCT, REF_CELL } from './constants.ts';
 import type { Token } from './types.ts';
 
 const END = '$';
 
 const validRunsMerge = [
-  [ REF_RANGE, ':', REF_RANGE ],
-  [ REF_RANGE, '.:', REF_RANGE ],
-  [ REF_RANGE, ':.', REF_RANGE ],
-  [ REF_RANGE, '.:.', REF_RANGE ],
+  [ REF_CELL, ':', REF_CELL ],
+  [ REF_CELL, '.:', REF_CELL ],
+  [ REF_CELL, ':.', REF_CELL ],
+  [ REF_CELL, '.:.', REF_CELL ],
   [ REF_RANGE ],
   [ REF_BEAM ],
   [ REF_TERNARY ],
-  [ CONTEXT, '!', REF_RANGE, ':', REF_RANGE ],
-  [ CONTEXT, '!', REF_RANGE, '.:', REF_RANGE ],
-  [ CONTEXT, '!', REF_RANGE, ':.', REF_RANGE ],
-  [ CONTEXT, '!', REF_RANGE, '.:.', REF_RANGE ],
+  [ CONTEXT, '!', REF_CELL, ':', REF_CELL ],
+  [ CONTEXT, '!', REF_CELL, '.:', REF_CELL ],
+  [ CONTEXT, '!', REF_CELL, ':.', REF_CELL ],
+  [ CONTEXT, '!', REF_CELL, '.:.', REF_CELL ],
+  [ CONTEXT, '!', REF_CELL ],
   [ CONTEXT, '!', REF_RANGE ],
   [ CONTEXT, '!', REF_BEAM ],
   [ CONTEXT, '!', REF_TERNARY ],
-  [ CONTEXT_QUOTE, '!', REF_RANGE, ':', REF_RANGE ],
-  [ CONTEXT_QUOTE, '!', REF_RANGE, '.:', REF_RANGE ],
-  [ CONTEXT_QUOTE, '!', REF_RANGE, ':.', REF_RANGE ],
-  [ CONTEXT_QUOTE, '!', REF_RANGE, '.:.', REF_RANGE ],
+  [ CONTEXT_QUOTE, '!', REF_CELL, ':', REF_CELL ],
+  [ CONTEXT_QUOTE, '!', REF_CELL, '.:', REF_CELL ],
+  [ CONTEXT_QUOTE, '!', REF_CELL, ':.', REF_CELL ],
+  [ CONTEXT_QUOTE, '!', REF_CELL, '.:.', REF_CELL ],
+  [ CONTEXT_QUOTE, '!', REF_CELL ],
   [ CONTEXT_QUOTE, '!', REF_RANGE ],
   [ CONTEXT_QUOTE, '!', REF_BEAM ],
   [ CONTEXT_QUOTE, '!', REF_TERNARY ],
@@ -62,7 +64,14 @@ const matcher = (tokens: Token[], currNode, anchorIndex, index = 0) => {
   while (i <= max) {
     const token = tokens[anchorIndex - i];
     if (token) {
-      const key = (token.type === OPERATOR) ? token.value : token.type;
+      const value = token.value;
+      let key = (token.type === OPERATOR) ? value : token.type;
+      // we need to prevent merging ["A1:B2" ":" "C3"] as a range is only
+      // allowed to contain a single ":" operator even if "A1:B2:C3" is
+      // valid Excel syntax
+      if (key === REF_RANGE && value.length > 3 && !value.includes(':')) {
+        key = REF_CELL;
+      }
       if (key in node) {
         node = node[key];
         i += 1;
