@@ -69,7 +69,7 @@ const matcher = (tokens: Token[], currNode, anchorIndex, index = 0) => {
       // we need to prevent merging ["A1:B2" ":" "C3"] as a range is only
       // allowed to contain a single ":" operator even if "A1:B2:C3" is
       // valid Excel syntax
-      if (key === REF_RANGE && value.length > 3 && !value.includes(':')) {
+      if (key === REF_RANGE && !value.includes(':')) {
         key = REF_CELL;
       }
       if (key in node) {
