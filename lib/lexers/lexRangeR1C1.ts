@@ -11,6 +11,7 @@ const UC_C = 67;
 const LC_C = 99;
 const PLUS = 43;
 const MINUS = 45;
+const EXCL = 33;
 
 // C
 // C\[[+-]?\d+\]
@@ -97,7 +98,7 @@ export function lexRangeR1C1 (
   p += r1;
   const c1 = lexR1C1Part(str, p);
   p += c1;
-  if (c1 || r1) {
+  if ((c1 || r1) && str.charCodeAt(p) !== EXCL) {
     const op = advRangeOp(str, p);
     const preOp = p;
     if (op) {

@@ -30,6 +30,12 @@ describe('stringifyA1Ref', () => {
     // @ts-expect-error -- testing invalid input
     expect(stringifyA1Ref({ workbookName: 'MyFile.xlsx', sheetName: 'Sheet1', name: 'foo' })).toBe('foo');
   });
+
+  test('should quote prefixes that look like A1 ranges', () => {
+    expect(stringifyA1Ref({ context: [ 'Ab12' ], range: rangeA1 })).toBe("'Ab12'!A1");
+    expect(stringifyA1Ref({ context: [ 'Sch1' ], range: rangeA1 })).toBe("'Sch1'!A1");
+    expect(stringifyA1Ref({ context: [ 'Foo12345' ], range: rangeA1 })).toBe("'Foo12345'!A1");
+  });
 });
 
 describe('stringifyA1Ref in XLSX mode', () => {
@@ -60,5 +66,17 @@ describe('stringifyA1Ref in XLSX mode', () => {
     expect(stringifyA1RefXlsx({ context: [ 'MyFile.xlsx', 'Sheet1' ], range: rangeA1 })).toBe('A1');
     // @ts-expect-error -- testing invalid input
     expect(stringifyA1RefXlsx({ context: [ 'MyFile.xlsx', 'Sheet1' ], name: 'foo' })).toBe('foo');
+  });
+
+  test('should quote prefixes that look like ranges', () => {
+    expect(stringifyA1RefXlsx({ sheetName: 'C', range: rangeA1 })).toBe("'C'!A1");
+    expect(stringifyA1RefXlsx({ sheetName: 'R', range: rangeA1 })).toBe("'R'!A1");
+    expect(stringifyA1RefXlsx({ sheetName: 'RC', range: rangeA1 })).toBe("'RC'!A1");
+    expect(stringifyA1RefXlsx({ sheetName: 'Ab12', range: rangeA1 })).toBe("'Ab12'!A1");
+    expect(stringifyA1RefXlsx({ sheetName: 'Sch1', range: rangeA1 })).toBe("'Sch1'!A1");
+    expect(stringifyA1RefXlsx({ sheetName: 'Foo12345', range: rangeA1 })).toBe("'Foo12345'!A1");
+    expect(stringifyA1RefXlsx({ workbookName: 'Ab12', range: rangeA1 })).toBe("'[Ab12]'!A1");
+    expect(stringifyA1RefXlsx({ workbookName: 'Sch1', range: rangeA1 })).toBe("'[Sch1]'!A1");
+    expect(stringifyA1RefXlsx({ workbookName: 'Foo12345', range: rangeA1 })).toBe("'[Foo12345]'!A1");
   });
 });

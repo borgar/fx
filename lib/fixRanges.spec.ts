@@ -66,6 +66,20 @@ describe('fixRanges basics', () => {
   });
 });
 
+describe('fixRanges prefixes', () => {
+  test('Quotes prefixes as needed', () => {
+    isFixed('=Sch1!B2', "='Sch1'!B2");
+    isFixed('=[Foo]Ab12x!B2', '=[Foo]Ab12x!B2');
+    isFixed('=[Foo]Ab12!B2', "='[Foo]Ab12'!B2");
+    isFixed('=ABC123!B2', "='ABC123'!B2");
+    isFixed('=abc123!B2', "='abc123'!B2");
+    isFixed('=C!B2', "='C'!B2");
+    isFixed('=R!B2', "='R'!B2");
+    isFixed('=RC!B2', "='RC'!B2");
+    isFixed('=CR!B2', '=CR!B2');
+  });
+});
+
 describe('fixRanges A1', () => {
   const opt = { allowTernary: true };
 

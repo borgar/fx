@@ -10,6 +10,27 @@ import type {
 } from './types.ts';
 
 const reBannedChars = /[^0-9A-Za-z._¡¤§¨ª\u00ad¯-\uffff]/;
+// A1-XFD1048575 | R | C | RC
+const reIsRangelike = /^(R|C|RC|[A-Z]{1,3}\d{1,7})$/i;
+
+export function needQuotes (scope: string, yesItDoes = 0): number {
+  if (yesItDoes) {
+    return 1;
+  }
+  if (scope) {
+    if (reBannedChars.test(scope)) {
+      return 1;
+    }
+    if (reIsRangelike.test(scope)) {
+      return 1;
+    }
+  }
+  return 0;
+}
+
+export function quotePrefix (prefix) {
+  return "'" + prefix.replace(/'/g, "''") + "'";
+}
 
 export function stringifyPrefix (
   ref: ReferenceA1 | ReferenceName | ReferenceStruct | ReferenceR1C1
@@ -23,12 +44,12 @@ export function stringifyPrefix (
     if (scope) {
       const part = (nth % 2) ? '[' + scope + ']' : scope;
       pre = part + pre;
-      quote += +reBannedChars.test(scope);
+      quote += needQuotes(scope, quote);
       nth++;
     }
   }
   if (quote) {
-    pre = "'" + pre.replace(/'/g, "''") + "'";
+    pre = quotePrefix(pre);
   }
   return pre ? pre + '!' : pre;
 }
@@ -41,14 +62,14 @@ export function stringifyPrefixXlsx (
   const { workbookName, sheetName } = ref;
   if (workbookName) {
     pre += '[' + workbookName + ']';
-    quote += +reBannedChars.test(workbookName);
+    quote += needQuotes(workbookName);
   }
   if (sheetName) {
     pre += sheetName;
-    quote += +reBannedChars.test(sheetName);
+    quote += needQuotes(sheetName);
   }
   if (quote) {
-    pre = "'" + pre.replace(/'/g, "''") + "'";
+    pre = quotePrefix(pre);
   }
   return pre ? pre + '!' : pre;
 }

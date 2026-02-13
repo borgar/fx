@@ -100,8 +100,7 @@ export function translateTokensToR1C1 (
     if (tokenType === REF_RANGE || tokenType === REF_BEAM || tokenType === REF_TERNARY) {
       token = cloneToken(token);
       const tokenValue = token.value;
-      // We can get away with using the xlsx ref-parser here because it is more permissive
-      // and we will end up with the same prefix after serialization anyway:
+      // We can get away with using the xlsx ref-parser here because it is more permissive:
       const ref = quickParseA1(tokenValue);
       if (ref) {
         const d = ref.range;

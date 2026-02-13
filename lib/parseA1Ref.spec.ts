@@ -335,3 +335,10 @@ describe('A1 trimmed ranges vs named ranges', () => {
     isA1Equal('foo.:B2', { range: { top: 1, left: 1, right: 4460, trim: 'head' } }, { allowTernary: true });
   });
 });
+
+describe('Sheet name that looks like an A1 ref', () => {
+  test('parse correctly', () => {
+    isA1Equal("'Sch1'!B2", { context: [ 'Sch1' ], range: { top: 1, left: 1, bottom: 1, right: 1 } });
+    isA1Equal('Sch1!B2', { context: [ 'Sch1' ], range: { top: 1, left: 1, bottom: 1, right: 1 } });
+  });
+});

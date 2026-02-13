@@ -99,7 +99,7 @@ export function lexRangeA1 (
       }
     }
     // LT  : this is A1
-    if (top && canEndRange(str, preOp)) {
+    if (top && canEndRange(str, preOp) && str.charCodeAt(preOp) !== 33) { // 33 = "!"
       return { type: REF_RANGE, value: str.slice(pos, preOp) };
     }
   }
