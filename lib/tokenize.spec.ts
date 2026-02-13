@@ -1062,6 +1062,13 @@ describe('lexer', () => {
         { type: FX_PREFIX, value: '=' },
         { type: REF_RANGE, value: 'A1:C1' }
       ]);
+
+      isTokens('=A1:C1:D1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'A1:C1' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_RANGE, value: 'D1' }
+      ]);
     });
 
     test('spill range syntax', () => {
