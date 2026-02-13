@@ -2179,4 +2179,24 @@ describe('lexer', () => {
       { type: OPERATOR, value: ')' }
     ]);
   });
+
+  describe('Sheet name that looks like an A1 ref', () => {
+    test('Sheet name that looks like an A1 ref', () => {
+      expect(tokenize("'Sch1'!B2")).toEqual([
+        { type: REF_RANGE, value: "'Sch1'!B2" }
+      ]);
+      expect(tokenize('Sch1!B2')).toEqual([
+        { type: REF_RANGE, value: 'Sch1!B2' }
+      ]);
+    });
+
+    test('Sheet name that is a R or C ref', () => {
+      expect(tokenize("'C'!R[-9]C[-3]", { r1c1: true })).toEqual([
+        { type: REF_RANGE, value: "'C'!R[-9]C[-3]" }
+      ]);
+      expect(tokenize('C!R[-9]C[-3]', { r1c1: true })).toEqual([
+        { type: REF_RANGE, value: 'C!R[-9]C[-3]' }
+      ]);
+    });
+  });
 });
