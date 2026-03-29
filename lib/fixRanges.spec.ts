@@ -226,7 +226,7 @@ describe('fixRanges works with xlsx mode', () => {
     isFixed('=[Workbook]!Table[Column]', '=[Workbook]!Table[Column]', opts);
     isFixed('=[Lorem Ipsum]!Table[Column]', "='[Lorem Ipsum]'!Table[Column]", opts);
     isFixed("='[Foo]'!A1", '=[Foo]!A1', opts);
-    isFixed('=[Foo]Bar!A1', "='[Foo]Bar'!A1", opts);
+    isFixed('=[Foo]Bar!A1', '=[Foo]Bar!A1', opts);
     isFixed('=[Foo Bar]Baz!A1', "='[Foo Bar]Baz'!A1", opts);
     isFixed('=[Foo]!A1', '=[Foo]!A1', opts);
     isFixed('=[Lorem Ipsum]!A1', "='[Lorem Ipsum]'!A1", opts);

@@ -211,11 +211,11 @@ describe('translate works with xlsx mode references', () => {
     ]);
 
     expect(translateTokensToA1([ { type: 'range', value: 'foo!R1C' } ], 'B2'))
-      .toEqual([ { type: 'range', value: "'foo'!B$1" } ]);
+      .toEqual([ { type: 'range', value: 'foo!B$1' } ]);
     expect(translateTokensToA1([ { type: 'range', value: '[foo]!R1C' } ], 'B2'))
       .toEqual([ { type: 'range', value: '[foo]!B$1' } ]);
     expect(translateTokensToA1([ { type: 'range', value: '[foo]bar!R1C' } ], 'B2'))
-      .toEqual([ { type: 'range', value: "'[foo]bar'!B$1" } ]);
+      .toEqual([ { type: 'range', value: '[foo]bar!B$1' } ]);
 
     testExpr('[Workbook.xlsx]!R1C', 'B2', [
       { type: REF_RANGE, value: '[Workbook.xlsx]!B$1' }
@@ -246,25 +246,21 @@ describe('translate works with trimmed ranges', () => {
   });
 });
 
-describe('quote column-letter-like sheet names', () => {
-  // Excel quotes sheet names that look like column letters when saving
-  // to XLSX: B!F2:B!F20 is stored as B!F2:'B'!F20. The quotes prevent
-  // parsers from interpreting "B" as a column letter after ":".
-  test('single-letter sheet names are quoted', () => {
-    // Sheet "B" looks like column B
-    isR2A('=B!R[-1]C[5]:B!R[17]C[5]', 'A2', "='B'!F1:'B'!F19");
-    // Sheet "X" looks like column X
-    isR2A('=X!R1C1', 'A1', "='X'!$A$1");
+describe('quote sheet prefix on RHS of range operator', () => {
+  // Excel unconditionally quotes the sheet prefix on the right side of
+  // a range operator in XLSX: Sheet1!A1:Sheet1!B2 → Sheet1!A1:'Sheet1'!B2.
+  test('RHS sheet prefix is quoted unconditionally', () => {
+    isR2A('=B!R[-1]C[5]:B!R[17]C[5]', 'A2', "=B!F1:'B'!F19");
+    isR2A('=Sheet1!R1C1:Sheet1!R2C2', 'A1', "=Sheet1!$A$1:'Sheet1'!$B$2");
   });
 
-  test('multi-letter sheet names matching column patterns are quoted', () => {
-    // "AA" looks like column AA
-    isR2A('=AA!R1C1', 'A1', "='AA'!$A$1");
-  });
-
-  test('non-column-like sheet names are not quoted', () => {
+  test('LHS sheet prefix is not quoted', () => {
+    isR2A('=B!R1C1', 'A1', '=B!$A$1');
     isR2A('=Sheet1!R1C1', 'A1', '=Sheet1!$A$1');
-    isR2A('=MyData!R1C1', 'A1', '=MyData!$A$1');
+  });
+
+  test('already-quoted RHS prefix is not double-quoted', () => {
+    isR2A("='Sheet 1'!R1C1:'Sheet 1'!R2C2", 'A1', "='Sheet 1'!$A$1:'Sheet 1'!$B$2");
   });
 });
 

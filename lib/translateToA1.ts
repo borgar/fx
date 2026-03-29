@@ -7,6 +7,8 @@ import { parseA1Range } from './parseA1Range.ts';
 import type { RangeA1, ReferenceR1C1Xlsx, Token } from './types.ts';
 import { stringifyTokens } from './stringifyTokens.ts';
 import { cloneToken } from './cloneToken.ts';
+import { OPERATOR } from './constants.ts';
+import { quotePrefix } from './stringifyPrefix.ts';
 
 // Turn on the most permissive setting when parsing ranges so we don't have to think about
 // this option. We already know that range tokens are legal, so we're not going to encounter
@@ -162,6 +164,29 @@ export function translateTokensToA1 (
       token.loc[1] += offsetSkew;
     }
     outTokens[outTokens.length] = token;
+  }
+
+  // Excel unconditionally quotes the sheet prefix on the RHS of a range
+  // operator in XLSX files: Sheet1!A1:Sheet1!B2 → Sheet1!A1:'Sheet1'!B2.
+  // Apply the same quoting to match Excel's serialization.
+  for (let i = 2; i < outTokens.length; i++) {
+    const tok = outTokens[i];
+    if (!isRange(tok)) {
+      continue;
+    }
+    const prev = outTokens[i - 1];
+    if (prev?.type !== OPERATOR || prev.value !== ':') {
+      continue;
+    }
+    const bangIdx = tok.value.indexOf('!');
+    if (bangIdx > 0) {
+      const prefix = tok.value.slice(0, bangIdx);
+      // Only quote if not already quoted
+      if (prefix[0] !== "'") {
+        outTokens[i] = cloneToken(tok);
+        outTokens[i].value = quotePrefix(prefix) + tok.value.slice(bangIdx);
+      }
+    }
   }
 
   return outTokens;
