@@ -12,6 +12,9 @@ import type {
 const reBannedChars = /[^0-9A-Za-z._¡¤§¨ª\u00ad¯-\uffff]/;
 // A1-XFD1048575 | R | C | RC
 const reIsRangelike = /^(R|C|RC|[A-Z]{1,3}\d{1,7})$/i;
+// Bare column letters (A-XFD) — need quoting when used as sheet names
+// because they're ambiguous after ":" in ranges like B!F2:B!F20
+const reIsColumnLike = /^[A-Z]{1,3}$/i;
 
 export function needQuotes (scope: string, yesItDoes = 0): number {
   if (yesItDoes) {
@@ -66,7 +69,10 @@ export function stringifyPrefixXlsx (
   }
   if (sheetName) {
     pre += sheetName;
-    quote += needQuotes(sheetName);
+    // Quote sheet names that look like column letters (A-XFD) to avoid
+    // ambiguity in ranges like B!F2:B!F20, where the second B could be
+    // mistaken for a column. Excel quotes these in XLSX: B!F2:'B'!F20.
+    quote += needQuotes(sheetName) || (reIsColumnLike.test(sheetName) ? 1 : 0);
   }
   if (quote) {
     pre = quotePrefix(pre);

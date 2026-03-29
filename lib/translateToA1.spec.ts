@@ -211,11 +211,11 @@ describe('translate works with xlsx mode references', () => {
     ]);
 
     expect(translateTokensToA1([ { type: 'range', value: 'foo!R1C' } ], 'B2'))
-      .toEqual([ { type: 'range', value: 'foo!B$1' } ]);
+      .toEqual([ { type: 'range', value: "'foo'!B$1" } ]);
     expect(translateTokensToA1([ { type: 'range', value: '[foo]!R1C' } ], 'B2'))
       .toEqual([ { type: 'range', value: '[foo]!B$1' } ]);
     expect(translateTokensToA1([ { type: 'range', value: '[foo]bar!R1C' } ], 'B2'))
-      .toEqual([ { type: 'range', value: '[foo]bar!B$1' } ]);
+      .toEqual([ { type: 'range', value: "'[foo]bar'!B$1" } ]);
 
     testExpr('[Workbook.xlsx]!R1C', 'B2', [
       { type: REF_RANGE, value: '[Workbook.xlsx]!B$1' }
@@ -243,6 +243,28 @@ describe('translate works with trimmed ranges', () => {
       { type: 'operator', value: '*' },
       { type: 'range_beam', value: 'Sheet2!AZ.:.ZZ' }
     ]);
+  });
+});
+
+describe('quote column-letter-like sheet names', () => {
+  // Excel quotes sheet names that look like column letters when saving
+  // to XLSX: B!F2:B!F20 is stored as B!F2:'B'!F20. The quotes prevent
+  // parsers from interpreting "B" as a column letter after ":".
+  test('single-letter sheet names are quoted', () => {
+    // Sheet "B" looks like column B
+    isR2A('=B!R[-1]C[5]:B!R[17]C[5]', 'A2', "='B'!F1:'B'!F19");
+    // Sheet "X" looks like column X
+    isR2A('=X!R1C1', 'A1', "='X'!$A$1");
+  });
+
+  test('multi-letter sheet names matching column patterns are quoted', () => {
+    // "AA" looks like column AA
+    isR2A('=AA!R1C1', 'A1', "='AA'!$A$1");
+  });
+
+  test('non-column-like sheet names are not quoted', () => {
+    isR2A('=Sheet1!R1C1', 'A1', '=Sheet1!$A$1');
+    isR2A('=MyData!R1C1', 'A1', '=MyData!$A$1');
   });
 });
 
