@@ -14,6 +14,12 @@ describe('stringifyA1Ref', () => {
     expect(stringifyA1Ref({ context: [ 'My File.xlsx' ], range: rangeA1 })).toBe("'My File.xlsx'!A1");
   });
 
+  test('digit-leading sheet names are quoted', () => {
+    expect(stringifyA1Ref({ context: [ '1040' ], range: rangeA1 })).toBe("'1040'!A1");
+    expect(stringifyA1Ref({ context: [ '1', '1040' ], range: rangeA1 })).toBe("'[1]1040'!A1");
+    expect(stringifyA1Ref({ context: [ '2024Budget' ], range: rangeA1 })).toBe("'2024Budget'!A1");
+  });
+
   test('named ranges', () => {
     expect(stringifyA1Ref({ name: 'foo' })).toBe('foo');
     expect(stringifyA1Ref({ context: [ 'Sheet1' ], name: 'foo' })).toBe('Sheet1!foo');
