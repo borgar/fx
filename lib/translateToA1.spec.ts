@@ -246,6 +246,24 @@ describe('translate works with trimmed ranges', () => {
   });
 });
 
+describe('quote sheet prefix on RHS of range operator', () => {
+  // Excel unconditionally quotes the sheet prefix on the right side of
+  // a range operator in XLSX: Sheet1!A1:Sheet1!B2 → Sheet1!A1:'Sheet1'!B2.
+  test('RHS sheet prefix is quoted unconditionally', () => {
+    isR2A('=B!R[-1]C[5]:B!R[17]C[5]', 'A2', "=B!F1:'B'!F19");
+    isR2A('=Sheet1!R1C1:Sheet1!R2C2', 'A1', "=Sheet1!$A$1:'Sheet1'!$B$2");
+  });
+
+  test('LHS sheet prefix is not quoted', () => {
+    isR2A('=B!R1C1', 'A1', '=B!$A$1');
+    isR2A('=Sheet1!R1C1', 'A1', '=Sheet1!$A$1');
+  });
+
+  test('already-quoted RHS prefix is not double-quoted', () => {
+    isR2A("='Sheet 1'!R1C1:'Sheet 1'!R2C2", 'A1', "='Sheet 1'!$A$1:'Sheet 1'!$B$2");
+  });
+});
+
 describe('translate r & c as LET parameters', () => {
   // Unlike in A1, LET(c,1,c) is not valid syntax with the R1C1 notation in Excel.
   // If you create a cell with this expression in A1 mode and flip to R1C1, Excel
