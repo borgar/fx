@@ -20,6 +20,12 @@ describe('stringifyA1Ref', () => {
     expect(stringifyA1Ref({ context: [ '2024Budget' ], range: rangeA1 })).toBe("'2024Budget'!A1");
   });
 
+  test('digit-leading prefixes are quoted for named references', () => {
+    expect(stringifyA1Ref({ context: [ '1040' ], name: 'foo' })).toBe("'1040'!foo");
+    expect(stringifyA1Ref({ context: [ '2024Budget' ], name: 'foo' })).toBe("'2024Budget'!foo");
+    expect(stringifyA1Ref({ context: [ '1', '1040' ], name: 'foo' })).toBe("'[1]1040'!foo");
+  });
+
   test('named ranges', () => {
     expect(stringifyA1Ref({ name: 'foo' })).toBe('foo');
     expect(stringifyA1Ref({ context: [ 'Sheet1' ], name: 'foo' })).toBe('Sheet1!foo');
@@ -84,5 +90,14 @@ describe('stringifyA1Ref in XLSX mode', () => {
     expect(stringifyA1RefXlsx({ workbookName: 'Ab12', range: rangeA1 })).toBe("'[Ab12]'!A1");
     expect(stringifyA1RefXlsx({ workbookName: 'Sch1', range: rangeA1 })).toBe("'[Sch1]'!A1");
     expect(stringifyA1RefXlsx({ workbookName: 'Foo12345', range: rangeA1 })).toBe("'[Foo12345]'!A1");
+  });
+
+  test('digit-leading sheet and workbook names are quoted', () => {
+    expect(stringifyA1RefXlsx({ sheetName: '1040', range: rangeA1 })).toBe("'1040'!A1");
+    expect(stringifyA1RefXlsx({ sheetName: '2024Budget', range: rangeA1 })).toBe("'2024Budget'!A1");
+    expect(stringifyA1RefXlsx({ workbookName: '1040.xlsx', range: rangeA1 })).toBe("'[1040.xlsx]'!A1");
+    expect(stringifyA1RefXlsx({ workbookName: '1040.xlsx', sheetName: 'Sheet1', range: rangeA1 })).toBe("'[1040.xlsx]Sheet1'!A1");
+    expect(stringifyA1RefXlsx({ workbookName: '1040.xlsx', name: 'foo' })).toBe("'[1040.xlsx]'!foo");
+    expect(stringifyA1RefXlsx({ sheetName: '1040', name: 'foo' })).toBe("'1040'!foo");
   });
 });
