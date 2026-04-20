@@ -793,7 +793,7 @@ A new list of tokens with range parts merged.
 # parse()
 
 ```ts
-function parse(tokenlist: Token[], options: OptsParse): AstExpression;
+function parse(tokenlist: Token[], options?: OptsParse): AstExpression;
 ```
 
 Parses a string formula or list of tokens into an AST.
@@ -854,7 +854,7 @@ A reference object.
 # parseA1Ref()
 
 ```ts
-function parseA1Ref(refString: string, options: OptsParseA1Ref): 
+function parseA1Ref(refString: string, options?: OptsParseA1Ref): 
   | ReferenceA1
   | ReferenceName;
 ```
@@ -1246,7 +1246,7 @@ An array of Tokens
 function translateFormulaToA1(
    formula: string, 
    anchorCell: string, 
-   options: OptsTranslateFormulaToA1): string;
+   options?: OptsTranslateFormulaToA1): string;
 ```
 
 Translates ranges in a formula from relative R1C1 syntax to absolute A1 syntax.
@@ -1333,7 +1333,7 @@ A formula string.
 function translateTokensToA1(
    tokens: Token[], 
    anchorCell: string, 
-   options: OptsTranslateTokensToA1): Token[];
+   options?: OptsTranslateTokensToA1): Token[];
 ```
 
 Translates ranges in a list of tokens from relative R1C1 syntax to absolute A1 syntax.
@@ -1710,8 +1710,8 @@ You can use this field to determine which interface a node implements.
 
 | Property | Type | Description |
 | ------ | ------ | ------ |
-| <a id="loc"></a> `loc?` | [`SourceLocation`](#fxtype-aliasessourcelocationmd) | The original source position of the node. |
-| <a id="type"></a> `type` | `string` | The type of this AST node. |
+| <a id="property-loc"></a> `loc?` | [`SourceLocation`](#fxtype-aliasessourcelocationmd) | The original source position of the node. |
+| <a id="property-type"></a> `type` | `string` | The type of this AST node. |
 
 
 <a name="fxtype-aliasesoptsfixrangesmd"></a>
@@ -1731,8 +1731,8 @@ Options for [fixTokenRanges](#fxfunctionsfixtokenrangesmd) and [fixFormulaRanges
 
 | Property | Type | Default value | Description |
 | ------ | ------ | ------ | ------ |
-| <a id="addbounds"></a> `addBounds?` | `boolean` | `false` | Fill in any undefined bounds of range objects. Top to 0, bottom to 1048575, left to 0, and right to 16383. |
-| <a id="thisrow"></a> `thisRow?` | `boolean` | `false` | Enforces using the `[#This Row]` instead of the `@` shorthand when serializing structured ranges. |
+| <a id="property-addbounds"></a> `addBounds?` | `boolean` | `false` | Fill in any undefined bounds of range objects. Top to 0, bottom to 1048575, left to 0, and right to 16383. |
+| <a id="property-thisrow"></a> `thisRow?` | `boolean` | `false` | Enforces using the `[#This Row]` instead of the `@` shorthand when serializing structured ranges. |
 
 
 <a name="fxtype-aliasesoptsparsemd"></a>
@@ -1753,9 +1753,9 @@ Options for [parse](#fxfunctionsparsemd).
 
 | Property | Type | Default value | Description |
 | ------ | ------ | ------ | ------ |
-| <a id="looserefcalls"></a> `looseRefCalls?` | `boolean` | `false` | Permits any function call where otherwise only functions that return references would be permitted. |
-| <a id="permitarraycalls"></a> `permitArrayCalls?` | `boolean` | `false` | Function calls are allowed as elements of arrays. This is a feature in Google Sheets while Excel does not allow it. |
-| <a id="permitarrayranges"></a> `permitArrayRanges?` | `boolean` | `false` | Ranges are allowed as elements of arrays. This is a feature in Google Sheets while Excel does not allow it. |
+| <a id="property-looserefcalls"></a> `looseRefCalls?` | `boolean` | `false` | Permits any function call where otherwise only functions that return references would be permitted. |
+| <a id="property-permitarraycalls"></a> `permitArrayCalls?` | `boolean` | `false` | Function calls are allowed as elements of arrays. This is a feature in Google Sheets while Excel does not allow it. |
+| <a id="property-permitarrayranges"></a> `permitArrayRanges?` | `boolean` | `false` | Ranges are allowed as elements of arrays. This is a feature in Google Sheets while Excel does not allow it. |
 
 
 <a name="fxtype-aliasesoptsparsea1refmd"></a>
@@ -1775,8 +1775,8 @@ Options for [parseA1Ref](#fxfunctionsparsea1refmd).
 
 | Property | Type | Default value | Description |
 | ------ | ------ | ------ | ------ |
-| <a id="allownamed"></a> `allowNamed?` | `boolean` | `true` | Enable parsing names as well as ranges. |
-| <a id="allowternary"></a> `allowTernary?` | `boolean` | `false` | Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: [References.md](./References.md). |
+| <a id="property-allownamed"></a> `allowNamed?` | `boolean` | `true` | Enable parsing names as well as ranges. |
+| <a id="property-allowternary"></a> `allowTernary?` | `boolean` | `false` | Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: [References.md](./References.md). |
 
 
 <a name="fxtype-aliasesoptsparser1c1refmd"></a>
@@ -1796,8 +1796,8 @@ Options for [parseR1C1Ref](#fxfunctionsparser1c1refmd).
 
 | Property | Type | Default value | Description |
 | ------ | ------ | ------ | ------ |
-| <a id="allownamed"></a> `allowNamed?` | `boolean` | `true` | Enable parsing names as well as ranges. |
-| <a id="allowternary"></a> `allowTernary?` | `boolean` | `false` | Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: [References.md](./References.md). |
+| <a id="property-allownamed"></a> `allowNamed?` | `boolean` | `true` | Enable parsing names as well as ranges. |
+| <a id="property-allowternary"></a> `allowTernary?` | `boolean` | `false` | Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: [References.md](./References.md). |
 
 
 <a name="fxtype-aliasesoptsstringifystructrefmd"></a>
@@ -1816,7 +1816,7 @@ Options for [stringifyStructRef](#fxfunctionsstringifystructrefmd)
 
 | Property | Type | Default value | Description |
 | ------ | ------ | ------ | ------ |
-| <a id="thisrow"></a> `thisRow?` | `boolean` | `false` | Enforces using the `[#This Row]` instead of the `@` shorthand when serializing structured ranges. |
+| <a id="property-thisrow"></a> `thisRow?` | `boolean` | `false` | Enforces using the `[#This Row]` instead of the `@` shorthand when serializing structured ranges. |
 
 
 <a name="fxtype-aliasesoptstokenizemd"></a>
@@ -1839,11 +1839,11 @@ Options for [tokenize](#fxfunctionstokenizemd).
 
 | Property | Type | Default value | Description |
 | ------ | ------ | ------ | ------ |
-| <a id="allowternary"></a> `allowTernary?` | `boolean` | `false` | Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: [References.md](./References.md). |
-| <a id="mergerefs"></a> `mergeRefs?` | `boolean` | `true` | Should ranges be returned as whole references (`Sheet1!A1:B2`) or as separate tokens for each part: (`Sheet1`,`!`,`A1`,`:`,`B2`). This is the same as calling [`mergeRefTokens`](#mergeRefTokens) |
-| <a id="negativenumbers"></a> `negativeNumbers?` | `boolean` | `true` | Merges unary minuses with their immediately following number tokens (`-`,`1`) => `-1` (alternatively these will be unary operations in the tree). |
-| <a id="r1c1"></a> `r1c1?` | `boolean` | `false` | Ranges are expected to be in the R1C1 style format rather than the more popular A1 style. |
-| <a id="withlocation"></a> `withLocation?` | `boolean` | `true` | Nodes will include source position offsets to the tokens: `{ loc: [ start, end ] }` |
+| <a id="property-allowternary"></a> `allowTernary?` | `boolean` | `false` | Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: [References.md](./References.md). |
+| <a id="property-mergerefs"></a> `mergeRefs?` | `boolean` | `true` | Should ranges be returned as whole references (`Sheet1!A1:B2`) or as separate tokens for each part: (`Sheet1`,`!`,`A1`,`:`,`B2`). This is the same as calling [`mergeRefTokens`](#mergeRefTokens) |
+| <a id="property-negativenumbers"></a> `negativeNumbers?` | `boolean` | `true` | Merges unary minuses with their immediately following number tokens (`-`,`1`) => `-1` (alternatively these will be unary operations in the tree). |
+| <a id="property-r1c1"></a> `r1c1?` | `boolean` | `false` | Ranges are expected to be in the R1C1 style format rather than the more popular A1 style. |
+| <a id="property-withlocation"></a> `withLocation?` | `boolean` | `true` | Nodes will include source position offsets to the tokens: `{ loc: [ start, end ] }` |
 
 
 <a name="fxtype-aliasesoptstranslateformulatoa1md"></a>
@@ -1864,9 +1864,9 @@ Options for [translateFormulaToA1](#fxfunctionstranslateformulatoa1md).
 
 | Property | Type | Default value | Description |
 | ------ | ------ | ------ | ------ |
-| <a id="allowternary"></a> `allowTernary?` | `boolean` | `true` | Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: References.md. |
-| <a id="mergerefs"></a> `mergeRefs?` | `boolean` | `true` | Should ranges be treated as whole references (`Sheet1!A1:B2`) or as separate tokens for each part: (`Sheet1`,`!`,`A1`,`:`,`B2`). |
-| <a id="wrapedges"></a> `wrapEdges?` | `boolean` | `true` | Wrap out-of-bounds ranges around sheet edges rather than turning them to #REF! errors. |
+| <a id="property-allowternary"></a> `allowTernary?` | `boolean` | `true` | Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: References.md. |
+| <a id="property-mergerefs"></a> `mergeRefs?` | `boolean` | `true` | Should ranges be treated as whole references (`Sheet1!A1:B2`) or as separate tokens for each part: (`Sheet1`,`!`,`A1`,`:`,`B2`). |
+| <a id="property-wrapedges"></a> `wrapEdges?` | `boolean` | `true` | Wrap out-of-bounds ranges around sheet edges rather than turning them to #REF! errors. |
 
 
 <a name="fxtype-aliasesoptstranslatetor1c1md"></a>
@@ -1885,7 +1885,7 @@ Options for [translateFormulaToR1C1](#fxfunctionstranslateformulator1c1md).
 
 | Property | Type | Default value | Description |
 | ------ | ------ | ------ | ------ |
-| <a id="allowternary"></a> `allowTernary?` | `boolean` | `true` | Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: [References.md](./References.md). |
+| <a id="property-allowternary"></a> `allowTernary?` | `boolean` | `true` | Enables the recognition of ternary ranges in the style of `A1:A` or `A1:1`. These are supported by Google Sheets but not Excel. See: [References.md](./References.md). |
 
 
 <a name="fxtype-aliasesoptstranslatetokenstoa1md"></a>
@@ -1904,7 +1904,7 @@ Options for [translateTokensToA1](#fxfunctionstranslatetokenstoa1md)
 
 | Property | Type | Default value | Description |
 | ------ | ------ | ------ | ------ |
-| <a id="wrapedges"></a> `wrapEdges?` | `boolean` | `true` | Wrap out-of-bounds ranges around sheet edges rather than turning them to #REF! errors. |
+| <a id="property-wrapedges"></a> `wrapEdges?` | `boolean` | `true` | Wrap out-of-bounds ranges around sheet edges rather than turning them to #REF! errors. |
 
 
 <a name="fxtype-aliasesrangea1md"></a>
@@ -1931,15 +1931,15 @@ A range in A1 style coordinates.
 
 | Property | Type | Description |
 | ------ | ------ | ------ |
-| <a id="bottom"></a> `$bottom?` | `boolean` \| `null` | Signifies that bottom is a "locked" value |
-| <a id="left"></a> `$left?` | `boolean` \| `null` | Signifies that left is a "locked" value |
-| <a id="right"></a> `$right?` | `boolean` \| `null` | Signifies that right is a "locked" value |
-| <a id="top"></a> `$top?` | `boolean` \| `null` | Signifies that top is a "locked" value |
-| <a id="bottom-1"></a> `bottom?` | `number` \| `null` | Bottom row of the range |
-| <a id="left-1"></a> `left` | `number` \| `null` | Left column of the range |
-| <a id="right-1"></a> `right?` | `number` \| `null` | Right column of the range |
-| <a id="top-1"></a> `top` | `number` \| `null` | Top row of the range |
-| <a id="trim"></a> `trim?` | `"head"` \| `"tail"` \| `"both"` \| `null` | Should empty rows and columns at the top/left or bottom/right be discarded when range is read? |
+| <a id="property-bottom"></a> `$bottom?` | `boolean` \| `null` | Signifies that bottom is a "locked" value |
+| <a id="property-left"></a> `$left?` | `boolean` \| `null` | Signifies that left is a "locked" value |
+| <a id="property-right"></a> `$right?` | `boolean` \| `null` | Signifies that right is a "locked" value |
+| <a id="property-top"></a> `$top?` | `boolean` \| `null` | Signifies that top is a "locked" value |
+| <a id="property-bottom-1"></a> `bottom?` | `number` \| `null` | Bottom row of the range |
+| <a id="property-left-1"></a> `left` | `number` \| `null` | Left column of the range |
+| <a id="property-right-1"></a> `right?` | `number` \| `null` | Right column of the range |
+| <a id="property-top-1"></a> `top` | `number` \| `null` | Top row of the range |
+| <a id="property-trim"></a> `trim?` | `"head"` \| `"tail"` \| `"both"` \| `null` | Should empty rows and columns at the top/left or bottom/right be discarded when range is read? |
 
 
 <a name="fxtype-aliasesranger1c1md"></a>
@@ -1966,15 +1966,15 @@ A range in R1C1 style coordinates.
 
 | Property | Type | Description |
 | ------ | ------ | ------ |
-| <a id="c0"></a> `$c0?` | `boolean` \| `null` | Signifies that c0 is an absolute value |
-| <a id="c1"></a> `$c1?` | `boolean` \| `null` | Signifies that c1 is an absolute value |
-| <a id="r0"></a> `$r0?` | `boolean` \| `null` | Signifies that r0 is an absolute value |
-| <a id="r1"></a> `$r1?` | `boolean` \| `null` | Signifies that r1 is an absolute value |
-| <a id="c0-1"></a> `c0?` | `number` \| `null` | Left column of the range |
-| <a id="c1-1"></a> `c1?` | `number` \| `null` | Right column of the range |
-| <a id="r0-1"></a> `r0?` | `number` \| `null` | Top row of the range |
-| <a id="r1-1"></a> `r1?` | `number` \| `null` | Bottom row of the range |
-| <a id="trim"></a> `trim?` | `"head"` \| `"tail"` \| `"both"` \| `null` | Should empty rows and columns at the top/left or bottom/right be discarded when range is read? |
+| <a id="property-c0"></a> `$c0?` | `boolean` \| `null` | Signifies that c0 is an absolute value |
+| <a id="property-c1"></a> `$c1?` | `boolean` \| `null` | Signifies that c1 is an absolute value |
+| <a id="property-r0"></a> `$r0?` | `boolean` \| `null` | Signifies that r0 is an absolute value |
+| <a id="property-r1"></a> `$r1?` | `boolean` \| `null` | Signifies that r1 is an absolute value |
+| <a id="property-c0-1"></a> `c0?` | `number` \| `null` | Left column of the range |
+| <a id="property-c1-1"></a> `c1?` | `number` \| `null` | Right column of the range |
+| <a id="property-r0-1"></a> `r0?` | `number` \| `null` | Top row of the range |
+| <a id="property-r1-1"></a> `r1?` | `number` \| `null` | Bottom row of the range |
+| <a id="property-trim"></a> `trim?` | `"head"` \| `"tail"` \| `"both"` \| `null` | Should empty rows and columns at the top/left or bottom/right be discarded when range is read? |
 
 
 <a name="fxtype-aliasesreferencea1md"></a>
@@ -1995,8 +1995,8 @@ documentation on how scopes work in Fx.
 
 | Property | Type | Description |
 | ------ | ------ | ------ |
-| <a id="context"></a> `context?` | `string`[] | A collection of scopes for the reference |
-| <a id="range"></a> `range` | [`RangeA1`](#fxtype-aliasesrangea1md) | The reference's range |
+| <a id="property-context"></a> `context?` | `string`[] | A collection of scopes for the reference |
+| <a id="property-range"></a> `range` | [`RangeA1`](#fxtype-aliasesrangea1md) | The reference's range |
 
 
 <a name="fxtype-aliasesreferencea1xlsxmd"></a>
@@ -2018,9 +2018,9 @@ documentation on how scopes work in Fx.
 
 | Property | Type | Description |
 | ------ | ------ | ------ |
-| <a id="range"></a> `range` | [`RangeA1`](#fxtype-aliasesrangea1md) | The reference's range |
-| <a id="sheetname"></a> `sheetName?` | `string` | A context sheet scope |
-| <a id="workbookname"></a> `workbookName?` | `string` | A context workbook scope |
+| <a id="property-range"></a> `range` | [`RangeA1`](#fxtype-aliasesrangea1md) | The reference's range |
+| <a id="property-sheetname"></a> `sheetName?` | `string` | A context sheet scope |
+| <a id="property-workbookname"></a> `workbookName?` | `string` | A context workbook scope |
 
 
 <a name="fxtype-aliasesreferenceidentifiermd"></a>
@@ -2066,8 +2066,8 @@ documentation on how scopes work in Fx.
 
 | Property | Type | Description |
 | ------ | ------ | ------ |
-| <a id="context"></a> `context?` | `string`[] | A collection of scopes for the reference |
-| <a id="name"></a> `name` | `string` | The reference's name |
+| <a id="property-context"></a> `context?` | `string`[] | A collection of scopes for the reference |
+| <a id="property-name"></a> `name` | `string` | The reference's name |
 
 
 <a name="fxtype-aliasesreferencenamexlsxmd"></a>
@@ -2089,9 +2089,9 @@ documentation on how scopes work in Fx.
 
 | Property | Type | Description |
 | ------ | ------ | ------ |
-| <a id="name"></a> `name` | `string` | The reference's name |
-| <a id="sheetname"></a> `sheetName?` | `string` | A context sheet scope |
-| <a id="workbookname"></a> `workbookName?` | `string` | A context workbook scope |
+| <a id="property-name"></a> `name` | `string` | The reference's name |
+| <a id="property-sheetname"></a> `sheetName?` | `string` | A context sheet scope |
+| <a id="property-workbookname"></a> `workbookName?` | `string` | A context workbook scope |
 
 
 <a name="fxtype-aliasesreferencer1c1md"></a>
@@ -2112,8 +2112,8 @@ documentation on how scopes work in Fx.
 
 | Property | Type | Description |
 | ------ | ------ | ------ |
-| <a id="context"></a> `context?` | `string`[] | A collection of scopes for the reference |
-| <a id="range"></a> `range` | [`RangeR1C1`](#fxtype-aliasesranger1c1md) | The reference's range |
+| <a id="property-context"></a> `context?` | `string`[] | A collection of scopes for the reference |
+| <a id="property-range"></a> `range` | [`RangeR1C1`](#fxtype-aliasesranger1c1md) | The reference's range |
 
 
 <a name="fxtype-aliasesreferencer1c1xlsxmd"></a>
@@ -2135,9 +2135,9 @@ documentation on how scopes work in Fx.
 
 | Property | Type | Description |
 | ------ | ------ | ------ |
-| <a id="range"></a> `range` | [`RangeR1C1`](#fxtype-aliasesranger1c1md) | The reference's range |
-| <a id="sheetname"></a> `sheetName?` | `string` | A context sheet scope |
-| <a id="workbookname"></a> `workbookName?` | `string` | A context workbook scope |
+| <a id="property-range"></a> `range` | [`RangeR1C1`](#fxtype-aliasesranger1c1md) | The reference's range |
+| <a id="property-sheetname"></a> `sheetName?` | `string` | A context sheet scope |
+| <a id="property-workbookname"></a> `workbookName?` | `string` | A context workbook scope |
 
 
 <a name="fxtype-aliasesreferencestructmd"></a>
@@ -2160,10 +2160,10 @@ documentation on how scopes work in Fx.
 
 | Property | Type | Description |
 | ------ | ------ | ------ |
-| <a id="columns"></a> `columns?` | `string`[] | The sections this reference targets |
-| <a id="context"></a> `context?` | `string`[] | A collection of scopes for the reference |
-| <a id="sections"></a> `sections?` | `string`[] | The sections this reference targets |
-| <a id="table"></a> `table?` | `string` | The table this reference targets |
+| <a id="property-columns"></a> `columns?` | `string`[] | The sections this reference targets |
+| <a id="property-context"></a> `context?` | `string`[] | A collection of scopes for the reference |
+| <a id="property-sections"></a> `sections?` | `string`[] | The sections this reference targets |
+| <a id="property-table"></a> `table?` | `string` | The table this reference targets |
 
 
 <a name="fxtype-aliasesreferencestructxlsxmd"></a>
@@ -2187,11 +2187,11 @@ documentation on how scopes work in Fx.
 
 | Property | Type | Description |
 | ------ | ------ | ------ |
-| <a id="columns"></a> `columns?` | `string`[] | The sections this reference targets |
-| <a id="sections"></a> `sections?` | `string`[] | The sections this reference targets |
-| <a id="sheetname"></a> `sheetName?` | `string` | A context sheet scope |
-| <a id="table"></a> `table?` | `string` | The table this reference targets |
-| <a id="workbookname"></a> `workbookName?` | `string` | A context workbook scope |
+| <a id="property-columns"></a> `columns?` | `string`[] | The sections this reference targets |
+| <a id="property-sections"></a> `sections?` | `string`[] | The sections this reference targets |
+| <a id="property-sheetname"></a> `sheetName?` | `string` | A context sheet scope |
+| <a id="property-table"></a> `table?` | `string` | The table this reference targets |
+| <a id="property-workbookname"></a> `workbookName?` | `string` | A context workbook scope |
 
 
 <a name="fxtype-aliasessourcelocationmd"></a>
@@ -2993,7 +2993,7 @@ A token list with ranges adjusted.
 # parseA1Ref()
 
 ```ts
-function parseA1Ref(refString: string, options: OptsParseA1Ref): 
+function parseA1Ref(refString: string, options?: OptsParseA1Ref): 
   | ReferenceA1Xlsx
   | ReferenceNameXlsx;
 ```

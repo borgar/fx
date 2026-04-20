@@ -1,6 +1,6 @@
 {
   "name": "@borgar/fx",
-  "version": "5.0.3",
+  "version": "5.0.4",
   "description": "Utilities for working with Excel formulas",
   "type": "module",
   "exports": {
@@ -69,10 +69,10 @@
     "eslint": "~9.39.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "~8.55.0",
-    "vitest": "~4.0.18",
-    "globals": "~17.3.0",
-    "typedoc": "~0.28.17",
-    "typedoc-plugin-markdown": "~4.10.0",
+    "vitest": "~4.1.4",
+    "globals": "~17.5.0",
+    "typedoc": "~0.28.19",
+    "typedoc-plugin-markdown": "~4.11.0",
     "tsup": "~8.5.1"
   }
 }
