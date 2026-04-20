@@ -154,6 +154,19 @@ describe('translate involved cases from A1 to RC', () => {
   });
 });
 
+describe('translate cross-sheet ranges', () => {
+  test('sheet prefix not consumed as ternary range end', () => {
+    // B!F2:B!F20 from B137 — the second B! is a sheet prefix, not a
+    // ternary range endpoint. Without the fix, the lexer with
+    // allowTernary:true parses "F2:B" as a ternary range, consuming
+    // the B from the second sheet prefix.
+    isA2R('=B!F2:B!F20', 'B137', '=B!R[-135]C[4]:B!R[-117]C[4]');
+    isA2R('=SUM(Sheet1!A1:Sheet1!A10)', 'C5', '=SUM(Sheet1!R[-4]C[-2]:Sheet1!R[5]C[-2])');
+    // Single-letter sheet names that look like column letters
+    isA2R('=X!D3:X!D10', 'A1', '=X!R[2]C[3]:X!R[9]C[3]');
+  });
+});
+
 describe('translate works with merged ranges', () => {
   test('preserves token metadata and locations', () => {
     // This tests that:

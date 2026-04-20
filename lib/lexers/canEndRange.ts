@@ -11,6 +11,9 @@ export function canEndRange (str: string, pos: number): boolean {
 }
 
 // partial: [A-Za-z0-9_($.]
+// Also rejects "!" — a ternary range must not end where a sheet prefix
+// begins (e.g. "F2:B" in "B!F2:B!F20" is not a ternary range; the
+// trailing "B" is the start of the second sheet prefix "B!").
 export function canEndPartialRange (str: string, pos: number): boolean {
   const c = str.charCodeAt(pos);
   return !(
@@ -20,6 +23,7 @@ export function canEndPartialRange (str: string, pos: number): boolean {
     (c === 95) || // _
     (c === 40) || // (
     (c === 36) || // $
-    (c === 46) // .
+    (c === 46) || // .
+    (c === 33) // !
   );
 }
