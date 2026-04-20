@@ -17,7 +17,6 @@ import {
   ARRAY,
   BINARY,
   CALL,
-  ERROR,
   ERROR_LITERAL,
   IDENTIFIER,
   LAMBDA,
@@ -106,7 +105,7 @@ export function isArrayNode (node?: Node | null): node is ArrayExpression {
  * @returns True if the specified token is a LambdaExpression, False otherwise.
  */
 export function isLambdaNode (node?: Node | null): node is LambdaExpression {
-  return node?.type === ARRAY;
+  return node?.type === LAMBDA;
 }
 
 /**
@@ -138,7 +137,7 @@ export function isExpressionNode (node?: Node | null): node is AstExpression {
     return (
       type === REFERENCE ||
       type === LITERAL ||
-      type === ERROR ||
+      type === ERROR_LITERAL ||
       type === UNARY ||
       type === BINARY ||
       type === CALL ||
