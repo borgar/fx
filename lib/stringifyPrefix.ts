@@ -24,6 +24,11 @@ export function needQuotes (scope: string, yesItDoes = 0): number {
     if (reIsRangelike.test(scope)) {
       return 1;
     }
+    // Sheet/workbook names starting with a digit must be quoted in Excel to
+    // avoid ambiguity with numeric literals.
+    if (/^\d/.test(scope)) {
+      return 1;
+    }
   }
   return 0;
 }
