@@ -2199,4 +2199,34 @@ describe('lexer', () => {
       ]);
     });
   });
+
+  describe('Function name that looks like an A1 ref', () => {
+    test('Function name that looks like an A1 ref', () => {
+      expect(tokenize('LOG10(1)')).toEqual([
+        { type: FUNCTION, value: 'LOG10' },
+        { type: OPERATOR, value: '(' },
+        { type: NUMBER, value: '1' },
+        { type: OPERATOR, value: ')' }
+      ]);
+      expect(tokenize('ROW(LOG10)')).toEqual([
+        { type: FUNCTION, value: 'ROW' },
+        { type: OPERATOR, value: '(' },
+        { type: REF_RANGE, value: 'LOG10' },
+        { type: OPERATOR, value: ')' }
+      ]);
+    });
+
+    test('Function name that is a R or C', () => {
+      expect(tokenize('R()')).toEqual([
+        { type: FUNCTION, value: 'R' },
+        { type: OPERATOR, value: '(' },
+        { type: OPERATOR, value: ')' }
+      ]);
+      expect(tokenize('C()')).toEqual([
+        { type: FUNCTION, value: 'C' },
+        { type: OPERATOR, value: '(' },
+        { type: OPERATOR, value: ')' }
+      ]);
+    });
+  });
 });
