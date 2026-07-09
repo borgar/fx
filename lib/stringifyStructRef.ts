@@ -9,8 +9,10 @@ function needsBraces (str: string): boolean {
   return /[^a-zA-Z0-9\u00a1-\uffff]/.test(str);
 }
 
-function toSentenceCase (str: string): string {
-  return str[0].toUpperCase() + str.slice(1).toLowerCase();
+function toTitleCase (str: string): string {
+  // Section specifiers are title-cased per word, so the two-word `this row`
+  // serializes as `This Row` (Excel's canonical form), not `This row`.
+  return str.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
 }
 
 export function stringifySRef (refObject: ReferenceStruct, thisRow = false) {
@@ -22,7 +24,7 @@ export function stringifySRef (refObject: ReferenceStruct, thisRow = false) {
   const numSections = refObject.sections?.length ?? 0;
   // single section
   if (numSections === 1 && !numColumns) {
-    s += `[#${toSentenceCase(refObject.sections[0])}]`;
+    s += `[#${toTitleCase(refObject.sections[0])}]`;
   }
   // single column
   else if (!numSections && numColumns === 1) {
@@ -37,7 +39,7 @@ export function stringifySRef (refObject: ReferenceStruct, thisRow = false) {
     }
     else if (numSections) {
       s += refObject.sections
-        .map(d => `[#${toSentenceCase(d)}]`)
+        .map(d => `[#${toTitleCase(d)}]`)
         .join(',');
       if (numColumns) {
         s += ',';
