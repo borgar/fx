@@ -132,6 +132,26 @@ describe('lexer', () => {
       ]);
     });
 
+    test('sheet name with a non-ASCII letter after an ASCII start', () => {
+      // A name starting with an ASCII char but containing a high char (e.g. æ)
+      // must not split at that char (it did: `Foruds` + `ætninger`).
+      isTokens('=Forudsætninger!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: CONTEXT, value: 'Forudsætninger' },
+        { type: OPERATOR, value: '!' },
+        { type: REF_RANGE, value: 'A1' }
+      ], { mergeRefs: false });
+      isTokens('=Forudsætninger!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'Forudsætninger!A1' }
+      ]);
+      // Bare name (no sheet) is likewise a single token.
+      isTokens('=Forudsætninger', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_NAMED, value: 'Forudsætninger' }
+      ]);
+    });
+
     test('range union and intersection', () => {
       isTokens('=(A1:C1,A2:C2)', [
         { type: FX_PREFIX, value: '=' },
