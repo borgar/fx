@@ -1149,6 +1149,27 @@ describe('lexer', () => {
         { type: FX_PREFIX, value: '=' },
         { type: REF_RANGE, value: 'Sheet1!A1:B2' }
       ]);
+
+      isTokens('=æði!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: CONTEXT, value: 'æði' },
+        { type: OPERATOR, value: '!' },
+        { type: REF_RANGE, value: 'A1' }
+      ], { mergeRefs: false });
+      isTokens('=æði!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'æði!A1' }
+      ]);
+      isTokens('=fræði!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: CONTEXT, value: 'fræði' },
+        { type: OPERATOR, value: '!' },
+        { type: REF_RANGE, value: 'A1' }
+      ], { mergeRefs: false });
+      isTokens('=fræði!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'fræði!A1' }
+      ]);
     });
 
     test('quoted sheet names', () => {
@@ -1203,10 +1224,30 @@ describe('lexer', () => {
         { type: FX_PREFIX, value: '=' },
         { type: REF_RANGE, value: '[filename]Sheetname!A1' }
       ]);
+      isTokens('=[æði]æði!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: '[æði]æði!A1' }
+      ]);
+      isTokens('=[fræði]fræði!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: '[fræði]fræði!A1' }
+      ]);
 
       isTokens('=[filename]Sheetname!A1', [
         { type: FX_PREFIX, value: '=' },
         { type: CONTEXT, value: '[filename]Sheetname' },
+        { type: OPERATOR, value: '!' },
+        { type: REF_RANGE, value: 'A1' }
+      ], { mergeRefs: false });
+      isTokens('=[æði]æði!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: CONTEXT, value: '[æði]æði' },
+        { type: OPERATOR, value: '!' },
+        { type: REF_RANGE, value: 'A1' }
+      ], { mergeRefs: false });
+      isTokens('=[fræði]fræði!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: CONTEXT, value: '[fræði]fræði' },
         { type: OPERATOR, value: '!' },
         { type: REF_RANGE, value: 'A1' }
       ], { mergeRefs: false });
@@ -1642,6 +1683,10 @@ describe('lexer', () => {
       isTokens('=æði', [
         { type: FX_PREFIX, value: '=' },
         { type: REF_NAMED, value: 'æði' }
+      ]);
+      isTokens('=fræði', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_NAMED, value: 'fræði' }
       ]);
       isTokens('=らーめん', [
         { type: FX_PREFIX, value: '=' },
