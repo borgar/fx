@@ -78,7 +78,7 @@ export function lexNameFuncCntx (
   let c: number;
   do {
     c = str.charCodeAt(pos);
-    const a = s > 180 ? OK_HIGHCHAR : ALLOWED[c - OFFS] ?? 0;
+    const a = c > 180 ? OK_HIGHCHAR : ALLOWED[c - OFFS] ?? 0;
     if (a & OK_N) {
       // name: [a-zA-Z_0-9.\\?\u00a1-\uffff]
       // func: [a-zA-Z_0-9.]
