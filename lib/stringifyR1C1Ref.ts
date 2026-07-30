@@ -34,7 +34,7 @@ import { stringifyR1C1Range } from './stringifyR1C1Range.ts';
  * @returns The reference in R1C1-style string format.
  */
 export function stringifyR1C1Ref (refObject: ReferenceR1C1 | ReferenceName): string {
-  const prefix = stringifyPrefix(refObject);
+  const prefix = stringifyPrefix(refObject, true);
   return prefix + ('name' in refObject ? refObject.name : stringifyR1C1Range(refObject.range));
 }
 
@@ -62,6 +62,6 @@ export function stringifyR1C1Ref (refObject: ReferenceR1C1 | ReferenceName): str
  * @returns The reference in R1C1-style string format.
  */
 export function stringifyR1C1RefXlsx (refObject: ReferenceR1C1Xlsx | ReferenceNameXlsx): string {
-  const prefix = stringifyPrefixXlsx(refObject);
+  const prefix = stringifyPrefixXlsx(refObject, true);
   return prefix + ('name' in refObject ? refObject.name : stringifyR1C1Range(refObject.range));
 }

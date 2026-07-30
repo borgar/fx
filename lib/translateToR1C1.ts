@@ -4,9 +4,10 @@ import { parseA1Range } from './parseA1Range.ts';
 import type { RangeR1C1, ReferenceA1Xlsx, Token } from './types.ts';
 import { stringifyTokens } from './stringifyTokens.ts';
 import { cloneToken } from './cloneToken.ts';
-import { FUNCTION, OPERATOR, REF_BEAM, REF_RANGE, REF_TERNARY } from './constants.ts';
+import { CONTEXT, FUNCTION, OPERATOR, REF_BEAM, REF_RANGE, REF_TERNARY } from './constants.ts';
 import { splitContext, unquoteParts } from './parseRef.ts';
 import { isRCTokenValue } from './isRCTokenValue.ts';
+import { prefixNeedsQuotes, quotePrefix } from './stringifyPrefix.ts';
 
 const reLetLambda = /^l(?:ambda|et)$/i;
 
@@ -119,6 +120,21 @@ export function translateTokensToR1C1 (
         token.value = val;
       }
       // if token includes offsets, those offsets are now likely wrong!
+      if (token.loc) {
+        token.loc[0] += offsetSkew;
+        offsetSkew += token.value.length - tokenValue.length;
+        token.loc[1] += offsetSkew;
+      }
+    }
+    // A prefix travels through untouched, so a sheet range it holds arrives in a notation that
+    // may not read it as one: "RC:Dec!A1" is a sheet range in A1, where "RC" is no cell, but
+    // bare "RC:Dec!R[-2]C[-2]" reads back as cell RC joined to 'Dec'!R[-2]C[-2]. Quotes hold the
+    // pair together. A wholly quoted prefix is already one; a prefix that quotes only its far end
+    // is not, so the quoting is redistributed over the whole of it.
+    else if (tokenType === CONTEXT && prefixNeedsQuotes(token.value, true)) {
+      token = cloneToken(token);
+      const tokenValue = token.value;
+      token.value = quotePrefix(unquoteParts(tokenValue));
       if (token.loc) {
         token.loc[0] += offsetSkew;
         offsetSkew += token.value.length - tokenValue.length;

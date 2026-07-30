@@ -13,6 +13,28 @@ import { splitSheetRange } from './splitSheetRange.ts';
 const reBannedChars = /[^0-9A-Za-z._¡¤§¨ª\u00ad¯-\uffff]/;
 // A1-XFD1048575 | R | C | RC
 const reIsRangelike = /^(R|C|RC|[A-Z]{1,3}\d{1,7})$/i;
+// R1C1, RC1, R1C, RC — the cell shapes of the R1C1 notation. The bracketed forms ("R[1]C[1]")
+// need no test of their own: a bracket is a banned character, so they are quoted regardless.
+const reIsCellR1C1 = /^R(?:[1-9]\d{0,6})?C(?:[1-9]\d{0,4})?$/i;
+// A1, B2, XFD1048576 — the cell shapes of the A1 notation, as reIsRangelike also tests for.
+const reIsCellA1 = /^[A-Z]{1,3}\d{1,7}$/i;
+
+// Must this sheet scope be quoted for the notation to read the sheet range it holds? Only a
+// cell-shaped near end forces it, by winning the colon for the range operator when left bare:
+// "A1:Dec!C3" is cell A1 joined to 'Dec'!C3, and "RC:Dec!R1C1" is cell RC joined to 'Dec'!R1C1.
+// Both notations read the other's cell shapes as ordinary names, so a prefix that crosses between
+// them may arrive needing quotes it did not need where it came from.
+function sheetRangeNeedsQuotes (scope: string, r1c1: boolean): boolean {
+  const sheetRange = splitSheetRange(scope);
+  return !!sheetRange && (r1c1 ? reIsCellR1C1 : reIsCellA1).test(sheetRange[0]);
+}
+
+// The same question of a whole prefix, for the translators, which carry one across notations
+// without taking it apart. The sheet is its last scope, so it is what follows the workbook
+// brackets when there are any, and the only scope that may hold a sheet range.
+export function prefixNeedsQuotes (prefix: string, r1c1: boolean): boolean {
+  return sheetRangeNeedsQuotes(prefix.slice(prefix.lastIndexOf(']') + 1), r1c1);
+}
 
 export function needQuotes (scope: string, yesItDoes = 0): number {
   if (yesItDoes) {
@@ -39,13 +61,20 @@ export function needQuotes (scope: string, yesItDoes = 0): number {
 // it per name and not per range, so "A:B!A1" and "A:AB!A1" stay bare while "B:C!A1" is quoted,
 // "C" alone being a name it quotes anywhere. A malformed sheet range is left to needQuotes, which
 // quotes it, ":" being a banned character in a name.
-export function needQuotesSheet (scope: string, yesItDoes = 0): number {
+//
+// The R1C1 cell shapes are checked on top of that: needQuotes quotes what looks like an A1 cell
+// wherever it sits, but "R1C1" is only a cell in R1C1 notation, and a near end shaped like one
+// there has to be quoted all the same.
+export function needQuotesSheet (scope: string, yesItDoes = 0, r1c1 = false): number {
   if (yesItDoes) {
     return 1;
   }
   const sheetRange = splitSheetRange(scope);
   if (!sheetRange) {
     return needQuotes(scope);
+  }
+  if (r1c1 && sheetRangeNeedsQuotes(scope, true)) {
+    return 1;
   }
   return needQuotes(sheetRange[0]) || needQuotes(sheetRange[1]);
 }
@@ -55,7 +84,8 @@ export function quotePrefix (prefix) {
 }
 
 export function stringifyPrefix (
-  ref: ReferenceA1 | ReferenceName | ReferenceStruct | ReferenceR1C1
+  ref: ReferenceA1 | ReferenceName | ReferenceStruct | ReferenceR1C1,
+  r1c1 = false
 ): string {
   let pre = '';
   let quote = 0;
@@ -73,7 +103,7 @@ export function stringifyPrefix (
       }
       else {
         sheetRange = !!splitSheetRange(scope);
-        quote += needQuotesSheet(scope, quote);
+        quote += needQuotesSheet(scope, quote, r1c1);
       }
       nth++;
     }
@@ -91,7 +121,8 @@ export function stringifyPrefix (
 }
 
 export function stringifyPrefixXlsx (
-  ref: ReferenceA1Xlsx | ReferenceNameXlsx | ReferenceStructXlsx | ReferenceR1C1Xlsx
+  ref: ReferenceA1Xlsx | ReferenceNameXlsx | ReferenceStructXlsx | ReferenceR1C1Xlsx,
+  r1c1 = false
 ): string {
   let pre = '';
   let quote = 0;
@@ -102,7 +133,7 @@ export function stringifyPrefixXlsx (
   }
   if (sheetName) {
     pre += sheetName;
-    quote += needQuotesSheet(sheetName);
+    quote += needQuotesSheet(sheetName, 0, r1c1);
     if (workbookName && splitSheetRange(sheetName)) {
       // see stringifyPrefix: a workbook-qualified sheet range is always quoted
       quote = 1;

@@ -4,11 +4,12 @@ import { parseR1C1RefXlsx } from './parseR1C1Ref.ts';
 import { tokenizeXlsx } from './tokenize.ts';
 import { isRange } from './isType.ts';
 import { parseA1Range } from './parseA1Range.ts';
+import { unquoteParts } from './parseRef.ts';
 import type { RangeA1, ReferenceR1C1Xlsx, Token } from './types.ts';
 import { stringifyTokens } from './stringifyTokens.ts';
 import { cloneToken } from './cloneToken.ts';
-import { OPERATOR } from './constants.ts';
-import { quotePrefix } from './stringifyPrefix.ts';
+import { CONTEXT, OPERATOR } from './constants.ts';
+import { prefixNeedsQuotes, quotePrefix } from './stringifyPrefix.ts';
 
 // Turn on the most permissive setting when parsing ranges so we don't have to think about
 // this option. We already know that range tokens are legal, so we're not going to encounter
@@ -152,6 +153,19 @@ export function translateTokensToA1 (
         }
       }
       // if token includes offsets, those offsets are now likely wrong!
+      if (token.loc) {
+        token.loc[0] += offsetSkew;
+        offsetSkew += token.value.length - tokenValue.length;
+        token.loc[1] += offsetSkew;
+      }
+    }
+    // see translateTokensToR1C1: a prefix travels through untouched, so a sheet range it holds
+    // arrives in a notation that may not read it as one. "A1:Dec!R1C1" is a sheet range in R1C1,
+    // where "A1" is no cell, but bare "A1:Dec!$A$1" reads back as cell A1 joined to 'Dec'!$A$1.
+    else if (token.type === CONTEXT && prefixNeedsQuotes(token.value, false)) {
+      token = cloneToken(token);
+      const tokenValue = token.value;
+      token.value = quotePrefix(unquoteParts(tokenValue));
       if (token.loc) {
         token.loc[0] += offsetSkew;
         offsetSkew += token.value.length - tokenValue.length;

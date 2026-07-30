@@ -35,6 +35,12 @@ describe('stringifyR1C1Ref', () => {
     testRef({ context: [ 'Book.xlsx', 'Sheet1' ], range: rangeA1 }, '[Book.xlsx]Sheet1!R[2]C[4]');
     testRef({ context: [ 'Sheet 1:Sheet 2' ], range: rangeA1 }, "'Sheet 1:Sheet 2'!R[2]C[4]");
     testRef({ context: [ 'Jan:Dec' ], name: 'foo' }, 'Jan:Dec!foo');
+    // a near end shaped like a cell in this notation would win the colon for the range operator
+    testRef({ context: [ 'R1C1:Dec' ], range: rangeA1 }, "'R1C1:Dec'!R[2]C[4]");
+    testRef({ context: [ 'RC:Dec' ], range: rangeA1 }, "'RC:Dec'!R[2]C[4]");
+    // ... but only the near end decides, and "C" is a part rather than a cell
+    testRef({ context: [ 'Dec:R1C1' ], range: rangeA1 }, 'Dec:R1C1!R[2]C[4]');
+    testRef({ context: [ 'C:D' ], range: rangeA1 }, "'C:D'!R[2]C[4]");
   });
 });
 
@@ -70,6 +76,8 @@ describe('stringifyR1C1Ref in XLSX mode', () => {
     testRef({ sheetName: 'Sheet 1:Sheet 2', range: rangeA1 }, "'Sheet 1:Sheet 2'!R[2]C[4]");
     testRef({ workbookName: '1', sheetName: 'Sheet1:Sheet2', range: rangeA1 }, "'[1]Sheet1:Sheet2'!R[2]C[4]");
     testRef({ sheetName: 'Jan:Dec', name: 'foo' }, 'Jan:Dec!foo');
+    testRef({ sheetName: 'R1C1:Dec', range: rangeA1 }, "'R1C1:Dec'!R[2]C[4]");
+    testRef({ sheetName: 'Dec:R1C1', range: rangeA1 }, 'Dec:R1C1!R[2]C[4]');
   });
 
   test('ignores context in XLSX mode', () => {
