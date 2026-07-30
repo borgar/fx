@@ -2392,6 +2392,23 @@ describe('lexer', () => {
         { type: FX_PREFIX, value: '=' },
         { type: REF_BEAM, value: 'C1:C5' }
       ], { r1c1: true });
+      // ... but a cell-shaped left side wins here too, as it does in A1
+      isTokens('=R1C1:R2C2!R3C3', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'R1C1' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_RANGE, value: 'R2C2!R3C3' }
+      ], { r1c1: true });
+      isTokens('=RC:R2C2!R3C3', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'RC' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_RANGE, value: 'R2C2!R3C3' }
+      ], { r1c1: true });
+      isTokens("='R1C1:R2C2'!R3C3", [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: "'R1C1:R2C2'!R3C3" }
+      ], { r1c1: true });
     });
 
     test('a cell-shaped left side wins over a sheet range', () => {

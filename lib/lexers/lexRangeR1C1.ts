@@ -135,8 +135,9 @@ export function lexRangeR1C1 (
       // Note: we do not capture R1C1:R1C1, mergeRefTokens will join the parts
 
       // "C1:C5!R1C1" is a 3-D reference to sheets named "C1" and "C5", not a beam followed by
-      // a stray "!" — leave the whole sheet range to the context lexer.
-      if ((r2 || c2) && str.charCodeAt(p) === EXCL) {
+      // a stray "!" — leave the whole sheet range to the context lexer. A cell-shaped left side
+      // is exempt, as it is in A1: "R1C1:R2C2!R3C3" is cell R1C1 joined to 'R2C2'!R3C3.
+      if ((r2 || c2) && !(r1 && c1) && str.charCodeAt(p) === EXCL) {
         return;
       }
     }

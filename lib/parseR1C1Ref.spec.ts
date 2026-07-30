@@ -172,8 +172,15 @@ describe('parse joined R1C1 references', () => {
     // C1 and C5 are valid R1C1 column parts, so "C1:C5" would otherwise read as a beam
     isRCEqual('C1:C5!RC', { context: [ 'C1:C5' ], range: relRC });
     isRCEqual('Jan:Dec!R1C1', { sheetName: 'Jan:Dec', range: absRC }, { xlsx: true });
-    // ... but a cell-shaped left side wins, so this is R1C1 joined to 'B2'!R3C3
+    // ... but a cell-shaped left side wins, so these are R1C1 joined to a prefixed reference
     isRCEqual('R1C1:B2!R3C3', undefined);
+    isRCEqual('R1C1:R2C2!R3C3', undefined);
+    isRCEqual('RC:R2C2!R3C3', undefined);
+    // ... and only the quoted spelling makes such a pair a sheet range
+    isRCEqual("'R1C1:R2C2'!R3C3", {
+      context: [ 'R1C1:R2C2' ],
+      range: { r0: 2, c0: 2, r1: 2, c1: 2, $r0: true, $c0: true, $r1: true, $c1: true }
+    });
   });
 
   test('invalid mixed references', () => {
