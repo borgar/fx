@@ -1,6 +1,6 @@
 // regular: [A-Za-z0-9_\u00a1-\uffff]
-// Also rejects "!" and "'" \u2014 a range must not end where a sheet prefix begins, whether that
-// prefix is quoted or not:
+// Also rejects "!" and "'", because a range must not end where a sheet prefix begins, whether
+// that prefix is quoted or not:
 //   "Jan:Dec" in "Jan:Dec!A1" is a sheet range (a 3-D reference), not a column beam
 //   "foo:" in "foo:'bar'!A1" is likewise a sheet range, not a beam with no far end
 //   "A1:B2" in "A1:B2!C3" ends at "A1", so that "B2!" can prefix the right-hand side
