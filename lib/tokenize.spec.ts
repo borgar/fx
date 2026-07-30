@@ -2267,6 +2267,13 @@ describe('lexer', () => {
         { type: FX_PREFIX, value: '=' },
         { type: REF_RANGE, value: '[Book.xlsx]Sheet1:Sheet2!A1' }
       ]);
+      isTokens('=SUM([Book.xlsx]S1:S3!A1)', [
+        { type: FX_PREFIX, value: '=' },
+        { type: FUNCTION, value: 'SUM' },
+        { type: OPERATOR, value: '(' },
+        { type: REF_RANGE, value: '[Book.xlsx]S1:S3!A1' },
+        { type: OPERATOR, value: ')' }
+      ]);
       isTokens("='[Book.xlsx]Sheet 1:Sheet 2'!A1", [
         { type: FX_PREFIX, value: '=' },
         { type: REF_RANGE, value: "'[Book.xlsx]Sheet 1:Sheet 2'!A1" }
@@ -2295,6 +2302,48 @@ describe('lexer', () => {
         { type: FX_PREFIX, value: '=' },
         { type: REF_BEAM, value: 'C1:C5' }
       ], { r1c1: true });
+    });
+
+    test('a cell-shaped left side wins over a sheet range', () => {
+      // Excel reads "=SUM(A1:B2!C3)" as cell A1 joined to 'B2'!C3 (and yields #VALUE!), while
+      // "=SUM(A:C!A1)" and "=SUM(Jan:Mar!A1)" are sheet ranges — a column-shaped left side does
+      // not win the same way. Only the quoted spelling makes a cell-shaped pair a sheet range.
+      isTokens('=A1:B2!C3', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'A1' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_RANGE, value: 'B2!C3' }
+      ]);
+      isTokens('=Q1:Sales!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'Q1' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_RANGE, value: 'Sales!A1' }
+      ]);
+      isTokens("='A1:B2'!C3", [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: "'A1:B2'!C3" }
+      ]);
+      isTokens('=Jan:Mar!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'Jan:Mar!A1' }
+      ]);
+    });
+
+    test('"$" is not allowed on an unquoted sheet name', () => {
+      // Excel refuses "=SUM($Jan:$Mar!A1)" on entry, and a file holding one does not open
+      isTokens('=$Jan:$Mar!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: UNKNOWN, value: '$Jan' },
+        { type: OPERATOR, value: ':' },
+        { type: UNKNOWN, value: '$' },
+        { type: REF_RANGE, value: 'Mar!A1' }
+      ]);
+      // ... but "$" is a legal character in a sheet name, so the quoted spelling is a sheet range
+      isTokens("='$Jan:$Mar'!A1", [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: "'$Jan:$Mar'!A1" }
+      ]);
     });
 
     test('a cross-sheet range is still two references', () => {

@@ -1,7 +1,7 @@
 import { REF_RANGE, REF_BEAM, REF_TERNARY, MAX_COLS, MAX_ROWS } from '../constants.ts';
 import type { Token } from '../types.ts';
 import { advRangeOp } from './advRangeOp.ts';
-import { canEndRange, canEndBeam } from './canEndRange.ts';
+import { canEndRange } from './canEndRange.ts';
 
 const BR_OPEN = 91; // [
 const BR_CLOSE = 93; // ]
@@ -128,7 +128,7 @@ export function lexRangeR1C1 (
         (c1 && c2 && !r1 && !r2) ||
         (!c1 && !c2 && r1 && r2)
       ) {
-        if (canEndBeam(str, p)) {
+        if (canEndRange(str, p)) {
           return { type: REF_BEAM, value: str.slice(pos, p) };
         }
       }

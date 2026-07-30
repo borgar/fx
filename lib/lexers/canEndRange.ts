@@ -1,4 +1,11 @@
 // regular: [A-Za-z0-9_\u00a1-\uffff]
+// Also rejects "!" \u2014 a range must not end where a sheet prefix begins:
+//   "Jan:Dec" in "Jan:Dec!A1" is a sheet range (a 3-D reference), not a column beam
+//   "A1:B2" in "A1:B2!C3" ends at "A1", so that "B2!" can prefix the right-hand side
+// Excel resolves the same two spellings the same way: a colon ahead of the "!" separates
+// two sheet names, unless what precedes it is shaped like a cell address, in which case
+// the reference on the right keeps the sheet prefix ("=SUM(A1:B2!C3)" is stored as
+// "=SUM(A1:'B2'!C3)" and evaluates to #VALUE!).
 export function canEndRange (str: string, pos: number): boolean {
   const c = str.charCodeAt(pos);
   return !(
@@ -7,15 +14,9 @@ export function canEndRange (str: string, pos: number): boolean {
     (c >= 48 && c <= 57) || // 0-9
     (c === 95) || // _
     (c === 40) || // (
+    (c === 33) || // !
     (c > 0xA0) // \u00a1-\uffff
   );
-}
-
-// A beam may not end where a sheet prefix begins: the "Jan:Dec" of "Jan:Dec!A1"
-// is a sheet range (a 3-D reference), not a column beam. Excel forbids ":" in
-// sheet names, so a colon ahead of the "!" can only separate two sheet names.
-export function canEndBeam (str: string, pos: number): boolean {
-  return canEndRange(str, pos) && str.charCodeAt(pos) !== 33; // 33 = "!"
 }
 
 // partial: [A-Za-z0-9_($.]

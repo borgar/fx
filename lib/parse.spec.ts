@@ -105,6 +105,23 @@ describe('parser', () => {
       isParsed('Sheet1:Sheet2!foo', { type: 'ReferenceIdentifier', value: 'Sheet1:Sheet2!foo', kind: 'name' });
     });
 
+    test('a cell-shaped left side wins over a sheet range', () => {
+      isParsed('A1:B2!C3', {
+        type: 'BinaryExpression',
+        operator: ':',
+        arguments: [
+          { type: 'ReferenceIdentifier', value: 'A1', kind: 'range' },
+          { type: 'ReferenceIdentifier', value: 'B2!C3', kind: 'range' }
+        ]
+      });
+      isParsed("'A1:B2'!C3", { type: 'ReferenceIdentifier', value: "'A1:B2'!C3", kind: 'range' });
+    });
+
+    test('"$" is not allowed on an unquoted sheet name', () => {
+      isInvalidExpr('=SUM($Jan:$Mar!A1)');
+      isParsed("'$Jan:$Mar'!A1", { type: 'ReferenceIdentifier', value: "'$Jan:$Mar'!A1", kind: 'range' });
+    });
+
     test('cross-sheet ranges stay two references', () => {
       isParsed('B!F2:B!F20', {
         type: 'BinaryExpression',

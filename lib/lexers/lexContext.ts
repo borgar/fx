@@ -86,6 +86,8 @@ export function lexContextUnquoted (str: string, pos: number, options: { xlsx: b
         }
       }
       else if (c === COLON && (br1 == null || br2 != null)) {
+        // ":" joins the two names, but "$" is not admitted alongside it: Excel refuses
+        // "$Jan:$Mar!A1" on entry, and a file holding one does not open at all
         if (colon || pos === start) { return; } // only 1 allowed, and not leading
         colon = pos;
       }
