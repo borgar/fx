@@ -8,6 +8,7 @@ import type {
   ReferenceName,
   ReferenceNameXlsx
 } from './types.ts';
+import { splitSheetRange } from './splitSheetRange.ts';
 
 const reBannedChars = /[^0-9A-Za-z._¡¤§¨ª\u00ad¯-\uffff]/;
 // A1-XFD1048575 | R | C | RC
@@ -33,24 +34,9 @@ export function needQuotes (scope: string, yesItDoes = 0): number {
   return 0;
 }
 
-// A sheet scope may hold a sheet range ("Sheet1:Sheet2", a 3-D reference). Excel forbids ":" in
-// sheet names, so a colon here can only be separating two of them. Returns the two sheet names,
-// or null if the scope is a plain sheet name — or a malformed range, which is left to be handled
-// as a name (needQuotes then quotes it, ":" being a banned character).
-// Only the sheet slot may be split this way. A path scope can hold a colon of its own (a Windows
-// drive letter) without it dividing the path into two names, and a workbook is not a sheet.
-export function splitSheetRange (scope: string): [ string, string ] | null {
-  const colon = scope ? scope.indexOf(':') : -1;
-  if (colon < 0) {
-    return null;
-  }
-  const from = scope.slice(0, colon);
-  const to = scope.slice(colon + 1);
-  return (from && to && !to.includes(':')) ? [ from, to ] : null;
-}
-
 // Each end of a sheet range is tested on its own, and the whole prefix is quoted as one unit if
-// either end calls for it: "Jan:Dec!A1" stays bare, "'Sheet1:Sheet 2'!A1" does not.
+// either end calls for it: "Jan:Dec!A1" stays bare, "'Sheet1:Sheet 2'!A1" does not. A malformed
+// sheet range is left to needQuotes, which quotes it, ":" being a banned character in a name.
 export function needQuotesSheet (scope: string, yesItDoes = 0): number {
   if (yesItDoes) {
     return 1;

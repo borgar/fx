@@ -49,6 +49,7 @@ export { addA1RangeBounds } from './addA1RangeBounds.ts';
 export { toCol } from './toCol.ts';
 export { fromCol } from './fromCol.ts';
 export { parseA1Range } from './parseA1Range.ts';
+export { splitSheetRange } from './splitSheetRange.ts';
 export { parseA1Ref, type OptsParseA1Ref } from './parseA1Ref.ts';
 export { parseR1C1Range } from './parseR1C1Range.ts';
 export { parseR1C1Ref, type OptsParseR1C1Ref } from './parseR1C1Ref.ts';

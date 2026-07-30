@@ -42,7 +42,13 @@ export type OptsParseA1Ref = {
  * For A:A or A1:A style ranges, `null` will be used for any dimensions that the
  * syntax does not specify.
  *
+ * The sheet scope may name a range of sheets rather than a single one: a 3-D reference
+ * (`Jan:Dec!A1`) puts both sheet names in it, as `context: [ 'Jan:Dec' ]`. Resolving that scope
+ * against a workbook's sheets therefore needs {@link splitSheetRange} first, or it matches no
+ * sheet at all and silently finds nothing.
+ *
  * @see {@link OptsParseA1Ref}
+ * @see {@link splitSheetRange}
  * @param refString An A1-style reference string.
  * @param options Options.
  * @returns An object representing a valid reference or `undefined` if it is invalid.
@@ -89,7 +95,13 @@ export function parseA1Ref (
  * For A:A or A1:A style ranges, `null` will be used for any dimensions that the
  * syntax does not specify.
  *
+ * The `sheetName` may name a range of sheets rather than a single one: a 3-D reference
+ * (`Jan:Dec!A1`) puts both sheet names in it, as `sheetName: 'Jan:Dec'`. Resolving it against a
+ * workbook's sheets therefore needs {@link splitSheetRange} first, or it matches no sheet at all
+ * and silently finds nothing.
+ *
  * @see {@link OptsParseA1Ref}
+ * @see {@link splitSheetRange}
  * @param refString An A1-style reference string.
  * @param options Options.
  * @returns An object representing a valid reference or `undefined` if it is invalid.

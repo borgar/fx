@@ -101,6 +101,7 @@ See [Prefixes.md](./Prefixes.md) for documentation on how scopes work in Fx.
 - [parseR1C1Range](#fxfunctionsparser1c1rangemd)
 - [parseR1C1Ref](#fxfunctionsparser1c1refmd)
 - [parseStructRef](#fxfunctionsparsestructrefmd)
+- [splitSheetRange](#fxfunctionssplitsheetrangemd)
 - [stringifyA1Ref](#fxfunctionsstringifya1refmd)
 - [stringifyR1C1Ref](#fxfunctionsstringifyr1c1refmd)
 - [stringifyStructRef](#fxfunctionsstringifystructrefmd)
@@ -881,6 +882,11 @@ parseA1Ref('Sheet1!A$1:$B2');
 For A:A or A1:A style ranges, `null` will be used for any dimensions that the
 syntax does not specify.
 
+The sheet scope may name a range of sheets rather than a single one: a 3-D reference
+(`Jan:Dec!A1`) puts both sheet names in it, as `context: [ 'Jan:Dec' ]`. Resolving that scope
+against a workbook's sheets therefore needs [splitSheetRange](#fxfunctionssplitsheetrangemd) first, or it matches no
+sheet at all and silently finds nothing.
+
 ## Parameters
 
 | Parameter | Type | Description |
@@ -897,7 +903,8 @@ An object representing a valid reference or `undefined` if it is invalid.
 
 ## See
 
-[OptsParseA1Ref](#fxtype-aliasesoptsparsea1refmd)
+ - [OptsParseA1Ref](#fxtype-aliasesoptsparsea1refmd)
+ - [splitSheetRange](#fxfunctionssplitsheetrangemd)
 
 
 <a name="fxfunctionsparser1c1rangemd"></a>
@@ -1007,6 +1014,54 @@ See [References.md](./References.md).
 [`ReferenceStruct`](#fxtype-aliasesreferencestructmd)
 
 An object representing a valid reference or `undefined` if it is invalid.
+
+
+<a name="fxfunctionssplitsheetrangemd"></a>
+
+# splitSheetRange()
+
+```ts
+function splitSheetRange(scope: string): [string, string];
+```
+
+Splits the sheet scope of a prefix into the two sheet names of a sheet range, if it holds one.
+
+A 3-D reference (`Sheet1:Sheet2!A1`) spans every sheet from one named sheet to another. Its two
+sheet names occupy the single sheet slot of the reference — `context` (the last scope) or
+`sheetName` in the xlsx variant — which is what this splits apart:
+
+```js
+splitSheetRange('Jan:Dec');
+// => [ 'Jan', 'Dec' ]
+splitSheetRange('Sheet1');
+// => undefined
+```
+
+Anything resolving a sheet name against a workbook must split it first. A 3-D reference puts
+`Jan:Dec` where an ordinary reference puts `Sheet1`, so a lookup that is handed the slot whole
+matches no sheet at all, and silently finds nothing rather than failing.
+
+```js
+const ref = parseA1Ref('Jan:Dec!A1');
+const scope = ref.context[ref.context.length - 1];
+const sheets = splitSheetRange(scope) ?? [ scope ];
+// => [ 'Jan', 'Dec' ]
+```
+
+Pass only the sheet scope. A path scope may hold a colon of its own — a Windows drive letter —
+without that colon dividing it into two names, and a workbook is not a sheet.
+
+## Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `scope` | `string` | The sheet scope of a prefix. |
+
+## Returns
+
+\[`string`, `string`\]
+
+The two sheet names, or `undefined` if the scope is a single sheet name.
 
 
 <a name="fxfunctionsstringifya1refmd"></a>
@@ -2767,6 +2822,12 @@ Re-exports [SourceLocation](#fxtype-aliasessourcelocationmd)
 
 ***
 
+### splitSheetRange
+
+Re-exports [splitSheetRange](#fxfunctionssplitsheetrangemd)
+
+***
+
 ### stringifyTokens
 
 Re-exports [stringifyTokens](#fxfunctionsstringifytokensmd)
@@ -3021,6 +3082,11 @@ parseA1Ref('Sheet1!A$1:$B2');
 For A:A or A1:A style ranges, `null` will be used for any dimensions that the
 syntax does not specify.
 
+The `sheetName` may name a range of sheets rather than a single one: a 3-D reference
+(`Jan:Dec!A1`) puts both sheet names in it, as `sheetName: 'Jan:Dec'`. Resolving it against a
+workbook's sheets therefore needs [splitSheetRange](#fxfunctionssplitsheetrangemd) first, or it matches no sheet at all
+and silently finds nothing.
+
 ## Parameters
 
 | Parameter | Type | Description |
@@ -3037,7 +3103,8 @@ An object representing a valid reference or `undefined` if it is invalid.
 
 ## See
 
-[OptsParseA1Ref](#fxtype-aliasesoptsparsea1refmd)
+ - [OptsParseA1Ref](#fxtype-aliasesoptsparsea1refmd)
+ - [splitSheetRange](#fxfunctionssplitsheetrangemd)
 
 
 <a name="fxxlsxfunctionsparser1c1refmd"></a>
