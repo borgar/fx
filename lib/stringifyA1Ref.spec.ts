@@ -57,9 +57,14 @@ describe('stringifyA1Ref', () => {
     expect(stringifyA1Ref({ context: [ 'Sheet 1:Sheet2' ], range: rangeA1 })).toBe("'Sheet 1:Sheet2'!A1");
     expect(stringifyA1Ref({ context: [ '1:5' ], range: rangeA1 })).toBe("'1:5'!A1");
     expect(stringifyA1Ref({ context: [ 'A1:B2' ], range: rangeA1 })).toBe("'A1:B2'!A1");
-    // "C" on its own reads as an R1C1 column, "B" does not
+    // the trigger is the name and not the range: "C" on its own reads as an R1C1 column,
+    // wherever it sits, while "B" and "AB" never call for quotes
     expect(stringifyA1Ref({ context: [ 'A:C' ], range: rangeA1 })).toBe("'A:C'!A1");
+    expect(stringifyA1Ref({ context: [ 'B:C' ], range: rangeA1 })).toBe("'B:C'!A1");
+    expect(stringifyA1Ref({ context: [ 'C:D' ], range: rangeA1 })).toBe("'C:D'!A1");
     expect(stringifyA1Ref({ context: [ 'A:B' ], range: rangeA1 })).toBe('A:B!A1');
+    expect(stringifyA1Ref({ context: [ 'AA:AB' ], range: rangeA1 })).toBe('AA:AB!A1');
+    expect(stringifyA1Ref({ context: [ 'A:AB' ], range: rangeA1 })).toBe('A:AB!A1');
   });
 
   test('a workbook-qualified 3-D reference is always quoted', () => {

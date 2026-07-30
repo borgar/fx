@@ -35,8 +35,10 @@ export function needQuotes (scope: string, yesItDoes = 0): number {
 }
 
 // Each end of a sheet range is tested on its own, and the whole prefix is quoted as one unit if
-// either end calls for it: "Jan:Dec!A1" stays bare, "'Sheet1:Sheet 2'!A1" does not. A malformed
-// sheet range is left to needQuotes, which quotes it, ":" being a banned character in a name.
+// either end calls for it: "Jan:Dec!A1" stays bare, "'Sheet1:Sheet 2'!A1" does not. Excel decides
+// it per name and not per range, so "A:B!A1" and "A:AB!A1" stay bare while "B:C!A1" is quoted,
+// "C" alone being a name it quotes anywhere. A malformed sheet range is left to needQuotes, which
+// quotes it, ":" being a banned character in a name.
 export function needQuotesSheet (scope: string, yesItDoes = 0): number {
   if (yesItDoes) {
     return 1;

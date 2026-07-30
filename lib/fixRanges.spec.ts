@@ -87,9 +87,14 @@ describe('fixRanges prefixes', () => {
     isFixed("='Jan:Dec'!A1", '=Jan:Dec!A1');
     isFixed("='Sheet 1:Sheet 2'!A1", "='Sheet 1:Sheet 2'!A1");
     isFixed("='Sheet1:Sheet 2'!A1", "='Sheet1:Sheet 2'!A1");
-    // "C" on its own reads as an R1C1 column, so that endpoint forces the quotes
+    // the trigger is the name and not the range: "C" on its own reads as an R1C1 column, so
+    // whichever end holds it forces the quotes, while "B" and "AB" never do
     isFixed('=SUM(A:C!A1)', "=SUM('A:C'!A1)");
+    isFixed('=SUM(B:C!A1)', "=SUM('B:C'!A1)");
+    isFixed('=SUM(C:D!A1)', "=SUM('C:D'!A1)");
     isFixed('=A:B!A1', '=A:B!A1');
+    isFixed('=SUM(AA:AB!A1)', '=SUM(AA:AB!A1)');
+    isFixed('=SUM(A:AB!A1)', '=SUM(A:AB!A1)');
   });
 
   test('a workbook-qualified 3-D reference is always quoted', () => {
