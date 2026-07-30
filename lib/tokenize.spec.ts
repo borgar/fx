@@ -2326,7 +2326,7 @@ describe('lexer', () => {
       ], { mergeRefs: false });
     });
 
-    test('a quote only ends a beam when a sheet prefix follows it', () => {
+    test('beams and quoted prefixes elsewhere are unaffected', () => {
       // a trailing colon with nothing after it is still an open-ended beam
       isTokens('=SUM(foo:)', [
         { type: FX_PREFIX, value: '=' },
