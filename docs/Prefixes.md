@@ -107,11 +107,26 @@ parseA1Ref('[1]Sheet1:Sheet2!A1', { xlsx: true });
 
 There is no ambiguity to resolve here: `:` is one of the characters Excel forbids in a sheet name, so a colon ahead of the `!` can only be separating two sheet names.
 
-Because the colon separates two names rather than belonging to either, the quoting rules are applied to each endpoint on its own, and the whole prefix is quoted as one unit if either endpoint calls for it. So `=SUM(Sales:Marketing!B3)` needs no quotes, while `'Sheet1:Sheet 2'!A1` does — the same as Excel. Only the sheet scope is treated this way: a colon can reach a path scope on its own (a Windows drive letter) without dividing it into two names.
+**Anything that resolves a sheet name must split that slot first.** A 3-D reference puts `Jan:Dec` exactly where an ordinary reference puts `Sheet1`, and nothing but the colon inside the name distinguishes them. Code that looks a sheet name up against the workbook's sheets and is handed the slot whole will match no sheet at all — and, since a lookup that finds nothing usually reads as "no such sheet" rather than as an error, will do so silently. Use `splitSheetRange`, which returns the two sheet names, or `undefined` for an ordinary single-sheet scope:
 
-There is one exception, which Excel applies and _Fx_ follows: a sheet range that a workbook or path qualifies is *always* quoted as a whole, whatever its endpoints look like. Excel normalizes `=SUM([Book.xlsx]S1:S3!A1)` to `=SUM('[Book.xlsx]S1:S3'!A1)` on entry. Note the asymmetry with a single sheet, where Excel instead *removes* the needless quotes: `'[Book.xlsx]Sheet1'!A1` becomes `[Book.xlsx]Sheet1!A1`.
+```js
+const ref = parseA1Ref(formula);
+const scope = ref.context[ref.context.length - 1];
+const sheets = splitSheetRange(scope) ?? [ scope ];
+```
 
-Note that a 3-D reference is not the same thing as a range whose two endpoints sit on different sheets (`Sheet1!A1:Sheet2!B2`). The two are told apart by where the `!` sits relative to the `:`, and only the former is a single reference.
+Pass it only the sheet scope. A path scope may hold a colon of its own — a Windows drive letter — without that colon dividing it into two names.
+
+Because the colon separates two names rather than belonging to either, the quoting rules are applied to each end on its own, and the whole prefix is quoted as one unit if either end calls for it. So `=SUM(Sales:Marketing!B3)` needs no quotes, while `'Sheet1:Sheet 2'!A1` does — the same as Excel.
+
+There is one exception, which Excel applies and _Fx_ follows: a sheet range that a workbook or path qualifies is *always* quoted as a whole, whatever its two ends look like. Excel normalizes `=SUM([Book.xlsx]S1:S3!A1)` to `=SUM('[Book.xlsx]S1:S3'!A1)` on entry. Note the asymmetry with a single sheet, where Excel instead *removes* the needless quotes: `'[Book.xlsx]Sheet1'!A1` becomes `[Book.xlsx]Sheet1!A1`.
+
+A 3-D reference is not the same thing as a range whose two ends sit on different sheets (`Sheet1!A1:Sheet2!B2`), and the two are told apart by where the `!` sits relative to the `:`. They come out of _Fx_ differently:
+
+* `Jan:Dec!A1` is one `REF_RANGE` token and parses to one `ReferenceIdentifier` node. `parseA1Ref` resolves it.
+* `Sheet1!A1:Sheet2!B2` is three tokens — two `REF_RANGE` either side of a `:` operator — and parses to a `BinaryExpression` joining two `ReferenceIdentifier` nodes. `parseA1Ref` does not resolve it, and returns `undefined`.
+
+Note that being one token is not what makes a 3-D reference special: a plain `A1:B2` is one `REF_RANGE` token too. What distinguishes the cross-sheet range is that its `:` is the range operator of an expression rather than part of a reference.
 
 Where a sheet name is shaped like a cell address, the range operator wins and the colon is not read as a sheet-range separator: Excel reads `=SUM(A1:B2!C3)` as cell `A1` joined to `'B2'!C3` (yielding `#VALUE!`), and stores it that way. A column-shaped name does not lose out like this, so `=SUM(A:C!A1)` and `=SUM(Jan:Mar!A1)` are sheet ranges. To reference sheets named `A1` and `B2`, quote the prefix: `=SUM('A1:B2'!C3)`.
 
@@ -119,4 +134,10 @@ A prefix is normally either quoted whole or not at all, but the two ends of a sh
 
 A `$` may not appear on an unquoted sheet name. Excel refuses `=SUM($Jan:$Mar!A1)` on entry, and a file holding one does not open at all. `$` is a legal character in a sheet name, so the quoted spelling `'$Jan:$Mar'!A1` is a valid sheet range.
 
-_Fx_ does not reorder the endpoints of a sheet range. Whether `Sheet2:Sheet1` should be written `Sheet1:Sheet2` depends on the order the sheets appear in the workbook, which _Fx_ has no knowledge of.
+Excel normalizes a sheet range three ways on entry, none of which _Fx_ does:
+
+* **Order.** `=SUM(Mar:Jan!A1)` is rewritten to `=SUM(Jan:Mar!A1)`, and a `<definedName>` holding `Three:One!$A$1` to `One:Three!$A$1`.
+* **Degenerate ranges.** `=SUM(Jan:Jan!A1)` collapses to `=SUM(Jan!A1)`.
+* **Case.** `jan:mar` is corrected to `Jan:Mar`, matching the actual sheet names.
+
+Each of the three needs the workbook's list of sheets — to know which end comes first, whether the two ends are the same sheet, and how each is really spelled. _Fx_ works on formula text alone and has none of that, so it leaves all three alone. The un-normalized spellings are valid input; `fixFormulaRanges` will normalize the range of a 3-D reference but never its sheet range, so `Sheet2:Sheet1!B2:A1` becomes `Sheet2:Sheet1!A1:B2` and no further.

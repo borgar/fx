@@ -15,9 +15,11 @@ import { stringifyTokens } from './stringifyTokens.ts';
 // needs to be flipped or not. The solution is to convert to A1 first:
 // translateToRC(fixRanges(translateToA1(...)))
 
-// The sheet range of a 3-D reference is not reordered: whether "Sheet2:Sheet1" should read
-// "Sheet1:Sheet2" depends on the order the sheets appear in the workbook, which is not known
-// here. So "Sheet2:Sheet1!B2:A1" is normalized to "Sheet2:Sheet1!A1:B2" and no further.
+// The sheet range of a 3-D reference is left alone. Excel normalizes one three ways on entry —
+// ordering its two ends ("Mar:Jan" to "Jan:Mar"), collapsing a degenerate one ("Jan:Jan" to
+// "Jan"), and correcting the case of each end to the sheet's own — and every one of those needs
+// the workbook's list of sheets, which is not knowable from formula text. So
+// "Sheet2:Sheet1!B2:A1" is normalized to "Sheet2:Sheet1!A1:B2" and no further.
 
 /**
  * Options for {@link fixTokenRanges} and {@link fixFormulaRanges}.

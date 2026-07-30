@@ -2201,7 +2201,7 @@ describe('lexer', () => {
   });
 
   describe('3-D references', () => {
-    test('unquoted sheet ranges are a single reference', () => {
+    test('unquoted sheet ranges are one range token', () => {
       isTokens('=fool:bard!A1:B2', [
         { type: FX_PREFIX, value: '=' },
         { type: REF_RANGE, value: 'fool:bard!A1:B2' }

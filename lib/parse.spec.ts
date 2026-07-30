@@ -990,7 +990,7 @@ describe('parser', () => {
         { withLocation: true }
       );
 
-      // a 3-D reference is a single reference, not a ":" binary expression
+      // the ":" of a 3-D reference belongs to the reference, not to a binary expression
       isParsed(
         '=fool:bard!A1:B2',
         { type: 'ReferenceIdentifier', value: 'fool:bard!A1:B2', kind: 'range', loc: [ 1, 16 ] },
