@@ -48,8 +48,9 @@ function advQuotedSheetName (str: string, pos: number): number {
   return 0;
 }
 
-// Advances over one end of a sheet range, quoted or not. Excel writes both ends the same way, but
-// hand-written formulas quote them separately ("foo:'bar'!A1"), so each end is taken on its own.
+// Advances over one end of a sheet range, quoted or not. A sheet range Excel resolves is quoted
+// as a whole or not at all, but other producers quote the ends separately ("foo:'bar'!A1"), so
+// each end is taken on its own.
 export function advSheetName (str: string, pos: number): number {
   if (str.charCodeAt(pos) === QUOT_SINGLE) {
     return advQuotedSheetName(str, pos);

@@ -108,7 +108,7 @@ describe('fixRanges prefixes', () => {
   });
 
   test('each end of a 3-D reference may be quoted on its own', () => {
-    // the quoting is redistributed over the whole sheet range, which is how Excel writes it
+    // the quoting is redistributed over the whole sheet range, which is how Excel quotes one
     isFixed("=foo:'bar'!A1", '=foo:bar!A1');
     isFixed("='foo':bar!A1", '=foo:bar!A1');
     isFixed("='foo':'bar'!A1", '=foo:bar!A1');

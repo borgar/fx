@@ -39,7 +39,7 @@ describe('translate absolute cells from A1 to RC', () => {
 
   test('3-D references with each end quoted on its own', () => {
     // the A1 leg redistributes the quoting over the whole sheet range, so these do not come
-    // back verbatim; they settle on the spelling Excel would have written
+    // back verbatim; they settle on the whole-prefix spelling
     const rc = translateFormulaToR1C1("=foo:'bar'!A1", 'C3');
     expect(rc).toBe("=foo:'bar'!R[-2]C[-2]");
     expect(translateFormulaToA1(rc, 'C3')).toBe('=foo:bar!A1');

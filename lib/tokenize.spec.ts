@@ -2289,9 +2289,10 @@ describe('lexer', () => {
     });
 
     test('each end of a sheet range may be quoted on its own', () => {
-      // Excel normalizes these away on entry, so they only turn up in hand-written formulas.
-      // The tell of getting this wrong is an open-ended beam: the lexer bailing at the quote
-      // used to leave "foo:" behind, which then normalized to the unrelated "A:FOO".
+      // A leniency towards other producers: Excel does not read a separately-quoted pair as a
+      // sheet range at all. The tell of getting this wrong is an open-ended beam: the lexer
+      // bailing at the quote used to leave "foo:" behind, which then normalized to the
+      // unrelated "A:FOO".
       isTokens("=foo:'bar'!A1", [
         { type: FX_PREFIX, value: '=' },
         { type: REF_RANGE, value: "foo:'bar'!A1" }
