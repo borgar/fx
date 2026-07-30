@@ -142,8 +142,11 @@ describe('parse A1 references', () => {
 
   test('a sheet range has exactly two endpoints', () => {
     isA1Equal('a:b:c!A1', undefined);
+    isA1Equal('zoo1:bar1:baz1!A1', undefined);
     isA1Equal('Sheet1:!A1', undefined);
     isA1Equal(':Sheet1!A1', undefined);
+    // a workbook is not a sheet, so it cannot stand in for the first endpoint
+    isA1Equal('[Book.xlsx]:Sheet2!A1', undefined);
   });
 
   test('a cell-shaped left side wins over a sheet range', () => {

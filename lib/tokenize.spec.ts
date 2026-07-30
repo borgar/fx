@@ -2,7 +2,7 @@ import { describe, test, expect } from 'vitest';
 import {
   FX_PREFIX, UNKNOWN,
   OPERATOR, BOOLEAN, ERROR, NUMBER, FUNCTION, WHITESPACE, STRING,
-  REF_RANGE, REF_BEAM, REF_NAMED, REF_TERNARY, CONTEXT, CONTEXT_QUOTE, NEWLINE
+  REF_RANGE, REF_BEAM, REF_NAMED, REF_STRUCT, REF_TERNARY, CONTEXT, CONTEXT_QUOTE, NEWLINE
 } from './constants.ts';
 import { tokenize, tokenizeXlsx } from './tokenize.ts';
 
@@ -2505,6 +2505,22 @@ describe('lexer', () => {
         { type: FX_PREFIX, value: '=' },
         { type: OPERATOR, value: ':' },
         { type: REF_RANGE, value: 'Sheet1!A1' }
+      ]);
+      // a workbook is not a sheet, so the colon after one has no first sheet name in front of it
+      isTokens('=[Book.xlsx]:Sheet2!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_STRUCT, value: '[Book.xlsx]' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_RANGE, value: 'Sheet2!A1' }
+      ]);
+      // ... and neither endpoint may be missing when the names are not column letters
+      isTokens('=zoo1:bar1:baz1!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_NAMED, value: 'zoo1' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_RANGE, value: 'bar1' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_RANGE, value: 'baz1!A1' }
       ]);
     });
   });
