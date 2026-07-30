@@ -107,7 +107,7 @@ parseA1Ref('[1]Sheet1:Sheet2!A1');
 */
 ```
 
-There is no ambiguity to resolve here: `:` is one of the characters Excel forbids in a sheet name, so a colon ahead of the `!` can only be separating two sheet names.
+There is no ambiguity to resolve inside the sheet scope: `:` is one of the characters Excel forbids in a sheet name, so a colon there can only be separating two of them. A colon elsewhere in the prefix is something else — a Windows drive letter in a path, or a colon in a workbook file name — which is why the split below is scoped rather than applied to the prefix as a whole.
 
 **Anything that resolves a sheet name must split that slot first.** A 3-D reference puts `Jan:Dec` exactly where an ordinary reference puts `Sheet1`, and nothing but the colon inside the name distinguishes them. Code that looks a sheet name up against the workbook's sheets and is handed the slot whole will match no sheet at all — and, since a lookup that finds nothing usually reads as "no such sheet" rather than as an error, will do so silently. Use `splitSheetRange`, which returns the two sheet names, or `undefined` for an ordinary single-sheet scope:
 
