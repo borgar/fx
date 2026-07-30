@@ -15,6 +15,10 @@ import { stringifyTokens } from './stringifyTokens.ts';
 // needs to be flipped or not. The solution is to convert to A1 first:
 // translateToRC(fixRanges(translateToA1(...)))
 
+// The sheet range of a 3-D reference is not reordered: whether "Sheet2:Sheet1" should read
+// "Sheet1:Sheet2" depends on the order the sheets appear in the workbook, which is not known
+// here. So "'Sheet2:Sheet1'!B2:A1" is normalized to "'Sheet2:Sheet1'!A1:B2" and no further.
+
 /**
  * Options for {@link fixTokenRanges} and {@link fixFormulaRanges}.
  */

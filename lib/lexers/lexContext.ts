@@ -5,6 +5,7 @@ const QUOT_SINGLE = 39; // '
 const BR_OPEN = 91; // [
 const BR_CLOSE = 93; // ]
 const EXCL = 33; // !
+const COLON = 58; // :
 
 // xlsx xml uses a variant of the syntax that has external references in
 // bracets. Any of: [1]Sheet1!A1, '[1]Sheet one'!A1, [1]!named
@@ -53,6 +54,10 @@ export function lexContextUnquoted (str: string, pos: number, options: { xlsx: b
   const c0 = str.charCodeAt(pos);
   let br1: number;
   let br2: number;
+  // Offset of the ":" of a sheet range (`Sheet1:Sheet2!A1`, a 3-D reference), 0 when there is
+  // none. Excel forbids ":" in sheet names, so at most one may occur here and it must have a
+  // sheet name on either side of it.
+  let colon = 0;
   if (c0 !== QUOT_SINGLE && c0 !== EXCL) {
     const start = pos;
     while (pos < str.length) {
@@ -73,9 +78,16 @@ export function lexContextUnquoted (str: string, pos: number, options: { xlsx: b
         if ((br1 >= start) && (br2 < pos - 1) && (br2 > br1 + 1)) {
           valid = true;
         }
+        if (colon && colon === pos - 1) {
+          valid = false; // the second sheet name is missing
+        }
         if (valid) {
           return { type: CONTEXT, value: str.slice(start, pos) };
         }
+      }
+      else if (c === COLON && (br1 == null || br2 != null)) {
+        if (colon || pos === start) { return; } // only 1 allowed, and not leading
+        colon = pos;
       }
       else if (
         (br1 == null || br2 != null) &&

@@ -80,3 +80,33 @@ parseA1Ref('[1]!A1', { xlsx: true });
 ```
 
 Inversely, when serializing a reference object, _Fx_ expects the `workbookName` and `sheetName` properties to dictate how to compose the prefix.
+
+
+## 3-D references
+
+A prefix may name a range of sheets rather than a single one — `Sheet1:Sheet2!A1` refers to cell `A1` on every sheet from `Sheet1` to `Sheet2`. Excel calls these 3-D references.
+
+The sheet range occupies the sheet slot of the prefix, as a single compound name:
+
+```js
+parseA1Ref('Jan:Dec!A1');
+/* ⇒ {
+  context: [ 'Jan:Dec' ],
+  range: { ... }
+}
+*/
+
+parseA1Ref('[1]Sheet1:Sheet2!A1', { xlsx: true });
+/* ⇒ {
+  workbookName: '1',
+  sheetName: 'Sheet1:Sheet2',
+  range: { ... }
+}
+*/
+```
+
+There is no ambiguity to resolve here: `:` is one of the characters Excel forbids in a sheet name, so a colon ahead of the `!` can only be separating two sheet names. It does mean that _Fx_ always quotes the prefix on output, as it does for any other scope containing a banned character.
+
+Note that a 3-D reference is not the same thing as a range whose two endpoints sit on different sheets (`Sheet1!A1:Sheet2!B2`). The two are told apart by where the `!` sits relative to the `:`, and only the former is a single reference.
+
+_Fx_ does not reorder the endpoints of a sheet range. Whether `Sheet2:Sheet1` should be written `Sheet1:Sheet2` depends on the order the sheets appear in the workbook, which _Fx_ has no knowledge of.

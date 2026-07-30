@@ -5,6 +5,7 @@ import { lexContextUnquoted } from './lexContext.ts';
 const BR_OPEN = 91; // [
 const PAREN_OPEN = 40;
 const EXCL = 33; // !
+const COLON = 58; // :
 const OFFS = 32;
 
 // build a map of characters to allow-bitmasks
@@ -25,13 +26,16 @@ for (let c = OFFS; c < 180; c++) {
   const nN = /^[a-zA-Z0-9_.\\?\u00a1-\uffff]$/.test(char);
   const fN = /^[a-zA-Z0-9_.]$/.test(char);
   const cX = /^[a-zA-Z0-9_.¡¤§¨ª\u00ad¯-\uffff]$/.test(char);
+  // ":" may only occur inside a context, as the separator of a sheet range
+  // (`Sheet1:Sheet2!A1`, a 3-D reference). See the COLON handling below.
+  const cN = cX || c === COLON;
   ALLOWED[c - OFFS] = (
     (n0 ? OK_NAME_0 : 0) |
     (nN ? OK_NAME_N : 0) |
     (f0 ? OK_FUNC_0 : 0) |
     (fN ? OK_FUNC_N : 0) |
     (cX ? OK_CNTX_0 : 0) |
-    (cX ? OK_CNTX_N : 0)
+    (cN ? OK_CNTX_N : 0)
   );
 }
 
@@ -75,6 +79,15 @@ export function lexNameFuncCntx (
   let cntx = (a & OK_CNTX_0) ? 1 : 0;
   pos++;
 
+  // Offset of the ":" of a sheet range (`Sheet1:Sheet2!A1`, a 3-D reference), 0 when there is
+  // none. Excel forbids ":" in sheet names, so at most one may occur here and it must have a
+  // sheet name on either side of it.
+  let colon = 0;
+  // Where the name run ended, 0 while it is still running. Only a ":" can end it while the
+  // context run carries on, so if the context turns out not to be one, this is where the name
+  // to emit ends: the "foo" of "foo:B2".
+  let nameEnd = 0;
+
   let c: number;
   do {
     c = str.charCodeAt(pos);
@@ -82,9 +95,10 @@ export function lexNameFuncCntx (
     if (a & OK_N) {
       // name: [a-zA-Z_0-9.\\?\u00a1-\uffff]
       // func: [a-zA-Z_0-9.]
-      // cntx: [a-zA-Z_0-9.¡¤§¨ª\u00ad¯-\uffff]
+      // cntx: [a-zA-Z_0-9.:¡¤§¨ª\u00ad¯-\uffff]
       if (name && !(a & OK_NAME_N)) {
         name = 0;
+        nameEnd = pos;
       }
       if (func && !(a & OK_FUNC_N)) {
         func = 0;
@@ -92,21 +106,30 @@ export function lexNameFuncCntx (
       if (cntx && !(a & OK_CNTX_N)) {
         cntx = 0;
       }
+      else if (cntx && c === COLON) {
+        if (colon) {
+          cntx = 0; // only 1 allowed
+        }
+        else {
+          colon = pos;
+        }
+      }
     }
     else {
       if (c === PAREN_OPEN && func) {
         return { type: FUNCTION, value: str.slice(start, pos) };
       }
-      else if (c === EXCL && cntx) {
+      // a trailing colon means the second sheet name is missing
+      else if (c === EXCL && cntx && !(colon && colon === pos - 1)) {
         return { type: CONTEXT, value: str.slice(start, pos) };
       }
-      return nameOrUnknown(str, s, start, pos, name);
+      return nameOrUnknown(str, s, start, nameEnd || pos, nameEnd ? 1 : name);
     }
     pos++;
   }
   while ((name || func || cntx) && pos < str.length);
 
   if (start !== pos) {
-    return nameOrUnknown(str, s, start, pos, name);
+    return nameOrUnknown(str, s, start, nameEnd || pos, nameEnd ? 1 : name);
   }
 }
