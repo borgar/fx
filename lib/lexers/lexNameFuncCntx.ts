@@ -1,11 +1,12 @@
 import { CONTEXT, FUNCTION, REF_NAMED, UNKNOWN } from '../constants.ts';
 import type { Token } from '../types.ts';
-import { lexContextUnquoted } from './lexContext.ts';
+import { advSheetName, lexContextUnquoted } from './lexContext.ts';
 
 const BR_OPEN = 91; // [
 const PAREN_OPEN = 40;
 const EXCL = 33; // !
 const COLON = 58; // :
+const QUOT_SINGLE = 39; // '
 const OFFS = 32;
 
 // build a map of characters to allow-bitmasks
@@ -109,6 +110,14 @@ export function lexNameFuncCntx (
       else if (cntx && c === COLON) {
         if (colon) {
           cntx = 0; // only 1 allowed
+        }
+        else if (str.charCodeAt(pos + 1) === QUOT_SINGLE) {
+          // the far end of a sheet range may be quoted on its own: "foo:'bar'!A1"
+          const len = advSheetName(str, pos + 1);
+          if (len && str.charCodeAt(pos + 1 + len) === EXCL) {
+            return { type: CONTEXT, value: str.slice(start, pos + 1 + len) };
+          }
+          cntx = 0;
         }
         else {
           colon = pos;

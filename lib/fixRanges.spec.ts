@@ -107,6 +107,17 @@ describe('fixRanges prefixes', () => {
     isFixed("=SUM('[1]S1:S3'!A1)", "=SUM('[1]S1:S3'!A1)", opts);
   });
 
+  test('each end of a 3-D reference may be quoted on its own', () => {
+    // the quoting is redistributed over the whole sheet range, which is how Excel writes it
+    isFixed("=foo:'bar'!A1", '=foo:bar!A1');
+    isFixed("='foo':bar!A1", '=foo:bar!A1');
+    isFixed("='foo':'bar'!A1", '=foo:bar!A1');
+    isFixed("='foo':'bar baz'!A1", "='foo:bar baz'!A1");
+    isFixed("='foo bar':'baz'!A1", "='foo bar:baz'!A1");
+    isFixed("='[Book.xlsx]foo':'bar'!A1", "='[Book.xlsx]foo:bar'!A1");
+    isFixed("=foo:'bar'!A1", '=foo:bar!A1', { xlsx: true });
+  });
+
   test('a cell-shaped left side wins over a 3-D reference', () => {
     isFixed('=SUM(A1:B2!C3)', "=SUM(A1:'B2'!C3)");
     isFixed("=SUM('A1:B2'!C3)", "=SUM('A1:B2'!C3)");

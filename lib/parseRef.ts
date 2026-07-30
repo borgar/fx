@@ -81,6 +81,36 @@ type RefParserPart = (t: Token | undefined, data: Partial<RefParseData>, xlsx?: 
 
 const unquote = d => d.slice(1, -1).replace(/''/g, "'");
 
+// A prefix is normally either quoted whole or not at all, but the two ends of a sheet range may
+// also be quoted separately ("foo:'bar'"). Excel normalizes that away on entry, so it only turns
+// up in hand-written formulas — each quoted run is therefore unquoted where it sits, which leaves
+// a wholly quoted or wholly bare prefix untouched.
+export function unquoteParts (value: string): string {
+  if (!value.includes("'")) {
+    return value;
+  }
+  let out = '';
+  let pos = 0;
+  while (pos < value.length) {
+    if (value[pos] !== "'") {
+      out += value[pos];
+      pos++;
+      continue;
+    }
+    let end = pos + 1;
+    while (end < value.length) {
+      if (value[end] === "'") {
+        if (value[end + 1] !== "'") { break; }
+        end++;
+      }
+      end++;
+    }
+    out += unquote(value.slice(pos, end + 1));
+    pos = end + 1;
+  }
+  return out;
+}
+
 const pRangeOp: RefParserPart = (t, data) => {
   const value = t?.value;
   if (value === ':' || value === '.:' || value === ':.' || value === '.:.') {
@@ -125,12 +155,8 @@ const pStrucured: RefParserPart = (t, data) => {
 };
 const pContext: RefParserPart = (t, data, xlsx) => {
   const type = t?.type;
-  if (type === CONTEXT) {
-    splitContext(t.value, data, xlsx);
-    return 1;
-  }
-  if (type === CONTEXT_QUOTE) {
-    splitContext(unquote(t.value), data, xlsx);
+  if (type === CONTEXT || type === CONTEXT_QUOTE) {
+    splitContext(unquoteParts(t.value), data, xlsx);
     return 1;
   }
 };

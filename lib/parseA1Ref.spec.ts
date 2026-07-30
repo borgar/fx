@@ -125,6 +125,21 @@ describe('parse A1 references', () => {
     isA1Equal('Sheet1:Sheet2!foo', { sheetName: 'Sheet1:Sheet2', name: 'foo' }, { xlsx: true });
   });
 
+  test('each end of a sheet range may be quoted on its own', () => {
+    // Excel normalizes these away on entry, so they only reach fx from hand-written formulas.
+    // However the ends are spelled, they read as the same pair of sheet names.
+    const range = { top: 0, left: 0, bottom: 0, right: 0 };
+    isA1Equal("foo:'bar'!A1", { context: [ 'foo:bar' ], range });
+    isA1Equal("'foo':bar!A1", { context: [ 'foo:bar' ], range });
+    isA1Equal("'foo':'bar'!A1", { context: [ 'foo:bar' ], range });
+    isA1Equal("'foo':'bar baz'!A1", { context: [ 'foo:bar baz' ], range });
+    isA1Equal("'foo bar':'baz'!A1", { context: [ 'foo bar:baz' ], range });
+    isA1Equal("'O''Neil':'baz'!A1", { context: [ "O'Neil:baz" ], range });
+    isA1Equal("'[Book.xlsx]foo':'bar'!A1", { context: [ 'Book.xlsx', 'foo:bar' ], range });
+    isA1Equal("foo:'bar'!A1", { sheetName: 'foo:bar', range }, { xlsx: true });
+    isA1Equal("'[1]foo':'bar'!A1", { workbookName: '1', sheetName: 'foo:bar', range }, { xlsx: true });
+  });
+
   test('a sheet range has exactly two endpoints', () => {
     isA1Equal('a:b:c!A1', undefined);
     isA1Equal('Sheet1:!A1', undefined);

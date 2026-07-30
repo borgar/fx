@@ -115,6 +115,8 @@ Note that a 3-D reference is not the same thing as a range whose two endpoints s
 
 Where a sheet name is shaped like a cell address, the range operator wins and the colon is not read as a sheet-range separator: Excel reads `=SUM(A1:B2!C3)` as cell `A1` joined to `'B2'!C3` (yielding `#VALUE!`), and stores it that way. A column-shaped name does not lose out like this, so `=SUM(A:C!A1)` and `=SUM(Jan:Mar!A1)` are sheet ranges. To reference sheets named `A1` and `B2`, quote the prefix: `=SUM('A1:B2'!C3)`.
 
+A prefix is normally either quoted whole or not at all, but the two ends of a sheet range may also be quoted separately: `foo:'bar'!A1`, `'foo':'bar baz'!A1`. Excel normalizes that away on entry, so it only turns up in hand-written or third-party-generated formulas, but _Fx_ accepts it and reads it as the same sheet range as any other spelling. Serializing redistributes the quoting over the whole prefix, so `'foo':'bar baz'!A1` comes back out as `'foo:bar baz'!A1`.
+
 A `$` may not appear on an unquoted sheet name. Excel refuses `=SUM($Jan:$Mar!A1)` on entry, and a file holding one does not open at all. `$` is a legal character in a sheet name, so the quoted spelling `'$Jan:$Mar'!A1` is a valid sheet range.
 
 _Fx_ does not reorder the endpoints of a sheet range. Whether `Sheet2:Sheet1` should be written `Sheet1:Sheet2` depends on the order the sheets appear in the workbook, which _Fx_ has no knowledge of.

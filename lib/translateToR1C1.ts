@@ -5,7 +5,7 @@ import type { RangeR1C1, ReferenceA1Xlsx, Token } from './types.ts';
 import { stringifyTokens } from './stringifyTokens.ts';
 import { cloneToken } from './cloneToken.ts';
 import { FUNCTION, OPERATOR, REF_BEAM, REF_RANGE, REF_TERNARY } from './constants.ts';
-import { splitContext } from './parseRef.ts';
+import { splitContext, unquoteParts } from './parseRef.ts';
 import { isRCTokenValue } from './isRCTokenValue.ts';
 
 const reLetLambda = /^l(?:ambda|et)$/i;
@@ -20,17 +20,11 @@ const calc = (abs: boolean, vX: number, aX: number): number => {
 // We already know here that we're holding a token value from
 // one of: REF_RANGE | REF_BEAM | REF_TERNARY
 // So we can quickly scan for ! shortcut a bunch of parsing:
-const unquote = d => d.slice(1, -1).replace(/''/g, "'");
 function quickParseA1 (ref: string): ReferenceA1Xlsx {
   const split = ref.lastIndexOf('!');
   const data: Partial<ReferenceA1Xlsx> = {};
   if (split > -1) {
-    if (ref.startsWith('\'')) {
-      splitContext(unquote(ref.slice(0, split)), data, true);
-    }
-    else {
-      splitContext(ref.slice(0, split), data, true);
-    }
+    splitContext(unquoteParts(ref.slice(0, split)), data, true);
     data.range = parseA1Range(ref.slice(split + 1));
   }
   else {

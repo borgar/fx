@@ -2288,6 +2288,74 @@ describe('lexer', () => {
       ]);
     });
 
+    test('each end of a sheet range may be quoted on its own', () => {
+      // Excel normalizes these away on entry, so they only turn up in hand-written formulas.
+      // The tell of getting this wrong is an open-ended beam: the lexer bailing at the quote
+      // used to leave "foo:" behind, which then normalized to the unrelated "A:FOO".
+      isTokens("=foo:'bar'!A1", [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: "foo:'bar'!A1" }
+      ]);
+      isTokens("='foo':bar!A1", [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: "'foo':bar!A1" }
+      ]);
+      isTokens("='foo':'bar'!A1", [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: "'foo':'bar'!A1" }
+      ]);
+      isTokens("='foo bar':'baz'!A1", [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: "'foo bar':'baz'!A1" }
+      ]);
+      isTokens("='[Book.xlsx]foo':'bar'!A1", [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: "'[Book.xlsx]foo':'bar'!A1" }
+      ]);
+      isTokens("=foo:'bar'!A1", [
+        { type: FX_PREFIX, value: '=' },
+        { type: CONTEXT, value: "foo:'bar'" },
+        { type: OPERATOR, value: '!' },
+        { type: REF_RANGE, value: 'A1' }
+      ], { mergeRefs: false });
+      isTokens("='foo':'bar'!A1", [
+        { type: FX_PREFIX, value: '=' },
+        { type: CONTEXT_QUOTE, value: "'foo':'bar'" },
+        { type: OPERATOR, value: '!' },
+        { type: REF_RANGE, value: 'A1' }
+      ], { mergeRefs: false });
+    });
+
+    test('a quote only ends a beam when a sheet prefix follows it', () => {
+      // a trailing colon with nothing after it is still an open-ended beam
+      isTokens('=SUM(foo:)', [
+        { type: FX_PREFIX, value: '=' },
+        { type: FUNCTION, value: 'SUM' },
+        { type: OPERATOR, value: '(' },
+        { type: REF_BEAM, value: 'foo:' },
+        { type: OPERATOR, value: ')' }
+      ]);
+      isTokens('=SUM(A:A)', [
+        { type: FX_PREFIX, value: '=' },
+        { type: FUNCTION, value: 'SUM' },
+        { type: OPERATOR, value: '(' },
+        { type: REF_BEAM, value: 'A:A' },
+        { type: OPERATOR, value: ')' }
+      ]);
+      isTokens('=A1:MyName', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'A1' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_NAMED, value: 'MyName' }
+      ]);
+      isTokens("=A1&'Sheet1'!B2", [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'A1' },
+        { type: OPERATOR, value: '&' },
+        { type: REF_RANGE, value: "'Sheet1'!B2" }
+      ]);
+    });
+
     test('sheet ranges in R1C1 mode', () => {
       isTokens('=Jan:Dec!R[1]C[1]', [
         { type: FX_PREFIX, value: '=' },
