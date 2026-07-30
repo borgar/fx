@@ -2425,6 +2425,20 @@ describe('lexer', () => {
         { type: FX_PREFIX, value: '=' },
         { type: REF_RANGE, value: 'R1:Total!R1C1' }
       ], { r1c1: true });
+      // ... but a bracket is one thing a sheet name may not hold, so a far end carrying one names
+      // no second sheet and the near end is left standing as a beam
+      isTokens('=C1:R[1]C[1]!R1C1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_BEAM, value: 'C1' },
+        { type: OPERATOR, value: ':' },
+        { type: UNKNOWN, value: 'R' },
+        { type: REF_STRUCT, value: '[1]' },
+        { type: UNKNOWN, value: 'C[' },
+        { type: NUMBER, value: '1' },
+        { type: UNKNOWN, value: ']' },
+        { type: OPERATOR, value: '!' },
+        { type: REF_RANGE, value: 'R1C1' }
+      ], { r1c1: true });
       // ... but with no sheet prefix behind it, the near end is still a beam of its own
       isTokens('=C1:Dec', [
         { type: FX_PREFIX, value: '=' },

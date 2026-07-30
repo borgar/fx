@@ -142,12 +142,11 @@ export function lexRangeR1C1 (
       // a sheet range in this notation though "A1:B2!C3" is not one in A1 — as in Excel.
       //
       // The far end is a sheet name, so it need not be an R1C1 part itself ("C1:Dec!R1C1") nor
-      // even unquoted ("C1:'Dec'!R1C1"); where it does parse as one it may still run past what
-      // a name may hold, as the brackets of "C1:R[1]C[1]" do, so both lengths are tried.
+      // even unquoted ("C1:'Dec'!R1C1"), and measuring it as a name is what settles it. Measuring
+      // it as an R1C1 part instead only ever reaches further where the part holds brackets, which
+      // no sheet name may, so "C1:R[1]C[1]!R1C1" names no second sheet and its near end stays a
+      // beam of its own.
       if (!(r1 && c1)) {
-        if ((r2 || c2) && str.charCodeAt(p) === EXCL) {
-          return;
-        }
         const len = advSheetName(str, preOp + op);
         if (len && str.charCodeAt(preOp + op + len) === EXCL) {
           return;
