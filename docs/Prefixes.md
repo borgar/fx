@@ -67,10 +67,11 @@ Since the XML files only ever emitted with positive integer indexes instead of w
 
 Why the formula language does not use this unambiguous and somewhat more intuitive variant rather than the above form is a question for Excel historians, likely this later form was introduced with the XML format to eliminate the ambiguity?
 
-When parsing references in `xlsx` mode, _Fx_ will emit `workbookName` and `sheetName` properties corresponding to the bracketing:
+When parsing references in `xlsx` mode — which is to say with the methods of the `@borgar/fx/xlsx` entry point, where each one is the xlsx counterpart of its namesake — _Fx_ will emit `workbookName` and `sheetName` properties corresponding to the bracketing:
 
 ```js
-parseA1Ref('[1]!A1', { xlsx: true });
+// from '@borgar/fx/xlsx'
+parseA1Ref('[1]!A1');
 /* ⇒ {
   workbookName: '1',
   sheetName: '',
@@ -96,7 +97,8 @@ parseA1Ref('Jan:Dec!A1');
 }
 */
 
-parseA1Ref('[1]Sheet1:Sheet2!A1', { xlsx: true });
+// from '@borgar/fx/xlsx'
+parseA1Ref('[1]Sheet1:Sheet2!A1');
 /* ⇒ {
   workbookName: '1',
   sheetName: 'Sheet1:Sheet2',
