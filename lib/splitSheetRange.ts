@@ -27,7 +27,7 @@
  * without that colon dividing it into two names, and a workbook is not a sheet.
  *
  * @param scope The sheet scope of a prefix.
- * @returns The two sheet names, or `undefined` if the scope is a single sheet name.
+ * @returns The two sheet names, or `undefined` if the scope does not divide into exactly two.
  */
 export function splitSheetRange (scope: string): [ string, string ] | undefined {
   const colon = scope ? scope.indexOf(':') : -1;

@@ -1065,7 +1065,7 @@ without that colon dividing it into two names, and a workbook is not a sheet.
 
 \[`string`, `string`\]
 
-The two sheet names, or `undefined` if the scope is a single sheet name.
+The two sheet names, or `undefined` if the scope does not divide into exactly two.
 
 
 <a name="fxfunctionsstringifya1refmd"></a>

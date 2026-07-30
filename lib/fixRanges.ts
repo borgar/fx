@@ -16,9 +16,9 @@ import { stringifyTokens } from './stringifyTokens.ts';
 // translateToRC(fixRanges(translateToA1(...)))
 
 // On the sheet range of a 3-D reference being left alone (see the fixTokenRanges docstring):
-// Excel normalizes one three ways on entry — ordering its two ends ("Mar:Jan" to "Jan:Mar"),
-// collapsing a degenerate one ("Jan:Jan" to "Jan"), and correcting the case of each end to the
-// sheet's own — and every one of those needs the workbook's sheet names, in order.
+// Excel normalizes a sheet range three ways on entry — ordering its two ends ("Mar:Jan" to
+// "Jan:Mar"), collapsing a degenerate one ("Jan:Jan" to "Jan"), and correcting the case of each
+// end to the sheet's own — and every one of those needs the workbook's sheet names, in order.
 
 /**
  * Options for {@link fixTokenRanges} and {@link fixFormulaRanges}.
