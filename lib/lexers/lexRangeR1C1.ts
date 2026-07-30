@@ -136,7 +136,9 @@ export function lexRangeR1C1 (
 
       // "C1:C5!R1C1" is a 3-D reference to sheets named "C1" and "C5", not a beam followed by
       // a stray "!" — leave the whole sheet range to the context lexer. A cell-shaped left side
-      // is exempt, as it is in A1: "R1C1:R2C2!R3C3" is cell R1C1 joined to 'R2C2'!R3C3.
+      // is exempt, as it is in A1: "R1C1:R2C2!R3C3" is cell R1C1 joined to 'R2C2'!R3C3. Cell
+      // shapes are the R1C1 ones only, so an A1 spelling never reaches here and "A1:B2!R3C3" is
+      // a sheet range in this notation though "A1:B2!C3" is not one in A1 — as in Excel.
       if ((r2 || c2) && !(r1 && c1) && str.charCodeAt(p) === EXCL) {
         return;
       }

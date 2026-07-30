@@ -2408,7 +2408,15 @@ describe('lexer', () => {
         { type: FX_PREFIX, value: '=' },
         { type: REF_BEAM, value: 'C1:C5' }
       ], { r1c1: true });
-      // ... but a cell-shaped left side wins here too, as it does in A1
+      // A1 cell shapes are just names here, so the pair Excel reads as a range operator in A1
+      // notation is a sheet range in R1C1 notation. Excel does the same: with the R1C1 reference
+      // style on, "=SUM(A1:B2!R3C3)" sums R3C3 across sheets A1 through B2, where the A1-notation
+      // "=SUM(A1:B2!C3)" is #VALUE!.
+      isTokens('=A1:B2!R3C3', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'A1:B2!R3C3' }
+      ], { r1c1: true });
+      // ... but a cell-shaped left side wins here too, in the shapes that are cells in R1C1
       isTokens('=R1C1:R2C2!R3C3', [
         { type: FX_PREFIX, value: '=' },
         { type: REF_RANGE, value: 'R1C1' },
@@ -2431,6 +2439,8 @@ describe('lexer', () => {
       // Excel reads "=SUM(A1:B2!C3)" as cell A1 joined to 'B2'!C3 (and yields #VALUE!), while
       // "=SUM(A:C!A1)" and "=SUM(Jan:Mar!A1)" are sheet ranges — a column-shaped left side does
       // not win the same way. Only the quoted spelling makes a cell-shaped pair a sheet range.
+      // Cell-shaped is meant in this notation: see the R1C1 tests above, where "A1:B2!R3C3" is
+      // a sheet range because "A1" is no cell there.
       isTokens('=A1:B2!C3', [
         { type: FX_PREFIX, value: '=' },
         { type: REF_RANGE, value: 'A1' },
