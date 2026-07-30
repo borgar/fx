@@ -146,6 +146,15 @@ describe('parse A1 references', () => {
     isA1Equal(':Sheet1!A1', undefined);
   });
 
+  test('a cell-shaped left side wins over a sheet range', () => {
+    // "A1:B2!C3" is cell A1 joined to 'B2'!C3, so it is not a single reference at all
+    isA1Equal('A1:B2!C3', undefined);
+    isA1Equal('A1:Sheet2!B2', undefined);
+    isA1Equal('R1:R5!A1', undefined);
+    // ... and only the quoted spelling makes such a pair a sheet range
+    isA1Equal("'A1:B2'!C3", { context: [ 'A1:B2' ], range: { top: 2, left: 2, bottom: 2, right: 2 } });
+  });
+
   test('invalid references', () => {
     isA1Equal('[Workbook.xlsx]!A1', undefined);
     isA1Equal('[Workbook.xlsx]!A1:B2', undefined);

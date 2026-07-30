@@ -1,5 +1,6 @@
 import { CONTEXT, CONTEXT_QUOTE } from '../constants.ts';
 import type { Token } from '../types.ts';
+import { lexRange } from './lexRange.ts';
 
 const QUOT_SINGLE = 39; // '
 const BR_OPEN = 91; // [
@@ -108,9 +109,30 @@ export function lexContextQuoted (str: string, pos: number, options: { xlsx: boo
   }
 }
 
+// Is the run from `start` to `pos` a whole range in its own right? A cell-shaped left end
+// belongs to the range operator rather than to a sheet range, so "A1:B2!C3" is cell A1 joined to
+// 'B2'!C3 rather than a reference into sheets A1 through B2. The formula lexers settle this by
+// running lexRange ahead of the context lexers, but the reference lexers run this one first, so
+// it has to ask.
+function endsAWholeRange (str: string, start: number, pos: number, options: LexContextOptions): boolean {
+  const range = lexRange(str, start, {
+    allowTernary: !!options.allowTernary,
+    mergeRefs: !!options.mergeRefs,
+    r1c1: !!options.r1c1
+  });
+  return !!range && range.value.length === pos - start;
+}
+
+type LexContextOptions = {
+  xlsx: boolean,
+  allowTernary?: boolean,
+  mergeRefs?: boolean,
+  r1c1?: boolean
+};
+
 // xlsx xml uses a variant of the syntax that has external references in
 // bracets. Any of: [1]Sheet1!A1, '[1]Sheet one'!A1, [1]!named
-export function lexContextUnquoted (str: string, pos: number, options: { xlsx: boolean }): Token | undefined {
+export function lexContextUnquoted (str: string, pos: number, options: LexContextOptions): Token | undefined {
   const c0 = str.charCodeAt(pos);
   let br1: number;
   let br2: number;
@@ -149,6 +171,7 @@ export function lexContextUnquoted (str: string, pos: number, options: { xlsx: b
         // ":" joins the two names, but "$" is not admitted alongside it: Excel refuses
         // "$Jan:$Mar!A1" on entry, and a file holding one does not open at all
         if (colon || pos === start) { return; } // only 1 allowed, and not leading
+        if (endsAWholeRange(str, start, pos, options)) { return; }
         colon = pos;
         if (str.charCodeAt(pos + 1) === QUOT_SINGLE) {
           // the far end of a sheet range may be quoted on its own: "foo:'bar'!A1"
