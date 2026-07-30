@@ -2408,6 +2408,30 @@ describe('lexer', () => {
         { type: FX_PREFIX, value: '=' },
         { type: REF_BEAM, value: 'C1:C5' }
       ], { r1c1: true });
+      // the far end is a sheet name, so it need not be an R1C1 part itself, nor unquoted
+      isTokens('=C1:Dec!R1C1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'C1:Dec!R1C1' }
+      ], { r1c1: true });
+      isTokens("=C1:'Dec'!R1C1", [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: "C1:'Dec'!R1C1" }
+      ], { r1c1: true });
+      isTokens('=C:D!R1C1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'C:D!R1C1' }
+      ], { r1c1: true });
+      isTokens('=R1:Total!R1C1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'R1:Total!R1C1' }
+      ], { r1c1: true });
+      // ... but with no sheet prefix behind it, the near end is still a beam of its own
+      isTokens('=C1:Dec', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_BEAM, value: 'C1' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_NAMED, value: 'Dec' }
+      ], { r1c1: true });
       // A1 cell shapes are just names here, so the pair Excel reads as a range operator in A1
       // notation is a sheet range in R1C1 notation. Excel does the same: with the R1C1 reference
       // style on, "=SUM(A1:B2!R3C3)" sums R3C3 across sheets A1 through B2, where the A1-notation

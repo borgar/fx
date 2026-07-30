@@ -171,6 +171,10 @@ describe('parse joined R1C1 references', () => {
     isRCEqual("'Sheet 1:Sheet 2'!RC", { context: [ 'Sheet 1:Sheet 2' ], range: relRC });
     // C1 and C5 are valid R1C1 column parts, so "C1:C5" would otherwise read as a beam
     isRCEqual('C1:C5!RC', { context: [ 'C1:C5' ], range: relRC });
+    // the far end is a sheet name, so it need not be an R1C1 part itself, nor unquoted
+    isRCEqual('C1:Dec!RC', { context: [ 'C1:Dec' ], range: relRC });
+    isRCEqual("C1:'Dec'!RC", { context: [ 'C1:Dec' ], range: relRC });
+    isRCEqual('C:D!RC', { context: [ 'C:D' ], range: relRC });
     isRCEqual('Jan:Dec!R1C1', { sheetName: 'Jan:Dec', range: absRC }, { xlsx: true });
     // an A1 cell shape is only a name here, so this pair is a sheet range in R1C1 notation while
     // "A1:B2!C3" is a range operator in A1 notation — as it is in Excel with R1C1 style on

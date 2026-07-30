@@ -37,6 +37,17 @@ describe('translate absolute cells from A1 to RC', () => {
     okayRoundTrip("=SUM('[1]S1:S3'!A1)", 'C3');
   });
 
+  test('3-D references over sheet names shaped like R1C1 parts', () => {
+    // The sheet range travels verbatim, so the R1C1 leg has to read back as a sheet range what
+    // the A1 leg did: "C", "R" and their numbered forms are R1C1 parts, but they are no more
+    // cells there than "A1" is, so the colon is still a sheet-range separator. The prefix comes
+    // back quoted, which is the spelling Excel stores for these names anyway.
+    const rc = translateFormulaToR1C1('=SUM(C:D!A1)', 'C3');
+    expect(rc).toBe('=SUM(C:D!R[-2]C[-2])');
+    expect(translateFormulaToA1(rc, 'C3')).toBe("=SUM('C:D'!A1)");
+    expect(translateFormulaToA1(translateFormulaToR1C1('=R:Q!A1', 'C3'), 'C3')).toBe("='R:Q'!A1");
+  });
+
   test('3-D references with each end quoted on its own', () => {
     // the A1 leg redistributes the quoting over the whole sheet range, so these do not come
     // back verbatim; they settle on the whole-prefix spelling
