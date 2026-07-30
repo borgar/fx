@@ -48,6 +48,14 @@ describe('stringifyA1Ref', () => {
     expect(stringifyA1Ref({ context: [ 'Sch1' ], range: rangeA1 })).toBe("'Sch1'!A1");
     expect(stringifyA1Ref({ context: [ 'Foo12345' ], range: rangeA1 })).toBe("'Foo12345'!A1");
   });
+
+  test('3-D references are quoted because ":" is banned in sheet names', () => {
+    expect(stringifyA1Ref({ context: [ 'Jan:Dec' ], range: rangeA1 })).toBe("'Jan:Dec'!A1");
+    expect(stringifyA1Ref({ context: [ 'Sheet 1:Sheet 2' ], range: rangeA1 })).toBe("'Sheet 1:Sheet 2'!A1");
+    expect(stringifyA1Ref({ context: [ 'Book.xlsx', 'Sheet1:Sheet2' ], range: rangeA1 }))
+      .toBe("'[Book.xlsx]Sheet1:Sheet2'!A1");
+    expect(stringifyA1Ref({ context: [ 'Jan:Dec' ], name: 'foo' })).toBe("'Jan:Dec'!foo");
+  });
 });
 
 describe('stringifyA1Ref in XLSX mode', () => {
@@ -90,6 +98,13 @@ describe('stringifyA1Ref in XLSX mode', () => {
     expect(stringifyA1RefXlsx({ workbookName: 'Ab12', range: rangeA1 })).toBe("'[Ab12]'!A1");
     expect(stringifyA1RefXlsx({ workbookName: 'Sch1', range: rangeA1 })).toBe("'[Sch1]'!A1");
     expect(stringifyA1RefXlsx({ workbookName: 'Foo12345', range: rangeA1 })).toBe("'[Foo12345]'!A1");
+  });
+
+  test('3-D references are quoted because ":" is banned in sheet names', () => {
+    expect(stringifyA1RefXlsx({ sheetName: 'Jan:Dec', range: rangeA1 })).toBe("'Jan:Dec'!A1");
+    expect(stringifyA1RefXlsx({ workbookName: '1', sheetName: 'Sheet1:Sheet2', range: rangeA1 }))
+      .toBe("'[1]Sheet1:Sheet2'!A1");
+    expect(stringifyA1RefXlsx({ sheetName: 'Jan:Dec', name: 'foo' })).toBe("'Jan:Dec'!foo");
   });
 
   test('digit-leading sheet and workbook names are quoted', () => {

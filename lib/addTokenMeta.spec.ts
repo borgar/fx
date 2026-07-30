@@ -76,6 +76,20 @@ describe('add extra meta to operators', () => {
     ], { sheetName: 'Sheet1', workbookName: 'foo' });
   });
 
+  test('group 3-D references by their whole sheet range', () => {
+    // the sheet range is one compound sheet name, so it matches neither endpoint on its own
+    isMetaTokens("=Jan:Dec!B11,'jan:dec'!B11,Jan!B11,Dec!B11", [
+      { index: 0, depth: 0, type: FX_PREFIX, value: '=' },
+      { index: 1, depth: 0, type: REF_RANGE, value: 'Jan:Dec!B11', groupId: 'fxg1' },
+      { index: 2, depth: 0, type: OPERATOR, value: ',' },
+      { index: 3, depth: 0, type: REF_RANGE, value: "'jan:dec'!B11", groupId: 'fxg1' },
+      { index: 4, depth: 0, type: OPERATOR, value: ',' },
+      { index: 5, depth: 0, type: REF_RANGE, value: 'Jan!B11', groupId: 'fxg2' },
+      { index: 6, depth: 0, type: OPERATOR, value: ',' },
+      { index: 7, depth: 0, type: REF_RANGE, value: 'Dec!B11', groupId: 'fxg3' }
+    ], { sheetName: 'Sheet1', workbookName: 'foo' });
+  });
+
   test('group beam references', () => {
     isMetaTokens('=A:A,1:1,Sheet1!A:A:1:1,[foo]Sheet1!1:1', [
       { index: 0, depth: 0, type: FX_PREFIX, value: '=' },

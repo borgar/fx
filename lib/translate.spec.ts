@@ -28,6 +28,13 @@ describe('translate absolute cells from A1 to RC', () => {
     okayRoundTrip('=NOPLATT1+g1_+ROIC1+WACC+G1+g1_+G130+ROIC2+WACC+g2_+WACC+N', 'A1');
   });
 
+  test('3-D references', () => {
+    okayRoundTrip("='Jan:Dec'!A1", 'C3');
+    okayRoundTrip("='Sheet1:Sheet2'!A1:B2", 'C3');
+    okayRoundTrip("=SUM('Sheet 1:Sheet 2'!A1:B2)", 'C3');
+    okayRoundTrip("='[Book.xlsx]Sheet1:Sheet2'!A1", 'C3');
+  });
+
   test('ternary ranges with allowTernary disabled', () => {
     // FIXME: translate needs to be be able to specify allowTernary=false
     okayRoundTrip('=foo:C3:D4', 'A1', { allowTernary: false });

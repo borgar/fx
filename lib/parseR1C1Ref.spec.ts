@@ -164,6 +164,16 @@ describe('parse joined R1C1 references', () => {
     isRCEqual('R[1]C1:R1C[-1]', { range: { r0: 1, c0: 0, r1: 0, c1: -1, $c0: true, $r1: true, $c1: false } });
   });
 
+  test('3-D references', () => {
+    const relRC = { r0: 0, c0: 0, r1: 0, c1: 0 };
+    const absRC = { ...relRC, $r0: true, $c0: true, $r1: true, $c1: true };
+    isRCEqual('Jan:Dec!R1C1', { context: [ 'Jan:Dec' ], range: absRC });
+    isRCEqual("'Sheet 1:Sheet 2'!RC", { context: [ 'Sheet 1:Sheet 2' ], range: relRC });
+    // C1 and C5 are valid R1C1 column parts, so "C1:C5" would otherwise read as a beam
+    isRCEqual('C1:C5!RC', { context: [ 'C1:C5' ], range: relRC });
+    isRCEqual('Jan:Dec!R1C1', { sheetName: 'Jan:Dec', range: absRC }, { xlsx: true });
+  });
+
   test('invalid mixed references', () => {
     isRCEqual('R:C', undefined);
     isRCEqual('R:RC', undefined);

@@ -51,6 +51,14 @@ describe('serialize structured references', () => {
     })).toBe('workbook.xlsx!tableName[[#Data],[my column]:[fo\'@o]]');
   });
 
+  test('3-D references are quoted because ":" is banned in sheet names', () => {
+    expect(stringifyStructRef({
+      columns: [ 'Column' ],
+      table: 'Table',
+      context: [ 'Sheet1:Sheet2' ]
+    })).toBe("'Sheet1:Sheet2'!Table[Column]");
+  });
+
   test('this row references', () => {
     expect(stringifyStructRef({
       columns: [ 'bar' ],
@@ -104,6 +112,14 @@ describe('structured references serialize in xlsx mode', () => {
       sheetName: 'Ipsum',
       columns: [ 'foo' ]
     })).toBe('Ipsum![foo]');
+  });
+
+  test('3-D references are quoted because ":" is banned in sheet names', () => {
+    expect(stringifyStructRefXlsx({
+      sheetName: 'Sheet1:Sheet2',
+      table: 'Table',
+      columns: [ 'Column' ]
+    })).toBe("'Sheet1:Sheet2'!Table[Column]");
   });
 });
 

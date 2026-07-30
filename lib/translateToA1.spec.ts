@@ -264,6 +264,15 @@ describe('quote sheet prefix on RHS of range operator', () => {
   });
 });
 
+describe('translate 3-D references', () => {
+  test('the sheet range is quoted on output', () => {
+    isR2A('=Jan:Dec!R1C1', 'A1', "='Jan:Dec'!$A$1");
+    isR2A('=A:C!R1C1', 'A1', "='A:C'!$A$1");
+    isR2A('=[Book.xlsx]Sheet1:Sheet2!R1C1', 'A1', "='[Book.xlsx]Sheet1:Sheet2'!$A$1");
+    isR2A("=SUM('Sheet 1:Sheet 2'!R1C1:R2C2)", 'A1', "=SUM('Sheet 1:Sheet 2'!$A$1:$B$2)");
+  });
+});
+
 describe('translate r & c as LET parameters', () => {
   // Unlike in A1, LET(c,1,c) is not valid syntax with the R1C1 notation in Excel.
   // If you create a cell with this expression in A1 mode and flip to R1C1, Excel

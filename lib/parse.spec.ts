@@ -93,6 +93,36 @@ describe('parser', () => {
       isParsed('Workbook!foo', { type: 'ReferenceIdentifier', value: 'Workbook!foo', kind: 'name' });
       isParsed('[Workbook]Sheet!foo', { type: 'ReferenceIdentifier', value: '[Workbook]Sheet!foo', kind: 'name' });
     });
+
+    test('3-D references', () => {
+      isParsed('Jan:Dec!A1', { type: 'ReferenceIdentifier', value: 'Jan:Dec!A1', kind: 'range' });
+      isParsed('A:C!A1', { type: 'ReferenceIdentifier', value: 'A:C!A1', kind: 'range' });
+      isParsed('Jan:Dec!A:C', { type: 'ReferenceIdentifier', value: 'Jan:Dec!A:C', kind: 'beam' });
+      isParsed("'Sheet 1:Sheet 2'!A1", { type: 'ReferenceIdentifier', value: "'Sheet 1:Sheet 2'!A1", kind: 'range' });
+      isParsed('[Book.xlsx]Sheet1:Sheet2!A1', {
+        type: 'ReferenceIdentifier', value: '[Book.xlsx]Sheet1:Sheet2!A1', kind: 'range'
+      });
+      isParsed('Sheet1:Sheet2!foo', { type: 'ReferenceIdentifier', value: 'Sheet1:Sheet2!foo', kind: 'name' });
+    });
+
+    test('cross-sheet ranges stay two references', () => {
+      isParsed('B!F2:B!F20', {
+        type: 'BinaryExpression',
+        operator: ':',
+        arguments: [
+          { type: 'ReferenceIdentifier', value: 'B!F2', kind: 'range' },
+          { type: 'ReferenceIdentifier', value: 'B!F20', kind: 'range' }
+        ]
+      });
+      isParsed('Sheet1!A1:Sheet2!B2', {
+        type: 'BinaryExpression',
+        operator: ':',
+        arguments: [
+          { type: 'ReferenceIdentifier', value: 'Sheet1!A1', kind: 'range' },
+          { type: 'ReferenceIdentifier', value: 'Sheet2!B2', kind: 'range' }
+        ]
+      });
+    });
   });
 
   describe('parse array literals', () => {
@@ -940,6 +970,13 @@ describe('parser', () => {
       isParsed(
         '=Sheet1!A1:B2',
         { type: 'ReferenceIdentifier', value: 'Sheet1!A1:B2', kind: 'range', loc: [ 1, 13 ] },
+        { withLocation: true }
+      );
+
+      // a 3-D reference is a single reference, not a ":" binary expression
+      isParsed(
+        '=fool:bard!A1:B2',
+        { type: 'ReferenceIdentifier', value: 'fool:bard!A1:B2', kind: 'range', loc: [ 1, 16 ] },
         { withLocation: true }
       );
 

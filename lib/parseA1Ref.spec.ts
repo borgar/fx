@@ -107,6 +107,30 @@ describe('parse A1 references', () => {
     });
   });
 
+  test('3-D references', () => {
+    // the sheet range is kept as a single compound name: fx has no way of knowing the
+    // workbook's sheet order, so it cannot tell the endpoints apart in any useful way
+    const range = { top: 0, left: 0, bottom: 0, right: 0 };
+    isA1Equal('Jan:Dec!A1', { context: [ 'Jan:Dec' ], range });
+    isA1Equal('A:C!A1', { context: [ 'A:C' ], range });
+    isA1Equal('fool:bard!A1:B2', { context: [ 'fool:bard' ], range: { top: 0, left: 0, bottom: 1, right: 1 } });
+    isA1Equal("'Sheet 1:Sheet 2'!A1", { context: [ 'Sheet 1:Sheet 2' ], range });
+    isA1Equal('[Book.xlsx]Sheet1:Sheet2!A1', { context: [ 'Book.xlsx', 'Sheet1:Sheet2' ], range });
+    isA1Equal("'[Book.xlsx]Sheet 1:Sheet 2'!A1", { context: [ 'Book.xlsx', 'Sheet 1:Sheet 2' ], range });
+    isA1Equal('Sheet1:Sheet2!foo', { context: [ 'Sheet1:Sheet2' ], name: 'foo' });
+
+    isA1Equal('Jan:Dec!A1', { sheetName: 'Jan:Dec', range }, { xlsx: true });
+    isA1Equal('[1]Sheet1:Sheet2!A1', { workbookName: '1', sheetName: 'Sheet1:Sheet2', range }, { xlsx: true });
+    isA1Equal("'[1]Sheet1:Sheet2'!A1", { workbookName: '1', sheetName: 'Sheet1:Sheet2', range }, { xlsx: true });
+    isA1Equal('Sheet1:Sheet2!foo', { sheetName: 'Sheet1:Sheet2', name: 'foo' }, { xlsx: true });
+  });
+
+  test('a sheet range has exactly two endpoints', () => {
+    isA1Equal('a:b:c!A1', undefined);
+    isA1Equal('Sheet1:!A1', undefined);
+    isA1Equal(':Sheet1!A1', undefined);
+  });
+
   test('invalid references', () => {
     isA1Equal('[Workbook.xlsx]!A1', undefined);
     isA1Equal('[Workbook.xlsx]!A1:B2', undefined);

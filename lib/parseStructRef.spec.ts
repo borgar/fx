@@ -117,6 +117,26 @@ describe('parse structured references', () => {
     });
   });
 
+  test('3-D references', () => {
+    isSREqual('Sheet1:Sheet2!Table[Column]', {
+      columns: [ 'Column' ],
+      table: 'Table',
+      context: [ 'Sheet1:Sheet2' ]
+    });
+
+    isSREqual("'Sheet 1:Sheet 2'!Table[Column]", {
+      columns: [ 'Column' ],
+      table: 'Table',
+      context: [ 'Sheet 1:Sheet 2' ]
+    });
+
+    isSREqual('Sheet1:Sheet2!Table[Column]', {
+      sheetName: 'Sheet1:Sheet2',
+      columns: [ 'Column' ],
+      table: 'Table'
+    }, { xlsx: true });
+  });
+
   test('duplicate section handling', () => {
     isSREqual('[[#Data],[#data],[#Data],[#Data],[#Totals],[#Totals],[#Totals],foo]', {
       columns: [ 'foo' ],

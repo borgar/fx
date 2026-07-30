@@ -78,6 +78,26 @@ describe('fixRanges prefixes', () => {
     isFixed('=RC!B2', "='RC'!B2");
     isFixed('=CR!B2', '=CR!B2');
   });
+
+  test('quotes 3-D references and leaves the sheet order alone', () => {
+    isFixed('=Jan:Dec!A1', "='Jan:Dec'!A1");
+    isFixed('=fool:bard!B2:A1', "='fool:bard'!A1:B2");
+    isFixed('=A:C!A1', "='A:C'!A1");
+    isFixed('=[Book.xlsx]Sheet1:Sheet2!A1', "='[Book.xlsx]Sheet1:Sheet2'!A1");
+    isFixed("='Sheet 1:Sheet 2'!A1", "='Sheet 1:Sheet 2'!A1");
+    // the range is normalized, the sheet range is not: fx does not know the workbook's sheet order
+    isFixed("='Sheet2:Sheet1'!B2:A1", "='Sheet2:Sheet1'!A1:B2");
+
+    const opts = { xlsx: true };
+    isFixed('=Jan:Dec!A1', "='Jan:Dec'!A1", opts);
+    isFixed('=[1]Sheet1:Sheet2!A1', "='[1]Sheet1:Sheet2'!A1", opts);
+    isFixed("='Sheet2:Sheet1'!B2:A1", "='Sheet2:Sheet1'!A1:B2", opts);
+  });
+
+  test('leaves cross-sheet ranges as two references', () => {
+    isFixed('=B!F2:B!F20', '=B!F2:B!F20');
+    isFixed('=Sheet1!A1:Sheet2!B2', '=Sheet1!A1:Sheet2!B2');
+  });
 });
 
 describe('fixRanges A1', () => {

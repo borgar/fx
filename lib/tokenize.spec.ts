@@ -2200,6 +2200,159 @@ describe('lexer', () => {
     });
   });
 
+  describe('3-D references', () => {
+    test('unquoted sheet ranges are a single reference', () => {
+      isTokens('=fool:bard!A1:B2', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'fool:bard!A1:B2' }
+      ]);
+      isTokens('=fool:bard!A1:B2', [
+        { type: FX_PREFIX, value: '=' },
+        { type: CONTEXT, value: 'fool:bard' },
+        { type: OPERATOR, value: '!' },
+        { type: REF_RANGE, value: 'A1' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_RANGE, value: 'B2' }
+      ], { mergeRefs: false });
+      isTokens('=Sheet1:Sheet2!name', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_NAMED, value: 'Sheet1:Sheet2!name' }
+      ]);
+    });
+
+    test('sheet names that are also column letters', () => {
+      // JAN and DEC are valid column letters, so "Jan:Dec" would otherwise lex as a beam
+      isTokens('=Jan:Dec!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'Jan:Dec!A1' }
+      ]);
+      isTokens('=A:C!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'A:C!A1' }
+      ]);
+      isTokens('=Jan:Dec!A:C', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_BEAM, value: 'Jan:Dec!A:C' }
+      ]);
+      // ... but without the "!" they are still beams
+      isTokens('=Jan:Dec', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_BEAM, value: 'Jan:Dec' }
+      ]);
+      isTokens('=A:C', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_BEAM, value: 'A:C' }
+      ]);
+    });
+
+    test('quoted sheet ranges', () => {
+      isTokens("='Sheet1:Sheet2'!A1:B2", [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: "'Sheet1:Sheet2'!A1:B2" }
+      ]);
+      isTokens("='Sheet 1:Sheet 2'!A1", [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: "'Sheet 1:Sheet 2'!A1" }
+      ]);
+      isTokens("='Sheet 1:Sheet 2'!A1", [
+        { type: FX_PREFIX, value: '=' },
+        { type: CONTEXT_QUOTE, value: "'Sheet 1:Sheet 2'" },
+        { type: OPERATOR, value: '!' },
+        { type: REF_RANGE, value: 'A1' }
+      ], { mergeRefs: false });
+    });
+
+    test('sheet ranges with a workbook', () => {
+      isTokens('=[Book.xlsx]Sheet1:Sheet2!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: '[Book.xlsx]Sheet1:Sheet2!A1' }
+      ]);
+      isTokens("='[Book.xlsx]Sheet 1:Sheet 2'!A1", [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: "'[Book.xlsx]Sheet 1:Sheet 2'!A1" }
+      ]);
+      expect(tokenizeXlsx('=[1]Sheet1:Sheet2!A1')).toEqual([
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: '[1]Sheet1:Sheet2!A1' }
+      ]);
+      expect(tokenizeXlsx("='[1]Sheet1:Sheet2'!A1")).toEqual([
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: "'[1]Sheet1:Sheet2'!A1" }
+      ]);
+    });
+
+    test('sheet ranges in R1C1 mode', () => {
+      isTokens('=Jan:Dec!R[1]C[1]', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'Jan:Dec!R[1]C[1]' }
+      ], { r1c1: true });
+      // C1 and C5 are valid R1C1 column parts, so "C1:C5" would otherwise lex as a beam
+      isTokens('=C1:C5!R1C1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'C1:C5!R1C1' }
+      ], { r1c1: true });
+      isTokens('=C1:C5', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_BEAM, value: 'C1:C5' }
+      ], { r1c1: true });
+    });
+
+    test('a cross-sheet range is still two references', () => {
+      isTokens('=B!F2:B!F20', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'B!F2' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_RANGE, value: 'B!F20' }
+      ]);
+      isTokens('=Sheet1!A1:Sheet2!B2', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'Sheet1!A1' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_RANGE, value: 'Sheet2!B2' }
+      ]);
+    });
+
+    test('a colon outside a sheet prefix is still a range operator', () => {
+      isTokens('=foo:B2', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_NAMED, value: 'foo' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_RANGE, value: 'B2' }
+      ]);
+      isTokens('=SUM(foo:B2)', [
+        { type: FX_PREFIX, value: '=' },
+        { type: FUNCTION, value: 'SUM' },
+        { type: OPERATOR, value: '(' },
+        { type: REF_NAMED, value: 'foo' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_RANGE, value: 'B2' },
+        { type: OPERATOR, value: ')' }
+      ]);
+    });
+
+    test('a sheet range has exactly two endpoints', () => {
+      // a second colon disqualifies the run as a context, as does a missing endpoint
+      isTokens('=a:b:c!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_BEAM, value: 'a:b' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_RANGE, value: 'c!A1' }
+      ]);
+      isTokens('=Sheet1:!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_NAMED, value: 'Sheet1' },
+        { type: OPERATOR, value: ':' },
+        { type: OPERATOR, value: '!' },
+        { type: REF_RANGE, value: 'A1' }
+      ]);
+      isTokens('=:Sheet1!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_RANGE, value: 'Sheet1!A1' }
+      ]);
+    });
+  });
+
   describe('Function name that looks like an A1 ref', () => {
     test('Function name that looks like an A1 ref', () => {
       expect(tokenize('LOG10(1)')).toEqual([
