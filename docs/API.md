@@ -229,6 +229,10 @@ B2:2 → B2:XFD2
 Structured ranges are normalized to have consistent order and capitalization
 of sections as well as removing redundant ones.
 
+The sheet range of a 3-D reference is left alone, so `Sheet2:Sheet1!B2:A1`
+becomes `Sheet2:Sheet1!A1:B2` and no further. Normalizing it would take the
+workbook's sheet names, in order, which a formula does not carry.
+
 Returns a new array of tokens with values and position data updated.
 
 ## Parameters
@@ -3028,6 +3032,10 @@ B2:2 → B2:XFD2
 
 Structured ranges are normalized to have consistent order and capitalization
 of sections as well as removing redundant ones.
+
+The sheet range of a 3-D reference is left alone, so `Sheet2:Sheet1!B2:A1`
+becomes `Sheet2:Sheet1!A1:B2` and no further. Normalizing it would take the
+workbook's sheet names, in order, which a formula does not carry.
 
 Returns a new array of tokens with values and position data updated.
 

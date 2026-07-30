@@ -15,11 +15,10 @@ import { stringifyTokens } from './stringifyTokens.ts';
 // needs to be flipped or not. The solution is to convert to A1 first:
 // translateToRC(fixRanges(translateToA1(...)))
 
-// The sheet range of a 3-D reference is left alone. Excel normalizes one three ways on entry —
-// ordering its two ends ("Mar:Jan" to "Jan:Mar"), collapsing a degenerate one ("Jan:Jan" to
-// "Jan"), and correcting the case of each end to the sheet's own — and every one of those needs
-// the workbook's sheet names, in order, which is not knowable from formula text. So
-// "Sheet2:Sheet1!B2:A1" is normalized to "Sheet2:Sheet1!A1:B2" and no further.
+// On the sheet range of a 3-D reference being left alone (see the fixTokenRanges docstring):
+// Excel normalizes one three ways on entry — ordering its two ends ("Mar:Jan" to "Jan:Mar"),
+// collapsing a degenerate one ("Jan:Jan" to "Jan"), and correcting the case of each end to the
+// sheet's own — and every one of those needs the workbook's sheet names, in order.
 
 /**
  * Options for {@link fixTokenRanges} and {@link fixFormulaRanges}.
@@ -66,6 +65,10 @@ export type OptsFixRanges = {
  *
  * Structured ranges are normalized to have consistent order and capitalization
  * of sections as well as removing redundant ones.
+ *
+ * The sheet range of a 3-D reference is left alone, so `Sheet2:Sheet1!B2:A1`
+ * becomes `Sheet2:Sheet1!A1:B2` and no further. Normalizing it would take the
+ * workbook's sheet names, in order, which a formula does not carry.
  *
  * Returns a new array of tokens with values and position data updated.
  *
@@ -152,6 +155,10 @@ export function fixTokenRanges (
  *
  * Structured ranges are normalized to have consistent order and capitalization
  * of sections as well as removing redundant ones.
+ *
+ * The sheet range of a 3-D reference is left alone, so `Sheet2:Sheet1!B2:A1`
+ * becomes `Sheet2:Sheet1!A1:B2` and no further. Normalizing it would take the
+ * workbook's sheet names, in order, which a formula does not carry.
  *
  * Returns a new array of tokens with values and position data updated.
  *
