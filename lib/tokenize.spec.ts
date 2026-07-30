@@ -2324,6 +2324,21 @@ describe('lexer', () => {
         { type: OPERATOR, value: '!' },
         { type: REF_RANGE, value: 'A1' }
       ], { mergeRefs: false });
+      // A workbook may only be named ahead of the whole prefix, so a quoted endpoint holding one
+      // is not an endpoint. Excel writes this when the far end of a sheet range names no sheet:
+      // it manufactures an external link for that name, leaving a reference to another workbook.
+      isTokens("=Jan:'[1]Nope'!A1", [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_NAMED, value: 'Jan' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_RANGE, value: "'[1]Nope'!A1" }
+      ]);
+      expect(tokenizeXlsx("=Jan:'[1]Nope'!A1")).toEqual([
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_NAMED, value: 'Jan' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_RANGE, value: "'[1]Nope'!A1" }
+      ]);
     });
 
     test('beams and quoted prefixes elsewhere are unaffected', () => {
