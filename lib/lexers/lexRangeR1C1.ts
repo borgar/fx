@@ -1,7 +1,7 @@
 import { REF_RANGE, REF_BEAM, REF_TERNARY, MAX_COLS, MAX_ROWS } from '../constants.ts';
 import type { Token } from '../types.ts';
 import { advRangeOp } from './advRangeOp.ts';
-import { canEndRange } from './canEndRange.ts';
+import { canEndRange, canEndBeam } from './canEndRange.ts';
 
 const BR_OPEN = 91; // [
 const BR_CLOSE = 93; // ]
@@ -128,11 +128,17 @@ export function lexRangeR1C1 (
         (c1 && c2 && !r1 && !r2) ||
         (!c1 && !c2 && r1 && r2)
       ) {
-        if (canEndRange(str, p)) {
+        if (canEndBeam(str, p)) {
           return { type: REF_BEAM, value: str.slice(pos, p) };
         }
       }
       // Note: we do not capture R1C1:R1C1, mergeRefTokens will join the parts
+
+      // "C1:C5!R1C1" is a 3-D reference to sheets named "C1" and "C5", not a beam followed by
+      // a stray "!" — leave the whole sheet range to the context lexer.
+      if ((r2 || c2) && str.charCodeAt(p) === EXCL) {
+        return;
+      }
     }
     // R1
     // C1

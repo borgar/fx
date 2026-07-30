@@ -1,7 +1,7 @@
 import { REF_RANGE, REF_BEAM, REF_TERNARY, MAX_COLS, MAX_ROWS } from '../constants.ts';
 import type { Token } from '../types.ts';
 import { advRangeOp } from './advRangeOp.ts';
-import { canEndRange, canEndPartialRange } from './canEndRange.ts';
+import { canEndRange, canEndBeam, canEndPartialRange } from './canEndRange.ts';
 
 function advA1Col (str: string, pos: number): number {
   // [A-Z]{1,3}
@@ -88,7 +88,7 @@ export function lexRangeA1 (
         }
       }
       else if (!top && !bottom) {
-        if (canEndRange(str, p)) {
+        if (canEndBeam(str, p)) {
           return { type: REF_BEAM, value: str.slice(pos, p) };
         }
       }
@@ -124,7 +124,7 @@ export function lexRangeA1 (
           }
         }
         if (!right && bottom) {
-          if (canEndRange(str, p)) {
+          if (canEndBeam(str, p)) {
             return { type: REF_BEAM, value: str.slice(pos, p) };
           }
         }

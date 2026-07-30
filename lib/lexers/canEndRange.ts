@@ -11,6 +11,13 @@ export function canEndRange (str: string, pos: number): boolean {
   );
 }
 
+// A beam may not end where a sheet prefix begins: the "Jan:Dec" of "Jan:Dec!A1"
+// is a sheet range (a 3-D reference), not a column beam. Excel forbids ":" in
+// sheet names, so a colon ahead of the "!" can only separate two sheet names.
+export function canEndBeam (str: string, pos: number): boolean {
+  return canEndRange(str, pos) && str.charCodeAt(pos) !== 33; // 33 = "!"
+}
+
 // partial: [A-Za-z0-9_($.]
 // Also rejects "!" — a ternary range must not end where a sheet prefix
 // begins (e.g. "F2:B" in "B!F2:B!F20" is not a ternary range; the
