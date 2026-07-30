@@ -30,7 +30,9 @@ describe('stringifyR1C1Ref', () => {
 
   test('3-D references', () => {
     testRef({ context: [ 'Jan:Dec' ], range: rangeA1 }, 'Jan:Dec!R[2]C[4]');
-    testRef({ context: [ 'Book.xlsx', 'Sheet1:Sheet2' ], range: rangeA1 }, '[Book.xlsx]Sheet1:Sheet2!R[2]C[4]');
+    // a workbook-qualified sheet range is always quoted, a single-sheet one is not
+    testRef({ context: [ 'Book.xlsx', 'Sheet1:Sheet2' ], range: rangeA1 }, "'[Book.xlsx]Sheet1:Sheet2'!R[2]C[4]");
+    testRef({ context: [ 'Book.xlsx', 'Sheet1' ], range: rangeA1 }, '[Book.xlsx]Sheet1!R[2]C[4]');
     testRef({ context: [ 'Sheet 1:Sheet 2' ], range: rangeA1 }, "'Sheet 1:Sheet 2'!R[2]C[4]");
     testRef({ context: [ 'Jan:Dec' ], name: 'foo' }, 'Jan:Dec!foo');
   });

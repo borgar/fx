@@ -82,20 +82,34 @@ describe('fixRanges prefixes', () => {
   test('quotes 3-D references per endpoint', () => {
     isFixed('=Jan:Dec!A1', '=Jan:Dec!A1');
     isFixed('=SUM(Sales:Marketing!B3)', '=SUM(Sales:Marketing!B3)');
+    isFixed('=SUM(Jan:Mar!A1)', '=SUM(Jan:Mar!A1)');
     isFixed('=fool:bard!B2:A1', '=fool:bard!A1:B2');
-    isFixed('=[Book.xlsx]Sheet1:Sheet2!A1', '=[Book.xlsx]Sheet1:Sheet2!A1');
     isFixed("='Jan:Dec'!A1", '=Jan:Dec!A1');
     isFixed("='Sheet 1:Sheet 2'!A1", "='Sheet 1:Sheet 2'!A1");
     isFixed("='Sheet1:Sheet 2'!A1", "='Sheet1:Sheet 2'!A1");
     // "C" on its own reads as an R1C1 column, so that endpoint forces the quotes
-    isFixed('=A:C!A1', "='A:C'!A1");
+    isFixed('=SUM(A:C!A1)', "=SUM('A:C'!A1)");
     isFixed('=A:B!A1', '=A:B!A1');
+  });
+
+  test('a workbook-qualified 3-D reference is always quoted', () => {
+    // Excel adds the quotes here even though neither sheet name calls for them, in contrast to
+    // a single-sheet external reference, which has needless quotes removed
+    isFixed('=SUM([Book.xlsx]S1:S3!A1)', "=SUM('[Book.xlsx]S1:S3'!A1)");
+    isFixed("=SUM('[Book.xlsx]S1:S3'!A1)", "=SUM('[Book.xlsx]S1:S3'!A1)");
+    isFixed("=SUM('[Book.xlsx]Sheet1'!A1)", '=SUM([Book.xlsx]Sheet1!A1)');
 
     const opts = { xlsx: true };
     isFixed('=Jan:Dec!A1', '=Jan:Dec!A1', opts);
-    isFixed('=[Book.xlsx]Sheet1:Sheet2!A1', '=[Book.xlsx]Sheet1:Sheet2!A1', opts);
-    // the workbook name forces quoting of the whole prefix, sheet range or not
+    isFixed('=[Book.xlsx]Sheet1:Sheet2!A1', "='[Book.xlsx]Sheet1:Sheet2'!A1", opts);
     isFixed('=[1]Sheet1:Sheet2!A1', "='[1]Sheet1:Sheet2'!A1", opts);
+    // the stored form in a saved xlsx holds the external-link index, never a path
+    isFixed("=SUM('[1]S1:S3'!A1)", "=SUM('[1]S1:S3'!A1)", opts);
+  });
+
+  test('a cell-shaped left side wins over a 3-D reference', () => {
+    isFixed('=SUM(A1:B2!C3)', "=SUM(A1:'B2'!C3)");
+    isFixed("=SUM('A1:B2'!C3)", "=SUM('A1:B2'!C3)");
   });
 
   test('leaves the sheet order of a 3-D reference alone', () => {

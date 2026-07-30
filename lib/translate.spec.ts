@@ -33,7 +33,8 @@ describe('translate absolute cells from A1 to RC', () => {
     okayRoundTrip('=SUM(Sales:Marketing!B3)', 'C3');
     okayRoundTrip('=Sheet1:Sheet2!A1:B2', 'C3');
     okayRoundTrip("=SUM('Sheet 1:Sheet 2'!A1:B2)", 'C3');
-    okayRoundTrip('=[Book.xlsx]Sheet1:Sheet2!A1', 'C3');
+    okayRoundTrip("=SUM('[Book.xlsx]S1:S3'!A1)", 'C3');
+    okayRoundTrip("=SUM('[1]S1:S3'!A1)", 'C3');
   });
 
   test('ternary ranges with allowTernary disabled', () => {

@@ -60,10 +60,19 @@ describe('stringifyA1Ref', () => {
     // "C" on its own reads as an R1C1 column, "B" does not
     expect(stringifyA1Ref({ context: [ 'A:C' ], range: rangeA1 })).toBe("'A:C'!A1");
     expect(stringifyA1Ref({ context: [ 'A:B' ], range: rangeA1 })).toBe('A:B!A1');
+  });
+
+  test('a workbook-qualified 3-D reference is always quoted', () => {
+    // Excel adds the quotes even though neither sheet name calls for them, in contrast to a
+    // single-sheet external reference, which has needless quotes removed
     expect(stringifyA1Ref({ context: [ 'Book.xlsx', 'Sheet1:Sheet2' ], range: rangeA1 }))
-      .toBe('[Book.xlsx]Sheet1:Sheet2!A1');
-    expect(stringifyA1Ref({ context: [ 'My Book.xlsx', 'Sheet1:Sheet2' ], range: rangeA1 }))
-      .toBe("'[My Book.xlsx]Sheet1:Sheet2'!A1");
+      .toBe("'[Book.xlsx]Sheet1:Sheet2'!A1");
+    expect(stringifyA1Ref({ context: [ 'Book.xlsx', 'Sheet1' ], range: rangeA1 }))
+      .toBe('[Book.xlsx]Sheet1!A1');
+    expect(stringifyA1Ref({ context: [ '/Docs/', 'Book.xlsx', 'S1:S3' ], range: rangeA1 }))
+      .toBe("'/Docs/[Book.xlsx]S1:S3'!A1");
+    expect(stringifyA1Ref({ context: [ 'Book.xlsx', 'Sheet1:Sheet2' ], name: 'foo' }))
+      .toBe("'[Book.xlsx]Sheet1:Sheet2'!foo");
   });
 
   test('only the sheet scope is split on ":"', () => {
@@ -123,14 +132,21 @@ describe('stringifyA1Ref in XLSX mode', () => {
     expect(stringifyA1RefXlsx({ sheetName: 'Sheet1:Sheet 2', range: rangeA1 })).toBe("'Sheet1:Sheet 2'!A1");
     expect(stringifyA1RefXlsx({ sheetName: '1:5', range: rangeA1 })).toBe("'1:5'!A1");
     expect(stringifyA1RefXlsx({ sheetName: 'A1:B2', range: rangeA1 })).toBe("'A1:B2'!A1");
-    expect(stringifyA1RefXlsx({ workbookName: 'Book.xlsx', sheetName: 'Sheet1:Sheet2', range: rangeA1 }))
-      .toBe('[Book.xlsx]Sheet1:Sheet2!A1');
-    // the workbook name forces quoting of the whole prefix, sheet range or not
-    expect(stringifyA1RefXlsx({ workbookName: '1', sheetName: 'Sheet1:Sheet2', range: rangeA1 }))
-      .toBe("'[1]Sheet1:Sheet2'!A1");
     // a workbook name is never split on ":" — only sheet names are
     expect(stringifyA1RefXlsx({ workbookName: 'a:b', sheetName: 'Sheet1', range: rangeA1 }))
       .toBe("'[a:b]Sheet1'!A1");
+  });
+
+  test('a workbook-qualified 3-D reference is always quoted', () => {
+    expect(stringifyA1RefXlsx({ workbookName: 'Book.xlsx', sheetName: 'Sheet1:Sheet2', range: rangeA1 }))
+      .toBe("'[Book.xlsx]Sheet1:Sheet2'!A1");
+    expect(stringifyA1RefXlsx({ workbookName: '1', sheetName: 'S1:S3', range: rangeA1 }))
+      .toBe("'[1]S1:S3'!A1");
+    expect(stringifyA1RefXlsx({ workbookName: '1', sheetName: 'S1:S3', name: 'foo' }))
+      .toBe("'[1]S1:S3'!foo");
+    // in contrast to a single-sheet external reference, which is left bare
+    expect(stringifyA1RefXlsx({ workbookName: 'Book.xlsx', sheetName: 'Sheet1', range: rangeA1 }))
+      .toBe('[Book.xlsx]Sheet1!A1');
   });
 
   test('digit-leading sheet and workbook names are quoted', () => {

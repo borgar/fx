@@ -109,6 +109,12 @@ There is no ambiguity to resolve here: `:` is one of the characters Excel forbid
 
 Because the colon separates two names rather than belonging to either, the quoting rules are applied to each endpoint on its own, and the whole prefix is quoted as one unit if either endpoint calls for it. So `=SUM(Sales:Marketing!B3)` needs no quotes, while `'Sheet1:Sheet 2'!A1` does — the same as Excel. Only the sheet scope is treated this way: a colon can reach a path scope on its own (a Windows drive letter) without dividing it into two names.
 
+There is one exception, which Excel applies and _Fx_ follows: a sheet range that a workbook or path qualifies is *always* quoted as a whole, whatever its endpoints look like. Excel normalizes `=SUM([Book.xlsx]S1:S3!A1)` to `=SUM('[Book.xlsx]S1:S3'!A1)` on entry. Note the asymmetry with a single sheet, where Excel instead *removes* the needless quotes: `'[Book.xlsx]Sheet1'!A1` becomes `[Book.xlsx]Sheet1!A1`.
+
 Note that a 3-D reference is not the same thing as a range whose two endpoints sit on different sheets (`Sheet1!A1:Sheet2!B2`). The two are told apart by where the `!` sits relative to the `:`, and only the former is a single reference.
+
+Where a sheet name is shaped like a cell address, the range operator wins and the colon is not read as a sheet-range separator: Excel reads `=SUM(A1:B2!C3)` as cell `A1` joined to `'B2'!C3` (yielding `#VALUE!`), and stores it that way. A column-shaped name does not lose out like this, so `=SUM(A:C!A1)` and `=SUM(Jan:Mar!A1)` are sheet ranges. To reference sheets named `A1` and `B2`, quote the prefix: `=SUM('A1:B2'!C3)`.
+
+A `$` may not appear on an unquoted sheet name. Excel refuses `=SUM($Jan:$Mar!A1)` on entry, and a file holding one does not open at all. `$` is a legal character in a sheet name, so the quoted spelling `'$Jan:$Mar'!A1` is a valid sheet range.
 
 _Fx_ does not reorder the endpoints of a sheet range. Whether `Sheet2:Sheet1` should be written `Sheet1:Sheet2` depends on the order the sheets appear in the workbook, which _Fx_ has no knowledge of.

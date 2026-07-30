@@ -267,7 +267,11 @@ describe('quote sheet prefix on RHS of range operator', () => {
 describe('translate 3-D references', () => {
   test('the sheet range is quoted only when an endpoint needs it', () => {
     isR2A('=Jan:Dec!R1C1', 'A1', '=Jan:Dec!$A$1');
-    isR2A('=[Book.xlsx]Sheet1:Sheet2!R1C1', 'A1', '=[Book.xlsx]Sheet1:Sheet2!$A$1');
+    // a workbook-qualified sheet range is always quoted, a single-sheet one is not
+    isR2A('=[Book.xlsx]S1:S3!R1C1', 'A1', "='[Book.xlsx]S1:S3'!$A$1");
+    isR2A('=[Book.xlsx]Sheet1!R1C1', 'A1', '=[Book.xlsx]Sheet1!$A$1');
+    // a cell-shaped left side is a range operator, and its right-hand prefix is always quoted
+    isR2A('=R1C1:B2!R3C3', 'A1', "=$A$1:'B2'!$C$3");
     // "C" on its own reads as an R1C1 column, so that endpoint forces the quotes
     isR2A('=A:C!R1C1', 'A1', "='A:C'!$A$1");
     isR2A("=SUM('Sheet 1:Sheet 2'!R1C1:R2C2)", 'A1', "=SUM('Sheet 1:Sheet 2'!$A$1:$B$2)");
