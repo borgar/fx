@@ -2446,6 +2446,20 @@ describe('lexer', () => {
         { type: OPERATOR, value: ':' },
         { type: REF_RANGE, value: 'Dec!R1C1' }
       ], { r1c1: true });
+      // a trim range operator's "." counts towards the near end's name, as it does in A1, where
+      // "=A.:Dec!C3" is likewise a sheet range
+      isTokens('=C1.:Dec!R1C1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'C1.:Dec!R1C1' }
+      ], { r1c1: true });
+      // ... while a missing far end names no second sheet
+      isTokens('=C1:!R1C1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_BEAM, value: 'C1' },
+        { type: OPERATOR, value: ':' },
+        { type: OPERATOR, value: '!' },
+        { type: REF_RANGE, value: 'R1C1' }
+      ], { r1c1: true });
       // ... but with no sheet prefix behind it, the near end is still a beam of its own
       isTokens('=C1:Dec', [
         { type: FX_PREFIX, value: '=' },
