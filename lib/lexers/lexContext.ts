@@ -71,7 +71,7 @@ function endsAWholeRange (str: string, start: number, pos: number, options: LexC
   return !!range && range.value.length === pos - start;
 }
 
-type LexContextOptions = {
+export type LexContextOptions = {
   xlsx: boolean,
   allowTernary?: boolean,
   mergeRefs?: boolean,

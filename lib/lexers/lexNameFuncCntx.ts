@@ -1,7 +1,7 @@
 import { CONTEXT, FUNCTION, REF_NAMED, UNKNOWN } from '../constants.ts';
 import type { Token } from '../types.ts';
 import { advSheetName } from './advSheetName.ts';
-import { lexContextUnquoted } from './lexContext.ts';
+import { lexContextUnquoted, type LexContextOptions } from './lexContext.ts';
 
 const BR_OPEN = 91; // [
 const PAREN_OPEN = 40;
@@ -63,7 +63,7 @@ function nameOrUnknown (str, s, start, pos, name) {
 export function lexNameFuncCntx (
   str: string,
   pos: number,
-  opts: { xlsx: boolean }
+  opts: LexContextOptions
 ): Token | undefined {
   const start = pos;
 
