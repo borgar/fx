@@ -117,9 +117,10 @@ export function lexContextUnquoted (str: string, pos: number, options: LexContex
       }
       else if (c === COLON && (br1 == null || br2 != null)) {
         // ":" joins the two names, but "$" is not admitted alongside it: Excel refuses
-        // "$Jan:$Mar!A1" on entry, and a file holding one does not open at all
-        // only 1 allowed, and the near end must be a name: the sheet begins after the workbook
-        // brackets when there are any, so "[Book.xlsx]:Sheet2!A1" names no first sheet
+        // "$Jan:$Mar!A1" on entry, and a file holding one does not open at all.
+        //
+        // Only one ":" is allowed, and the near end must be a name: the sheet begins after the
+        // workbook brackets when there are any, so "[Book.xlsx]:Sheet2!A1" names no first sheet.
         if (colon || pos === (br2 == null ? start : br2 + 1)) { return; }
         if (endsAWholeRange(str, start, pos, options)) { return; }
         colon = pos;
