@@ -8,6 +8,12 @@
 // two sheet names, unless what precedes it is shaped like a cell address, in which case the
 // reference on the right keeps the sheet prefix ("=SUM(A1:B2!C3)" is stored as
 // "=SUM(A1:'B2'!C3)" and evaluates to #VALUE!).
+//
+// The "'" is refused whether or not a prefix does follow it, which is wider than the rule needs
+// and is meant to stay that way: an unfinished "=A1'" degrades to a single UNKNOWN token rather
+// than a range and a stray quote. Narrowing it would buy a lookahead to the closing quote and
+// nothing else, since no valid formula puts a quote straight after a range, and the half-typed
+// spelling that does matter, "=A1:'Sheet 2'!B2", reaches its range through the colon instead.
 export function canEndRange (str: string, pos: number): boolean {
   const c = str.charCodeAt(pos);
   return !(

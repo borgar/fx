@@ -2356,6 +2356,28 @@ describe('lexer', () => {
       ]);
     });
 
+    test('a quote straight after a range takes the range down with it', () => {
+      // canEndRange refuses "'" whether or not a sheet prefix follows, which is wider than the
+      // rule needs. No valid formula spells these, and the half-typed one that matters,
+      // "=A1:'Sheet 2'!B2", reaches its range through the colon, so the width is deliberate.
+      isTokens("=A1'", [
+        { type: FX_PREFIX, value: '=' },
+        { type: UNKNOWN, value: "A1'" }
+      ]);
+      isTokens("=A1:B2'", [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'A1' },
+        { type: OPERATOR, value: ':' },
+        { type: UNKNOWN, value: "B2'" }
+      ]);
+      isTokens("=A1:'Sheet 2'!B2", [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'A1' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_RANGE, value: "'Sheet 2'!B2" }
+      ]);
+    });
+
     test('sheet ranges in R1C1 mode', () => {
       isTokens('=Jan:Dec!R[1]C[1]', [
         { type: FX_PREFIX, value: '=' },
