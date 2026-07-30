@@ -140,4 +140,4 @@ Excel normalizes a sheet range three ways on entry, none of which _Fx_ does:
 * **Degenerate ranges.** `=SUM(Jan:Jan!A1)` collapses to `=SUM(Jan!A1)`.
 * **Case.** `jan:mar` is corrected to `Jan:Mar`, matching the actual sheet names.
 
-Each of the three needs the workbook's list of sheets — to know which end comes first, whether the two ends are the same sheet, and how each is really spelled. _Fx_ works on formula text alone and has none of that, so it leaves all three alone. The un-normalized spellings are valid input; `fixFormulaRanges` will normalize the range of a 3-D reference but never its sheet range, so `Sheet2:Sheet1!B2:A1` becomes `Sheet2:Sheet1!A1:B2` and no further.
+Each of the three needs the workbook's sheet names, in order — to know which end comes first, whether the two ends are the same sheet, and how each is really spelled. _Fx_ works on formula text alone and has none of that, so it leaves all three alone. The un-normalized spellings are valid input; `fixFormulaRanges` will normalize the range of a 3-D reference but never its sheet range, so `Sheet2:Sheet1!B2:A1` becomes `Sheet2:Sheet1!A1:B2` and no further.
