@@ -1,6 +1,7 @@
 import { CONTEXT, FUNCTION, REF_NAMED, UNKNOWN } from '../constants.ts';
 import type { Token } from '../types.ts';
-import { advSheetName, lexContextUnquoted } from './lexContext.ts';
+import { advSheetName } from './advSheetName.ts';
+import { lexContextUnquoted } from './lexContext.ts';
 
 const BR_OPEN = 91; // [
 const PAREN_OPEN = 40;
