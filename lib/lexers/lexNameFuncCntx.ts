@@ -27,8 +27,11 @@ for (let c = OFFS; c < 180; c++) {
   const nN = /^[a-zA-Z0-9_.\\?\u00a1-\uffff]$/.test(char);
   const fN = /^[a-zA-Z0-9_.]$/.test(char);
   const cX = /^[a-zA-Z0-9_.¡¤§¨ª\u00ad¯-\uffff]$/.test(char);
-  // ":" may only occur inside a context, as the separator of a sheet range
+  // ":" is a context character, but only past the first one, as the separator of a sheet range
   // (`Sheet1:Sheet2!A1`, a 3-D reference). See the COLON handling below.
+  // (":" can also occur after a Windows drive letter prefix in a path context, but this table
+  // lexes unquoted contexts alone, and a path cannot be one because "\" and "/" are not context
+  // characters, so a colon arriving here is never a Windows drive letter.)
   const cN = cX || c === COLON;
   ALLOWED[c - OFFS] = (
     (n0 ? OK_NAME_0 : 0) |
