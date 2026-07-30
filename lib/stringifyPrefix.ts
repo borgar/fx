@@ -33,6 +33,28 @@ export function needQuotes (scope: string, yesItDoes = 0): number {
   return 0;
 }
 
+// A sheet scope may hold a sheet range ("Sheet1:Sheet2", a 3-D reference). Excel forbids ":" in
+// sheet names, so a colon here can only be separating two of them, and each is tested on its own:
+// "Jan:Dec!A1" stays bare, "Sheet1:Sheet 2" is quoted as a whole because one endpoint needs it.
+// Only the sheet slot may be split this way — a path scope can hold a colon of its own (a Windows
+// drive letter) which does not divide it into two names.
+export function needQuotesSheet (scope: string, yesItDoes = 0): number {
+  if (yesItDoes) {
+    return 1;
+  }
+  const colon = scope ? scope.indexOf(':') : -1;
+  if (colon < 0) {
+    return needQuotes(scope);
+  }
+  const from = scope.slice(0, colon);
+  const to = scope.slice(colon + 1);
+  if (!from || !to || to.includes(':')) {
+    // not a sheet range at all; quote it so that it survives a round trip
+    return 1;
+  }
+  return needQuotes(from) || needQuotes(to);
+}
+
 export function quotePrefix (prefix) {
   return "'" + prefix.replace(/'/g, "''") + "'";
 }
@@ -49,7 +71,8 @@ export function stringifyPrefix (
     if (scope) {
       const part = (nth % 2) ? '[' + scope + ']' : scope;
       pre = part + pre;
-      quote += needQuotes(scope, quote);
+      // the last scope is the sheet, and only it may hold a sheet range
+      quote += nth ? needQuotes(scope, quote) : needQuotesSheet(scope, quote);
       nth++;
     }
   }
@@ -71,7 +94,7 @@ export function stringifyPrefixXlsx (
   }
   if (sheetName) {
     pre += sheetName;
-    quote += needQuotes(sheetName);
+    quote += needQuotesSheet(sheetName);
   }
   if (quote) {
     pre = quotePrefix(pre);

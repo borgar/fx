@@ -49,12 +49,28 @@ describe('stringifyA1Ref', () => {
     expect(stringifyA1Ref({ context: [ 'Foo12345' ], range: rangeA1 })).toBe("'Foo12345'!A1");
   });
 
-  test('3-D references are quoted because ":" is banned in sheet names', () => {
-    expect(stringifyA1Ref({ context: [ 'Jan:Dec' ], range: rangeA1 })).toBe("'Jan:Dec'!A1");
+  test('3-D references are quoted per endpoint', () => {
+    expect(stringifyA1Ref({ context: [ 'Jan:Dec' ], range: rangeA1 })).toBe('Jan:Dec!A1');
+    expect(stringifyA1Ref({ context: [ 'Sales:Marketing' ], name: 'foo' })).toBe('Sales:Marketing!foo');
     expect(stringifyA1Ref({ context: [ 'Sheet 1:Sheet 2' ], range: rangeA1 })).toBe("'Sheet 1:Sheet 2'!A1");
+    expect(stringifyA1Ref({ context: [ 'Sheet1:Sheet 2' ], range: rangeA1 })).toBe("'Sheet1:Sheet 2'!A1");
+    expect(stringifyA1Ref({ context: [ 'Sheet 1:Sheet2' ], range: rangeA1 })).toBe("'Sheet 1:Sheet2'!A1");
+    expect(stringifyA1Ref({ context: [ '1:5' ], range: rangeA1 })).toBe("'1:5'!A1");
+    expect(stringifyA1Ref({ context: [ 'A1:B2' ], range: rangeA1 })).toBe("'A1:B2'!A1");
+    // "C" on its own reads as an R1C1 column, "B" does not
+    expect(stringifyA1Ref({ context: [ 'A:C' ], range: rangeA1 })).toBe("'A:C'!A1");
+    expect(stringifyA1Ref({ context: [ 'A:B' ], range: rangeA1 })).toBe('A:B!A1');
     expect(stringifyA1Ref({ context: [ 'Book.xlsx', 'Sheet1:Sheet2' ], range: rangeA1 }))
-      .toBe("'[Book.xlsx]Sheet1:Sheet2'!A1");
-    expect(stringifyA1Ref({ context: [ 'Jan:Dec' ], name: 'foo' })).toBe("'Jan:Dec'!foo");
+      .toBe('[Book.xlsx]Sheet1:Sheet2!A1');
+    expect(stringifyA1Ref({ context: [ 'My Book.xlsx', 'Sheet1:Sheet2' ], range: rangeA1 }))
+      .toBe("'[My Book.xlsx]Sheet1:Sheet2'!A1");
+  });
+
+  test('only the sheet scope is split on ":"', () => {
+    // a colon can reach a path scope on its own (a Windows drive letter) without dividing it
+    // into two sheet names, so only the last scope is treated as a possible sheet range
+    expect(stringifyA1Ref({ context: [ 'a:b', 'Book.xlsx', 'Sheet1' ], range: rangeA1 }))
+      .toBe("'a:b[Book.xlsx]Sheet1'!A1");
   });
 });
 
@@ -100,11 +116,21 @@ describe('stringifyA1Ref in XLSX mode', () => {
     expect(stringifyA1RefXlsx({ workbookName: 'Foo12345', range: rangeA1 })).toBe("'[Foo12345]'!A1");
   });
 
-  test('3-D references are quoted because ":" is banned in sheet names', () => {
-    expect(stringifyA1RefXlsx({ sheetName: 'Jan:Dec', range: rangeA1 })).toBe("'Jan:Dec'!A1");
+  test('3-D references are quoted per endpoint', () => {
+    expect(stringifyA1RefXlsx({ sheetName: 'Jan:Dec', range: rangeA1 })).toBe('Jan:Dec!A1');
+    expect(stringifyA1RefXlsx({ sheetName: 'Jan:Dec', name: 'foo' })).toBe('Jan:Dec!foo');
+    expect(stringifyA1RefXlsx({ sheetName: 'Sheet 1:Sheet 2', range: rangeA1 })).toBe("'Sheet 1:Sheet 2'!A1");
+    expect(stringifyA1RefXlsx({ sheetName: 'Sheet1:Sheet 2', range: rangeA1 })).toBe("'Sheet1:Sheet 2'!A1");
+    expect(stringifyA1RefXlsx({ sheetName: '1:5', range: rangeA1 })).toBe("'1:5'!A1");
+    expect(stringifyA1RefXlsx({ sheetName: 'A1:B2', range: rangeA1 })).toBe("'A1:B2'!A1");
+    expect(stringifyA1RefXlsx({ workbookName: 'Book.xlsx', sheetName: 'Sheet1:Sheet2', range: rangeA1 }))
+      .toBe('[Book.xlsx]Sheet1:Sheet2!A1');
+    // the workbook name forces quoting of the whole prefix, sheet range or not
     expect(stringifyA1RefXlsx({ workbookName: '1', sheetName: 'Sheet1:Sheet2', range: rangeA1 }))
       .toBe("'[1]Sheet1:Sheet2'!A1");
-    expect(stringifyA1RefXlsx({ sheetName: 'Jan:Dec', name: 'foo' })).toBe("'Jan:Dec'!foo");
+    // a workbook name is never split on ":" — only sheet names are
+    expect(stringifyA1RefXlsx({ workbookName: 'a:b', sheetName: 'Sheet1', range: rangeA1 }))
+      .toBe("'[a:b]Sheet1'!A1");
   });
 
   test('digit-leading sheet and workbook names are quoted', () => {

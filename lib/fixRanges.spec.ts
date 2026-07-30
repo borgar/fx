@@ -79,19 +79,29 @@ describe('fixRanges prefixes', () => {
     isFixed('=CR!B2', '=CR!B2');
   });
 
-  test('quotes 3-D references and leaves the sheet order alone', () => {
-    isFixed('=Jan:Dec!A1', "='Jan:Dec'!A1");
-    isFixed('=fool:bard!B2:A1', "='fool:bard'!A1:B2");
-    isFixed('=A:C!A1', "='A:C'!A1");
-    isFixed('=[Book.xlsx]Sheet1:Sheet2!A1', "='[Book.xlsx]Sheet1:Sheet2'!A1");
+  test('quotes 3-D references per endpoint', () => {
+    isFixed('=Jan:Dec!A1', '=Jan:Dec!A1');
+    isFixed('=SUM(Sales:Marketing!B3)', '=SUM(Sales:Marketing!B3)');
+    isFixed('=fool:bard!B2:A1', '=fool:bard!A1:B2');
+    isFixed('=[Book.xlsx]Sheet1:Sheet2!A1', '=[Book.xlsx]Sheet1:Sheet2!A1');
+    isFixed("='Jan:Dec'!A1", '=Jan:Dec!A1');
     isFixed("='Sheet 1:Sheet 2'!A1", "='Sheet 1:Sheet 2'!A1");
-    // the range is normalized, the sheet range is not: fx does not know the workbook's sheet order
-    isFixed("='Sheet2:Sheet1'!B2:A1", "='Sheet2:Sheet1'!A1:B2");
+    isFixed("='Sheet1:Sheet 2'!A1", "='Sheet1:Sheet 2'!A1");
+    // "C" on its own reads as an R1C1 column, so that endpoint forces the quotes
+    isFixed('=A:C!A1', "='A:C'!A1");
+    isFixed('=A:B!A1', '=A:B!A1');
 
     const opts = { xlsx: true };
-    isFixed('=Jan:Dec!A1', "='Jan:Dec'!A1", opts);
+    isFixed('=Jan:Dec!A1', '=Jan:Dec!A1', opts);
+    isFixed('=[Book.xlsx]Sheet1:Sheet2!A1', '=[Book.xlsx]Sheet1:Sheet2!A1', opts);
+    // the workbook name forces quoting of the whole prefix, sheet range or not
     isFixed('=[1]Sheet1:Sheet2!A1', "='[1]Sheet1:Sheet2'!A1", opts);
-    isFixed("='Sheet2:Sheet1'!B2:A1", "='Sheet2:Sheet1'!A1:B2", opts);
+  });
+
+  test('leaves the sheet order of a 3-D reference alone', () => {
+    // the range is normalized, the sheet range is not: fx does not know the workbook's sheet order
+    isFixed('=Sheet2:Sheet1!B2:A1', '=Sheet2:Sheet1!A1:B2');
+    isFixed('=Sheet2:Sheet1!B2:A1', '=Sheet2:Sheet1!A1:B2', { xlsx: true });
   });
 
   test('leaves cross-sheet ranges as two references', () => {

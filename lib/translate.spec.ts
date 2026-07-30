@@ -29,10 +29,11 @@ describe('translate absolute cells from A1 to RC', () => {
   });
 
   test('3-D references', () => {
-    okayRoundTrip("='Jan:Dec'!A1", 'C3');
-    okayRoundTrip("='Sheet1:Sheet2'!A1:B2", 'C3');
+    okayRoundTrip('=Jan:Dec!A1', 'C3');
+    okayRoundTrip('=SUM(Sales:Marketing!B3)', 'C3');
+    okayRoundTrip('=Sheet1:Sheet2!A1:B2', 'C3');
     okayRoundTrip("=SUM('Sheet 1:Sheet 2'!A1:B2)", 'C3');
-    okayRoundTrip("='[Book.xlsx]Sheet1:Sheet2'!A1", 'C3');
+    okayRoundTrip('=[Book.xlsx]Sheet1:Sheet2!A1', 'C3');
   });
 
   test('ternary ranges with allowTernary disabled', () => {

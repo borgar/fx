@@ -105,7 +105,9 @@ parseA1Ref('[1]Sheet1:Sheet2!A1', { xlsx: true });
 */
 ```
 
-There is no ambiguity to resolve here: `:` is one of the characters Excel forbids in a sheet name, so a colon ahead of the `!` can only be separating two sheet names. It does mean that _Fx_ always quotes the prefix on output, as it does for any other scope containing a banned character.
+There is no ambiguity to resolve here: `:` is one of the characters Excel forbids in a sheet name, so a colon ahead of the `!` can only be separating two sheet names.
+
+Because the colon separates two names rather than belonging to either, the quoting rules are applied to each endpoint on its own, and the whole prefix is quoted as one unit if either endpoint calls for it. So `=SUM(Sales:Marketing!B3)` needs no quotes, while `'Sheet1:Sheet 2'!A1` does — the same as Excel. Only the sheet scope is treated this way: a colon can reach a path scope on its own (a Windows drive letter) without dividing it into two names.
 
 Note that a 3-D reference is not the same thing as a range whose two endpoints sit on different sheets (`Sheet1!A1:Sheet2!B2`). The two are told apart by where the `!` sits relative to the `:`, and only the former is a single reference.
 
