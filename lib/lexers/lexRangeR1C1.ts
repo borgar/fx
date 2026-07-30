@@ -145,8 +145,10 @@ export function lexRangeR1C1 (
       // even unquoted ("C1:'Dec'!R1C1"), and measuring it as a name is what settles it. Measuring
       // it as an R1C1 part instead only ever reaches further where the part holds brackets, which
       // no sheet name may, so "C1:R[1]C[1]!R1C1" names no second sheet and its near end stays a
-      // beam of its own.
-      if (!(r1 && c1)) {
+      // beam of its own. The near end has to clear the same bar, and lexR1C1Part will have taken
+      // brackets there too: "R[1]:Dec!R1C1" names no first sheet, so it is a range operation
+      // whatever follows the colon.
+      if (!(r1 && c1) && advSheetName(str, pos) >= preOp - pos) {
         const len = advSheetName(str, preOp + op);
         if (len && str.charCodeAt(preOp + op + len) === EXCL) {
           return;

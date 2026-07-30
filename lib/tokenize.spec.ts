@@ -2439,6 +2439,13 @@ describe('lexer', () => {
         { type: OPERATOR, value: '!' },
         { type: REF_RANGE, value: 'R1C1' }
       ], { r1c1: true });
+      // ... and a bracket on the near end rules a sheet range out just the same
+      isTokens('=R[1]:Dec!R1C1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_BEAM, value: 'R[1]' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_RANGE, value: 'Dec!R1C1' }
+      ], { r1c1: true });
       // ... but with no sheet prefix behind it, the near end is still a beam of its own
       isTokens('=C1:Dec', [
         { type: FX_PREFIX, value: '=' },
