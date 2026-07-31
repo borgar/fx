@@ -112,9 +112,11 @@ export function stringifyPrefix (
     }
   }
   if (sheetRange && nth > 1) {
-    // Excel always quotes a sheet range that a workbook or path qualifies, even when neither end
-    // needs it: "[Book.xlsx]S1:S3!A1" is stored as "'[Book.xlsx]S1:S3'!A1". Note the asymmetry
-    // with a single sheet, where such quotes are instead removed.
+    // Excel quotes a sheet range that a workbook or path qualifies as a whole on entry, even when
+    // neither end needs it: "[Book.xlsx]S1:S3!A1" comes back as "'[Book.xlsx]S1:S3'!A1". Note the
+    // asymmetry with a single sheet, where such quotes are instead removed. This binds the writer
+    // only: a stored formula Excel never took from the formula bar may hold the bare spelling,
+    // "[1]One:Three!A1", which is read here as the same sheet range.
     quote = 1;
   }
   if (quote) {
@@ -138,7 +140,7 @@ export function stringifyPrefixXlsx (
     pre += sheetName;
     quote += needQuotesSheet(sheetName, 0, r1c1);
     if (workbookName && splitSheetRange(sheetName)) {
-      // see stringifyPrefix: a workbook-qualified sheet range is always quoted
+      // see stringifyPrefix: a workbook-qualified sheet range is written quoted as a whole
       quote = 1;
     }
   }
