@@ -1288,6 +1288,29 @@ describe('lexer', () => {
         { type: REF_RANGE, value: 'A1' }
       ], { mergeRefs: false });
 
+      // A bracketed workbook name reaches the same allow-mask, so a non-ASCII character in either
+      // part of the prefix has to stop at the "!" like an ASCII one.
+      isTokens('=[æði]æði!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: '[æði]æði!A1' }
+      ]);
+      isTokens('=[æði]æði!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: CONTEXT, value: '[æði]æði' },
+        { type: OPERATOR, value: '!' },
+        { type: REF_RANGE, value: 'A1' }
+      ], { mergeRefs: false });
+      isTokens('=[fræði]fræði!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: '[fræði]fræði!A1' }
+      ]);
+      isTokens('=[fræði]fræði!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: CONTEXT, value: '[fræði]fræði' },
+        { type: OPERATOR, value: '!' },
+        { type: REF_RANGE, value: 'A1' }
+      ], { mergeRefs: false });
+
       isTokens("='[filename]Sheets'' name'!A1:B2", [
         { type: FX_PREFIX, value: '=' },
         { type: REF_RANGE, value: "'[filename]Sheets'' name'!A1:B2" }
