@@ -72,21 +72,29 @@ export function isCellShape (name: string, r1c1: boolean): boolean {
   return (r1c1 ? reIsCellR1C1 : reIsCellA1).test(name);
 }
 
-// Does the sheet range of a 3-D reference start here — a sheet name, a ":", a second sheet name,
-// and the "!" that closes every prefix? Both ends are measured as names, so neither has to be a
-// reference part ("C1:Dec!R1C1") and either may be quoted on its own ("C1:'Dec'!R1C1").
+// Does a sheet prefix start here — a sheet name, or the two of a sheet range joined by a ":", and
+// then the "!" that closes every prefix? Each name is measured as a name, so it does not have to
+// be a reference part ("C1:Dec!R1C1") and either end may be quoted on its own ("C1:'Dec'!R1C1").
 //
-// The near end has to be a name in full. A range lexer stops wherever its own grammar runs out,
-// which can be part-way through a sheet name: the "a1" of "a1.b:Dec!A1" is no more a cell address
-// than the whole "a1.b" is, and "." is the one character a sheet name may hold that a range is
-// also allowed to end on. Measuring the name as far as the colon is what tells the two apart.
+// Each name has to be one in full. A range lexer, or a range operator, stops wherever its own
+// grammar runs out, which can be part-way through a sheet name: the "a1" of "a1.b!A1" is no more
+// a cell address than the whole "a1.b" is, and "." is the one character a sheet name may hold
+// that a range is also allowed to end on. Measuring the name to the "!" or the ":" tells the two
+// apart, and is why a lone name counts here and not only a range of two.
 //
 // A near end that is a whole name and cell-shaped keeps the colon for the range operator, and the
 // notation being read decides which shapes those are: "A1:B2!C3" is cell A1 joined to 'B2'!C3 in
-// A1 notation, while "A1:B2!R3C3" is a sheet range in R1C1, where "A1" addresses nothing.
-export function startsSheetRange (str: string, pos: number, r1c1: boolean): boolean {
+// A1 notation, while "A1:B2!R3C3" is a sheet range in R1C1, where "A1" addresses nothing. A lone
+// name needs no such test — a range lexer can never take one whole, "!" being no range character.
+export function startsSheetPrefix (str: string, pos: number, r1c1: boolean): boolean {
   const near = advSheetName(str, pos);
-  if (!near || str.charCodeAt(pos + near) !== COLON) {
+  if (!near) {
+    return false;
+  }
+  if (str.charCodeAt(pos + near) === EXCL) {
+    return true;
+  }
+  if (str.charCodeAt(pos + near) !== COLON) {
     return false;
   }
   const far = advSheetName(str, pos + near + 1);

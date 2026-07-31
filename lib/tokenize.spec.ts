@@ -1176,6 +1176,25 @@ describe('lexer', () => {
       ]);
     });
 
+    test('a sheet name holding a "." is not a range and a stray dot', () => {
+      // "." is the one character a sheet name may hold that a range is also allowed to end on, so
+      // a range lexer would otherwise stop part-way through one: the "v1" of "v1.0" is no cell
+      isTokens('=v1.0!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: CONTEXT, value: 'v1.0' },
+        { type: OPERATOR, value: '!' },
+        { type: REF_RANGE, value: 'A1' }
+      ], { mergeRefs: false });
+      isTokens('=a1.b!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'a1.b!A1' }
+      ]);
+      isTokens('=C.!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'C.!A1' }
+      ]);
+    });
+
     test('quoted sheet names', () => {
       isTokens("='Sheets'' name'!A1:B2", [
         { type: FX_PREFIX, value: '=' },
