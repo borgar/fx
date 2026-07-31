@@ -68,7 +68,7 @@ function endsAWholeRange (str: string, start: number, pos: number, options: LexC
     mergeRefs: !!options.mergeRefs,
     r1c1: !!options.r1c1
   });
-  return !!range && range.value.length === pos - start;
+  return !!range && range.value.length >= pos - start;
 }
 
 export type LexContextOptions = {

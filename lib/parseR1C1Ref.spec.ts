@@ -186,6 +186,10 @@ describe('parse joined R1C1 references', () => {
     isRCEqual('R1C1:B2!R3C3', undefined);
     isRCEqual('R1C1:R2C2!R3C3', undefined);
     isRCEqual('RC:R2C2!R3C3', undefined);
+    // ... and it still wins where the far end's name reaches past what a ternary range can take,
+    // which only a "." lets it do
+    isRCEqual('R1C1:C5.b!R1C1', undefined, { allowTernary: true });
+    isRCEqual('RC:R.b!R1C1', undefined, { allowTernary: true });
     // ... and only the quoted spelling makes such a pair a sheet range
     isRCEqual("'R1C1:R2C2'!R3C3", {
       context: [ 'R1C1:R2C2' ],
