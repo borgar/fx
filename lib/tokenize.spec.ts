@@ -2727,6 +2727,34 @@ describe('lexer', () => {
         { type: REF_RANGE, value: 'baz1!A1' }
       ]);
     });
+
+    test('a sheet named "." keeps the colon of its sheet range', () => {
+      // "." heads the trim range operators, which run ahead of every other lexer, so a sheet
+      // range whose near end is a lone "." has to be let past them as it is past the range lexers
+      isTokens('=.:Dec!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: '.:Dec!A1' }
+      ]);
+      isTokens('=.:.!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: CONTEXT, value: '.:.' },
+        { type: OPERATOR, value: '!' },
+        { type: REF_RANGE, value: 'A1' }
+      ], { mergeRefs: false });
+      // ... while a trim operator with a range on its left is untouched
+      isTokens('=A1.:B2', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'A1' },
+        { type: OPERATOR, value: '.:' },
+        { type: REF_RANGE, value: 'B2' }
+      ], { mergeRefs: false });
+      isTokens('=A1:.B2', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'A1' },
+        { type: OPERATOR, value: ':.' },
+        { type: REF_RANGE, value: 'B2' }
+      ], { mergeRefs: false });
+    });
   });
 
   describe('Function name that looks like an A1 ref', () => {
