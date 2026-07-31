@@ -49,6 +49,17 @@ describe('stringifyA1Ref', () => {
     expect(stringifyA1Ref({ context: [ 'Foo12345' ], range: rangeA1 })).toBe("'Foo12345'!A1");
   });
 
+  test('should quote prefixes that read as booleans', () => {
+    // bare "TRUE!A1" lexes as the boolean joined to a reference, so the name needs its quotes as
+    // much as a range-like one does, at either end of a sheet range as well as on its own
+    expect(stringifyA1Ref({ context: [ 'TRUE' ], range: rangeA1 })).toBe("'TRUE'!A1");
+    expect(stringifyA1Ref({ context: [ 'False' ], range: rangeA1 })).toBe("'False'!A1");
+    expect(stringifyA1Ref({ context: [ 'False:Jan' ], range: rangeA1 })).toBe("'False:Jan'!A1");
+    expect(stringifyA1Ref({ context: [ 'Jan:true' ], range: rangeA1 })).toBe("'Jan:true'!A1");
+    // ... while a name that merely starts with one is no boolean
+    expect(stringifyA1Ref({ context: [ 'Truer' ], range: rangeA1 })).toBe('Truer!A1');
+  });
+
   test('3-D references are quoted per endpoint', () => {
     expect(stringifyA1Ref({ context: [ 'Jan:Dec' ], range: rangeA1 })).toBe('Jan:Dec!A1');
     expect(stringifyA1Ref({ context: [ 'Sales:Marketing' ], name: 'foo' })).toBe('Sales:Marketing!foo');
@@ -152,6 +163,12 @@ describe('stringifyA1Ref in XLSX mode', () => {
     // in contrast to a single-sheet external reference, which is left bare
     expect(stringifyA1RefXlsx({ workbookName: 'Book.xlsx', sheetName: 'Sheet1', range: rangeA1 }))
       .toBe('[Book.xlsx]Sheet1!A1');
+  });
+
+  test('sheet names that read as booleans are quoted', () => {
+    expect(stringifyA1RefXlsx({ sheetName: 'TRUE', range: rangeA1 })).toBe("'TRUE'!A1");
+    expect(stringifyA1RefXlsx({ sheetName: 'False:Jan', range: rangeA1 })).toBe("'False:Jan'!A1");
+    expect(stringifyA1RefXlsx({ workbookName: 'TRUE', range: rangeA1 })).toBe("'[TRUE]'!A1");
   });
 
   test('digit-leading sheet and workbook names are quoted', () => {
