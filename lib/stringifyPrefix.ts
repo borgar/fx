@@ -9,24 +9,21 @@ import type {
   ReferenceNameXlsx
 } from './types.ts';
 import { splitSheetRange } from './splitSheetRange.ts';
+import { isCellShape } from './lexers/advSheetName.ts';
 
 const reBannedChars = /[^0-9A-Za-z._¡¤§¨ª\u00ad¯-\uffff]/;
 // A1-XFD1048575 | R | C | RC
 const reIsRangelike = /^(R|C|RC|[A-Z]{1,3}\d{1,7})$/i;
-// R1C1, RC1, R1C, RC — the cell shapes of the R1C1 notation. The bracketed forms ("R[1]C[1]")
-// need no test of their own: a bracket is a banned character, so they are quoted regardless.
-const reIsCellR1C1 = /^R(?:[1-9]\d{0,6})?C(?:[1-9]\d{0,4})?$/i;
-// A1, B2, XFD1048576 — the cell shapes of the A1 notation, as reIsRangelike also tests for.
-const reIsCellA1 = /^[A-Z]{1,3}\d{1,7}$/i;
 
 // Must this sheet scope be quoted for the notation to read the sheet range it holds? Only a
 // cell-shaped near end forces it, by winning the colon for the range operator when left bare:
 // "A1:Dec!C3" is cell A1 joined to 'Dec'!C3, and "RC:Dec!R1C1" is cell RC joined to 'Dec'!R1C1.
 // Both notations read the other's cell shapes as ordinary names, so a prefix that crosses between
-// them may arrive needing quotes it did not need where it came from.
+// them may arrive needing quotes it did not need where it came from. The shape test is the lexers'
+// own, so a scope left bare here is one they read back as a sheet range.
 function sheetRangeNeedsQuotes (scope: string, r1c1: boolean): boolean {
   const sheetRange = splitSheetRange(scope);
-  return !!sheetRange && (r1c1 ? reIsCellR1C1 : reIsCellA1).test(sheetRange[0]);
+  return !!sheetRange && isCellShape(sheetRange[0], r1c1);
 }
 
 // The same question of a whole prefix, for the translators, which carry one across notations

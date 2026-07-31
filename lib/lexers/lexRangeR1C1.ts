@@ -1,7 +1,6 @@
 import { REF_RANGE, REF_BEAM, REF_TERNARY, MAX_COLS, MAX_ROWS } from '../constants.ts';
 import type { Token } from '../types.ts';
 import { advRangeOp } from './advRangeOp.ts';
-import { advSheetName } from './advSheetName.ts';
 import { canEndRange } from './canEndRange.ts';
 
 const BR_OPEN = 91; // [
@@ -134,26 +133,6 @@ export function lexRangeR1C1 (
         }
       }
       // Note: we do not capture R1C1:R1C1, mergeRefTokens will join the parts
-
-      // "C1:C5!R1C1" is a 3-D reference to sheets named "C1" and "C5", not a beam followed by
-      // a stray "!" — leave the whole sheet range to the context lexer. A cell-shaped left side
-      // is exempt, as it is in A1: "R1C1:R2C2!R3C3" is cell R1C1 joined to 'R2C2'!R3C3. Cell
-      // shapes are the R1C1 ones only, so an A1 spelling never reaches here and "A1:B2!R3C3" is
-      // a sheet range in this notation though "A1:B2!C3" is not one in A1 — as in Excel.
-      //
-      // The far end is a sheet name, so it need not be an R1C1 part itself ("C1:Dec!R1C1") nor
-      // even unquoted ("C1:'Dec'!R1C1"), and measuring it as a name is what settles it. Measuring
-      // it as an R1C1 part instead only ever reaches further where the part holds brackets, which
-      // no sheet name may, so "C1:R[1]C[1]!R1C1" names no second sheet and its near end stays a
-      // beam of its own. The near end has to clear the same bar, and lexR1C1Part will have taken
-      // brackets there too: "R[1]:Dec!R1C1" names no first sheet, so it is a range operation
-      // whatever follows the colon.
-      if (!(r1 && c1) && advSheetName(str, pos) >= preOp - pos) {
-        const len = advSheetName(str, preOp + op);
-        if (len && str.charCodeAt(preOp + op + len) === EXCL) {
-          return;
-        }
-      }
     }
     // R1
     // C1

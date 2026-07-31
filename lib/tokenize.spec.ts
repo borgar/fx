@@ -2245,6 +2245,35 @@ describe('lexer', () => {
       ]);
     });
 
+    test('a sheet name holding a "." is still one name', () => {
+      // "." is the one character a sheet name may hold that a range is also allowed to end on, so
+      // a name is measured to the colon rather than to wherever the range grammar runs out. Here
+      // the beam "A:a" stops inside the far end's name, and "a1" inside the near end's.
+      isTokens('=A:a.b!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'A:a.b!A1' }
+      ]);
+      isTokens('=Jan:a.b!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'Jan:a.b!A1' }
+      ]);
+      isTokens('=a1.b:Dec!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'a1.b:Dec!A1' }
+      ]);
+      // ... and a near end that only starts out cell-shaped is no cell, so it keeps no colon
+      isTokens('=A1.b:Dec!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'A1.b:Dec!A1' }
+      ]);
+      // ... while without a sheet prefix behind it the beam stands, dot and all
+      isTokens('=A:a.b', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_BEAM, value: 'A:a' },
+        { type: UNKNOWN, value: '.b' }
+      ]);
+    });
+
     test('quoted sheet ranges', () => {
       isTokens("='Sheet1:Sheet2'!A1:B2", [
         { type: FX_PREFIX, value: '=' },
@@ -2451,6 +2480,16 @@ describe('lexer', () => {
       isTokens('=C1.:Dec!R1C1', [
         { type: FX_PREFIX, value: '=' },
         { type: REF_RANGE, value: 'C1.:Dec!R1C1' }
+      ], { r1c1: true });
+      // ... and a "." inside either name keeps that name whole here as it does in A1, so neither
+      // the beam "C1:C5" nor the cell "R1C1" ends where the name it sits inside carries on
+      isTokens('=C1:C5.b!R1C1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'C1:C5.b!R1C1' }
+      ], { r1c1: true });
+      isTokens('=R1C1.b:Dec!R1C1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'R1C1.b:Dec!R1C1' }
       ], { r1c1: true });
       // ... while a missing far end names no second sheet
       isTokens('=C1:!R1C1', [
