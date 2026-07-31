@@ -117,7 +117,9 @@ const scope = ref.context[ref.context.length - 1];
 const sheets = splitSheetRange(scope) ?? [ scope ];
 ```
 
-Pass it only the sheet scope. A path scope may contain a colon of its own — a Windows drive letter — without that colon dividing it into two names.
+Pass it the sheet scope only, and in the unquoted form the parsers hand back. `parseA1Ref` and `parseR1C1Ref` have already stripped the surrounding quotes and collapsed doubled apostrophes, so every spelling converges on the same scope: `'Sheet 1:Sheet 3'!A1` arrives as `Sheet 1:Sheet 3`, `foo:'bar baz'!A1` as `foo:bar baz`, and `'It''s:Fine'!A1` as `It's:Fine`. `splitSheetRange` does no unquoting of its own — it splits on the colon and returns the two halves verbatim — so the names it returns are ready to match against a workbook's sheets with no further processing.
+
+Handing it the raw quoted prefix instead is the trap worth naming: `splitSheetRange("'Sheet 1:Sheet 3'")` returns `[ "'Sheet 1", "Sheet 3'" ]`, two names with stray quotes, with no error and no `undefined` to signal it. A path scope, likewise, may contain a colon of its own — a Windows drive letter — without that colon dividing it into two names.
 
 Because the colon separates two names rather than belonging to either, the quoting rules are applied to each end on its own, and the whole prefix is quoted as one unit if either end calls for it. So `=SUM(Sales:Marketing!B3)` needs no quotes, while `'Sheet1:Sheet 2'!A1` does — the same as Excel.
 

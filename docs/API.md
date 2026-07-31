@@ -889,7 +889,9 @@ syntax does not specify.
 The sheet scope may name a range of sheets rather than a single one: a 3-D reference
 (`Jan:Dec!A1`) puts both sheet names in it, as `context: [ 'Jan:Dec' ]`. Resolving that scope
 against a workbook's sheets therefore needs [splitSheetRange](#fxfunctionssplitsheetrangemd) first, or it matches no
-sheet at all and silently finds nothing.
+sheet at all and silently finds nothing. The scope is returned unquoted —
+`'Sheet 1:Sheet 3'!A1` yields `context: [ 'Sheet 1:Sheet 3' ]` — which is the form
+[splitSheetRange](#fxfunctionssplitsheetrangemd) expects, so pass it on as it comes.
 
 ## Parameters
 
@@ -1052,20 +1054,33 @@ const sheets = splitSheetRange(scope) ?? [ scope ];
 // => [ 'Jan', 'Dec' ]
 ```
 
-Pass only the sheet scope. A path scope may contain a colon of its own — a Windows drive
-letter — without that colon dividing it into two names, and a workbook is not a sheet.
+Pass only the sheet scope, in the unquoted form the parsers return. `parseA1Ref` and
+`parseR1C1Ref` strip the surrounding quotes and collapse doubled apostrophes, so every spelling
+converges on the same scope: `'Sheet 1:Sheet 3'!A1` yields `Sheet 1:Sheet 3`, `foo:'bar baz'!A1`
+yields `foo:bar baz`, and `'It''s:Fine'!A1` yields `It's:Fine`. This function does no unquoting
+of its own — it splits on the colon and returns the two halves verbatim — so the names it
+returns need no further processing before being matched against a workbook's sheets.
+
+Handing it a raw quoted prefix instead is the trap: `splitSheetRange("'Sheet 1:Sheet 3'")`
+returns `[ "'Sheet 1", "Sheet 3'" ]`, two names with stray quotes, with no error and no
+`undefined` to signal it, and a caller matching those against a workbook's sheets silently
+matches nothing.
+
+A path scope may likewise contain a colon of its own — a Windows drive letter — without that
+colon dividing it into two names, and a workbook is not a sheet.
 
 ## Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `scope` | `string` | The sheet scope of a prefix. |
+| `scope` | `string` | The sheet scope of a prefix, unquoted. |
 
 ## Returns
 
 \[`string`, `string`\]
 
-The two sheet names, or `undefined` if the scope does not divide into exactly two.
+The two sheet names, unquoted as the scope was, or `undefined` when the scope has no
+colon, more than one, or an empty half.
 
 
 <a name="fxfunctionsstringifya1refmd"></a>
@@ -3093,7 +3108,9 @@ syntax does not specify.
 The `sheetName` may name a range of sheets rather than a single one: a 3-D reference
 (`Jan:Dec!A1`) puts both sheet names in it, as `sheetName: 'Jan:Dec'`. Resolving it against a
 workbook's sheets therefore needs [splitSheetRange](#fxfunctionssplitsheetrangemd) first, or it matches no sheet at all
-and silently finds nothing.
+and silently finds nothing. The name is returned unquoted — `'Sheet 1:Sheet 3'!A1` yields
+`sheetName: 'Sheet 1:Sheet 3'` — which is the form [splitSheetRange](#fxfunctionssplitsheetrangemd) expects, so pass it
+on as it comes.
 
 ## Parameters
 
