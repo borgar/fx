@@ -1151,6 +1151,31 @@ describe('lexer', () => {
       ]);
     });
 
+    test('sheet names above the character table', () => {
+      // The table of sheet-name characters stops at U+00B4, past which every character is allowed
+      // wherever a high one is. The mask has to be read off the character in hand: reading it off
+      // the name's first character instead let every character after a high one pass, swallowing
+      // the "!" and the range behind it into a single name token.
+      isTokens('=Ærið!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: CONTEXT, value: 'Ærið' },
+        { type: OPERATOR, value: '!' },
+        { type: REF_RANGE, value: 'A1' }
+      ], { mergeRefs: false });
+      isTokens('=´!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: CONTEXT, value: '´' },
+        { type: OPERATOR, value: '!' },
+        { type: REF_RANGE, value: 'A1' }
+      ], { mergeRefs: false });
+      isTokens('=Ærið!A1+1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'Ærið!A1' },
+        { type: OPERATOR, value: '+' },
+        { type: NUMBER, value: '1' }
+      ]);
+    });
+
     test('quoted sheet names', () => {
       isTokens("='Sheets'' name'!A1:B2", [
         { type: FX_PREFIX, value: '=' },

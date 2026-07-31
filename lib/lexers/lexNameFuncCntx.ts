@@ -68,7 +68,7 @@ export function lexNameFuncCntx (
   const start = pos;
 
   const s = str.charCodeAt(pos);
-  const a = s > 180 ? OK_HIGHCHAR : ALLOWED[s - OFFS];
+  const a = s >= 180 ? OK_HIGHCHAR : ALLOWED[s - OFFS];
   // name: [a-zA-Z_\\\u00a1-\uffff]
   // func: [a-zA-Z_]
   // cntx: [a-zA-Z_0-9.¡¤§¨ª\u00ad¯-\uffff]
@@ -96,7 +96,11 @@ export function lexNameFuncCntx (
   let c: number;
   do {
     c = str.charCodeAt(pos);
-    const a = s > 180 ? OK_HIGHCHAR : ALLOWED[c - OFFS] ?? 0;
+    // Every character past the table's last entry is allowed wherever a high character is, which
+    // is what OK_HIGHCHAR says. The mask has to be read off the character in hand: reading it off
+    // the token's first one instead made every character after a high one look high too, so that
+    // "Ærið!A1" and "Ærið:Ärger!A1" were swallowed whole into a single name token.
+    const a = c >= 180 ? OK_HIGHCHAR : ALLOWED[c - OFFS] ?? 0;
     if (a & OK_N) {
       // name: [a-zA-Z_0-9.\\?\u00a1-\uffff]
       // func: [a-zA-Z_0-9.]
@@ -117,13 +121,6 @@ export function lexNameFuncCntx (
         }
         else if (str.charCodeAt(pos + 1) === QUOT_SINGLE) {
           // the far end of a sheet range may be quoted on its own: "foo:'bar'!A1"
-          //
-          // Returning from here also steps around the pre-existing bug in this loop's mask
-          // (`s > 180` reads the token's first character where it means the current one), which
-          // otherwise makes every character after a name starting above U+00B4 look like one
-          // too, swallowing the rest of the string. So "Ærið:'Ärger'!A1" lexes while
-          // "Ærið:Ärger!A1", and plain "Ærið!A1" before it, are still taken whole into a name
-          // token. That asymmetry is a side effect, not a design: the mask is fixed separately.
           const len = advSheetName(str, pos + 1);
           if (len && str.charCodeAt(pos + 1 + len) === EXCL) {
             return { type: CONTEXT, value: str.slice(start, pos + 1 + len) };
