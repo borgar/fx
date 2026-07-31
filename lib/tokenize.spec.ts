@@ -2369,6 +2369,42 @@ describe('lexer', () => {
         { type: OPERATOR, value: ':' },
         { type: REF_RANGE, value: "'[1]Nope'!A1" }
       ]);
+      // A quoted endpoint that never closes names no sheet, so neither does the pair.
+      isTokens("=Jan:'Dec!A1", [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_NAMED, value: 'Jan' },
+        { type: OPERATOR, value: ':' },
+        { type: UNKNOWN, value: "'" },
+        { type: REF_RANGE, value: 'Dec!A1' }
+      ]);
+      // ... nor does a closed one with no prefix behind it, there being no reference to scope
+      isTokens("=Jan:'Dec'", [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_NAMED, value: 'Jan' },
+        { type: OPERATOR, value: ':' },
+        { type: UNKNOWN, value: "'Dec'" }
+      ]);
+      // ... nor a quoted near end whose far end is missing
+      isTokens("='Jan':!A1", [
+        { type: FX_PREFIX, value: '=' },
+        { type: UNKNOWN, value: "'Jan'" },
+        { type: OPERATOR, value: ':' },
+        { type: OPERATOR, value: '!' },
+        { type: REF_RANGE, value: 'A1' }
+      ]);
+    });
+
+    test('a colon inside the workbook brackets is not a sheet range', () => {
+      // A path scope may hold a colon of its own — a Windows drive letter — which divides no
+      // sheet names. Only a colon past the brackets separates two of those.
+      isTokens('=[C:\\Book.xlsx]Sheet1!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: '[C:\\Book.xlsx]Sheet1!A1' }
+      ]);
+      isTokens('=[C:\\Book.xlsx]Jan:Dec!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: '[C:\\Book.xlsx]Jan:Dec!A1' }
+      ]);
     });
 
     test('beams and quoted prefixes elsewhere are unaffected', () => {

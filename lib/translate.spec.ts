@@ -59,6 +59,10 @@ describe('translate absolute cells from A1 to RC', () => {
     expect(translateFormulaToR1C1("=RC:'Dec'!A1", 'C3')).toBe("='RC:Dec'!R[-2]C[-2]");
     okayRoundTrip("='RC:Dec'!A1", 'C3');
     okayRoundTrip("='A1:Dec'!A1", 'C3');
+    // ... and the sheet is what follows the workbook brackets, so a workbook ahead of the pair
+    // neither hides the cell-shaped end nor becomes one
+    expect(translateFormulaToR1C1('=[1]RC:Dec!A1', 'C3')).toBe("='[1]RC:Dec'!R[-2]C[-2]");
+    expect(translateFormulaToA1('=[1]A1:Dec!R1C1', 'C3', { mergeRefs: false })).toBe("='[1]A1:Dec'!$A$1");
   });
 
   test('3-D references with each end quoted on its own', () => {
