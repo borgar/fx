@@ -29,11 +29,13 @@ export function isContextChar (c: number): boolean {
 }
 
 // Advances over a quoted sheet name, "''" standing for a quote within it. Returns the number of
-// characters consumed, or 0 if the quote is never closed. Brackets are refused: a workbook may
-// only be named ahead of the whole prefix, never inside one end of a sheet range. So is a colon,
-// which Excel forbids in a sheet name: a name reached from here is one end of a sheet range, and
-// the colon that divides the two ends has been passed already. A colon inside a prefix quoted as
-// a whole is a different matter, and reaches this function only as the near end of nothing.
+// characters consumed, or 0 if the quote is never closed. Brackets are refused: a workbook is
+// named here only ahead of the whole prefix, never inside one end of a sheet range. Excel does
+// write the latter, but only to bind an end that has stopped naming a sheet to a manufactured
+// external link, "Jan:'[1]Nope'!A1" (see docs/Prefixes.md). A colon is refused too, Excel
+// forbidding it in a sheet name: a name reached from here is one end of a sheet range, and the
+// colon that divides the two ends has been passed already. A colon inside a prefix quoted as a
+// whole is a different matter, and reaches this function only as the near end of nothing.
 function advQuotedSheetName (str: string, pos: number): number {
   const start = pos;
   pos++;
