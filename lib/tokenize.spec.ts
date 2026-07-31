@@ -2726,6 +2726,16 @@ describe('lexer', () => {
         { type: OPERATOR, value: ':' },
         { type: REF_RANGE, value: 'baz1!A1' }
       ]);
+      // a later "!" does not supply the missing far end: "!" is no sheet name, so the prefix ends
+      // at the colon rather than reaching on for a second one
+      isTokens('=a:!!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_NAMED, value: 'a' },
+        { type: OPERATOR, value: ':' },
+        { type: OPERATOR, value: '!' },
+        { type: OPERATOR, value: '!' },
+        { type: REF_RANGE, value: 'A1' }
+      ]);
     });
 
     test('a sheet named "." keeps the colon of its sheet range', () => {

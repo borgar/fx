@@ -109,7 +109,10 @@ export function lexContextUnquoted (str: string, pos: number, options: LexContex
           valid = true;
         }
         if (colon && colon === pos - 1) {
-          valid = false; // the second sheet name is missing
+          // The second sheet name is missing, and no later "!" can supply one: "!" is not a
+          // sheet-name character, so scanning on would take this one for the far end and read
+          // "a:!!A1" as a sheet range over a sheet named "!".
+          return;
         }
         if (valid) {
           return { type: CONTEXT, value: str.slice(start, pos) };
