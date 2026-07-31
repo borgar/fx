@@ -1174,6 +1174,17 @@ describe('lexer', () => {
         { type: OPERATOR, value: '+' },
         { type: NUMBER, value: '1' }
       ]);
+      // Two high-character names either side of a colon are one sheet range, not two endpoints.
+      // #52, which extracts the mask fix on its own, asserts the opposite for this input — six
+      // tokens rather than four — and is right to, since without sheet ranges that is what it is.
+      // Both assertions arrive here when #52 lands and master merges in, and this is the one that
+      // survives.
+      isTokens('=Ærið:Ärger!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: CONTEXT, value: 'Ærið:Ärger' },
+        { type: OPERATOR, value: '!' },
+        { type: REF_RANGE, value: 'A1' }
+      ], { mergeRefs: false });
     });
 
     test('a sheet name holding a "." is not a range and a stray dot', () => {
