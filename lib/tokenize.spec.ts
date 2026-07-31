@@ -2413,6 +2413,19 @@ describe('lexer', () => {
         { type: OPERATOR, value: ':' },
         { type: REF_RANGE, value: "'[1]Nope'!A1" }
       ]);
+      // Excel forbids ":" in a sheet name, and the one dividing the two ends is behind us here,
+      // so a quoted endpoint holding one is no endpoint either. (A colon inside a prefix quoted
+      // as a whole is the divider, and does not come this way.)
+      isTokens("=Jan:'a:b'!A1", [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_NAMED, value: 'Jan' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_RANGE, value: "'a:b'!A1" }
+      ]);
+      isTokens("='Jan:Dec'!A1", [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: "'Jan:Dec'!A1" }
+      ]);
       // A quoted endpoint that never closes names no sheet, so neither does the pair.
       isTokens("=Jan:'Dec!A1", [
         { type: FX_PREFIX, value: '=' },
