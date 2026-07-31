@@ -89,8 +89,8 @@ export function lexNameFuncCntx (
   // sheet name on either side of it.
   let colon = 0;
   // Where the name run ended, 0 while it is still running. Only a ":" can end it while the
-  // context run carries on, so if the context turns out not to be one, this is where the name
-  // to emit ends: the "foo" of "foo:B2".
+  // context run continues, so if the run turns out not to be a context after all, this is where
+  // the name to emit ends: the "foo" of "foo:B2".
   let nameEnd = 0;
 
   let c: number;

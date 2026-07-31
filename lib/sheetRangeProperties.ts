@@ -5,7 +5,7 @@
  * grammar of sheet names, prefix forms and cell parts, and asserts invariants that no single
  * spelling can establish on its own:
  *
- * - the formula lexers and the reference lexers reach the same verdict on any input;
+ * - the formula lexers and the reference lexers agree on any input;
  * - parse/stringify reaches a fixpoint and keeps both sheet names, everywhere a reference is
  *   written back out;
  * - a token list rejoins to exactly the string it came from.
@@ -18,8 +18,8 @@
  *
  * - a number or a boolean literal is lexed ahead of a name on the formula path and has no
  *   counterpart on the reference path, so `12!A1` and `TRUE!A1` read differently there
- *   ({@link SHADOWING_TYPES}). That gap predates sheet ranges and holds for a lone sheet name just
- *   as much as for one end of a span;
+ *   ({@link SHADOWING_TYPES}). That gap predates sheet ranges and applies to a lone sheet name
+ *   just as much as to one end of a span;
  * - a prefix is only expected to survive a round trip when it is one a writer could have produced,
  *   which is what {@link isWholeReference} settles.
  *
@@ -59,9 +59,9 @@ const pick = <T>(rnd: Prng, list: readonly T[]): T => list[Math.floor(rnd() * li
 const chance = (rnd: Prng, p: number): boolean => rnd() < p;
 const quote = (name: string): string => "'" + name.replace(/'/g, "''") + "'";
 
-// Characters a sheet name may hold, drawn wide rather than sampled from ASCII: "." is the one a
+// Characters a sheet name may contain, drawn wide rather than sampled from ASCII: "." is the one a
 // range lexer may also end on, "$" is the one Excel refuses unquoted, "'" is the one that has to
-// be doubled, and the last group sits above U+00B4, where the context mask changes behaviour.
+// be doubled, and the last group is above U+00B4, where the context mask changes behaviour.
 const NAME_CHARS = (
   'abcABCxyzRCrc' +
   '0123456789' +
@@ -94,7 +94,7 @@ function randomName (rnd: Prng): string {
   return out;
 }
 
-/** One end of a sheet range, or a lone sheet name. Every awkward shape gets a turn. */
+/** One end of a sheet range, or a lone sheet name. Every awkward spelling gets a turn. */
 export function genSheetName (rnd: Prng): string {
   const kind = Math.floor(rnd() * 12);
   if (kind === 0) { return pick(rnd, CELL_SHAPED); }
@@ -209,7 +209,7 @@ export type PropertyCase = {
   allowNamed: boolean
 };
 
-/** The formula a case's fragment sits in. */
+/** The formula a case's fragment is embedded in. */
 export function caseText (c: PropertyCase): string {
   return WRAPPINGS[c.wrapping](c.ref);
 }
@@ -285,7 +285,7 @@ function sheetSlots (text: string, c: PropertyCase): string[] {
 
 /**
  * Does the case's fragment read as one whole reference on both paths? The preservation properties
- * below only bind on one that does: a fragment the parsers reject has no reference to preserve,
+ * below only apply to one that does: a fragment the parsers reject has no reference to preserve,
  * and putting a malformed one through a writer says nothing about the writer. The second half is
  * the shadowing of {@link SHADOWING_TYPES} — where the formula path never saw a prefix to begin
  * with, it cannot be blamed for not keeping one.
@@ -299,7 +299,7 @@ function isWholeReference (c: PropertyCase): boolean {
   if (!ref) {
     return false;
   }
-  // A sheet name holding "!" has no unquoted spelling, every writer quoting it instead, so a
+  // A sheet name containing "!" has no unquoted spelling, every writer quoting it instead, so a
   // prefix showing one bare is text a round trip was never going to preserve.
   const slot = ref.sheetName ?? (ref.context ?? []).slice(-1)[0];
   if (slot?.includes('!')) {
@@ -311,7 +311,8 @@ function isWholeReference (c: PropertyCase): boolean {
 const ANCHORS = [ 'A1', 'D10', 'B2', 'XFD1048576' ];
 
 /**
- * A property holds of a case, or returns the message of the failure it found.
+ * A check against one case. It returns nothing when the case satisfies the property, or a message
+ * describing the failure it found.
  */
 export type Property = {
   name: string,
@@ -321,10 +322,10 @@ export type Property = {
 /**
  * The two token types that can claim the start of a sheet name on the formula path and have no
  * counterpart on the reference path: `12!A1` is a number there and a prefix here, `TRUE!A1` a
- * boolean there and a prefix here. That mismatch predates sheet ranges and holds for a lone name
- * just as much as for one end of a span, so it is a gap in the two lexer sets rather than a
- * disagreement about what a sheet range is. Excel quotes both spellings, so neither reaches a
- * reader from a file Excel wrote.
+ * boolean there and a prefix here. That mismatch predates sheet ranges and applies to a lone name
+ * just as much as to one end of a span, so it is a gap in the two lexer sets rather than a
+ * disagreement about what a sheet range is. Excel quotes both spellings, so a reader never sees
+ * either of them in a file Excel wrote.
  */
 const SHADOWING_TYPES = new Set([ BOOLEAN, NUMBER ]);
 

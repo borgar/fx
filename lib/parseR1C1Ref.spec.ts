@@ -176,18 +176,19 @@ describe('parse joined R1C1 references', () => {
     isRCEqual("C1:'Dec'!RC", { context: [ 'C1:Dec' ], range: relRC });
     isRCEqual('C:D!RC', { context: [ 'C:D' ], range: relRC });
     isRCEqual('Jan:Dec!R1C1', { sheetName: 'Jan:Dec', range: absRC }, { xlsx: true });
-    // an A1 cell shape is only a name here, so this pair is a sheet range in R1C1 notation while
+    // an A1 cell address is only a name here, so this pair is a sheet range in R1C1 notation while
     // "A1:B2!C3" is a range operator in A1 notation — as it is in Excel with R1C1 style on
     isRCEqual('A1:B2!R3C3', {
       context: [ 'A1:B2' ],
       range: { r0: 2, c0: 2, r1: 2, c1: 2, $r0: true, $c0: true, $r1: true, $c1: true }
     });
-    // ... but a cell-shaped left side wins, so these are R1C1 joined to a prefixed reference
+    // ... but a left side that is also a cell address here takes the colon, so these are R1C1
+    // joined to a prefixed reference
     isRCEqual('R1C1:B2!R3C3', undefined);
     isRCEqual('R1C1:R2C2!R3C3', undefined);
     isRCEqual('RC:R2C2!R3C3', undefined);
-    // ... and it still wins where the far end's name reaches past what a ternary range can take,
-    // which only a "." lets it do
+    // ... and it still takes the colon where the far end's name runs past what a ternary range
+    // can take, which only a "." lets it do
     isRCEqual('R1C1:C5.b!R1C1', undefined, { allowTernary: true });
     isRCEqual('RC:R.b!R1C1', undefined, { allowTernary: true });
     // ... and only the quoted spelling makes such a pair a sheet range

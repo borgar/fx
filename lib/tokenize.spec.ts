@@ -1177,8 +1177,8 @@ describe('lexer', () => {
     });
 
     test('a sheet name holding a "." is not a range and a stray dot', () => {
-      // "." is the one character a sheet name may hold that a range is also allowed to end on, so
-      // a range lexer would otherwise stop part-way through one: the "v1" of "v1.0" is no cell
+      // "." is the one character a sheet name may contain that a range is also allowed to end on,
+      // so a range lexer would otherwise stop part-way through one: the "v1" of "v1.0" is no cell
       isTokens('=v1.0!A1', [
         { type: FX_PREFIX, value: '=' },
         { type: CONTEXT, value: 'v1.0' },
@@ -2290,9 +2290,9 @@ describe('lexer', () => {
     });
 
     test('a sheet name holding a "." is still one name', () => {
-      // "." is the one character a sheet name may hold that a range is also allowed to end on, so
-      // a name is measured to the colon rather than to wherever the range grammar runs out. Here
-      // the beam "A:a" stops inside the far end's name, and "a1" inside the near end's.
+      // "." is the one character a sheet name may contain that a range is also allowed to end on,
+      // so a name is measured to the colon rather than to wherever the range grammar runs out.
+      // Here the beam "A:a" stops inside the far end's name, and "a1" inside the near end's.
       isTokens('=A:a.b!A1', [
         { type: FX_PREFIX, value: '=' },
         { type: REF_RANGE, value: 'A:a.b!A1' }
@@ -2305,7 +2305,7 @@ describe('lexer', () => {
         { type: FX_PREFIX, value: '=' },
         { type: REF_RANGE, value: 'a1.b:Dec!A1' }
       ]);
-      // ... and a near end that only starts out cell-shaped is no cell, so it keeps no colon
+      // ... and a near end that only starts out as a cell address is no cell, so it keeps no colon
       isTokens('=A1.b:Dec!A1', [
         { type: FX_PREFIX, value: '=' },
         { type: REF_RANGE, value: 'A1.b:Dec!A1' }
@@ -2362,8 +2362,8 @@ describe('lexer', () => {
     });
 
     test('each end of a sheet range may be quoted on its own', () => {
-      // A leniency towards other producers: Excel does not read a separately-quoted pair as a
-      // sheet range at all. The tell of getting this wrong is an open-ended beam: the lexer
+      // Accepted to be forgiving of other producers: Excel does not read a separately-quoted pair
+      // as a sheet range at all. The tell of getting this wrong is an open-ended beam: the lexer
       // bailing at the quote used to leave "foo:" behind, which then normalized to the
       // unrelated "A:FOO".
       isTokens("=foo:'bar'!A1", [
@@ -2398,8 +2398,8 @@ describe('lexer', () => {
         { type: OPERATOR, value: '!' },
         { type: REF_RANGE, value: 'A1' }
       ], { mergeRefs: false });
-      // A workbook may only be named ahead of the whole prefix, so a quoted endpoint holding one
-      // is not an endpoint. Excel writes this when the far end of a sheet range names no sheet:
+      // A workbook may only be named ahead of the whole prefix, so a quoted endpoint containing
+      // one is not an endpoint. Excel writes this when the far end of a sheet range names no sheet:
       // it manufactures an external link for that name, leaving a reference to another workbook.
       isTokens("=Jan:'[1]Nope'!A1", [
         { type: FX_PREFIX, value: '=' },
@@ -2414,8 +2414,8 @@ describe('lexer', () => {
         { type: REF_RANGE, value: "'[1]Nope'!A1" }
       ]);
       // Excel forbids ":" in a sheet name, and the one dividing the two ends is behind us here,
-      // so a quoted endpoint holding one is no endpoint either. (A colon inside a prefix quoted
-      // as a whole is the divider, and does not come this way.)
+      // so a quoted endpoint containing one is no endpoint either. (A colon inside a prefix
+      // quoted as a whole is the divider, and does not come this way.)
       isTokens("=Jan:'a:b'!A1", [
         { type: FX_PREFIX, value: '=' },
         { type: REF_NAMED, value: 'Jan' },
@@ -2452,7 +2452,7 @@ describe('lexer', () => {
     });
 
     test('a colon inside the workbook brackets is not a sheet range', () => {
-      // A path scope may hold a colon of its own — a Windows drive letter — which divides no
+      // A path scope may contain a colon of its own — a Windows drive letter — which divides no
       // sheet names. Only a colon past the brackets separates two of those.
       isTokens('=[C:\\Book.xlsx]Sheet1!A1', [
         { type: FX_PREFIX, value: '=' },
@@ -2497,7 +2497,7 @@ describe('lexer', () => {
     test('a quote straight after a range takes the range down with it', () => {
       // canEndRange refuses "'" whether or not a sheet prefix follows, which is wider than the
       // rule needs. No valid formula spells these, and the half-typed one that matters,
-      // "=A1:'Sheet 2'!B2", reaches its range through the colon, so the width is deliberate.
+      // "=A1:'Sheet 2'!B2", ends its range at the colon, so the width is deliberate.
       isTokens("=A1'", [
         { type: FX_PREFIX, value: '=' },
         { type: UNKNOWN, value: "A1'" }
@@ -2547,7 +2547,7 @@ describe('lexer', () => {
         { type: FX_PREFIX, value: '=' },
         { type: REF_RANGE, value: 'R1:Total!R1C1' }
       ], { r1c1: true });
-      // ... but a bracket is one thing a sheet name may not hold, so a far end carrying one names
+      // ... but a bracket is one thing a sheet name may not contain, so a far end with one names
       // no second sheet and the near end is left standing as a beam
       isTokens('=C1:R[1]C[1]!R1C1', [
         { type: FX_PREFIX, value: '=' },
@@ -2575,7 +2575,7 @@ describe('lexer', () => {
         { type: REF_RANGE, value: 'C1.:Dec!R1C1' }
       ], { r1c1: true });
       // ... and a "." inside either name keeps that name whole here as it does in A1, so neither
-      // the beam "C1:C5" nor the cell "R1C1" ends where the name it sits inside carries on
+      // the beam "C1:C5" nor the cell "R1C1" ends where the name it is part of continues
       isTokens('=C1:C5.b!R1C1', [
         { type: FX_PREFIX, value: '=' },
         { type: REF_RANGE, value: 'C1:C5.b!R1C1' }
@@ -2599,7 +2599,7 @@ describe('lexer', () => {
         { type: OPERATOR, value: ':' },
         { type: REF_NAMED, value: 'Dec' }
       ], { r1c1: true });
-      // A1 cell shapes are just names here, so the pair Excel reads as a range operator in A1
+      // A1 cell addresses are just names here, so the pair Excel reads as a range operator in A1
       // notation is a sheet range in R1C1 notation. Excel does the same: with the R1C1 reference
       // style on, "=SUM(A1:B2!R3C3)" sums R3C3 across sheets A1 through B2, where the A1-notation
       // "=SUM(A1:B2!C3)" is #VALUE!.
@@ -2607,7 +2607,8 @@ describe('lexer', () => {
         { type: FX_PREFIX, value: '=' },
         { type: REF_RANGE, value: 'A1:B2!R3C3' }
       ], { r1c1: true });
-      // ... but a cell-shaped left side wins here too, in the shapes that are cells in R1C1
+      // ... but a left side that is also a cell address takes the colon here too, for the names
+      // that are cell addresses in R1C1
       isTokens('=R1C1:R2C2!R3C3', [
         { type: FX_PREFIX, value: '=' },
         { type: REF_RANGE, value: 'R1C1' },
@@ -2628,10 +2629,10 @@ describe('lexer', () => {
 
     test('a cell-shaped left side wins over a sheet range', () => {
       // Excel reads "=SUM(A1:B2!C3)" as cell A1 joined to 'B2'!C3 (and yields #VALUE!), while
-      // "=SUM(A:C!A1)" and "=SUM(Jan:Mar!A1)" are sheet ranges — a column-shaped left side does
-      // not win the same way. Only the quoted spelling makes a cell-shaped pair a sheet range.
-      // Cell-shaped is meant in this notation: see the R1C1 tests above, where "A1:B2!R3C3" is
-      // a sheet range because "A1" is no cell there.
+      // "=SUM(A:C!A1)" and "=SUM(Jan:Mar!A1)" are sheet ranges — a left side that is only a
+      // column letter does not take the colon that way. Only the quoted spelling makes such a
+      // pair a sheet range. Cell address is meant in this notation: see the R1C1 tests above,
+      // where "A1:B2!R3C3" is a sheet range because "A1" is no cell there.
       isTokens('=A1:B2!C3', [
         { type: FX_PREFIX, value: '=' },
         { type: REF_RANGE, value: 'A1' },
@@ -2655,7 +2656,7 @@ describe('lexer', () => {
     });
 
     test('"$" is not allowed on an unquoted sheet name', () => {
-      // Excel refuses "=SUM($Jan:$Mar!A1)" on entry, and a file holding one does not open
+      // Excel refuses "=SUM($Jan:$Mar!A1)" on entry, and a file containing one does not open
       isTokens('=$Jan:$Mar!A1', [
         { type: FX_PREFIX, value: '=' },
         { type: UNKNOWN, value: '$Jan' },
@@ -2740,7 +2741,7 @@ describe('lexer', () => {
         { type: REF_RANGE, value: 'baz1!A1' }
       ]);
       // a later "!" does not supply the missing far end: "!" is no sheet name, so the prefix ends
-      // at the colon rather than reaching on for a second one
+      // at the colon rather than scanning on for a second one
       isTokens('=a:!!A1', [
         { type: FX_PREFIX, value: '=' },
         { type: REF_NAMED, value: 'a' },

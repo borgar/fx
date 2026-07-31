@@ -57,11 +57,11 @@ export function lexContextQuoted (str: string, pos: number, options: { xlsx: boo
   }
 }
 
-// Is the run from `start` to `pos` a whole range in its own right? A cell-shaped left end
-// belongs to the range operator rather than to a sheet range, so "A1:B2!C3" is cell A1 joined to
-// 'B2'!C3 rather than a reference into sheets A1 through B2. The formula lexers settle this by
-// running lexRange ahead of the context lexers, but the reference lexers run this one first, so
-// it has to ask.
+// Is the run from `start` to `pos` a whole range in its own right? A left end that is also a
+// valid cell address belongs to the range operator rather than to a sheet range, so "A1:B2!C3" is
+// cell A1 joined to 'B2'!C3 rather than a reference into sheets A1 through B2. The formula lexers
+// settle this by running lexRange ahead of the context lexers, but the reference lexers run this
+// one first, so it has to ask.
 function endsAWholeRange (str: string, start: number, pos: number, options: LexContextOptions): boolean {
   const range = lexRange(str, start, {
     allowTernary: !!options.allowTernary,
@@ -120,14 +120,14 @@ export function lexContextUnquoted (str: string, pos: number, options: LexContex
       }
       else if (c === COLON && (br1 == null || br2 != null)) {
         // ":" joins the two names, but "$" is not admitted alongside it: Excel refuses
-        // "$Jan:$Mar!A1" on entry, and a file holding one does not open at all.
+        // "$Jan:$Mar!A1" on entry, and a file containing one does not open at all.
         //
         // Only one ":" is allowed, and the near end must be a name: the sheet begins after the
         // workbook brackets when there are any, so "[Book.xlsx]:Sheet2!A1" names no first sheet.
         if (colon || pos === (br2 == null ? start : br2 + 1)) { return; }
         // Nothing here is a prefix without a "!" to close it, and the branch below is the one
-        // expensive test in this lexer, so the cheap way out is taken first. Most colons reaching
-        // this lexer are range operators in a formula that holds no prefix at all.
+        // expensive test in this lexer, so the cheap way out is taken first. Most colons that get
+        // here are range operators in a formula that contains no prefix at all.
         if (str.indexOf('!', pos) < 0) { return; }
         if (endsAWholeRange(str, start, pos, options)) { return; }
         colon = pos;

@@ -69,7 +69,7 @@ describe('stringifyA1Ref', () => {
     expect(stringifyA1Ref({ context: [ '1:5' ], range: rangeA1 })).toBe("'1:5'!A1");
     expect(stringifyA1Ref({ context: [ 'A1:B2' ], range: rangeA1 })).toBe("'A1:B2'!A1");
     // the trigger is the name and not the range: "C" on its own reads as an R1C1 column,
-    // wherever it sits, while "B" and "AB" never call for quotes
+    // wherever it appears, while "B" and "AB" never call for quotes
     expect(stringifyA1Ref({ context: [ 'A:C' ], range: rangeA1 })).toBe("'A:C'!A1");
     expect(stringifyA1Ref({ context: [ 'B:C' ], range: rangeA1 })).toBe("'B:C'!A1");
     expect(stringifyA1Ref({ context: [ 'C:D' ], range: rangeA1 })).toBe("'C:D'!A1");
@@ -92,8 +92,8 @@ describe('stringifyA1Ref', () => {
   });
 
   test('only the sheet scope is split on ":"', () => {
-    // a colon can reach a path scope on its own (a Windows drive letter) without dividing it
-    // into two sheet names, so only the last scope is treated as a possible sheet range
+    // a path scope may contain a colon of its own (a Windows drive letter) without it dividing
+    // the scope into two sheet names, so only the last scope is treated as a possible sheet range
     expect(stringifyA1Ref({ context: [ 'a:b', 'Book.xlsx', 'Sheet1' ], range: rangeA1 }))
       .toBe("'a:b[Book.xlsx]Sheet1'!A1");
   });

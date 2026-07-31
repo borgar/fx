@@ -4,9 +4,10 @@ const BR_CLOSE = 93; // ]
 const COLON = 58; // :
 const EXCL = 33; // !
 
-// The cell shapes of each notation: "A1", "B2", "XFD1048576" in A1 notation, "R1C1", "RC1", "R1C"
-// and "RC" in R1C1. The bracketed R1C1 forms ("R[1]C[1]") need no test of their own, a bracket
-// being neither a sheet-name character nor one that can reach either end of a sheet range.
+// The cell addresses of each notation: "A1", "B2", "XFD1048576" in A1 notation, "R1C1", "RC1",
+// "R1C" and "RC" in R1C1. The bracketed R1C1 forms ("R[1]C[1]") need no test of their own, a
+// bracket being neither a sheet-name character nor one that can occur in either end of a sheet
+// range.
 const reIsCellA1 = /^[A-Z]{1,3}\d{1,7}$/i;
 const reIsCellR1C1 = /^R(?:[1-9]\d{0,6})?C(?:[1-9]\d{0,4})?$/i;
 
@@ -33,9 +34,10 @@ export function isContextChar (c: number): boolean {
 // named here only ahead of the whole prefix, never inside one end of a sheet range. Excel does
 // write the latter, but only to bind an end that has stopped naming a sheet to a manufactured
 // external link, "Jan:'[1]Nope'!A1" (see docs/Prefixes.md). A colon is refused too, Excel
-// forbidding it in a sheet name: a name reached from here is one end of a sheet range, and the
-// colon that divides the two ends has been passed already. A colon inside a prefix quoted as a
-// whole is a different matter, and reaches this function only as the near end of nothing.
+// forbidding it in a sheet name: a name measured here is one end of a sheet range, and the colon
+// that divides the two ends has been passed already. A colon inside a prefix quoted as a whole is
+// a different matter, and this function sees one only while testing whether the quoted run begins
+// a sheet range, which it does not.
 function advQuotedSheetName (str: string, pos: number): number {
   const start = pos;
   pos++;
@@ -69,10 +71,10 @@ export function advSheetName (str: string, pos: number): number {
   return pos - start;
 }
 
-// Is this sheet name shaped like a cell address in the given notation? Such a name loses the colon
-// of a sheet range to the range operator, which both the lexers and the serializer have to know:
-// the lexers to read "A1:B2!C3" as cell A1 joined to 'B2'!C3, the serializer to know that writing
-// the sheet range A1:B2 unquoted would read back as that instead.
+// Is this sheet name also a valid cell address in the given notation? The range operator takes the
+// colon of a sheet range whose near end is one, which both the lexers and the serializer have to
+// know: the lexers to read "A1:B2!C3" as cell A1 joined to 'B2'!C3, the serializer to know that
+// writing the sheet range A1:B2 unquoted would read back as that instead.
 export function isCellShape (name: string, r1c1: boolean): boolean {
   return (r1c1 ? reIsCellR1C1 : reIsCellA1).test(name);
 }
@@ -83,14 +85,15 @@ export function isCellShape (name: string, r1c1: boolean): boolean {
 //
 // Each name has to be one in full. A range lexer, or a range operator, stops wherever its own
 // grammar runs out, which can be part-way through a sheet name: the "a1" of "a1.b!A1" is no more
-// a cell address than the whole "a1.b" is, and "." is the one character a sheet name may hold
+// a cell address than the whole "a1.b" is, and "." is the one character a sheet name may contain
 // that a range is also allowed to end on. Measuring the name to the "!" or the ":" tells the two
 // apart, and is why a lone name counts here and not only a range of two.
 //
-// A near end that is a whole name and cell-shaped keeps the colon for the range operator, and the
-// notation being read decides which shapes those are: "A1:B2!C3" is cell A1 joined to 'B2'!C3 in
-// A1 notation, while "A1:B2!R3C3" is a sheet range in R1C1, where "A1" addresses nothing. A lone
-// name needs no such test — a range lexer can never take one whole, "!" being no range character.
+// A near end that is a whole name and also a valid cell address gives the colon to the range
+// operator, and the notation being read decides which names those are: "A1:B2!C3" is cell A1
+// joined to 'B2'!C3 in A1 notation, while "A1:B2!R3C3" is a sheet range in R1C1, where "A1"
+// addresses nothing. A lone name needs no such test — a range lexer can never take one whole,
+// "!" being no range character.
 export function startsSheetPrefix (str: string, pos: number, r1c1: boolean): boolean {
   const near = advSheetName(str, pos);
   if (!near) {

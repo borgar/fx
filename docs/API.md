@@ -231,7 +231,7 @@ of sections as well as removing redundant ones.
 
 The sheet range of a 3-D reference is left alone, so `Sheet2:Sheet1!B2:A1`
 becomes `Sheet2:Sheet1!A1:B2` and no further. Normalizing it would take the
-workbook's sheet names, in order, which a formula does not carry.
+workbook's sheet names, in order, which _Fx_ does not know.
 
 Returns a new array of tokens with values and position data updated.
 
@@ -1028,7 +1028,7 @@ An object representing a valid reference or `undefined` if it is invalid.
 function splitSheetRange(scope: string): [string, string];
 ```
 
-Splits the sheet scope of a prefix into the two sheet names of a sheet range, if it holds one.
+Splits the sheet scope of a prefix into the two sheet names of a sheet range, if it contains one.
 
 A 3-D reference (`Sheet1:Sheet2!A1`) spans every sheet from one named sheet to another. Its two
 sheet names occupy the single sheet slot of the reference — `context` (the last scope) or
@@ -1052,7 +1052,7 @@ const sheets = splitSheetRange(scope) ?? [ scope ];
 // => [ 'Jan', 'Dec' ]
 ```
 
-Pass only the sheet scope. A path scope may hold a colon of its own — a Windows drive
+Pass only the sheet scope. A path scope may contain a colon of its own — a Windows drive
 letter — without that colon dividing it into two names, and a workbook is not a sheet.
 
 ## Parameters
@@ -3035,7 +3035,7 @@ of sections as well as removing redundant ones.
 
 The sheet range of a 3-D reference is left alone, so `Sheet2:Sheet1!B2:A1`
 becomes `Sheet2:Sheet1!A1:B2` and no further. Normalizing it would take the
-workbook's sheet names, in order, which a formula does not carry.
+workbook's sheet names, in order, which _Fx_ does not know.
 
 Returns a new array of tokens with values and position data updated.
 

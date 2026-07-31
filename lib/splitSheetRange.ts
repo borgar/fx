@@ -1,5 +1,5 @@
 /**
- * Splits the sheet scope of a prefix into the two sheet names of a sheet range, if it holds one.
+ * Splits the sheet scope of a prefix into the two sheet names of a sheet range, if it contains one.
  *
  * A 3-D reference (`Sheet1:Sheet2!A1`) spans every sheet from one named sheet to another. Its two
  * sheet names occupy the single sheet slot of the reference — `context` (the last scope) or
@@ -23,7 +23,7 @@
  * // => [ 'Jan', 'Dec' ]
  * ```
  *
- * Pass only the sheet scope. A path scope may hold a colon of its own — a Windows drive
+ * Pass only the sheet scope. A path scope may contain a colon of its own — a Windows drive
  * letter — without that colon dividing it into two names, and a workbook is not a sheet.
  *
  * @param scope The sheet scope of a prefix.

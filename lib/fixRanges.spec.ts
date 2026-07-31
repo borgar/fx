@@ -88,7 +88,7 @@ describe('fixRanges prefixes', () => {
     isFixed("='Sheet 1:Sheet 2'!A1", "='Sheet 1:Sheet 2'!A1");
     isFixed("='Sheet1:Sheet 2'!A1", "='Sheet1:Sheet 2'!A1");
     // the trigger is the name and not the range: "C" on its own reads as an R1C1 column, so
-    // whichever end holds it forces the quotes, while "B" and "AB" never do
+    // whichever end has that name forces the quotes, while "B" and "AB" never do
     isFixed('=SUM(A:C!A1)', "=SUM('A:C'!A1)");
     isFixed('=SUM(B:C!A1)', "=SUM('B:C'!A1)");
     isFixed('=SUM(C:D!A1)', "=SUM('C:D'!A1)");
@@ -108,7 +108,7 @@ describe('fixRanges prefixes', () => {
     isFixed('=Jan:Dec!A1', '=Jan:Dec!A1', opts);
     isFixed('=[Book.xlsx]Sheet1:Sheet2!A1', "='[Book.xlsx]Sheet1:Sheet2'!A1", opts);
     isFixed('=[1]Sheet1:Sheet2!A1', "='[1]Sheet1:Sheet2'!A1", opts);
-    // the stored form in a saved xlsx holds the external-link index, never a path
+    // the stored form in a saved xlsx has the external-link index, never a path
     isFixed("=SUM('[1]S1:S3'!A1)", "=SUM('[1]S1:S3'!A1)", opts);
   });
 

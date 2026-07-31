@@ -3,8 +3,8 @@ import { describeCase, properties, sweep } from './sheetRangeProperties.ts';
 
 // A slice small enough to run with the suite. The seeds are fixed so that a failure here is
 // reproducible; `node scripts/propertySweep.ts <count> <seed>` runs the same properties over as
-// much of the grammar as you have patience for, and is the thing to reach for after changing a
-// lexer or the sheet-name grammar.
+// much of the grammar as you have patience for, and is the thing to run after changing a lexer
+// or the sheet-name grammar.
 const COUNT = 4000;
 const SEEDS = [ 1, 2, 3 ];
 

@@ -137,7 +137,7 @@ describe('parse A1 references', () => {
     isA1Equal("'[Book.xlsx]foo':'bar'!A1", { context: [ 'Book.xlsx', 'foo:bar' ], range });
     isA1Equal("foo:'bar'!A1", { sheetName: 'foo:bar', range }, { xlsx: true });
     isA1Equal("'[1]foo':'bar'!A1", { workbookName: '1', sheetName: 'foo:bar', range }, { xlsx: true });
-    // a digit-leading near end reaches the same reading here, where no number is lexed first
+    // a digit-leading near end reads the same way here, where no number is lexed first
     isA1Equal("1:'Dec'!A1", { context: [ '1:Dec' ], range });
     isA1Equal("5:'a b'!A1", { context: [ '5:a b' ], range });
     // ... and a quoted far end with no prefix behind it scopes nothing, so it is no sheet range

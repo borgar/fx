@@ -68,7 +68,7 @@ export type OptsFixRanges = {
  *
  * The sheet range of a 3-D reference is left alone, so `Sheet2:Sheet1!B2:A1`
  * becomes `Sheet2:Sheet1!A1:B2` and no further. Normalizing it would take the
- * workbook's sheet names, in order, which a formula does not carry.
+ * workbook's sheet names, in order, which _Fx_ does not know.
  *
  * Returns a new array of tokens with values and position data updated.
  *
@@ -158,7 +158,7 @@ export function fixTokenRanges (
  *
  * The sheet range of a 3-D reference is left alone, so `Sheet2:Sheet1!B2:A1`
  * becomes `Sheet2:Sheet1!A1:B2` and no further. Normalizing it would take the
- * workbook's sheet names, in order, which a formula does not carry.
+ * workbook's sheet names, in order, which _Fx_ does not know.
  *
  * Returns a new array of tokens with values and position data updated.
  *

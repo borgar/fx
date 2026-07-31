@@ -35,7 +35,8 @@ describe('stringifyR1C1Ref', () => {
     testRef({ context: [ 'Book.xlsx', 'Sheet1' ], range: rangeA1 }, '[Book.xlsx]Sheet1!R[2]C[4]');
     testRef({ context: [ 'Sheet 1:Sheet 2' ], range: rangeA1 }, "'Sheet 1:Sheet 2'!R[2]C[4]");
     testRef({ context: [ 'Jan:Dec' ], name: 'foo' }, 'Jan:Dec!foo');
-    // a near end shaped like a cell in this notation would win the colon for the range operator
+    // a near end that is also a cell address in this notation would give the colon to the range
+    // operator
     testRef({ context: [ 'R1C1:Dec' ], range: rangeA1 }, "'R1C1:Dec'!R[2]C[4]");
     testRef({ context: [ 'RC:Dec' ], range: rangeA1 }, "'RC:Dec'!R[2]C[4]");
     // ... but only the near end decides, and "C" is a part rather than a cell
