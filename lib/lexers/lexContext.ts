@@ -125,6 +125,10 @@ export function lexContextUnquoted (str: string, pos: number, options: LexContex
         // Only one ":" is allowed, and the near end must be a name: the sheet begins after the
         // workbook brackets when there are any, so "[Book.xlsx]:Sheet2!A1" names no first sheet.
         if (colon || pos === (br2 == null ? start : br2 + 1)) { return; }
+        // Nothing here is a prefix without a "!" to close it, and the branch below is the one
+        // expensive test in this lexer, so the cheap way out is taken first. Most colons reaching
+        // this lexer are range operators in a formula that holds no prefix at all.
+        if (str.indexOf('!', pos) < 0) { return; }
         if (endsAWholeRange(str, start, pos, options)) { return; }
         colon = pos;
         if (str.charCodeAt(pos + 1) === QUOT_SINGLE) {
