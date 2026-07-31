@@ -437,15 +437,22 @@ export const properties: readonly Property[] = [
 ];
 
 type AnyRef = { context?: string[], sheetName?: string, workbookName?: string };
-type ParseFn = (ref: string, options: { allowNamed: boolean, allowTernary: boolean }) => unknown;
-type StringifyFn = (ref: never) => string;
+type RefOptions = { allowNamed: boolean, allowTernary: boolean };
 
 /**
  * parse -> stringify -> parse has to reach a fixpoint with the same reference it started from. A
  * reference that survives the first parse but not the second, or that comes back naming other
  * sheets, means the writer emitted text the reader takes as something else.
+ *
+ * The reference type is the parser's own, so each pairing of a parser with its serializer is
+ * checked as the pair it is.
  */
-function roundTrip (c: PropertyCase, parse: ParseFn, stringify: StringifyFn, r1c1: boolean): string | undefined {
+function roundTrip<Ref> (
+  c: PropertyCase,
+  parse: (ref: string, options: RefOptions) => Ref | undefined,
+  stringify: (ref: Ref) => string,
+  r1c1: boolean
+): string | undefined {
   if (c.r1c1 !== r1c1) {
     return;
   }
@@ -454,7 +461,7 @@ function roundTrip (c: PropertyCase, parse: ParseFn, stringify: StringifyFn, r1c
   if (!first) {
     return;
   }
-  const written = stringify(first as never);
+  const written = stringify(first);
   const second = parse(written, opts);
   if (!second) {
     return JSON.stringify(c.ref) + ' wrote ' + JSON.stringify(written) + ', which no longer parses';
@@ -463,7 +470,7 @@ function roundTrip (c: PropertyCase, parse: ParseFn, stringify: StringifyFn, r1c
     return JSON.stringify(c.ref) + ' wrote ' + JSON.stringify(written) + ', which reads back as a ' +
       'different reference: ' + JSON.stringify(first) + ' vs ' + JSON.stringify(second);
   }
-  const again = stringify(second as never);
+  const again = stringify(second);
   if (again !== written) {
     return JSON.stringify(c.ref) + ' is not a fixpoint: ' + JSON.stringify(written) + ' -> ' + JSON.stringify(again);
   }
