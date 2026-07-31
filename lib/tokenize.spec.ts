@@ -180,7 +180,7 @@ describe('lexer', () => {
 
     test('sheet name using the character just past the character table', () => {
       // U+00B4 sits one past ALLOWED's last entry, so it has to be taken by the high-character
-      // branch. It was in neither, and read as undefined, both as a first character ...
+      // branch. It fell outside both, and so read as no mask at all, as a first character ...
       isTokens('=´!A1', [
         { type: FX_PREFIX, value: '=' },
         { type: CONTEXT, value: '´' },
@@ -1288,8 +1288,9 @@ describe('lexer', () => {
         { type: REF_RANGE, value: 'A1' }
       ], { mergeRefs: false });
 
-      // A bracketed workbook name reaches the same allow-mask, so a non-ASCII character in either
-      // part of the prefix has to stop at the "!" like an ASCII one.
+      // A prefix opening with "[" is handed to lexContextUnquoted, which matches high characters
+      // with its own character class instead of the name lexer's allow-mask. These pass either
+      // way; they pin that the two paths agree on a non-ASCII prefix.
       isTokens('=[æði]æði!A1', [
         { type: FX_PREFIX, value: '=' },
         { type: REF_RANGE, value: '[æði]æði!A1' }
