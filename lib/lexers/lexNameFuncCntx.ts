@@ -59,7 +59,10 @@ export function lexNameFuncCntx (
   const start = pos;
 
   const s = str.charCodeAt(pos);
-  const a = s > 180 ? OK_HIGHCHAR : ALLOWED[s - OFFS];
+  // ALLOWED's last entry is U+00B3, and every character past it is allowed wherever a high one
+  // is, which is what OK_HIGHCHAR says. The cut-off has to include U+00B4 itself: at `> 180` that
+  // one character was in neither the table nor the high range, so it read as undefined.
+  const a = s >= 180 ? OK_HIGHCHAR : ALLOWED[s - OFFS];
   // name: [a-zA-Z_\\\u00a1-\uffff]
   // func: [a-zA-Z_]
   // cntx: [a-zA-Z_0-9.¡¤§¨ª\u00ad¯-\uffff]
@@ -78,7 +81,7 @@ export function lexNameFuncCntx (
   let c: number;
   do {
     c = str.charCodeAt(pos);
-    const a = c > 180 ? OK_HIGHCHAR : ALLOWED[c - OFFS] ?? 0;
+    const a = c >= 180 ? OK_HIGHCHAR : ALLOWED[c - OFFS] ?? 0;
     if (a & OK_N) {
       // name: [a-zA-Z_0-9.\\?\u00a1-\uffff]
       // func: [a-zA-Z_0-9.]
