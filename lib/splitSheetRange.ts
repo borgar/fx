@@ -23,8 +23,8 @@
  * // => [ 'Jan', 'Dec' ]
  * ```
  *
- * Pass only the sheet scope. A path scope may hold a colon of its own — a Windows drive letter —
- * without that colon dividing it into two names, and a workbook is not a sheet.
+ * Pass only the sheet scope. A path scope may hold a colon of its own — a Windows drive
+ * letter — without that colon dividing it into two names, and a workbook is not a sheet.
  *
  * @param scope The sheet scope of a prefix.
  * @returns The two sheet names, or `undefined` if the scope does not divide into exactly two.

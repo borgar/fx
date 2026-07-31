@@ -83,7 +83,7 @@ const unquote = d => d.slice(1, -1).replace(/''/g, "'");
 
 // A prefix is normally either quoted whole or not at all, but the two ends of a sheet range may
 // also be quoted separately ("foo:'bar'") — each quoted run is therefore unquoted where it sits,
-// which leaves a wholly quoted or wholly bare prefix untouched.
+// which handles a wholly quoted prefix, and a wholly bare one, just as before.
 export function unquoteParts (value: string): string {
   if (!value.includes("'")) {
     return value;

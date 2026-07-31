@@ -112,7 +112,7 @@ There is no ambiguity to resolve inside the sheet scope: `:` is one of the chara
 **Anything that resolves a sheet name must split that slot first.** A 3-D reference puts `Jan:Dec` exactly where an ordinary reference puts `Sheet1`, and nothing but the colon inside the name distinguishes them. Code that looks a sheet name up against the workbook's sheets and is handed the slot whole will match no sheet at all — and, since a lookup that finds nothing usually reads as "no such sheet" rather than as an error, will do so silently. Use `splitSheetRange`, which returns the two sheet names, or `undefined` for an ordinary single-sheet scope:
 
 ```js
-const ref = parseA1Ref(formula);
+const ref = parseA1Ref(refString);
 const scope = ref.context[ref.context.length - 1];
 const sheets = splitSheetRange(scope) ?? [ scope ];
 ```

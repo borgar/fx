@@ -122,8 +122,8 @@ export function lexNameFuncCntx (
           // (`s > 180` reads the token's first character where it means the current one), which
           // otherwise makes every character after a name starting above U+00B4 look like one
           // too, swallowing the rest of the string. So "Ærið:'Ärger'!A1" lexes while
-          // "Ærið:Ärger!A1", and plain "Ærið!A1" before it, still do not. That asymmetry is a
-          // side effect, not a design: the mask is fixed separately.
+          // "Ærið:Ärger!A1", and plain "Ærið!A1" before it, are still taken whole into a name
+          // token. That asymmetry is a side effect, not a design: the mask is fixed separately.
           const len = advSheetName(str, pos + 1);
           if (len && str.charCodeAt(pos + 1 + len) === EXCL) {
             return { type: CONTEXT, value: str.slice(start, pos + 1 + len) };

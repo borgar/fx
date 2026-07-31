@@ -6,11 +6,11 @@ const EXCL = 33; // !
 
 // The cell shapes of each notation: "A1", "B2", "XFD1048576" in A1 notation, "R1C1", "RC1", "R1C"
 // and "RC" in R1C1. The bracketed R1C1 forms ("R[1]C[1]") need no test of their own, a bracket
-// being neither a sheet-name character nor one a bare prefix may hold.
+// being neither a sheet-name character nor one that can reach either end of a sheet range.
 const reIsCellA1 = /^[A-Z]{1,3}\d{1,7}$/i;
 const reIsCellR1C1 = /^R(?:[1-9]\d{0,6})?C(?:[1-9]\d{0,4})?$/i;
 
-// [0-9A-Za-z._¡¤§¨ª­¯-￿]
+// [0-9A-Za-z._¡¤§¨ª\u00ad¯-\uffff]
 export function isContextChar (c: number): boolean {
   return (
     (c >= 65 && c <= 90) || // A-Z
@@ -23,8 +23,8 @@ export function isContextChar (c: number): boolean {
     (c === 167) || // §
     (c === 168) || // ¨
     (c === 170) || // ª
-    (c === 173) || // ­
-    (c >= 175)    // ¯-￿
+    (c === 173) || // \u00ad
+    (c >= 175)    // ¯-\uffff
   );
 }
 
