@@ -1052,8 +1052,8 @@ const sheets = splitSheetRange(scope) ?? [ scope ];
 // => [ 'Jan', 'Dec' ]
 ```
 
-Pass only the sheet scope. A path scope may hold a colon of its own — a Windows drive letter —
-without that colon dividing it into two names, and a workbook is not a sheet.
+Pass only the sheet scope. A path scope may hold a colon of its own — a Windows drive
+letter — without that colon dividing it into two names, and a workbook is not a sheet.
 
 ## Parameters
 
