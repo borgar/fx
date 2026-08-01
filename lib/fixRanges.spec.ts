@@ -77,6 +77,9 @@ describe('fixRanges prefixes', () => {
     isFixed('=R!B2', "='R'!B2");
     isFixed('=RC!B2', "='RC'!B2");
     isFixed('=CR!B2', '=CR!B2');
+    isFixed("='TRUE'!B2", "='TRUE'!B2");
+    isFixed("='false'!B2", "='false'!B2");
+    isFixed("='Truer'!B2", '=Truer!B2');
   });
 });
 
