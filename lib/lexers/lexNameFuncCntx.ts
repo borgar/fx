@@ -1,6 +1,6 @@
 import { CONTEXT, FUNCTION, REF_NAMED, UNKNOWN } from '../constants.ts';
 import type { Token } from '../types.ts';
-import { advSheetName } from './advSheetName.ts';
+import { advSheetName, spanTakesOperand } from './advSheetName.ts';
 import { lexContextUnquoted, type LexContextOptions } from './lexContext.ts';
 
 const BR_OPEN = 91; // [
@@ -122,7 +122,11 @@ export function lexNameFuncCntx (
         else if (str.charCodeAt(pos + 1) === QUOT_SINGLE) {
           // the far end of a sheet range may be quoted on its own: "foo:'bar'!A1"
           const len = advSheetName(str, pos + 1);
-          if (len && str.charCodeAt(pos + 1 + len) === EXCL) {
+          if (
+            len &&
+            str.charCodeAt(pos + 1 + len) === EXCL &&
+            spanTakesOperand(str, pos + len + 2, !!opts.r1c1)
+          ) {
             return { type: CONTEXT, value: str.slice(start, pos + 1 + len) };
           }
           cntx = 0;
@@ -136,8 +140,14 @@ export function lexNameFuncCntx (
       if (c === PAREN_OPEN && func) {
         return { type: FUNCTION, value: str.slice(start, pos) };
       }
-      // a trailing colon means the second sheet name is missing
-      else if (c === EXCL && cntx && !(colon && colon === pos - 1)) {
+      // A trailing colon means the second sheet name is missing. A colon at all means a sheet
+      // range, which stands only in front of a cell reference: where the operand is not one, the
+      // colon is the range operator and what precedes it is a name, not a prefix.
+      else if (
+        c === EXCL && cntx &&
+        !(colon && colon === pos - 1) &&
+        (!colon || spanTakesOperand(str, pos + 1, !!opts.r1c1))
+      ) {
         return { type: CONTEXT, value: str.slice(start, pos) };
       }
       return nameOrUnknown(str, s, start, nameEnd || pos, nameEnd ? 1 : name);

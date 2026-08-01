@@ -94,6 +94,11 @@ export function stringifyPrefix (
   let quote = 0;
   let nth = 0;
   let sheetRange = false;
+  // Only a reference to a cell may write a sheet range bare, the lexers reading one back only in
+  // front of a cell reference (see spanTakesOperand). A name or a table takes the colon as an
+  // ordinary character, which needQuotes quotes as one, so "a:b" in front of a name comes back
+  // out as "'a:b'!Name" and reads back as the single scope it was written from.
+  const takesSheetRange = 'range' in ref && !!ref.range;
   const context = ref.context || [];
   for (let i = context.length; i > -1; i--) {
     const scope = context[i];
@@ -104,9 +109,12 @@ export function stringifyPrefix (
       if (nth) {
         quote += needQuotes(scope, quote);
       }
-      else {
+      else if (takesSheetRange) {
         sheetRange = !!splitSheetRange(scope);
         quote += needQuotesSheet(scope, quote, r1c1);
+      }
+      else {
+        quote += needQuotes(scope, quote);
       }
       nth++;
     }
@@ -132,14 +140,16 @@ export function stringifyPrefixXlsx (
   let pre = '';
   let quote = 0;
   const { workbookName, sheetName } = ref;
+  // see stringifyPrefix: only a reference to a cell may write a sheet range bare
+  const takesSheetRange = 'range' in ref && !!ref.range;
   if (workbookName) {
     pre += '[' + workbookName + ']';
     quote += needQuotes(workbookName);
   }
   if (sheetName) {
     pre += sheetName;
-    quote += needQuotesSheet(sheetName, 0, r1c1);
-    if (workbookName && splitSheetRange(sheetName)) {
+    quote += takesSheetRange ? needQuotesSheet(sheetName, 0, r1c1) : needQuotes(sheetName);
+    if (takesSheetRange && workbookName && splitSheetRange(sheetName)) {
       // see stringifyPrefix: a workbook-qualified sheet range is written quoted as a whole
       quote = 1;
     }

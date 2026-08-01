@@ -1,3 +1,6 @@
+import { lexRangeA1 } from './lexRangeA1.ts';
+import { lexRangeR1C1 } from './lexRangeR1C1.ts';
+
 const QUOT_SINGLE = 39; // '
 const BR_OPEN = 91; // [
 const BR_CLOSE = 93; // ]
@@ -79,6 +82,31 @@ export function isCellShape (name: string, r1c1: boolean): boolean {
   return (r1c1 ? reIsCellR1C1 : reIsCellA1).test(name);
 }
 
+// Does a cell reference begin at `pos`, the operand a sheet prefix's "!" has just closed? A bare
+// sheet range stands in front of one and nowhere else, so this is what decides whether the colon
+// ahead of the "!" divides two sheet names or is the range operator.
+//
+// Measured in Excel, on sheets `Alpha`, `Beta` and `Gamma` with a table `Table1`. `Alpha:Gamma!A1`
+// is the sheet range, and renaming `Alpha` rewrites it. `Alpha:Gamma!SomeName` is the range
+// operator joining a name `Alpha` to `Gamma!SomeName`, and the same rename leaves it untouched —
+// a sheet rename has no reason to touch a name. `Alpha:Gamma!Table1[Col]` is the range operator
+// too, and Excel rewrites it to `Alpha:Table1[Col]`, discarding the `Gamma!` as it discards any
+// sheet prefix on a table; a sheet range is not a thing that could be discarded from there.
+//
+// The range lexers answer this themselves, so the reading agrees with what the operand would
+// actually lex as, and they are asked permissively: any cell reference at all, of either notation
+// as the caller has it, keeps the sheet-range reading. Only an operand no range lexer can begin
+// on gives the colon away, which is what a name or a table name is.
+//
+// This settles the bare spelling alone. Excel reads a quoted `'Alpha:Gamma'!SomeName` as a
+// workbook file name with no sheet at all, a reference Fx has no way to represent, so the quoted
+// spellings still arrive here as sheet ranges.
+export function spanTakesOperand (str: string, pos: number, r1c1: boolean): boolean {
+  return !!(r1c1
+    ? lexRangeR1C1(str, pos, { allowTernary: true })
+    : lexRangeA1(str, pos, { allowTernary: true, mergeRefs: true }));
+}
+
 // Does a sheet prefix start here — a sheet name, or the two of a sheet range joined by a ":", and
 // then the "!" that closes every prefix? Each name is measured as a name, so it does not have to
 // be a reference part ("C1:Dec!R1C1") and either end may be quoted on its own ("C1:'Dec'!R1C1").
@@ -94,6 +122,10 @@ export function isCellShape (name: string, r1c1: boolean): boolean {
 // joined to 'B2'!C3 in A1 notation, while "A1:B2!R3C3" is a sheet range in R1C1, where "A1"
 // addresses nothing. A lone name needs no such test — a range lexer can never take one whole,
 // "!" being no range character.
+//
+// A range of two is measured past the "!" as well, spanTakesOperand deciding whether the operand
+// admits a sheet range at all. A lone name is again exempt: "Jan!SomeName" is an ordinary prefix
+// on an ordinary name, and only the colon raises the question.
 export function startsSheetPrefix (str: string, pos: number, r1c1: boolean): boolean {
   const near = advSheetName(str, pos);
   if (!near) {
@@ -109,5 +141,10 @@ export function startsSheetPrefix (str: string, pos: number, r1c1: boolean): boo
   if (!far || str.charCodeAt(pos + near + 1 + far) !== EXCL) {
     return false;
   }
-  return !isCellShape(str.slice(pos, pos + near), r1c1);
+  if (isCellShape(str.slice(pos, pos + near), r1c1)) {
+    return false;
+  }
+  // The cheap tests are spent; what is left is the operand, and a sheet range needs a cell
+  // reference there. A lone name asks nothing of the operand, so only this branch consults it.
+  return spanTakesOperand(str, pos + near + 1 + far + 1, r1c1);
 }

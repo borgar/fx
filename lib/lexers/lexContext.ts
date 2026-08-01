@@ -1,6 +1,6 @@
 import { CONTEXT, CONTEXT_QUOTE } from '../constants.ts';
 import type { Token } from '../types.ts';
-import { advSheetName, isContextChar } from './advSheetName.ts';
+import { advSheetName, isContextChar, spanTakesOperand } from './advSheetName.ts';
 import { lexRange } from './lexRange.ts';
 
 const QUOT_SINGLE = 39; // '
@@ -11,7 +11,7 @@ const COLON = 58; // :
 
 // xlsx xml uses a variant of the syntax that has external references in
 // bracets. Any of: [1]Sheet1!A1, '[1]Sheet one'!A1, [1]!named
-export function lexContextQuoted (str: string, pos: number, options: { xlsx: boolean }): Token | undefined {
+export function lexContextQuoted (str: string, pos: number, options: LexContextOptions): Token | undefined {
   const c0 = str.charCodeAt(pos);
   let br1: number;
   let br2: number;
@@ -43,9 +43,15 @@ export function lexContextQuoted (str: string, pos: number, options: { xlsx: boo
             return { type: CONTEXT_QUOTE, value: str.slice(start, pos) };
           }
           if (valid && str.charCodeAt(pos) === COLON) {
-            // this is the near end of a sheet range that quotes its ends separately
+            // This is the near end of a sheet range that quotes its ends separately — if the
+            // operand admits a sheet range at all. Where it does not, the colon is the range
+            // operator, and no prefix begins here.
             const len = advSheetName(str, pos + 1);
-            if (len && str.charCodeAt(pos + 1 + len) === EXCL) {
+            if (
+              len &&
+              str.charCodeAt(pos + 1 + len) === EXCL &&
+              spanTakesOperand(str, pos + len + 2, !!options.r1c1)
+            ) {
               return { type: CONTEXT_QUOTE, value: str.slice(start, pos + 1 + len) };
             }
           }
@@ -112,6 +118,12 @@ export function lexContextUnquoted (str: string, pos: number, options: LexContex
           // The second sheet name is missing, and no later "!" can supply one: "!" is not a
           // sheet-name character, so scanning on would take this one for the far end and read
           // "a:!!A1" as a sheet range over a sheet named "!".
+          return;
+        }
+        if (colon && !spanTakesOperand(str, pos + 1, !!options.r1c1)) {
+          // The operand admits no sheet range, so the colon is the range operator and this run is
+          // not one prefix. Both spellings of the far end come through here, the bare one and the
+          // separately quoted one the branch below steps over.
           return;
         }
         if (valid) {
