@@ -107,9 +107,9 @@ parseA1Ref('[1]Sheet1:Sheet2!A1');
 */
 ```
 
-There is no ambiguity to resolve inside the sheet scope: `:` is one of the characters Excel forbids in a sheet name, so a colon there can only be separating two of them. A colon elsewhere in the prefix is something else — a Windows drive letter in a path, or a colon in a workbook file name — which is why the split below is scoped rather than applied to the prefix as a whole.
+A colon in the sheet scope divides two sheet names when what follows the `!` is a *cell reference*. `:` is one of the characters Excel forbids in a sheet name — measured in Excel, a rename to any name containing one is refused — so where the sheet-range reading is available at all, the colon separates two names rather than belonging to either. A colon elsewhere in the prefix is something else — a Windows drive letter in a path, or a colon in a workbook file name — which is why the split below is scoped to the sheet slot rather than applied to the prefix as a whole. In front of a defined name or a structured reference the sheet slot is not a sheet range either, and what Excel makes of it instead is below.
 
-**Anything that resolves a sheet name must split that slot first.** A 3-D reference puts `Jan:Dec` exactly where an ordinary reference puts `Sheet1`, and nothing but the colon inside the name distinguishes them. Code that looks a sheet name up against the workbook's sheets and is handed the slot whole will match no sheet at all — and, since a lookup that finds nothing usually reads as "no such sheet" rather than as an error, will do so silently. Use `splitSheetRange`, which returns the two sheet names, or `undefined` for an ordinary single-sheet scope:
+**Anything that resolves a sheet name in front of a cell reference must split that slot first.** A 3-D reference puts `Jan:Dec` exactly where an ordinary reference puts `Sheet1`, and nothing but the colon inside the name distinguishes them. Code that looks a sheet name up against the workbook's sheets and is handed the slot whole will match no sheet at all — and, since a lookup that finds nothing usually reads as "no such sheet" rather than as an error, will do so silently. Use `splitSheetRange`, which returns the two sheet names, or `undefined` for an ordinary single-sheet scope:
 
 ```js
 const ref = parseA1Ref(refString);
@@ -120,6 +120,20 @@ const sheets = splitSheetRange(scope) ?? [ scope ];
 Pass it the sheet scope only, and in the unquoted form the parsers hand back. `parseA1Ref` and `parseR1C1Ref` have already stripped the surrounding quotes and collapsed doubled apostrophes, so every spelling converges on the same scope: `'Sheet 1:Sheet 3'!A1` arrives as `Sheet 1:Sheet 3`, `foo:'bar baz'!A1` as `foo:bar baz`, and `'It''s:Fine'!A1` as `It's:Fine`. `splitSheetRange` does no unquoting of its own — it splits on the colon and returns the two halves verbatim — so the names it returns are ready to match against a workbook's sheets with no further processing.
 
 Handing it the raw quoted prefix instead is the trap worth naming: `splitSheetRange("'Sheet 1:Sheet 3'")` returns `[ "'Sheet 1", "Sheet 3'" ]`, two names with stray quotes, with no error and no `undefined` to signal it. A path scope, likewise, may contain a colon of its own — a Windows drive letter — without that colon dividing it into two names.
+
+**What follows the `!` decides whether the split is right at all, so a caller has to know which kind of reference it is holding before it splits.** A sheet range is a sheet range only in front of a cell reference. In front of anything Excel reaches by name — a defined name or a structured reference — Excel has no sheet-range reading for the prefix and falls back on two other readings of the same text. Measured in Excel, on a workbook with sheets `Alpha`, `Beta` and `Gamma` and a table `Table1` on `Beta`:
+
+| written | how Excel reads the prefix | stored |
+| --- | --- | --- |
+| `Alpha:Gamma!A1` | the sheet range, spanning `Alpha`, `Beta` and `Gamma` | unchanged |
+| `Alpha:Gamma!SomeName` | the range operator, joining a name `Alpha` to `Gamma!SomeName` | unchanged |
+| `'Alpha:Gamma'!SomeName` | a workbook *file name*, colon and all | `[n]!SomeName`, with no sheet at all |
+| `Alpha:Gamma!Table1[Col]` | the range operator, with `Gamma!` discarded as any sheet prefix on a table is | `Alpha:Table1[Col]` |
+| `'Alpha:Gamma'!Table1[Col]` | a workbook file name | `[n]!Table1[Col]` |
+
+None of the four resolves: the bare spellings are a range operation over a name that does not exist, and the quoted ones point into a workbook file that does not exist, `[n]` being an external-link index Excel manufactures for it. The prefix is not what varies — the operand is. `'C:Book.xlsx'!A1` is a sheet range over sheets named `C` and `Book.xlsx`, while that identical prefix in `'C:Book.xlsx'!Name` is a workbook file name and stores as `[n]!Name`.
+
+**_Fx_ does not make this distinction, and reads all four non-cell spellings above as sheet ranges.** `parseA1Ref` returns `context: [ 'Alpha:Gamma' ]` for each of them, and `splitSheetRange` divides each into `[ 'Alpha', 'Gamma' ]`. Applying the recipe to a defined name or a structured reference therefore yields two sheet names out of a scope Excel reads as one workbook file, or out of one Excel does not read as a single prefix at all.
 
 Because the colon separates two names rather than belonging to either, the quoting rules are applied to each end on its own, and the whole prefix is quoted as one unit if either end calls for it. So `=SUM(Sales:Marketing!B3)` needs no quotes, while `'Sheet1:Sheet 2'!A1` does — the same as Excel.
 
