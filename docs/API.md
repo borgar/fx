@@ -893,11 +893,13 @@ sheet at all and silently finds nothing. The scope is returned unquoted —
 `'Sheet 1:Sheet 3'!A1` yields `context: [ 'Sheet 1:Sheet 3' ]` — which is the form
 [splitSheetRange](#fxfunctionssplitsheetrangemd) expects, so pass it on as it comes.
 
-Split it only when a cell reference follows the `!`. Measured in Excel, a colon-bearing scope in
-front of a defined name is no sheet range: bare, the colon is the range operator, and quoted,
-the scope is a workbook file name. This function reads both as sheet ranges all the same, so a
-caller handling names as well as ranges has to tell them apart itself — see
-[splitSheetRange](#fxfunctionssplitsheetrangemd).
+A sheet range only ever arrives in front of a cell reference. Measured in Excel, a bare
+colon-bearing scope in front of a defined name is no sheet range — the colon is the range
+operator, so `Alpha:Gamma!SomeName` is two operands rather than one reference — and this
+function returns `undefined` for it, as it does for any expression that is not a single
+reference. The quoted spelling is the exception: Excel reads `'Alpha:Gamma'!SomeName` as a
+workbook *file name* with no sheet at all, which _Fx_ has no way to represent, so that one is
+still returned as a sheet range. See [splitSheetRange](#fxfunctionssplitsheetrangemd).
 
 ## Parameters
 
@@ -1060,17 +1062,20 @@ const sheets = splitSheetRange(scope) ?? [ scope ];
 // => [ 'Jan', 'Dec' ]
 ```
 
-**What follows the `!` decides whether splitting is right at all, so a caller has to know which
-kind of reference it is holding.** A sheet range is a sheet range only in front of a cell
-reference. Measured in Excel, a colon-bearing scope in front of a defined name or a structured
-reference is never one: bare, the colon is the range operator, so `Alpha:Gamma!SomeName` joins
-a name `Alpha` to `Gamma!SomeName`, and `Alpha:Gamma!Table1[Col]` is stored as
-`Alpha:Table1[Col]`; quoted, the scope is a workbook *file name*, colon and all, so
-`'Alpha:Gamma'!SomeName` is stored as `[n]!SomeName`, with no sheet in it at all.
+**A sheet range is a sheet range only in front of a cell reference**, so a colon-bearing scope
+reaches this function from one place only. Measured in Excel, a colon-bearing scope in front of
+a defined name or a structured reference is never a sheet range: bare, the colon is the range
+operator, so `Alpha:Gamma!SomeName` joins a name `Alpha` to `Gamma!SomeName`, and
+`Alpha:Gamma!Table1[Col]` is stored as `Alpha:Table1[Col]`; quoted, the scope is a workbook
+*file name*, colon and all, so `'Alpha:Gamma'!SomeName` is stored as `[n]!SomeName`, with no
+sheet in it at all.
 
-_Fx_ does not make that distinction. It reads all four of those spellings as sheet ranges, and
-this function divides each into `[ 'Alpha', 'Gamma' ]`, so a caller resolving sheet names for
-anything but a cell reference has to tell them apart itself. See [Prefixes.md](./Prefixes.md).
+_Fx_ reads the bare spellings as Excel does — the parsers hand back no single reference for
+them, so no scope arrives here to be split. The **quoted** ones it still reads as sheet ranges,
+having no way to represent a workbook file name with no sheet, so `'Alpha:Gamma'!SomeName` and
+`'Alpha:Gamma'!Table1[Col]` yield a scope this function divides into `[ 'Alpha', 'Gamma' ]`. A
+caller resolving sheet names for anything but a cell reference has to allow for that itself.
+See [Prefixes.md](./Prefixes.md).
 
 Pass only the sheet scope, in the unquoted form the parsers return. `parseA1Ref` and
 `parseR1C1Ref` strip the surrounding quotes and collapse doubled apostrophes, so every spelling
@@ -3130,11 +3135,13 @@ and silently finds nothing. The name is returned unquoted — `'Sheet 1:Sheet 3'
 `sheetName: 'Sheet 1:Sheet 3'` — which is the form [splitSheetRange](#fxfunctionssplitsheetrangemd) expects, so pass it
 on as it comes.
 
-Split it only when a cell reference follows the `!`. Measured in Excel, a colon-bearing scope in
-front of a defined name is no sheet range: bare, the colon is the range operator, and quoted,
-the scope is a workbook file name. This function reads both as sheet ranges all the same, so a
-caller handling names as well as ranges has to tell them apart itself — see
-[splitSheetRange](#fxfunctionssplitsheetrangemd).
+A sheet range only ever arrives in front of a cell reference. Measured in Excel, a bare
+colon-bearing scope in front of a defined name is no sheet range — the colon is the range
+operator, so `Alpha:Gamma!SomeName` is two operands rather than one reference — and this
+function returns `undefined` for it, as it does for any expression that is not a single
+reference. The quoted spelling is the exception: Excel reads `'Alpha:Gamma'!SomeName` as a
+workbook *file name* with no sheet at all, which _Fx_ has no way to represent, so that one is
+still returned as a sheet range. See [splitSheetRange](#fxfunctionssplitsheetrangemd).
 
 ## Parameters
 

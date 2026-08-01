@@ -23,17 +23,20 @@
  * // => [ 'Jan', 'Dec' ]
  * ```
  *
- * **What follows the `!` decides whether splitting is right at all, so a caller has to know which
- * kind of reference it is holding.** A sheet range is a sheet range only in front of a cell
- * reference. Measured in Excel, a colon-bearing scope in front of a defined name or a structured
- * reference is never one: bare, the colon is the range operator, so `Alpha:Gamma!SomeName` joins
- * a name `Alpha` to `Gamma!SomeName`, and `Alpha:Gamma!Table1[Col]` is stored as
- * `Alpha:Table1[Col]`; quoted, the scope is a workbook *file name*, colon and all, so
- * `'Alpha:Gamma'!SomeName` is stored as `[n]!SomeName`, with no sheet in it at all.
+ * **A sheet range is a sheet range only in front of a cell reference**, so a colon-bearing scope
+ * reaches this function from one place only. Measured in Excel, a colon-bearing scope in front of
+ * a defined name or a structured reference is never a sheet range: bare, the colon is the range
+ * operator, so `Alpha:Gamma!SomeName` joins a name `Alpha` to `Gamma!SomeName`, and
+ * `Alpha:Gamma!Table1[Col]` is stored as `Alpha:Table1[Col]`; quoted, the scope is a workbook
+ * *file name*, colon and all, so `'Alpha:Gamma'!SomeName` is stored as `[n]!SomeName`, with no
+ * sheet in it at all.
  *
- * _Fx_ does not make that distinction. It reads all four of those spellings as sheet ranges, and
- * this function divides each into `[ 'Alpha', 'Gamma' ]`, so a caller resolving sheet names for
- * anything but a cell reference has to tell them apart itself. See [Prefixes.md](./Prefixes.md).
+ * _Fx_ reads the bare spellings as Excel does — the parsers hand back no single reference for
+ * them, so no scope arrives here to be split. The **quoted** ones it still reads as sheet ranges,
+ * having no way to represent a workbook file name with no sheet, so `'Alpha:Gamma'!SomeName` and
+ * `'Alpha:Gamma'!Table1[Col]` yield a scope this function divides into `[ 'Alpha', 'Gamma' ]`. A
+ * caller resolving sheet names for anything but a cell reference has to allow for that itself.
+ * See [Prefixes.md](./Prefixes.md).
  *
  * Pass only the sheet scope, in the unquoted form the parsers return. `parseA1Ref` and
  * `parseR1C1Ref` strip the surrounding quotes and collapse doubled apostrophes, so every spelling

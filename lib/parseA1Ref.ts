@@ -49,11 +49,13 @@ export type OptsParseA1Ref = {
  * `'Sheet 1:Sheet 3'!A1` yields `context: [ 'Sheet 1:Sheet 3' ]` — which is the form
  * {@link splitSheetRange} expects, so pass it on as it comes.
  *
- * Split it only when a cell reference follows the `!`. Measured in Excel, a colon-bearing scope in
- * front of a defined name is no sheet range: bare, the colon is the range operator, and quoted,
- * the scope is a workbook file name. This function reads both as sheet ranges all the same, so a
- * caller handling names as well as ranges has to tell them apart itself — see
- * {@link splitSheetRange}.
+ * A sheet range only ever arrives in front of a cell reference. Measured in Excel, a bare
+ * colon-bearing scope in front of a defined name is no sheet range — the colon is the range
+ * operator, so `Alpha:Gamma!SomeName` is two operands rather than one reference — and this
+ * function returns `undefined` for it, as it does for any expression that is not a single
+ * reference. The quoted spelling is the exception: Excel reads `'Alpha:Gamma'!SomeName` as a
+ * workbook *file name* with no sheet at all, which _Fx_ has no way to represent, so that one is
+ * still returned as a sheet range. See {@link splitSheetRange}.
  *
  * @see {@link OptsParseA1Ref}
  * @see {@link splitSheetRange}
@@ -110,11 +112,13 @@ export function parseA1Ref (
  * `sheetName: 'Sheet 1:Sheet 3'` — which is the form {@link splitSheetRange} expects, so pass it
  * on as it comes.
  *
- * Split it only when a cell reference follows the `!`. Measured in Excel, a colon-bearing scope in
- * front of a defined name is no sheet range: bare, the colon is the range operator, and quoted,
- * the scope is a workbook file name. This function reads both as sheet ranges all the same, so a
- * caller handling names as well as ranges has to tell them apart itself — see
- * {@link splitSheetRange}.
+ * A sheet range only ever arrives in front of a cell reference. Measured in Excel, a bare
+ * colon-bearing scope in front of a defined name is no sheet range — the colon is the range
+ * operator, so `Alpha:Gamma!SomeName` is two operands rather than one reference — and this
+ * function returns `undefined` for it, as it does for any expression that is not a single
+ * reference. The quoted spelling is the exception: Excel reads `'Alpha:Gamma'!SomeName` as a
+ * workbook *file name* with no sheet at all, which _Fx_ has no way to represent, so that one is
+ * still returned as a sheet range. See {@link splitSheetRange}.
  *
  * @see {@link OptsParseA1Ref}
  * @see {@link splitSheetRange}
