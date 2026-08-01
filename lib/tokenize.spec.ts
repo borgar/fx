@@ -2269,9 +2269,41 @@ describe('lexer', () => {
         { type: OPERATOR, value: ':' },
         { type: REF_RANGE, value: 'B2' }
       ], { mergeRefs: false });
+      isTokens("='Sheet1:Sheet2'!name", [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_NAMED, value: "'Sheet1:Sheet2'!name" }
+      ]);
+    });
+
+    test('an operand reached by name takes the colon for the range operator', () => {
+      // Measured in Excel: a sheet range stands in front of a cell reference and nowhere else. A
+      // bare one in front of a defined name survives a rename of its first sheet untouched, where
+      // both an ordinary prefix and a span over a cell are rewritten — so the first name is an
+      // ordinary name, and the colon between the two is the range operator.
       isTokens('=Sheet1:Sheet2!name', [
         { type: FX_PREFIX, value: '=' },
-        { type: REF_NAMED, value: 'Sheet1:Sheet2!name' }
+        { type: REF_NAMED, value: 'Sheet1' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_NAMED, value: 'Sheet2!name' }
+      ]);
+      // In front of a table it reads the same way, and Excel goes on to discard the second
+      // operand's sheet prefix, storing `Sheet1:Sheet2!Table[Col]` as `Sheet1:Table[Col]`.
+      isTokens('=Sheet1:Sheet2!Table[Col]', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_NAMED, value: 'Sheet1' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_STRUCT, value: 'Sheet2!Table[Col]' }
+      ]);
+      // Quoted, the sheet-range reading stands, fx having no way to represent what Excel makes of
+      // that spelling — a workbook file name with no sheet at all.
+      isTokens("='Sheet1:Sheet2'!Table[Col]", [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_STRUCT, value: "'Sheet1:Sheet2'!Table[Col]" }
+      ]);
+      // A lone sheet name is untouched by any of this: only a colon raises the question.
+      isTokens('=Sheet1!name', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_NAMED, value: 'Sheet1!name' }
       ]);
     });
 

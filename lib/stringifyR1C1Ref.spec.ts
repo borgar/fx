@@ -34,7 +34,10 @@ describe('stringifyR1C1Ref', () => {
     testRef({ context: [ 'Book.xlsx', 'Sheet1:Sheet2' ], range: rangeA1 }, "'[Book.xlsx]Sheet1:Sheet2'!R[2]C[4]");
     testRef({ context: [ 'Book.xlsx', 'Sheet1' ], range: rangeA1 }, '[Book.xlsx]Sheet1!R[2]C[4]');
     testRef({ context: [ 'Sheet 1:Sheet 2' ], range: rangeA1 }, "'Sheet 1:Sheet 2'!R[2]C[4]");
-    testRef({ context: [ 'Jan:Dec' ], name: 'foo' }, 'Jan:Dec!foo');
+    // A sheet range in front of a name is quoted whatever its ends look like, because bare it
+    // would not read back as one: the colon of a bare sheet range is the range operator unless a
+    // cell reference follows the "!".
+    testRef({ context: [ 'Jan:Dec' ], name: 'foo' }, "'Jan:Dec'!foo");
     // a near end that is also a cell address in this notation would give the colon to the range
     // operator
     testRef({ context: [ 'R1C1:Dec' ], range: rangeA1 }, "'R1C1:Dec'!R[2]C[4]");
@@ -76,7 +79,8 @@ describe('stringifyR1C1Ref in XLSX mode', () => {
     testRef({ sheetName: 'Jan:Dec', range: rangeA1 }, 'Jan:Dec!R[2]C[4]');
     testRef({ sheetName: 'Sheet 1:Sheet 2', range: rangeA1 }, "'Sheet 1:Sheet 2'!R[2]C[4]");
     testRef({ workbookName: '1', sheetName: 'Sheet1:Sheet2', range: rangeA1 }, "'[1]Sheet1:Sheet2'!R[2]C[4]");
-    testRef({ sheetName: 'Jan:Dec', name: 'foo' }, 'Jan:Dec!foo');
+    // see the non-xlsx twin: in front of a name the colon has to be quoted to read back
+    testRef({ sheetName: 'Jan:Dec', name: 'foo' }, "'Jan:Dec'!foo");
     testRef({ sheetName: 'R1C1:Dec', range: rangeA1 }, "'R1C1:Dec'!R[2]C[4]");
     testRef({ sheetName: 'Dec:R1C1', range: rangeA1 }, 'Dec:R1C1!R[2]C[4]');
   });

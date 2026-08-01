@@ -102,7 +102,36 @@ describe('parser', () => {
       isParsed('[Book.xlsx]Sheet1:Sheet2!A1', {
         type: 'ReferenceIdentifier', value: '[Book.xlsx]Sheet1:Sheet2!A1', kind: 'range'
       });
-      isParsed('Sheet1:Sheet2!foo', { type: 'ReferenceIdentifier', value: 'Sheet1:Sheet2!foo', kind: 'name' });
+      isParsed("'Sheet1:Sheet2'!foo", { type: 'ReferenceIdentifier', value: "'Sheet1:Sheet2'!foo", kind: 'name' });
+    });
+
+    test('a sheet range stands only in front of a cell reference', () => {
+      // Measured in Excel: bare, in front of anything reached by name, the colon is the range
+      // operator. `Alpha:Gamma!SomeName` survives a rename of the sheet `Alpha` untouched, where
+      // both an ordinary `Alpha!SomeName` and a span over a cell are rewritten, so the `Alpha`
+      // there is a name and not a sheet. In front of a table the same holds, and Excel goes on to
+      // discard the second operand's sheet prefix, storing `Alpha:Gamma!T[C]` as `Alpha:T[C]`.
+      isParsed('Sheet1:Sheet2!foo', {
+        type: 'BinaryExpression',
+        operator: ':',
+        arguments: [
+          { type: 'ReferenceIdentifier', value: 'Sheet1', kind: 'name' },
+          { type: 'ReferenceIdentifier', value: 'Sheet2!foo', kind: 'name' }
+        ]
+      });
+      isParsed('Sheet1:Sheet2!Table[Column]', {
+        type: 'BinaryExpression',
+        operator: ':',
+        arguments: [
+          { type: 'ReferenceIdentifier', value: 'Sheet1', kind: 'name' },
+          { type: 'ReferenceIdentifier', value: 'Sheet2!Table[Column]', kind: 'table' }
+        ]
+      });
+      // Quoted, the sheet-range reading stands: Excel reads that spelling as a workbook file name
+      // with no sheet at all, which fx has no way to represent.
+      isParsed("'Sheet1:Sheet2'!Table[Column]", {
+        type: 'ReferenceIdentifier', value: "'Sheet1:Sheet2'!Table[Column]", kind: 'table'
+      });
     });
 
     test('a left side that is also a cell address wins over a sheet range', () => {

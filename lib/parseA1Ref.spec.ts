@@ -117,12 +117,19 @@ describe('parse A1 references', () => {
     isA1Equal("'Sheet 1:Sheet 2'!A1", { context: [ 'Sheet 1:Sheet 2' ], range });
     isA1Equal('[Book.xlsx]Sheet1:Sheet2!A1', { context: [ 'Book.xlsx', 'Sheet1:Sheet2' ], range });
     isA1Equal("'[Book.xlsx]Sheet 1:Sheet 2'!A1", { context: [ 'Book.xlsx', 'Sheet 1:Sheet 2' ], range });
-    isA1Equal('Sheet1:Sheet2!foo', { context: [ 'Sheet1:Sheet2' ], name: 'foo' });
+    // A sheet range stands in front of a cell reference and nowhere else. Measured in Excel, a
+    // bare one in front of a defined name is the range operator joining a name to a prefixed
+    // name, so it is two operands and not one reference, and there is nothing here to resolve.
+    isA1Equal('Sheet1:Sheet2!foo', undefined);
+    // Quoted, it is still read as a sheet range: Excel reads that spelling as a workbook file
+    // name with no sheet at all, which fx has no way to represent.
+    isA1Equal("'Sheet1:Sheet2'!foo", { context: [ 'Sheet1:Sheet2' ], name: 'foo' });
 
     isA1Equal('Jan:Dec!A1', { sheetName: 'Jan:Dec', range }, { xlsx: true });
     isA1Equal('[1]Sheet1:Sheet2!A1', { workbookName: '1', sheetName: 'Sheet1:Sheet2', range }, { xlsx: true });
     isA1Equal("'[1]Sheet1:Sheet2'!A1", { workbookName: '1', sheetName: 'Sheet1:Sheet2', range }, { xlsx: true });
-    isA1Equal('Sheet1:Sheet2!foo', { sheetName: 'Sheet1:Sheet2', name: 'foo' }, { xlsx: true });
+    isA1Equal('Sheet1:Sheet2!foo', undefined, { xlsx: true });
+    isA1Equal("'Sheet1:Sheet2'!foo", { sheetName: 'Sheet1:Sheet2', name: 'foo' }, { xlsx: true });
   });
 
   test('each end of a sheet range may be quoted on its own', () => {

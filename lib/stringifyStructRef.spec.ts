@@ -51,12 +51,14 @@ describe('serialize structured references', () => {
     })).toBe('workbook.xlsx!tableName[[#Data],[my column]:[fo\'@o]]');
   });
 
-  test('3-D references are quoted per endpoint', () => {
+  test('a sheet range in front of a table is quoted whatever its ends look like', () => {
+    // Bare it would not read back as one sheet scope: the colon of a bare sheet range is the range
+    // operator unless a cell reference follows the "!", which a table name is not.
     expect(stringifyStructRef({
       columns: [ 'Column' ],
       table: 'Table',
       context: [ 'Sheet1:Sheet2' ]
-    })).toBe('Sheet1:Sheet2!Table[Column]');
+    })).toBe("'Sheet1:Sheet2'!Table[Column]");
 
     expect(stringifyStructRef({
       columns: [ 'Column' ],
@@ -120,12 +122,13 @@ describe('structured references serialize in xlsx mode', () => {
     })).toBe('Ipsum![foo]');
   });
 
-  test('3-D references are quoted per endpoint', () => {
+  test('a sheet range in front of a table is quoted whatever its ends look like', () => {
+    // see the non-xlsx twin
     expect(stringifyStructRefXlsx({
       sheetName: 'Sheet1:Sheet2',
       table: 'Table',
       columns: [ 'Column' ]
-    })).toBe('Sheet1:Sheet2!Table[Column]');
+    })).toBe("'Sheet1:Sheet2'!Table[Column]");
 
     expect(stringifyStructRefXlsx({
       sheetName: 'Sheet 1:Sheet 2',

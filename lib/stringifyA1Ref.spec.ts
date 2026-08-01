@@ -62,7 +62,10 @@ describe('stringifyA1Ref', () => {
 
   test('3-D references are quoted per endpoint', () => {
     expect(stringifyA1Ref({ context: [ 'Jan:Dec' ], range: rangeA1 })).toBe('Jan:Dec!A1');
-    expect(stringifyA1Ref({ context: [ 'Sales:Marketing' ], name: 'foo' })).toBe('Sales:Marketing!foo');
+    // A sheet range in front of a name is quoted whatever its ends look like, because bare it
+    // would not read back as one: the colon of a bare sheet range is the range operator unless a
+    // cell reference follows the "!".
+    expect(stringifyA1Ref({ context: [ 'Sales:Marketing' ], name: 'foo' })).toBe("'Sales:Marketing'!foo");
     expect(stringifyA1Ref({ context: [ 'Sheet 1:Sheet 2' ], range: rangeA1 })).toBe("'Sheet 1:Sheet 2'!A1");
     expect(stringifyA1Ref({ context: [ 'Sheet1:Sheet 2' ], range: rangeA1 })).toBe("'Sheet1:Sheet 2'!A1");
     expect(stringifyA1Ref({ context: [ 'Sheet 1:Sheet2' ], range: rangeA1 })).toBe("'Sheet 1:Sheet2'!A1");
@@ -143,7 +146,8 @@ describe('stringifyA1Ref in XLSX mode', () => {
 
   test('3-D references are quoted per endpoint', () => {
     expect(stringifyA1RefXlsx({ sheetName: 'Jan:Dec', range: rangeA1 })).toBe('Jan:Dec!A1');
-    expect(stringifyA1RefXlsx({ sheetName: 'Jan:Dec', name: 'foo' })).toBe('Jan:Dec!foo');
+    // see the non-xlsx twin: in front of a name the colon has to be quoted to read back
+    expect(stringifyA1RefXlsx({ sheetName: 'Jan:Dec', name: 'foo' })).toBe("'Jan:Dec'!foo");
     expect(stringifyA1RefXlsx({ sheetName: 'Sheet 1:Sheet 2', range: rangeA1 })).toBe("'Sheet 1:Sheet 2'!A1");
     expect(stringifyA1RefXlsx({ sheetName: 'Sheet1:Sheet 2', range: rangeA1 })).toBe("'Sheet1:Sheet 2'!A1");
     expect(stringifyA1RefXlsx({ sheetName: '1:5', range: rangeA1 })).toBe("'1:5'!A1");
