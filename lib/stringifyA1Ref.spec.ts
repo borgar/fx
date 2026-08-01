@@ -48,6 +48,18 @@ describe('stringifyA1Ref', () => {
     expect(stringifyA1Ref({ context: [ 'Sch1' ], range: rangeA1 })).toBe("'Sch1'!A1");
     expect(stringifyA1Ref({ context: [ 'Foo12345' ], range: rangeA1 })).toBe("'Foo12345'!A1");
   });
+
+  test('should quote prefixes that read as booleans', () => {
+    // bare "TRUE!A1" lexes as the boolean joined to a reference, so the name needs its quotes as
+    // much as a range-like one does
+    expect(stringifyA1Ref({ context: [ 'TRUE' ], range: rangeA1 })).toBe("'TRUE'!A1");
+    expect(stringifyA1Ref({ context: [ 'False' ], range: rangeA1 })).toBe("'False'!A1");
+    // these two already earn their quotes from the banned ":" rather than the boolean rule
+    expect(stringifyA1Ref({ context: [ 'False:Jan' ], range: rangeA1 })).toBe("'False:Jan'!A1");
+    expect(stringifyA1Ref({ context: [ 'Jan:true' ], range: rangeA1 })).toBe("'Jan:true'!A1");
+    // ... while a name that merely starts with one is no boolean
+    expect(stringifyA1Ref({ context: [ 'Truer' ], range: rangeA1 })).toBe('Truer!A1');
+  });
 });
 
 describe('stringifyA1Ref in XLSX mode', () => {
@@ -90,6 +102,15 @@ describe('stringifyA1Ref in XLSX mode', () => {
     expect(stringifyA1RefXlsx({ workbookName: 'Ab12', range: rangeA1 })).toBe("'[Ab12]'!A1");
     expect(stringifyA1RefXlsx({ workbookName: 'Sch1', range: rangeA1 })).toBe("'[Sch1]'!A1");
     expect(stringifyA1RefXlsx({ workbookName: 'Foo12345', range: rangeA1 })).toBe("'[Foo12345]'!A1");
+  });
+
+  test('sheet names that read as booleans are quoted', () => {
+    expect(stringifyA1RefXlsx({ sheetName: 'TRUE', range: rangeA1 })).toBe("'TRUE'!A1");
+    // the ":" name is quoted by the banned-character rule, boolean endpoints or not
+    expect(stringifyA1RefXlsx({ sheetName: 'False:Jan', range: rangeA1 })).toBe("'False:Jan'!A1");
+    // Excel leaves a bracketed workbook name bare, but fx over-quotes it as it does a
+    // digit-leading or range-like one
+    expect(stringifyA1RefXlsx({ workbookName: 'TRUE', range: rangeA1 })).toBe("'[TRUE]'!A1");
   });
 
   test('digit-leading sheet and workbook names are quoted', () => {

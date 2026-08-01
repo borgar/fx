@@ -12,6 +12,7 @@ import type {
 const reBannedChars = /[^0-9A-Za-z._¡¤§¨ª\u00ad¯-\uffff]/;
 // A1-XFD1048575 | R | C | RC
 const reIsRangelike = /^(R|C|RC|[A-Z]{1,3}\d{1,7})$/i;
+const reIsBoolean = /^(TRUE|FALSE)$/i;
 
 export function needQuotes (scope: string, yesItDoes = 0): number {
   if (yesItDoes) {
@@ -27,6 +28,11 @@ export function needQuotes (scope: string, yesItDoes = 0): number {
     // Sheet/workbook names starting with a digit must be quoted in Excel to
     // avoid ambiguity with numeric literals.
     if (/^\d/.test(scope)) {
+      return 1;
+    }
+    // A boolean literal is likewise read ahead of a name: bare "TRUE!A1" lexes as TRUE joined to
+    // a reference, so a sheet named TRUE or FALSE has to be quoted to read back as a prefix.
+    if (reIsBoolean.test(scope)) {
       return 1;
     }
   }
