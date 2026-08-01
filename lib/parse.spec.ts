@@ -105,7 +105,7 @@ describe('parser', () => {
       isParsed('Sheet1:Sheet2!foo', { type: 'ReferenceIdentifier', value: 'Sheet1:Sheet2!foo', kind: 'name' });
     });
 
-    test('a cell-shaped left side wins over a sheet range', () => {
+    test('a left side that is also a cell address wins over a sheet range', () => {
       isParsed('A1:B2!C3', {
         type: 'BinaryExpression',
         operator: ':',

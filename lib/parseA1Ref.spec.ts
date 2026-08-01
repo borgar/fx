@@ -154,7 +154,7 @@ describe('parse A1 references', () => {
     isA1Equal('[Book.xlsx]:Sheet2!A1', undefined);
   });
 
-  test('a cell-shaped left side wins over a sheet range', () => {
+  test('a left side that is also a cell address wins over a sheet range', () => {
     // "A1:B2!C3" is cell A1 joined to 'B2'!C3, so it is not a single reference at all
     isA1Equal('A1:B2!C3', undefined);
     isA1Equal('A1:Sheet2!B2', undefined);

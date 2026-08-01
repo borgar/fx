@@ -168,7 +168,7 @@ describe('translate cross-sheet ranges', () => {
 });
 
 describe('translate 3-D references', () => {
-  test('the sheet range is carried through untouched', () => {
+  test('the sheet range is passed through untouched', () => {
     isA2R('=Jan:Dec!A1', 'C3', '=Jan:Dec!R[-2]C[-2]');
     isA2R("='Sheet 1:Sheet 2'!A1:B2", 'C3', "='Sheet 1:Sheet 2'!R[-2]C[-2]:R[-1]C[-1]");
     isA2R('=SUM(A:C!A1:B2)', 'C3', '=SUM(A:C!R[-2]C[-2]:R[-1]C[-1])');

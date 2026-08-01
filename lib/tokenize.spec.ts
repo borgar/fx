@@ -1187,7 +1187,7 @@ describe('lexer', () => {
       ], { mergeRefs: false });
     });
 
-    test('a sheet name holding a "." is not a range and a stray dot', () => {
+    test('a sheet name containing a "." is not a range and a stray dot', () => {
       // "." is the one character a sheet name may contain that a range is also allowed to end on,
       // so a range lexer would otherwise stop part-way through one: the "v1" of "v1.0" is no cell
       isTokens('=v1.0!A1', [
@@ -2300,7 +2300,7 @@ describe('lexer', () => {
       ]);
     });
 
-    test('a sheet name holding a "." is still one name', () => {
+    test('a sheet name containing a "." is still one name', () => {
       // "." is the one character a sheet name may contain that a range is also allowed to end on,
       // so a name is measured to the colon rather than to wherever the range grammar runs out.
       // Here the beam "A:a" stops inside the far end's name, and "a1" inside the near end's.
@@ -2638,7 +2638,7 @@ describe('lexer', () => {
       ], { r1c1: true });
     });
 
-    test('a cell-shaped left side wins over a sheet range', () => {
+    test('a left side that is also a cell address wins over a sheet range', () => {
       // Excel reads "=SUM(A1:B2!C3)" as cell A1 joined to 'B2'!C3 (and yields #VALUE!), while
       // "=SUM(A:C!A1)" and "=SUM(Jan:Mar!A1)" are sheet ranges — a left side that is only a
       // column letter does not take the colon that way. Only the quoted spelling makes such a

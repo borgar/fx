@@ -123,7 +123,7 @@ describe('fixRanges prefixes', () => {
     isFixed("=foo:'bar'!A1", '=foo:bar!A1', { xlsx: true });
   });
 
-  test('a cell-shaped left side wins over a 3-D reference', () => {
+  test('a left side that is also a cell address wins over a 3-D reference', () => {
     isFixed('=SUM(A1:B2!C3)', "=SUM(A1:'B2'!C3)");
     isFixed("=SUM('A1:B2'!C3)", "=SUM('A1:B2'!C3)");
   });

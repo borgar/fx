@@ -37,7 +37,7 @@ describe('translate absolute cells from A1 to RC', () => {
     okayRoundTrip("=SUM('[1]S1:S3'!A1)", 'C3');
   });
 
-  test('3-D references over sheet names shaped like R1C1 parts', () => {
+  test('3-D references over sheet names that are also R1C1 parts', () => {
     // The sheet range travels verbatim, so the R1C1 leg has to read back as a sheet range what
     // the A1 leg did: "C", "R" and their numbered forms are R1C1 parts, but they are no more
     // cells there than "A1" is, so the colon is still a sheet-range separator. The prefix comes
@@ -48,7 +48,7 @@ describe('translate absolute cells from A1 to RC', () => {
     expect(translateFormulaToA1(translateFormulaToR1C1('=R:Q!A1', 'C3'), 'C3')).toBe("='R:Q'!A1");
   });
 
-  test('3-D references over sheet names shaped like a cell in the other notation', () => {
+  test('3-D references over sheet names that are cell addresses in the other notation', () => {
     // A prefix travels verbatim, so a sheet range whose near end is a cell where it lands has to
     // pick up quotes on the way: bare, that end gives the colon to the range operator and the
     // reference is no longer the same one.
