@@ -43,9 +43,9 @@ export function lexContextQuoted (str: string, pos: number, options: LexContextO
             return { type: CONTEXT_QUOTE, value: str.slice(start, pos) };
           }
           if (valid && str.charCodeAt(pos) === COLON) {
-            // This is the near end of a sheet range that quotes its ends separately — if the
-            // operand admits a sheet range at all. Where it does not, the colon is the range
-            // operator, and no prefix begins here.
+            // The first end of a sheet range that quotes its ends separately ("'foo':bar!A1") —
+            // if the operand admits a sheet range at all. Where it does not, the colon is the
+            // range operator and no prefix begins here.
             const len = advSheetName(str, pos + 1);
             if (
               len &&
@@ -63,11 +63,10 @@ export function lexContextQuoted (str: string, pos: number, options: LexContextO
   }
 }
 
-// Is the run from `start` to `pos` a whole range in its own right? A left end that is also a
-// valid cell address belongs to the range operator rather than to a sheet range, so "A1:B2!C3" is
-// cell A1 joined to 'B2'!C3 rather than a reference into sheets A1 through B2. The formula lexers
-// settle this by running lexRange ahead of the context lexers, but the reference lexers run this
-// one first, so it has to ask.
+// Is the run from `start` to `pos` a whole range in its own right? A first sheet name that is also
+// a valid cell address belongs to the range operator rather than to a sheet range, so "A1:B2!C3"
+// is cell A1 joined to 'B2'!C3. The formula lexers settle that by running lexRange ahead of the
+// context lexers; the reference lexers run this one first, so it has to ask.
 function endsAWholeRange (str: string, start: number, pos: number, options: LexContextOptions): boolean {
   const range = lexRange(str, start, {
     allowTernary: !!options.allowTernary,
@@ -91,8 +90,8 @@ export function lexContextUnquoted (str: string, pos: number, options: LexContex
   let br1: number;
   let br2: number;
   // Offset of the ":" of a sheet range (`Sheet1:Sheet2!A1`, a 3-D reference), 0 when there is
-  // none. Excel forbids ":" in sheet names, so at most one may occur here and it must have a
-  // sheet name on either side of it.
+  // none. Excel forbids ":" in a sheet name, so at most one may occur here, with a sheet name on
+  // either side of it.
   let colon = 0;
   if (c0 !== QUOT_SINGLE && c0 !== EXCL) {
     const start = pos;
@@ -116,13 +115,13 @@ export function lexContextUnquoted (str: string, pos: number, options: LexContex
         }
         if (colon && colon === pos - 1) {
           // The second sheet name is missing, and no later "!" can supply one: "!" is not a
-          // sheet-name character, so scanning on would take this one for the far end and read
+          // sheet-name character, so scanning on would take this one for the second name and read
           // "a:!!A1" as a sheet range over a sheet named "!".
           return;
         }
         if (colon && !operandAllowsSheetRange(str, pos + 1, !!options.r1c1)) {
-          // The operand admits no sheet range, so the colon is the range operator and this run is
-          // not one prefix. Both spellings of the far end come through here, the bare one and the
+          // No sheet range here, so the colon is the range operator and this run is not one
+          // prefix. Both spellings of the second name reach this test: the bare one, and the
           // separately quoted one the branch below steps over.
           return;
         }
@@ -131,20 +130,17 @@ export function lexContextUnquoted (str: string, pos: number, options: LexContex
         }
       }
       else if (c === COLON && (br1 == null || br2 != null)) {
-        // ":" joins the two names, but "$" is not admitted alongside it: Excel refuses
-        // "$Jan:$Mar!A1" on entry, and a file containing one does not open at all.
-        //
-        // Only one ":" is allowed, and the near end must be a name: the sheet begins after the
-        // workbook brackets when there are any, so "[Book.xlsx]:Sheet2!A1" names no first sheet.
+        // Only one ":" is allowed, and it must have a sheet name in front of it. The sheet begins
+        // past the workbook brackets when there are any, so "[Book.xlsx]:Sheet2!A1" has none.
         if (colon || pos === (br2 == null ? start : br2 + 1)) { return; }
-        // Nothing here is a prefix without a "!" to close it, and the branch below is the one
-        // expensive test in this lexer, so the cheap way out is taken first. Most colons that get
-        // here are range operators in a formula that contains no prefix at all.
+        // Nothing is a prefix without a "!" to close it, and endsAWholeRange is the one expensive
+        // test in this lexer, so the cheap way out goes first: most colons reaching here are range
+        // operators in a formula that holds no prefix at all.
         if (str.indexOf('!', pos) < 0) { return; }
         if (endsAWholeRange(str, start, pos, options)) { return; }
         colon = pos;
         if (str.charCodeAt(pos + 1) === QUOT_SINGLE) {
-          // the far end of a sheet range may be quoted on its own: "foo:'bar'!A1"
+          // the second name of a sheet range may be quoted on its own: "foo:'bar'!A1"
           const len = advSheetName(str, pos + 1);
           if (!len || str.charCodeAt(pos + 1 + len) !== EXCL) { return; }
           pos += len;

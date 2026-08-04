@@ -1,19 +1,16 @@
 // regular: [A-Za-z0-9_\u00a1-\uffff]
-// Also rejects "!" and "'", because a range must not end where a sheet prefix begins, whether
-// that prefix is quoted or not. This function never sees a whole sheet range — lexRange defers
-// to one before either notation's range lexer runs — so what it settles is the pair whose near
-// end is also a valid cell address, and is therefore not a sheet range: "A1:B2" in "A1:B2!C3" ends
-// at "A1", so that "B2!" can prefix the right-hand side, and "R1C1:R2C2" in "R1C1:R2C2!R3C3"
-// likewise in R1C1 notation. Excel resolves those spellings the same way: a colon ahead of the
-// sheet prefix separates two sheet names, unless what precedes it is also a valid cell address,
-// in which case the reference on the right keeps the sheet prefix ("=SUM(A1:B2!C3)" is stored as
-// "=SUM(A1:'B2'!C3)" and evaluates to #VALUE!).
+// Also rejects "!" and "'", because a range must not end where a sheet prefix begins, quoted or
+// not. lexRange defers to a whole sheet range before either notation's range lexer runs, so what
+// is left to settle here is the pair whose first name is also a valid cell address and is
+// therefore not a sheet range: "A1:B2" in "A1:B2!C3" ends at "A1", leaving "B2!" to prefix the
+// right-hand side, and likewise "R1C1:R2C2" in "R1C1:R2C2!R3C3" in R1C1 notation. Excel reads
+// them the same way, storing "=SUM(A1:B2!C3)" as "=SUM(A1:'B2'!C3)", which evaluates to #VALUE!.
 //
-// The "'" is refused whether or not a prefix does follow it, which is wider than the rule needs
-// and is meant to stay that way: an unfinished "=A1'" degrades to a single UNKNOWN token rather
-// than a range and a stray quote. Narrowing it would buy a lookahead to the closing quote and
-// nothing else, since no valid formula puts a quote straight after a range, and the half-typed
-// spelling that does matter, "=A1:'Sheet 2'!B2", ends its range at the colon instead.
+// The "'" is refused whether or not a prefix follows, which is wider than the rule needs: it
+// makes an unfinished "=A1'" one UNKNOWN token rather than a range and a stray quote. Narrowing
+// it would buy a lookahead to the closing quote and nothing else, no valid formula putting a
+// quote straight after a range, and the half-typed "=A1:'Sheet 2'!B2" ending its range at the
+// colon anyway.
 export function canEndRange (str: string, pos: number): boolean {
   const c = str.charCodeAt(pos);
   return !(

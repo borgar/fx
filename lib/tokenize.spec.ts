@@ -1154,8 +1154,8 @@ describe('lexer', () => {
     test('sheet names above the character table', () => {
       // The table of sheet-name characters stops at U+00B4, past which every character is allowed
       // wherever a high one is. The mask has to be read off the character in hand: reading it off
-      // the name's first character instead let every character after a high one pass, swallowing
-      // the "!" and the range behind it into a single name token.
+      // the name's first character instead let everything after a high one pass, swallowing the
+      // "!" and the range behind it into a single name token.
       isTokens('=Ærið!A1', [
         { type: FX_PREFIX, value: '=' },
         { type: CONTEXT, value: 'Ærið' },
@@ -1174,11 +1174,11 @@ describe('lexer', () => {
         { type: OPERATOR, value: '+' },
         { type: NUMBER, value: '1' }
       ]);
-      // Two high-character names either side of a colon are one sheet range, not two endpoints.
-      // #52, which extracts the mask fix on its own, asserts the opposite for this input — six
-      // tokens rather than four — and is right to, since without sheet ranges that is what it is.
-      // Both assertions arrive here when #52 lands and master merges in, and this is the one that
-      // survives.
+      // Two high-character names either side of a colon are one sheet range, not two names. PR
+      // #52 carries the same mask fix on its own and asserts six tokens for this input instead,
+      // correctly for a branch without sheet ranges. Merging it in brings both assertions into
+      // this file, in different describe blocks, with no git conflict to flag it: this is the one
+      // that survives.
       isTokens('=Ærið:Ärger!A1', [
         { type: FX_PREFIX, value: '=' },
         { type: CONTEXT, value: 'Ærið:Ärger' },
@@ -2275,11 +2275,11 @@ describe('lexer', () => {
       ]);
     });
 
-    test('an operand reached by name takes the colon for the range operator', () => {
+    test('a colon in front of a name or a table is the range operator', () => {
       // Measured in Excel: a sheet range stands in front of a cell reference and nowhere else. A
       // bare one in front of a defined name survives a rename of its first sheet untouched, where
-      // both an ordinary prefix and a span over a cell are rewritten — so the first name is an
-      // ordinary name, and the colon between the two is the range operator.
+      // both an ordinary prefix and a sheet range over a cell are rewritten — so the first name
+      // is an ordinary name, and the colon between the two is the range operator.
       isTokens('=Sheet1:Sheet2!name', [
         { type: FX_PREFIX, value: '=' },
         { type: REF_NAMED, value: 'Sheet1' },
@@ -2335,7 +2335,7 @@ describe('lexer', () => {
     test('a sheet name containing a "." is still one name', () => {
       // "." is the one character a sheet name may contain that a range is also allowed to end on,
       // so a name is measured to the colon rather than to wherever the range grammar runs out.
-      // Here the beam "A:a" stops inside the far end's name, and "a1" inside the near end's.
+      // Here the beam "A:a" stops inside the second name, and "a1" inside the first.
       isTokens('=A:a.b!A1', [
         { type: FX_PREFIX, value: '=' },
         { type: REF_RANGE, value: 'A:a.b!A1' }
@@ -2348,7 +2348,8 @@ describe('lexer', () => {
         { type: FX_PREFIX, value: '=' },
         { type: REF_RANGE, value: 'a1.b:Dec!A1' }
       ]);
-      // ... and a near end that only starts out as a cell address is no cell, so it keeps no colon
+      // ... and a first name that only starts out as a cell address is no cell, so it keeps no
+      // colon
       isTokens('=A1.b:Dec!A1', [
         { type: FX_PREFIX, value: '=' },
         { type: REF_RANGE, value: 'A1.b:Dec!A1' }
@@ -2406,9 +2407,8 @@ describe('lexer', () => {
 
     test('each end of a sheet range may be quoted on its own', () => {
       // Accepted to be forgiving of other producers: Excel does not read a separately-quoted pair
-      // as a sheet range at all. The tell of getting this wrong is an open-ended beam: the lexer
-      // bailing at the quote used to leave "foo:" behind, which then normalized to the
-      // unrelated "A:FOO".
+      // as a sheet range at all. Getting this wrong shows up as an open-ended beam — a lexer
+      // bailing at the quote leaves "foo:" behind, which then normalizes to the unrelated "A:FOO".
       isTokens("=foo:'bar'!A1", [
         { type: FX_PREFIX, value: '=' },
         { type: REF_RANGE, value: "foo:'bar'!A1" }
@@ -2442,8 +2442,9 @@ describe('lexer', () => {
         { type: REF_RANGE, value: 'A1' }
       ], { mergeRefs: false });
       // A workbook may only be named ahead of the whole prefix, so a quoted endpoint containing
-      // one is not an endpoint. Excel writes this when the far end of a sheet range names no sheet:
-      // it manufactures an external link for that name, leaving a reference to another workbook.
+      // one is not an endpoint. Excel writes this spelling when the second name of a sheet range
+      // stops naming a sheet: it manufactures an external link for that name, which leaves a
+      // reference into another workbook.
       isTokens("=Jan:'[1]Nope'!A1", [
         { type: FX_PREFIX, value: '=' },
         { type: REF_NAMED, value: 'Jan' },
@@ -2484,7 +2485,7 @@ describe('lexer', () => {
         { type: OPERATOR, value: ':' },
         { type: UNKNOWN, value: "'Dec'" }
       ]);
-      // ... nor a quoted near end whose far end is missing
+      // ... nor a quoted first sheet name whose second is missing
       isTokens("='Jan':!A1", [
         { type: FX_PREFIX, value: '=' },
         { type: UNKNOWN, value: "'Jan'" },
@@ -2573,7 +2574,7 @@ describe('lexer', () => {
         { type: FX_PREFIX, value: '=' },
         { type: REF_BEAM, value: 'C1:C5' }
       ], { r1c1: true });
-      // the far end is a sheet name, so it need not be an R1C1 part itself, nor unquoted
+      // the second sheet name is a sheet name, so it need not be an R1C1 part itself, nor unquoted
       isTokens('=C1:Dec!R1C1', [
         { type: FX_PREFIX, value: '=' },
         { type: REF_RANGE, value: 'C1:Dec!R1C1' }
@@ -2590,8 +2591,9 @@ describe('lexer', () => {
         { type: FX_PREFIX, value: '=' },
         { type: REF_RANGE, value: 'R1:Total!R1C1' }
       ], { r1c1: true });
-      // ... but a bracket is one thing a sheet name may not contain, so a far end with one names
-      // no second sheet and the near end is left standing as a beam
+      // ... but a bracket is one thing a sheet name may not contain, so a second name with one
+      // names
+      // no second sheet and the first sheet name is left standing as a beam
       isTokens('=C1:R[1]C[1]!R1C1', [
         { type: FX_PREFIX, value: '=' },
         { type: REF_BEAM, value: 'C1' },
@@ -2604,14 +2606,14 @@ describe('lexer', () => {
         { type: OPERATOR, value: '!' },
         { type: REF_RANGE, value: 'R1C1' }
       ], { r1c1: true });
-      // ... and a bracket on the near end rules a sheet range out just the same
+      // ... and a bracket on the first sheet name rules a sheet range out just the same
       isTokens('=R[1]:Dec!R1C1', [
         { type: FX_PREFIX, value: '=' },
         { type: REF_BEAM, value: 'R[1]' },
         { type: OPERATOR, value: ':' },
         { type: REF_RANGE, value: 'Dec!R1C1' }
       ], { r1c1: true });
-      // a trim range operator's "." counts towards the near end's name, as it does in A1, where
+      // a trim range operator's "." counts towards the first sheet name, as it does in A1, where
       // "=A.:Dec!C3" is likewise a sheet range
       isTokens('=C1.:Dec!R1C1', [
         { type: FX_PREFIX, value: '=' },
@@ -2627,7 +2629,7 @@ describe('lexer', () => {
         { type: FX_PREFIX, value: '=' },
         { type: REF_RANGE, value: 'R1C1.b:Dec!R1C1' }
       ], { r1c1: true });
-      // ... while a missing far end names no second sheet
+      // ... while a missing second sheet name names no second sheet
       isTokens('=C1:!R1C1', [
         { type: FX_PREFIX, value: '=' },
         { type: REF_BEAM, value: 'C1' },
@@ -2635,7 +2637,7 @@ describe('lexer', () => {
         { type: OPERATOR, value: '!' },
         { type: REF_RANGE, value: 'R1C1' }
       ], { r1c1: true });
-      // ... but with no sheet prefix behind it, the near end is still a beam of its own
+      // ... but with no sheet prefix behind it, the first sheet name is still a beam of its own
       isTokens('=C1:Dec', [
         { type: FX_PREFIX, value: '=' },
         { type: REF_BEAM, value: 'C1' },
@@ -2783,7 +2785,8 @@ describe('lexer', () => {
         { type: OPERATOR, value: ':' },
         { type: REF_RANGE, value: 'baz1!A1' }
       ]);
-      // a later "!" does not supply the missing far end: "!" is no sheet name, so the prefix ends
+      // a later "!" does not supply the missing second name: "!" is no sheet name, so the prefix
+      // ends
       // at the colon rather than scanning on for a second one
       isTokens('=a:!!A1', [
         { type: FX_PREFIX, value: '=' },
@@ -2797,7 +2800,8 @@ describe('lexer', () => {
 
     test('a sheet named "." keeps the colon of its sheet range', () => {
       // "." heads the trim range operators, which run ahead of every other lexer, so a sheet
-      // range whose near end is a lone "." has to be let past them as it is past the range lexers
+      // range whose first name is a lone "." has to be let past them as it is past the range
+      // lexers
       isTokens('=.:Dec!A1', [
         { type: FX_PREFIX, value: '=' },
         { type: REF_RANGE, value: '.:Dec!A1' }

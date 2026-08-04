@@ -13,8 +13,8 @@
  * ```
  *
  * Anything resolving a sheet name in front of a cell reference must split it first. A 3-D
- * reference puts `Jan:Dec` where an ordinary reference puts `Sheet1`, so a lookup that is handed
- * the slot whole matches no sheet at all, and silently finds nothing rather than failing.
+ * reference puts `Jan:Dec` where an ordinary reference puts `Sheet1`, so a lookup handed the slot
+ * whole matches no sheet at all — and silently finds nothing rather than failing.
  *
  * ```js
  * const ref = parseA1Ref('Jan:Dec!A1');
@@ -23,35 +23,24 @@
  * // => [ 'Jan', 'Dec' ]
  * ```
  *
- * **A sheet range is a sheet range only in front of a cell reference**, so a colon-bearing scope
- * reaches this function from one place only. Measured in Excel, a colon-bearing scope in front of
- * a defined name or a structured reference is never a sheet range: bare, the colon is the range
- * operator, so `Alpha:Gamma!SomeName` joins a name `Alpha` to `Gamma!SomeName`, and
- * `Alpha:Gamma!Table1[Col]` is stored as `Alpha:Table1[Col]`; quoted, the scope is a workbook
- * *file name*, colon and all, so `'Alpha:Gamma'!SomeName` is stored as `[n]!SomeName`, with no
- * sheet in it at all.
- *
- * _Fx_ reads the bare spellings as Excel does — the parsers hand back no single reference for
- * them, so no scope arrives here to be split. The **quoted** ones it still reads as sheet ranges,
- * having no way to represent a workbook file name with no sheet, so `'Alpha:Gamma'!SomeName` and
- * `'Alpha:Gamma'!Table1[Col]` yield a scope this function divides into `[ 'Alpha', 'Gamma' ]`. A
- * caller resolving sheet names for anything but a cell reference has to allow for that itself.
- * See [Prefixes.md](./Prefixes.md).
- *
  * Pass only the sheet scope, in the unquoted form the parsers return. `parseA1Ref` and
  * `parseR1C1Ref` strip the surrounding quotes and collapse doubled apostrophes, so every spelling
  * converges on the same scope: `'Sheet 1:Sheet 3'!A1` yields `Sheet 1:Sheet 3`, `foo:'bar baz'!A1`
  * yields `foo:bar baz`, and `'It''s:Fine'!A1` yields `It's:Fine`. This function does no unquoting
- * of its own — it splits on the colon and returns the two halves verbatim — so the names it
- * returns need no further processing before being matched against a workbook's sheets.
+ * of its own, so the names it returns are ready to match against a workbook's sheets.
  *
- * Handing it a raw quoted prefix instead is the trap: `splitSheetRange("'Sheet 1:Sheet 3'")`
- * returns `[ "'Sheet 1", "Sheet 3'" ]`, two names with stray quotes, with no error and no
- * `undefined` to signal it, and a caller matching those against a workbook's sheets silently
- * matches nothing.
+ * Handing it a raw quoted prefix instead fails silently: `splitSheetRange("'Sheet 1:Sheet 3'")`
+ * returns `[ "'Sheet 1", "Sheet 3'" ]`, two names with stray quotes, and no `undefined` to signal
+ * it. Pass the sheet scope alone for the same reason a path scope must be kept out of it: a colon
+ * there is a Windows drive letter and divides no sheet names.
  *
- * A path scope may likewise contain a colon of its own — a Windows drive letter — without that
- * colon dividing it into two names, and a workbook is not a sheet.
+ * One caveat. A sheet range is a sheet range only in front of a cell reference, and _Fx_ reads
+ * that as Excel does, so an ordinary colon-bearing scope reaches this function from that one
+ * place. The exception is a *quoted* scope in front of a defined name or a table: Excel reads
+ * `'Alpha:Gamma'!SomeName` as a workbook file name with no sheet at all, which _Fx_ cannot
+ * represent and so still reports as the sheet range `[ 'Alpha', 'Gamma' ]`. A caller resolving
+ * sheet names for anything but a cell reference has to allow for that itself. See
+ * [Prefixes.md](./Prefixes.md).
  *
  * @param scope The sheet scope of a prefix, unquoted.
  * @returns The two sheet names, unquoted as the scope was, or `undefined` when the scope has no
@@ -64,8 +53,8 @@ export function splitSheetRange (scope: string): [ string, string ] | undefined 
   }
   const from = scope.slice(0, colon);
   const to = scope.slice(colon + 1);
-  // Excel forbids ":" in a sheet name, so where a sheet range is a reading at all — in front of a
-  // cell reference — a colon here separates two of them. A scope that does not divide into
-  // exactly two names is not a sheet range, and is left to be handled as a (malformed) sheet name.
+  // Excel forbids ":" in a sheet name, so wherever a sheet range is a reading at all, a colon here
+  // separates two of them. A scope that does not divide into exactly two names is no sheet range,
+  // and is left to be handled as a (malformed) sheet name.
   return (from && to && !to.includes(':')) ? [ from, to ] : undefined;
 }

@@ -15,8 +15,8 @@ export function lexRefOp (str: string, pos: number, opts: { r1c1: boolean }): To
     // in A1 mode we allow [ '!' ] + [ ':', '.:', ':.', '.:.']
     const opLen = advRangeOp(str, pos);
     if (opLen) {
-      // see lexRangeTrim: a sheet may be named ".", and a sheet range opening with one takes the
-      // "." that would otherwise start a trim range operator
+      // see lexRangeTrim: a sheet may be named ".", and a sheet range starting with one takes the
+      // "." that would otherwise open a trim range operator
       if (str.charCodeAt(pos) === PERIOD && startsSheetPrefix(str, pos, false)) {
         return;
       }

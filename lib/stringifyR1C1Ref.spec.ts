@@ -38,11 +38,11 @@ describe('stringifyR1C1Ref', () => {
     // would not read back as one: the colon of a bare sheet range is the range operator unless a
     // cell reference follows the "!".
     testRef({ context: [ 'Jan:Dec' ], name: 'foo' }, "'Jan:Dec'!foo");
-    // a near end that is also a cell address in this notation would give the colon to the range
-    // operator
+    // a first sheet name that is also a cell address in this notation would give the colon to
+    // the range operator
     testRef({ context: [ 'R1C1:Dec' ], range: rangeA1 }, "'R1C1:Dec'!R[2]C[4]");
     testRef({ context: [ 'RC:Dec' ], range: rangeA1 }, "'RC:Dec'!R[2]C[4]");
-    // ... but only the near end decides, and "C" is a part rather than a cell
+    // ... but only the first sheet name decides, and "C" is a part rather than a cell
     testRef({ context: [ 'Dec:R1C1' ], range: rangeA1 }, 'Dec:R1C1!R[2]C[4]');
     testRef({ context: [ 'C:D' ], range: rangeA1 }, "'C:D'!R[2]C[4]");
   });

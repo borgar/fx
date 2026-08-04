@@ -17,19 +17,19 @@ const reIsRangelike = /^(R|C|RC|[A-Z]{1,3}\d{1,7})$/i;
 const reIsBoolean = /^(TRUE|FALSE)$/i;
 
 // Must this sheet scope be quoted for the notation to read the sheet range it contains? Only a
-// near end that is also a valid cell address forces it, by giving the colon to the range operator
-// when left bare: "A1:Dec!C3" is cell A1 joined to 'Dec'!C3, and "RC:Dec!R1C1" is cell RC joined
-// to 'Dec'!R1C1. Each notation reads the other's cell addresses as ordinary names, so a prefix
-// that crosses between them may arrive needing quotes it did not need where it came from. The
-// test is the lexers' own, so a scope left bare here is one they read back as a sheet range.
+// first sheet name that is also a valid cell address forces it, by giving the colon to the range
+// operator when left bare: "A1:Dec!C3" is cell A1 joined to 'Dec'!C3, and "RC:Dec!R1C1" is cell RC
+// joined to 'Dec'!R1C1. Each notation reads the other's cell addresses as ordinary names, so a
+// prefix crossing between them may need quotes it did not need where it came from. The test is
+// the lexers' own, so a scope left bare here is one they read back as a sheet range.
 function sheetRangeNeedsQuotes (scope: string, r1c1: boolean): boolean {
   const sheetRange = splitSheetRange(scope);
   return !!sheetRange && isCellShape(sheetRange[0], r1c1);
 }
 
 // The same question of a whole prefix, for the translators, which move one across notations
-// without taking it apart. The sheet is its last scope, so it is what follows the workbook
-// brackets when there are any, and the only scope that may contain a sheet range.
+// without taking it apart. The sheet is the last scope, so it is what follows the workbook
+// brackets when there are any, and the only scope that may hold a sheet range.
 export function prefixNeedsQuotes (prefix: string, r1c1: boolean): boolean {
   return sheetRangeNeedsQuotes(prefix.slice(prefix.lastIndexOf(']') + 1), r1c1);
 }
@@ -59,15 +59,15 @@ export function needQuotes (scope: string, yesItDoes = 0): number {
   return 0;
 }
 
-// Each end of a sheet range is tested on its own, and the whole prefix is quoted as one unit if
-// either end calls for it: "Jan:Dec!A1" stays bare, "'Sheet1:Sheet 2'!A1" does not. Excel decides
-// it per name and not per range, so "A:B!A1" and "A:AB!A1" stay bare while "B:C!A1" is quoted,
-// "C" alone being a name it quotes anywhere. A malformed sheet range is left to needQuotes, which
-// quotes it, ":" being a banned character in a name.
+// Each sheet name of a sheet range is tested on its own, and the whole prefix is quoted as one
+// unit if either calls for it: "Jan:Dec!A1" stays bare, "'Sheet1:Sheet 2'!A1" does not. Excel
+// decides it per name rather than per range, so "A:B!A1" and "A:AB!A1" stay bare while "B:C!A1"
+// is quoted, "C" alone being a name it quotes anywhere. A malformed sheet range falls through to
+// needQuotes, which quotes it, ":" being a banned character in a name.
 //
 // The R1C1 cell addresses are checked on top of that: needQuotes quotes what looks like an A1
-// cell wherever it appears, but "R1C1" is only a cell in R1C1 notation, and a near end that is
-// one there has to be quoted all the same.
+// cell wherever it appears, but "R1C1" is a cell only in R1C1 notation, and a first name that is
+// one there needs the quotes all the same.
 export function needQuotesSheet (scope: string, yesItDoes = 0, r1c1 = false): number {
   if (yesItDoes) {
     return 1;
@@ -94,10 +94,10 @@ export function stringifyPrefix (
   let quote = 0;
   let nth = 0;
   let sheetRange = false;
-  // Only a reference to a cell may write a sheet range bare, the lexers reading one back only in
-  // front of a cell reference (see operandAllowsSheetRange). A name or a table takes the colon as an
-  // ordinary character, which needQuotes quotes as one, so "a:b" in front of a name comes back
-  // out as "'a:b'!Name" and reads back as the single scope it was written from.
+  // Only a reference to a cell may write a sheet range bare, since that is the only place the
+  // lexers read one back (see operandAllowsSheetRange). In front of a name or a table the colon is
+  // an ordinary character, which needQuotes quotes as one, so "a:b" comes back out as "'a:b'!Name"
+  // and reads back as the single scope it was written from.
   const takesSheetRange = 'range' in ref && !!ref.range;
   const context = ref.context || [];
   for (let i = context.length; i > -1; i--) {
@@ -105,7 +105,7 @@ export function stringifyPrefix (
     if (scope) {
       const part = (nth % 2) ? '[' + scope + ']' : scope;
       pre = part + pre;
-      // the last scope is the sheet, and only it may contain a sheet range
+      // the last scope is the sheet, and only it may hold a sheet range
       if (nth === 0 && takesSheetRange) {
         sheetRange = !!splitSheetRange(scope);
         quote += needQuotesSheet(scope, quote, r1c1);
@@ -117,11 +117,11 @@ export function stringifyPrefix (
     }
   }
   if (sheetRange && nth > 1) {
-    // Excel quotes a sheet range that a workbook or path qualifies as a whole on entry, even when
-    // neither end needs it: "[Book.xlsx]S1:S3!A1" comes back as "'[Book.xlsx]S1:S3'!A1". Note the
-    // asymmetry with a single sheet, where such quotes are instead removed. This binds the writer
-    // only: a stored formula Excel never took from the formula bar may contain the bare spelling,
-    // "[1]One:Three!A1", which is read here as the same sheet range.
+    // On entry Excel quotes a sheet range qualified by a workbook or path as a whole, even when
+    // neither sheet name needs it: "[Book.xlsx]S1:S3!A1" comes back as "'[Book.xlsx]S1:S3'!A1".
+    // Note the asymmetry with a single sheet, where such quotes are instead removed. This binds
+    // the writer only: a stored formula Excel never took from the formula bar may hold the bare
+    // spelling, "[1]One:Three!A1", which is read here as the same sheet range.
     quote = 1;
   }
   if (quote) {

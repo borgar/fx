@@ -106,11 +106,11 @@ describe('parser', () => {
     });
 
     test('a sheet range stands only in front of a cell reference', () => {
-      // Measured in Excel: bare, in front of anything reached by name, the colon is the range
+      // Measured in Excel: bare, in front of a defined name or a table, the colon is the range
       // operator. `Alpha:Gamma!SomeName` survives a rename of the sheet `Alpha` untouched, where
-      // both an ordinary `Alpha!SomeName` and a span over a cell are rewritten, so the `Alpha`
-      // there is a name and not a sheet. In front of a table the same holds, and Excel goes on to
-      // discard the second operand's sheet prefix, storing `Alpha:Gamma!T[C]` as `Alpha:T[C]`.
+      // both an ordinary `Alpha!SomeName` and a sheet range over a cell are rewritten, so `Alpha`
+      // there is a name and not a sheet. Excel goes on to discard the second operand's sheet
+      // prefix on a table, storing `Alpha:Gamma!T[C]` as `Alpha:T[C]`.
       isParsed('Sheet1:Sheet2!foo', {
         type: 'BinaryExpression',
         operator: ':',

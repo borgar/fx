@@ -126,11 +126,11 @@ export function translateTokensToR1C1 (
         token.loc[1] += offsetSkew;
       }
     }
-    // A prefix travels through untouched, so a sheet range it contains arrives in a notation that
-    // may not read it as one: "RC:Dec!A1" is a sheet range in A1, where "RC" is no cell, but
-    // bare "RC:Dec!R[-2]C[-2]" reads back as cell RC joined to 'Dec'!R[-2]C[-2]. Quotes keep the
-    // pair together. A wholly quoted prefix is already one; a prefix that quotes only its far end
-    // is not, so the quoting is redistributed over the whole of it.
+    // A prefix travels through untouched, so a sheet range it holds arrives in a notation that may
+    // not read it as one: "RC:Dec!A1" is a sheet range in A1, where "RC" is no cell, but bare
+    // "RC:Dec!R[-2]C[-2]" reads back as cell RC joined to 'Dec'!R[-2]C[-2]. Quotes keep the pair
+    // together, and are applied to the whole prefix, since a prefix that quotes only its second
+    // sheet name does not.
     else if (tokenType === CONTEXT && prefixNeedsQuotes(token.value, true)) {
       token = cloneToken(token);
       const tokenValue = token.value;

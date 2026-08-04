@@ -15,10 +15,10 @@ import { stringifyTokens } from './stringifyTokens.ts';
 // needs to be flipped or not. The solution is to convert to A1 first:
 // translateToRC(fixRanges(translateToA1(...)))
 
-// On the sheet range of a 3-D reference being left alone (see the fixTokenRanges docstring):
-// Excel normalizes a sheet range three ways on entry — ordering its two ends ("Mar:Jan" to
-// "Jan:Mar"), collapsing a degenerate one ("Jan:Jan" to "Jan"), and correcting the case of each
-// end to the sheet's own — and every one of those needs the workbook's sheet names, in order.
+// Why the sheet range of a 3-D reference is left alone (see the fixTokenRanges docstring): Excel
+// normalizes one three ways on entry — ordering the two sheet names ("Mar:Jan" to "Jan:Mar"),
+// collapsing a degenerate range ("Jan:Jan" to "Jan"), and correcting each name's case to the
+// sheet's own — and all three need the workbook's sheet names, in order.
 
 /**
  * Options for {@link fixTokenRanges} and {@link fixFormulaRanges}.

@@ -13,15 +13,10 @@
  * The generator is seeded, so a run is reproducible from its seed alone, and every failure is
  * shrunk to a minimal input before it is reported.
  *
- * Two qualifications are written into the properties, both for behaviour that is correct, or at
- * least deliberate, rather than a defect the sweep should keep re-reporting:
- *
- * - a number or a boolean literal is lexed ahead of a name on the formula path and has no
- *   counterpart on the reference path, so `12!A1` and `TRUE!A1` read differently there
- *   ({@link LITERAL_TYPES}). That gap predates sheet ranges and applies to a lone sheet name
- *   just as much as to one end of a span;
- * - a prefix is only expected to survive a round trip when it is one a writer could have produced,
- *   which is what {@link isWholeReference} settles.
+ * Two qualifications are written into the properties, both for deliberate behaviour rather than a
+ * defect the sweep should keep re-reporting: the number and boolean literals of
+ * {@link LITERAL_TYPES}, and the round-trip properties applying only to input a writer could have
+ * produced, which is what {@link isWholeReference} settles.
  *
  * This module is not part of the package's public surface. It backs `sheetRangeProperties.spec.ts`
  * (a small, fast sweep that runs with the suite) and `scripts/propertySweep.ts` (a large one).
@@ -79,7 +74,7 @@ const DIGIT_SHAPED = [ '1', '12', '2024', '1048576' ];
 const BOOLEAN_SHAPED = [ 'TRUE', 'FALSE', 'true', 'False' ];
 const PLAIN = [ 'Jan', 'Dec', 'Mar', 'Sheet1', 'Sales', 'Rep', 'data' ];
 const DOTTED = [ 'a1.b', 'x.y', '1.2', 'A1.', '.b', 'R1C1.z', '.', '..', 'v1.0' ];
-// "!" and the operator characters are all legal in an Excel sheet name; only ": \\ / ? * [ ]" are not
+// "!" and the operator characters are legal in an Excel sheet name; only ": \\ / ? * [ ]" are not
 const NEEDS_QUOTES = [ 'has space', 'my name', ' lead', 'trail ', 'a-b', 'a+b', 'a!b', 'a(b)', 'a,b', 'a=b', 'a#b', 'a"b' ];
 const DOLLARED = [ 'My$Name', '$Jan', 'Ja$', '$1' ];
 const QUOTEY = [ "it's", "'a", "b'", "''" ];
@@ -94,7 +89,7 @@ function randomName (rnd: Prng): string {
   return out;
 }
 
-/** One end of a sheet range, or a lone sheet name. Every awkward spelling gets a turn. */
+/** One sheet name of a sheet range, or a lone one. Every awkward spelling gets a turn. */
 export function genSheetName (rnd: Prng): string {
   const kind = Math.floor(rnd() * 12);
   if (kind === 0) { return pick(rnd, CELL_SHAPED); }
@@ -287,8 +282,8 @@ function sheetSlots (text: string, c: PropertyCase): string[] {
  * Does the case's fragment read as one whole reference on both paths? The preservation properties
  * below only apply to one that does: a fragment the parsers reject has no reference to preserve,
  * and putting a malformed one through a writer says nothing about the writer. The second half is
- * the shadowing of {@link LITERAL_TYPES} — where the formula path never saw a prefix to begin
- * with, it cannot be blamed for not keeping one.
+ * {@link LITERAL_TYPES} — where the formula path never saw a prefix to begin with, it cannot be
+ * blamed for not keeping one.
  */
 function isWholeReference (c: PropertyCase): boolean {
   const opts = { allowNamed: c.allowNamed, allowTernary: c.allowTernary };
@@ -321,18 +316,18 @@ export type Property = {
 
 /**
  * The two token types that can claim the start of a sheet name on the formula path and have no
- * counterpart on the reference path: `12!A1` is a number there and a prefix here, `TRUE!A1` a
- * boolean there and a prefix here. That mismatch predates sheet ranges and applies to a lone name
- * just as much as to one end of a span, so it is a gap in the two lexer sets rather than a
- * disagreement about what a sheet range is. Excel quotes both spellings, so a reader never sees
- * either of them in a file Excel wrote.
+ * counterpart on the reference path: `12!A1` is a number on one and a prefix on the other, and
+ * `TRUE!A1` a boolean on one and a prefix on the other. That mismatch predates sheet ranges and
+ * applies to a lone sheet name as much as to one of a pair, so it is a gap between the two lexer
+ * sets rather than a disagreement about what a sheet range is. Excel quotes both spellings, so
+ * neither occurs in a file Excel wrote.
  */
 const LITERAL_TYPES = new Set([ BOOLEAN, NUMBER ]);
 
 export const properties: readonly Property[] = [
   {
-    // The branch decides "is this a sheet range?" in two places with opposite lexer precedence:
-    // lexRange runs before the context lexers on the formula path, and lexContextUnquoted before
+    // "Is this a sheet range?" is answered in two places with opposite lexer precedence: lexRange
+    // runs ahead of the context lexers on the formula path, and lexContextUnquoted ahead of
     // lexRange on the reference path. Any input the two read differently is a bug in one of them.
     name: 'the formula lexers and the reference lexers agree on the prefix',
     check: c => {

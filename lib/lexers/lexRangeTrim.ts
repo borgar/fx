@@ -8,9 +8,9 @@ const COLON = 58;
 export function lexRangeTrim (str: string, pos: number, options: { r1c1?: boolean } = {}): Token | undefined {
   const c0 = str.charCodeAt(pos);
   if (c0 === PERIOD || c0 === COLON) {
-    // "." is a sheet-name character, so a sheet may be named ".", and ".:Dec!A1" is then a sheet
-    // range rather than a trim operator with nothing on its left. A prefix belongs to the context
-    // lexers whole, so give way to one here as the range lexers do.
+    // "." is a sheet-name character, so a sheet may be named ".", making ".:Dec!A1" a sheet range
+    // rather than a trim operator with nothing on its left. Give way to a prefix here as the
+    // range lexers do.
     if (c0 === PERIOD && startsSheetPrefix(str, pos, !!options.r1c1)) {
       return;
     }

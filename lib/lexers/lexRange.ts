@@ -10,10 +10,9 @@ type LexRangeOptions = {
 };
 
 export function lexRange (str: string, pos: number, options: LexRangeOptions): Token | undefined {
-  // A sheet prefix belongs to the context lexers, whole. Giving way here is what stops a
-  // range lexer claiming a piece of one: "Jan:Dec" in "Jan:Dec!A1" is neither a column beam nor
-  // two references joined by the range operator, and "a1" is not a cell in "a1.b:Dec!A1" or in
-  // "a1.b!A1".
+  // A sheet prefix belongs to the context lexers, whole. Giving way here is what stops a range
+  // lexer claiming a piece of one: "Jan:Dec" in "Jan:Dec!A1" is neither a column beam nor two
+  // references joined by the range operator, and "a1" is no cell in "a1.b:Dec!A1" or "a1.b!A1".
   if (startsSheetPrefix(str, pos, options.r1c1)) {
     return;
   }

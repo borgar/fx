@@ -28,11 +28,10 @@ for (let c = OFFS; c < 180; c++) {
   const nN = /^[a-zA-Z0-9_.\\?\u00a1-\uffff]$/.test(char);
   const fN = /^[a-zA-Z0-9_.]$/.test(char);
   const cX = /^[a-zA-Z0-9_.¡¤§¨ª\u00ad¯-\uffff]$/.test(char);
-  // ":" is a context character, but only past the first one, as the separator of a sheet range
-  // (`Sheet1:Sheet2!A1`, a 3-D reference). See the COLON handling below.
-  // (":" can also occur after a Windows drive letter prefix in a path context, but this table
-  // lexes unquoted contexts alone, and a path cannot be one because "\" and "/" are not context
-  // characters, so a colon arriving here is never a Windows drive letter.)
+  // ":" is a context character, but only past the first one, where it separates the two sheet
+  // names of a sheet range (`Sheet1:Sheet2!A1`, a 3-D reference). See the COLON handling below.
+  // It is never the ":" of a Windows drive letter: a path holds "\" or "/", neither of which is a
+  // context character, so no path can be an unquoted context in the first place.
   const cN = cX || c === COLON;
   ALLOWED[c - OFFS] = (
     (n0 ? OK_NAME_0 : 0) |
@@ -85,8 +84,8 @@ export function lexNameFuncCntx (
   pos++;
 
   // Offset of the ":" of a sheet range (`Sheet1:Sheet2!A1`, a 3-D reference), 0 when there is
-  // none. Excel forbids ":" in sheet names, so at most one may occur here and it must have a
-  // sheet name on either side of it.
+  // none. Excel forbids ":" in a sheet name, so at most one may occur here, with a sheet name on
+  // either side of it.
   let colon = 0;
   // Where the name run ended, 0 while it is still running. Only a ":" can end it while the
   // context run continues, so if the run turns out not to be a context after all, this is where
@@ -98,8 +97,8 @@ export function lexNameFuncCntx (
     c = str.charCodeAt(pos);
     // Every character past the table's last entry is allowed wherever a high character is, which
     // is what OK_HIGHCHAR says. The mask has to be read off the character in hand: reading it off
-    // the token's first one instead made every character after a high one look high too, so that
-    // "Ærið!A1" and "Ærið:Ärger!A1" were swallowed whole into a single name token.
+    // the token's first character instead let everything after a high one pass as high too, so
+    // that "Ærið!A1" and "Ærið:Ärger!A1" were swallowed whole into a single name token.
     const a = c >= 180 ? OK_HIGHCHAR : ALLOWED[c - OFFS] ?? 0;
     if (a & OK_N) {
       // name: [a-zA-Z_0-9.\\?\u00a1-\uffff]
@@ -120,7 +119,7 @@ export function lexNameFuncCntx (
           cntx = 0; // only 1 allowed
         }
         else if (str.charCodeAt(pos + 1) === QUOT_SINGLE) {
-          // the far end of a sheet range may be quoted on its own: "foo:'bar'!A1"
+          // the second name of a sheet range may be quoted on its own: "foo:'bar'!A1"
           const len = advSheetName(str, pos + 1);
           if (
             len &&
@@ -141,8 +140,8 @@ export function lexNameFuncCntx (
         return { type: FUNCTION, value: str.slice(start, pos) };
       }
       // A trailing colon means the second sheet name is missing. A colon at all means a sheet
-      // range, which stands only in front of a cell reference: where the operand is not one, the
-      // colon is the range operator and what precedes it is a name, not a prefix.
+      // range, and one stands only in front of a cell reference: where the operand is not one,
+      // the colon is the range operator and what precedes it is a name, not a prefix.
       else if (
         c === EXCL && cntx &&
         !(colon && colon === pos - 1) &&

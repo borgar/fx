@@ -171,7 +171,7 @@ describe('parse joined R1C1 references', () => {
     isRCEqual("'Sheet 1:Sheet 2'!RC", { context: [ 'Sheet 1:Sheet 2' ], range: relRC });
     // C1 and C5 are valid R1C1 column parts, so "C1:C5" would otherwise read as a beam
     isRCEqual('C1:C5!RC', { context: [ 'C1:C5' ], range: relRC });
-    // the far end is a sheet name, so it need not be an R1C1 part itself, nor unquoted
+    // the second sheet name is a sheet name, so it need not be an R1C1 part itself, nor unquoted
     isRCEqual('C1:Dec!RC', { context: [ 'C1:Dec' ], range: relRC });
     isRCEqual("C1:'Dec'!RC", { context: [ 'C1:Dec' ], range: relRC });
     isRCEqual('C:D!RC', { context: [ 'C:D' ], range: relRC });
@@ -187,8 +187,8 @@ describe('parse joined R1C1 references', () => {
     isRCEqual('R1C1:B2!R3C3', undefined);
     isRCEqual('R1C1:R2C2!R3C3', undefined);
     isRCEqual('RC:R2C2!R3C3', undefined);
-    // ... and it still takes the colon where the far end's name runs past what a ternary range
-    // can take, which only a "." lets it do
+    // ... and it still takes the colon where the second name runs past what a ternary range can
+    // take, which only a "." lets it do
     isRCEqual('R1C1:C5.b!R1C1', undefined, { allowTernary: true });
     isRCEqual('RC:R.b!R1C1', undefined, { allowTernary: true });
     // ... and only the quoted spelling makes such a pair a sheet range
