@@ -18,7 +18,7 @@
  *
  * - a number or a boolean literal is lexed ahead of a name on the formula path and has no
  *   counterpart on the reference path, so `12!A1` and `TRUE!A1` read differently there
- *   ({@link SHADOWING_TYPES}). That gap predates sheet ranges and applies to a lone sheet name
+ *   ({@link LITERAL_TYPES}). That gap predates sheet ranges and applies to a lone sheet name
  *   just as much as to one end of a span;
  * - a prefix is only expected to survive a round trip when it is one a writer could have produced,
  *   which is what {@link isWholeReference} settles.
@@ -113,23 +113,23 @@ export function genSheetName (rnd: Prng): string {
 
 /** The sheet slot of a prefix: one name, a range of two, or a spelling that is neither. */
 function genSheetSlot (rnd: Prng): string {
-  const near = genSheetName(rnd);
-  const far = genSheetName(rnd);
+  const first = genSheetName(rnd);
+  const second = genSheetName(rnd);
   const kind = Math.floor(rnd() * 14);
-  if (kind === 0) { return near; }
-  if (kind === 1) { return quote(near); }
-  if (kind === 2) { return near + ':' + far; }
-  if (kind === 3) { return quote(near + ':' + far); }
-  if (kind === 4) { return quote(near) + ':' + quote(far); }
-  if (kind === 5) { return near + ':' + quote(far); }
-  if (kind === 6) { return quote(near) + ':' + far; }
-  if (kind === 7) { return near + ':'; }
-  if (kind === 8) { return ':' + far; }
-  if (kind === 9) { return near + ':' + far + ':' + genSheetName(rnd); }
-  if (kind === 10) { return near + ' : ' + far; }
-  if (kind === 11) { return near + ': ' + far; }
-  if (kind === 12) { return near + ' :' + far; }
-  return near + ':' + far;
+  if (kind === 0) { return first; }
+  if (kind === 1) { return quote(first); }
+  if (kind === 2) { return first + ':' + second; }
+  if (kind === 3) { return quote(first + ':' + second); }
+  if (kind === 4) { return quote(first) + ':' + quote(second); }
+  if (kind === 5) { return first + ':' + quote(second); }
+  if (kind === 6) { return quote(first) + ':' + second; }
+  if (kind === 7) { return first + ':'; }
+  if (kind === 8) { return ':' + second; }
+  if (kind === 9) { return first + ':' + second + ':' + genSheetName(rnd); }
+  if (kind === 10) { return first + ' : ' + second; }
+  if (kind === 11) { return first + ': ' + second; }
+  if (kind === 12) { return first + ' :' + second; }
+  return first + ':' + second;
 }
 
 /** A whole prefix: the sheet slot, optionally qualified by a workbook or a path. */
@@ -287,7 +287,7 @@ function sheetSlots (text: string, c: PropertyCase): string[] {
  * Does the case's fragment read as one whole reference on both paths? The preservation properties
  * below only apply to one that does: a fragment the parsers reject has no reference to preserve,
  * and putting a malformed one through a writer says nothing about the writer. The second half is
- * the shadowing of {@link SHADOWING_TYPES} — where the formula path never saw a prefix to begin
+ * the shadowing of {@link LITERAL_TYPES} — where the formula path never saw a prefix to begin
  * with, it cannot be blamed for not keeping one.
  */
 function isWholeReference (c: PropertyCase): boolean {
@@ -305,7 +305,7 @@ function isWholeReference (c: PropertyCase): boolean {
   if (slot?.includes('!')) {
     return false;
   }
-  return !SHADOWING_TYPES.has(getTokens(c.ref, lexers, tokenOpts(c, false))[0]?.type);
+  return !LITERAL_TYPES.has(getTokens(c.ref, lexers, tokenOpts(c, false))[0]?.type);
 }
 
 const ANCHORS = [ 'A1', 'D10', 'B2', 'XFD1048576' ];
@@ -327,7 +327,7 @@ export type Property = {
  * disagreement about what a sheet range is. Excel quotes both spellings, so a reader never sees
  * either of them in a file Excel wrote.
  */
-const SHADOWING_TYPES = new Set([ BOOLEAN, NUMBER ]);
+const LITERAL_TYPES = new Set([ BOOLEAN, NUMBER ]);
 
 export const properties: readonly Property[] = [
   {
@@ -338,7 +338,7 @@ export const properties: readonly Property[] = [
     check: c => {
       const fromFormula = getTokens(c.ref, lexers, tokenOpts(c, false));
       const fromRefs = getTokens(c.ref, lexersRefs, tokenOpts(c, false));
-      if (SHADOWING_TYPES.has(fromFormula[0]?.type)) {
+      if (LITERAL_TYPES.has(fromFormula[0]?.type)) {
         return;
       }
       const a = leadPrefix(fromFormula);

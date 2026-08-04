@@ -1,6 +1,6 @@
 import { CONTEXT, CONTEXT_QUOTE } from '../constants.ts';
 import type { Token } from '../types.ts';
-import { advSheetName, isContextChar, spanTakesOperand } from './advSheetName.ts';
+import { advSheetName, isContextChar, operandAllowsSheetRange } from './advSheetName.ts';
 import { lexRange } from './lexRange.ts';
 
 const QUOT_SINGLE = 39; // '
@@ -50,7 +50,7 @@ export function lexContextQuoted (str: string, pos: number, options: LexContextO
             if (
               len &&
               str.charCodeAt(pos + 1 + len) === EXCL &&
-              spanTakesOperand(str, pos + len + 2, !!options.r1c1)
+              operandAllowsSheetRange(str, pos + len + 2, !!options.r1c1)
             ) {
               return { type: CONTEXT_QUOTE, value: str.slice(start, pos + 1 + len) };
             }
@@ -120,7 +120,7 @@ export function lexContextUnquoted (str: string, pos: number, options: LexContex
           // "a:!!A1" as a sheet range over a sheet named "!".
           return;
         }
-        if (colon && !spanTakesOperand(str, pos + 1, !!options.r1c1)) {
+        if (colon && !operandAllowsSheetRange(str, pos + 1, !!options.r1c1)) {
           // The operand admits no sheet range, so the colon is the range operator and this run is
           // not one prefix. Both spellings of the far end come through here, the bare one and the
           // separately quoted one the branch below steps over.

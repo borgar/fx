@@ -95,7 +95,7 @@ export function stringifyPrefix (
   let nth = 0;
   let sheetRange = false;
   // Only a reference to a cell may write a sheet range bare, the lexers reading one back only in
-  // front of a cell reference (see spanTakesOperand). A name or a table takes the colon as an
+  // front of a cell reference (see operandAllowsSheetRange). A name or a table takes the colon as an
   // ordinary character, which needQuotes quotes as one, so "a:b" in front of a name comes back
   // out as "'a:b'!Name" and reads back as the single scope it was written from.
   const takesSheetRange = 'range' in ref && !!ref.range;

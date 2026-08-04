@@ -101,7 +101,7 @@ export function isCellShape (name: string, r1c1: boolean): boolean {
 // This settles the bare spelling alone. Excel reads a quoted `'Alpha:Gamma'!SomeName` as a
 // workbook file name with no sheet at all, a reference Fx has no way to represent, so the quoted
 // spellings still arrive here as sheet ranges.
-export function spanTakesOperand (str: string, pos: number, r1c1: boolean): boolean {
+export function operandAllowsSheetRange (str: string, pos: number, r1c1: boolean): boolean {
   return !!(r1c1
     ? lexRangeR1C1(str, pos, { allowTernary: true })
     : lexRangeA1(str, pos, { allowTernary: true, mergeRefs: true }));
@@ -123,28 +123,28 @@ export function spanTakesOperand (str: string, pos: number, r1c1: boolean): bool
 // addresses nothing. A lone name needs no such test — a range lexer can never take one whole,
 // "!" being no range character.
 //
-// A range of two is measured past the "!" as well, spanTakesOperand deciding whether the operand
+// A range of two is measured past the "!" as well, operandAllowsSheetRange deciding whether the operand
 // admits a sheet range at all. A lone name is again exempt: "Jan!SomeName" is an ordinary prefix
 // on an ordinary name, and only the colon raises the question.
 export function startsSheetPrefix (str: string, pos: number, r1c1: boolean): boolean {
-  const near = advSheetName(str, pos);
-  if (!near) {
+  const first = advSheetName(str, pos);
+  if (!first) {
     return false;
   }
-  if (str.charCodeAt(pos + near) === EXCL) {
+  if (str.charCodeAt(pos + first) === EXCL) {
     return true;
   }
-  if (str.charCodeAt(pos + near) !== COLON) {
+  if (str.charCodeAt(pos + first) !== COLON) {
     return false;
   }
-  const far = advSheetName(str, pos + near + 1);
-  if (!far || str.charCodeAt(pos + near + 1 + far) !== EXCL) {
+  const second = advSheetName(str, pos + first + 1);
+  if (!second || str.charCodeAt(pos + first + 1 + second) !== EXCL) {
     return false;
   }
-  if (isCellShape(str.slice(pos, pos + near), r1c1)) {
+  if (isCellShape(str.slice(pos, pos + first), r1c1)) {
     return false;
   }
   // The cheap tests are spent; what is left is the operand, and a sheet range needs a cell
   // reference there. A lone name asks nothing of the operand, so only this branch consults it.
-  return spanTakesOperand(str, pos + near + 1 + far + 1, r1c1);
+  return operandAllowsSheetRange(str, pos + first + 1 + second + 1, r1c1);
 }

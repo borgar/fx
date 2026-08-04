@@ -1,6 +1,6 @@
 import { CONTEXT, FUNCTION, REF_NAMED, UNKNOWN } from '../constants.ts';
 import type { Token } from '../types.ts';
-import { advSheetName, spanTakesOperand } from './advSheetName.ts';
+import { advSheetName, operandAllowsSheetRange } from './advSheetName.ts';
 import { lexContextUnquoted, type LexContextOptions } from './lexContext.ts';
 
 const BR_OPEN = 91; // [
@@ -125,7 +125,7 @@ export function lexNameFuncCntx (
           if (
             len &&
             str.charCodeAt(pos + 1 + len) === EXCL &&
-            spanTakesOperand(str, pos + len + 2, !!opts.r1c1)
+            operandAllowsSheetRange(str, pos + len + 2, !!opts.r1c1)
           ) {
             return { type: CONTEXT, value: str.slice(start, pos + 1 + len) };
           }
@@ -146,7 +146,7 @@ export function lexNameFuncCntx (
       else if (
         c === EXCL && cntx &&
         !(colon && colon === pos - 1) &&
-        (!colon || spanTakesOperand(str, pos + 1, !!opts.r1c1))
+        (!colon || operandAllowsSheetRange(str, pos + 1, !!opts.r1c1))
       ) {
         return { type: CONTEXT, value: str.slice(start, pos) };
       }
