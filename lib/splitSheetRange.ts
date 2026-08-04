@@ -23,16 +23,16 @@
  * // => [ 'Jan', 'Dec' ]
  * ```
  *
- * Pass only the sheet scope, in the unquoted form the parsers return. `parseA1Ref` and
- * `parseR1C1Ref` strip the surrounding quotes and collapse doubled apostrophes, so every spelling
- * converges on the same scope: `'Sheet 1:Sheet 3'!A1` yields `Sheet 1:Sheet 3`, `foo:'bar baz'!A1`
- * yields `foo:bar baz`, and `'It''s:Fine'!A1` yields `It's:Fine`. This function does no unquoting
- * of its own, so the names it returns are ready to match against a workbook's sheets.
+ * Pass the sheet scope alone, in the form the parsers hand back. `parseA1Ref` and `parseR1C1Ref`
+ * have already stripped the surrounding quotes and collapsed doubled apostrophes, so
+ * `'It''s:Fine'!A1` arrives here as the scope `It's:Fine`. This function does no unquoting of its
+ * own — it splits on the colon and returns the two halves verbatim, ready to match against a
+ * workbook's sheets.
  *
  * Handing it a raw quoted prefix instead fails silently: `splitSheetRange("'Sheet 1:Sheet 3'")`
  * returns `[ "'Sheet 1", "Sheet 3'" ]`, two names with stray quotes, and no `undefined` to signal
- * it. Pass the sheet scope alone for the same reason a path scope must be kept out of it: a colon
- * there is a Windows drive letter and divides no sheet names.
+ * it. A whole prefix is wrong for a second reason too: a colon in a path scope is a Windows drive
+ * letter and divides no sheet names.
  *
  * One caveat. A sheet range is a sheet range only in front of a cell reference, and _Fx_ reads
  * that as Excel does, so an ordinary colon-bearing scope reaches this function from that one

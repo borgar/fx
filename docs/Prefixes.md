@@ -117,7 +117,7 @@ const scope = ref.context[ref.context.length - 1];
 const sheets = splitSheetRange(scope) ?? [ scope ];
 ```
 
-Pass it the sheet scope only, in the unquoted form the parsers hand back. `parseA1Ref` and `parseR1C1Ref` have already stripped the surrounding quotes and collapsed doubled apostrophes, so every spelling converges on the same scope: `'Sheet 1:Sheet 3'!A1` arrives as `Sheet 1:Sheet 3`, `foo:'bar baz'!A1` as `foo:bar baz`, and `'It''s:Fine'!A1` as `It's:Fine`. `splitSheetRange` does no unquoting of its own, so the names it returns are ready to match against a workbook's sheets. Handing it the raw quoted prefix instead fails silently: `splitSheetRange("'Sheet 1:Sheet 3'")` returns `[ "'Sheet 1", "Sheet 3'" ]`, two names with stray quotes, and no `undefined` to signal it.
+Pass it the sheet scope only, in the unquoted form the parsers hand back. `parseA1Ref` and `parseR1C1Ref` have already stripped the surrounding quotes and collapsed doubled apostrophes, so every spelling converges on the same scope: `'Sheet 1:Sheet 3'!A1` arrives as `Sheet 1:Sheet 3`, and `'It''s:Fine'!A1` as `It's:Fine`. `splitSheetRange` does no unquoting of its own, so the names it returns are ready to match against a workbook's sheets. Handing it the raw quoted prefix instead fails silently: `splitSheetRange("'Sheet 1:Sheet 3'")` returns `[ "'Sheet 1", "Sheet 3'" ]`, two names with stray quotes, and no `undefined` to signal it.
 
 A 3-D reference is not the same thing as a range whose two ends are on different sheets (`Sheet1!A1:Sheet2!B2`). The two are told apart by where the `!` falls relative to the `:`, and they come out of _Fx_ differently:
 
