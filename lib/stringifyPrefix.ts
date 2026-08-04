@@ -106,10 +106,7 @@ export function stringifyPrefix (
       const part = (nth % 2) ? '[' + scope + ']' : scope;
       pre = part + pre;
       // the last scope is the sheet, and only it may contain a sheet range
-      if (nth) {
-        quote += needQuotes(scope, quote);
-      }
-      else if (takesSheetRange) {
+      if (nth === 0 && takesSheetRange) {
         sheetRange = !!splitSheetRange(scope);
         quote += needQuotesSheet(scope, quote, r1c1);
       }
