@@ -78,6 +78,12 @@ describe('fixRanges prefixes', () => {
     isFixed('=RC!B2', "='RC'!B2");
     isFixed('=CR!B2', '=CR!B2');
   });
+
+  test('leaves an external link index unquoted', () => {
+    isFixed('=SUM([1]Sheet1!A1)', '=SUM([1]Sheet1!A1)');
+    isFixed("=SUM('[1]Sheet1'!A1)", '=SUM([1]Sheet1!A1)');
+    isFixed('=[1]1040!B2', "='[1]1040'!B2");
+  });
 });
 
 describe('fixRanges A1', () => {

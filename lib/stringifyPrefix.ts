@@ -12,8 +12,10 @@ import type {
 const reBannedChars = /[^0-9A-Za-z._¡¤§¨ª\u00ad¯-\uffff]/;
 // A1-XFD1048575 | R | C | RC
 const reIsRangelike = /^(R|C|RC|[A-Z]{1,3}\d{1,7})$/i;
+const reStartsWithDigit = /^\d/;
+const reIsLinkIndex = /^\d+$/;
 
-export function needQuotes (scope: string, yesItDoes = 0): number {
+export function needQuotes (scope: string, yesItDoes = 0, bracketed = false): number {
   if (yesItDoes) {
     return 1;
   }
@@ -24,9 +26,10 @@ export function needQuotes (scope: string, yesItDoes = 0): number {
     if (reIsRangelike.test(scope)) {
       return 1;
     }
-    // Sheet/workbook names starting with a digit must be quoted in Excel to
-    // avoid ambiguity with numeric literals.
-    if (/^\d/.test(scope)) {
+    // Sheet/workbook names starting with a digit must be quoted in Excel to avoid ambiguity
+    // with numeric literals. An external link index is exempt: its brackets delimit it, so it
+    // cannot be read as a number, and Excel writes it bare — [1]Sheet1!A1.
+    if (reStartsWithDigit.test(scope) && !(bracketed && reIsLinkIndex.test(scope))) {
       return 1;
     }
   }
@@ -47,9 +50,10 @@ export function stringifyPrefix (
   for (let i = context.length; i > -1; i--) {
     const scope = context[i];
     if (scope) {
-      const part = (nth % 2) ? '[' + scope + ']' : scope;
+      const bracketed = !!(nth % 2);
+      const part = bracketed ? '[' + scope + ']' : scope;
       pre = part + pre;
-      quote += needQuotes(scope, quote);
+      quote += needQuotes(scope, quote, bracketed);
       nth++;
     }
   }
@@ -67,7 +71,7 @@ export function stringifyPrefixXlsx (
   const { workbookName, sheetName } = ref;
   if (workbookName) {
     pre += '[' + workbookName + ']';
-    quote += needQuotes(workbookName);
+    quote += needQuotes(workbookName, 0, true);
   }
   if (sheetName) {
     pre += sheetName;
