@@ -161,7 +161,7 @@ What calls for the quotes is a *name*, not the sheet range as a whole: a name th
 
 There is one exception, which Excel applies on entry and _Fx_ follows on output: a sheet range that a workbook or path qualifies is quoted as a whole, whatever its two names look like. Excel normalizes `=SUM([Book.xlsx]S1:S3!A1)` to `=SUM('[Book.xlsx]S1:S3'!A1)`. Note the asymmetry with a single sheet, where Excel instead *removes* the needless quotes: `'[Book.xlsx]Sheet1'!A1` becomes `[Book.xlsx]Sheet1!A1`. This is an entry rule rather than an invariant of what a file may contain: a stored formula Excel never took from the formula bar may hold the bare spelling, `[1]One:Three!A1`, and _Fx_ reads that as the same sheet range.
 
-The per-name rule holds where the sheet range does, in front of a cell reference. Serializing a colon-bearing scope in front of a name or a table quotes it whole, `:` being a character no bare sheet name may contain, so `stringifyA1Ref({ context: [ 'Sales:Marketing' ], name: 'foo' })` yields `'Sales:Marketing'!foo`. Written bare it would not read back as one scope, the colon going to the range operator instead.
+The per-name rule holds where the sheet range does, in front of a cell reference. Serializing a colon-bearing scope in front of a name or a table quotes it whole, so that it reads back as the one scope it was written from: `stringifyA1Ref({ context: [ 'Sales:Marketing' ], name: 'foo' })` yields `'Sales:Marketing'!foo`. Written bare, the colon would go to the range operator instead.
 
 A `$` may not appear on an unquoted sheet name. Excel refuses `=SUM($Jan:$Mar!A1)` on entry, and a file containing one does not open at all. `$` is a legal character in a sheet name, so the quoted spelling `'$Jan:$Mar'!A1` is a valid sheet range.
 

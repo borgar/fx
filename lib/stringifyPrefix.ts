@@ -63,7 +63,7 @@ export function needQuotes (scope: string, yesItDoes = 0): number {
 // unit if either calls for it: "Jan:Dec!A1" stays bare, "'Sheet1:Sheet 2'!A1" does not. Excel
 // decides it per name rather than per range, so "A:B!A1" and "A:AB!A1" stay bare while "B:C!A1"
 // is quoted, "C" alone being a name it quotes anywhere. A malformed sheet range falls through to
-// needQuotes, which quotes it, ":" being a banned character in a name.
+// needQuotes, which quotes it because ":" is not a character an unquoted scope may hold.
 //
 // The R1C1 cell addresses are checked on top of that: needQuotes quotes what looks like an A1
 // cell wherever it appears, but "R1C1" is a cell only in R1C1 notation, and a first name that is
@@ -96,8 +96,8 @@ export function stringifyPrefix (
   let sheetRange = false;
   // Only a reference to a cell may write a sheet range bare, since that is the only place the
   // lexers read one back (see operandAllowsSheetRange). In front of a name or a table the colon is
-  // an ordinary character, which needQuotes quotes as one, so "a:b" comes back out as "'a:b'!Name"
-  // and reads back as the single scope it was written from.
+  // just another character that forces quotes, so "a:b" comes back out as "'a:b'!Name" and reads
+  // back as the single scope it was written from.
   const takesSheetRange = 'range' in ref && !!ref.range;
   const context = ref.context || [];
   for (let i = context.length; i > -1; i--) {
