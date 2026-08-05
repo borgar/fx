@@ -75,7 +75,7 @@ export function advSheetName (str: string, pos: number): number {
 // is one, the colon goes to the range operator instead: the lexers read "A1:B2!C3" as cell A1
 // joined to 'B2'!C3, and the serializer has to quote the sheet range A1:B2 so that it does not
 // read back as that.
-export function isCellShape (name: string, r1c1: boolean): boolean {
+export function isCellAddress (name: string, r1c1: boolean): boolean {
   return (r1c1 ? reIsCellR1C1 : reIsCellA1).test(name);
 }
 
@@ -129,7 +129,7 @@ export function startsSheetPrefix (str: string, pos: number, r1c1: boolean): boo
   if (!second || str.charCodeAt(pos + first + 1 + second) !== EXCL) {
     return false;
   }
-  if (isCellShape(str.slice(pos, pos + first), r1c1)) {
+  if (isCellAddress(str.slice(pos, pos + first), r1c1)) {
     return false;
   }
   // left until last, being the only test that runs a range lexer

@@ -9,7 +9,7 @@ import type {
   ReferenceNameXlsx
 } from './types.ts';
 import { splitSheetRange } from './splitSheetRange.ts';
-import { isCellShape } from './lexers/advSheetName.ts';
+import { isCellAddress } from './lexers/advSheetName.ts';
 
 const reBannedChars = /[^0-9A-Za-z._¡¤§¨ª\u00ad¯-\uffff]/;
 // A1-XFD1048575 | R | C | RC
@@ -24,7 +24,7 @@ const reIsBoolean = /^(TRUE|FALSE)$/i;
 // the lexers' own, so a scope left bare here is one they read back as a sheet range.
 function sheetRangeNeedsQuotes (scope: string, r1c1: boolean): boolean {
   const sheetRange = splitSheetRange(scope);
-  return !!sheetRange && isCellShape(sheetRange[0], r1c1);
+  return !!sheetRange && isCellAddress(sheetRange[0], r1c1);
 }
 
 // The same question of a whole prefix, for the translators, which move one across notations
