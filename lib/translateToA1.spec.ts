@@ -252,11 +252,14 @@ describe('quote sheet prefix on RHS of range operator', () => {
   test('RHS sheet prefix is quoted unconditionally', () => {
     isR2A('=B!R[-1]C[5]:B!R[17]C[5]', 'A2', "=B!F1:'B'!F19");
     isR2A('=Sheet1!R1C1:Sheet1!R2C2', 'A1', "=Sheet1!$A$1:'Sheet1'!$B$2");
+    // an external link index is quoted along with the rest of the prefix, brackets included
+    isR2A('=[1]Sheet1!R1C1:[1]Sheet1!R2C2', 'A1', "=[1]Sheet1!$A$1:'[1]Sheet1'!$B$2");
   });
 
   test('LHS sheet prefix is not quoted', () => {
     isR2A('=B!R1C1', 'A1', '=B!$A$1');
     isR2A('=Sheet1!R1C1', 'A1', '=Sheet1!$A$1');
+    isR2A('=[1]Sheet1!R1C1', 'A1', '=[1]Sheet1!$A$1');
   });
 
   test('already-quoted RHS prefix is not double-quoted', () => {
