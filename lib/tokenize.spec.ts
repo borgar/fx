@@ -1175,7 +1175,7 @@ describe('lexer', () => {
         { type: NUMBER, value: '1' }
       ]);
       // Two high-character names either side of a colon are one sheet range, not two names. PR
-      // #52 carries the same mask fix on its own and asserts six tokens for this input instead,
+      // #52 makes the same mask fix on its own and asserts six tokens for this input instead,
       // correctly for a branch without sheet ranges. Merging it in brings both assertions into
       // this file, in different describe blocks, with no git conflict to flag it: this is the one
       // that survives.

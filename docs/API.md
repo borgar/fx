@@ -889,9 +889,9 @@ syntax does not specify.
 The sheet scope may name a range of sheets rather than a single one: a 3-D reference
 (`Jan:Dec!A1`) puts both sheet names in it, as `context: [ 'Jan:Dec' ]`. Resolving that scope
 against a workbook's sheets therefore needs [splitSheetRange](#fxfunctionssplitsheetrangemd) first, or it matches no
-sheet at all and silently finds nothing. The scope is returned unquoted —
-`'Sheet 1:Sheet 3'!A1` yields `context: [ 'Sheet 1:Sheet 3' ]` — which is the form
-[splitSheetRange](#fxfunctionssplitsheetrangemd) expects, so pass it on as it comes.
+sheet at all. The scope is returned unquoted — `'Sheet 1:Sheet 3'!A1` yields
+`context: [ 'Sheet 1:Sheet 3' ]` — which is the form [splitSheetRange](#fxfunctionssplitsheetrangemd) expects, so pass
+it on as it comes.
 
 A sheet range only ever arrives in front of a cell reference. As in Excel, a bare colon-bearing
 scope in front of a defined name is no sheet range: the colon is the range operator, making
@@ -1051,7 +1051,7 @@ splitSheetRange('Sheet1');
 
 Anything resolving a sheet name in front of a cell reference must split it first. A 3-D
 reference puts `Jan:Dec` where an ordinary reference puts `Sheet1`, so a lookup handed the slot
-whole matches no sheet at all — and silently finds nothing rather than failing.
+whole matches no sheet at all, and finds nothing rather than failing.
 
 ```js
 const ref = parseA1Ref('Jan:Dec!A1');
@@ -1066,10 +1066,10 @@ have already stripped the surrounding quotes and collapsed doubled apostrophes, 
 own — it splits on the colon and returns the two halves verbatim, ready to match against a
 workbook's sheets.
 
-Handing it a raw quoted prefix instead fails silently: `splitSheetRange("'Sheet 1:Sheet 3'")`
-returns `[ "'Sheet 1", "Sheet 3'" ]`, two names with stray quotes, and no `undefined` to signal
-it. A whole prefix is wrong for a second reason too: a colon in a path scope is a Windows drive
-letter and divides no sheet names.
+Handing it a raw quoted prefix instead does not fail at all:
+`splitSheetRange("'Sheet 1:Sheet 3'")` returns `[ "'Sheet 1", "Sheet 3'" ]`, two names with stray
+quotes, and no `undefined` to signal it. A whole prefix is wrong for a second reason too: a
+colon in a path scope is a Windows drive letter and divides no sheet names.
 
 One caveat. A sheet range is a sheet range only in front of a cell reference, and _Fx_ reads
 that as Excel does, so an ordinary colon-bearing scope reaches this function from that one
@@ -3117,8 +3117,8 @@ syntax does not specify.
 
 The `sheetName` may name a range of sheets rather than a single one: a 3-D reference
 (`Jan:Dec!A1`) puts both sheet names in it, as `sheetName: 'Jan:Dec'`. Resolving it against a
-workbook's sheets therefore needs [splitSheetRange](#fxfunctionssplitsheetrangemd) first, or it matches no sheet at all
-and silently finds nothing. The name is returned unquoted — `'Sheet 1:Sheet 3'!A1` yields
+workbook's sheets therefore needs [splitSheetRange](#fxfunctionssplitsheetrangemd) first, or it matches no sheet at all.
+The name is returned unquoted — `'Sheet 1:Sheet 3'!A1` yields
 `sheetName: 'Sheet 1:Sheet 3'` — which is the form [splitSheetRange](#fxfunctionssplitsheetrangemd) expects, so pass it
 on as it comes.
 

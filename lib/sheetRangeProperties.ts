@@ -1,9 +1,9 @@
 /**
  * A property-based sweep over sheet ranges (the `Jan:Dec!A1` prefix of a 3-D reference).
  *
- * Curated tests only cover the spellings someone thought of. This generates them instead, from a
+ * Curated tests only cover the cases someone thought of. This generates them instead, from a
  * grammar of sheet names, prefix forms and cell parts, and asserts invariants that no single
- * spelling can establish on its own:
+ * case can establish on its own:
  *
  * - the formula lexers and the reference lexers agree on any input;
  * - parse/stringify reaches a fixpoint and keeps both sheet names, everywhere a reference is
@@ -89,7 +89,7 @@ function randomName (rnd: Prng): string {
   return out;
 }
 
-/** One sheet name of a sheet range, or a lone one. Every awkward spelling gets a turn. */
+/** One sheet name of a sheet range, or a lone one. Every awkward form gets a turn. */
 export function genSheetName (rnd: Prng): string {
   const kind = Math.floor(rnd() * 12);
   if (kind === 0) { return pick(rnd, CELL_SHAPED); }
@@ -106,7 +106,7 @@ export function genSheetName (rnd: Prng): string {
   return pick(rnd, PLAIN);
 }
 
-/** The sheet slot of a prefix: one name, a range of two, or a spelling that is neither. */
+/** The sheet slot of a prefix: one name, a range of two, or something that is neither. */
 function genSheetSlot (rnd: Prng): string {
   const first = genSheetName(rnd);
   const second = genSheetName(rnd);

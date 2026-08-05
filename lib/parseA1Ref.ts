@@ -45,9 +45,9 @@ export type OptsParseA1Ref = {
  * The sheet scope may name a range of sheets rather than a single one: a 3-D reference
  * (`Jan:Dec!A1`) puts both sheet names in it, as `context: [ 'Jan:Dec' ]`. Resolving that scope
  * against a workbook's sheets therefore needs {@link splitSheetRange} first, or it matches no
- * sheet at all and silently finds nothing. The scope is returned unquoted —
- * `'Sheet 1:Sheet 3'!A1` yields `context: [ 'Sheet 1:Sheet 3' ]` — which is the form
- * {@link splitSheetRange} expects, so pass it on as it comes.
+ * sheet at all. The scope is returned unquoted — `'Sheet 1:Sheet 3'!A1` yields
+ * `context: [ 'Sheet 1:Sheet 3' ]` — which is the form {@link splitSheetRange} expects, so pass
+ * it on as it comes.
  *
  * A sheet range only ever arrives in front of a cell reference. As in Excel, a bare colon-bearing
  * scope in front of a defined name is no sheet range: the colon is the range operator, making
@@ -105,8 +105,8 @@ export function parseA1Ref (
  *
  * The `sheetName` may name a range of sheets rather than a single one: a 3-D reference
  * (`Jan:Dec!A1`) puts both sheet names in it, as `sheetName: 'Jan:Dec'`. Resolving it against a
- * workbook's sheets therefore needs {@link splitSheetRange} first, or it matches no sheet at all
- * and silently finds nothing. The name is returned unquoted — `'Sheet 1:Sheet 3'!A1` yields
+ * workbook's sheets therefore needs {@link splitSheetRange} first, or it matches no sheet at all.
+ * The name is returned unquoted — `'Sheet 1:Sheet 3'!A1` yields
  * `sheetName: 'Sheet 1:Sheet 3'` — which is the form {@link splitSheetRange} expects, so pass it
  * on as it comes.
  *
