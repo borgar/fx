@@ -107,17 +107,19 @@ parseA1Ref('[1]Sheet1:Sheet2!A1');
 */
 ```
 
-`:` is one of the characters Excel forbids in a sheet name, so where the sheet-range reading applies, the colon separates two names rather than belonging to either. A colon elsewhere in the prefix is something else (a Windows drive letter in a path, or part of a workbook file name), which is why the split below takes the sheet scope alone.
+`:` is one of the characters Excel forbids in a sheet name, so where the sheet-range reading applies, the colon separates two names rather than belonging to either. A colon elsewhere in the prefix is something else (a Windows drive letter in a path, or part of a workbook file name), which is why the split below reads the sheet scope alone.
 
-**Anything that resolves a sheet name in front of a cell reference must split that slot first.** A 3-D reference puts `Jan:Dec` where an ordinary reference puts `Sheet1`, so a lookup handed the slot whole matches no sheet at all; it does not fail, it merely finds nothing. Use `splitSheetRange`, which returns the two sheet names, or `undefined` for a single-sheet scope:
+**Anything that resolves a sheet name in front of a cell reference must split that slot first.** A 3-D reference puts `Jan:Dec` where an ordinary reference puts `Sheet1`, so a lookup handed the slot whole matches no sheet at all; it does not fail, it merely finds nothing. Use `splitSheetRange`, which returns the two sheet names, or `undefined` where the reference has no sheet range:
 
 ```js
 const ref = parseA1Ref(refString);
 const scope = ref.context[ref.context.length - 1];
-const sheets = splitSheetRange(scope) ?? [ scope ];
+const sheets = splitSheetRange(ref) ?? [ scope ];
 ```
 
-Pass it the sheet scope only, in the unquoted form the parsers hand back: the surrounding quotes are already stripped and doubled apostrophes collapsed, so `'It''s:Fine'!A1` arrives as the scope `It's:Fine`, ready to match against a workbook's sheets. `splitSheetRange` does no unquoting of its own: handed a still-quoted prefix, it returns `[ "'Sheet 1", "Sheet 3'" ]`, two names with stray quotes and no `undefined` to signal the mistake.
+Hand it the whole reference. Whether a colon in the sheet slot divides two sheet names turns on what follows the `!`, which the scope alone does not say; *What follows the `!`* below sets out the readings. The scopes of a parsed reference arrive unquoted, so nothing has to be prepared before passing one.
+
+A bare scope is accepted too, and is then divided unconditionally, so a caller passing one must itself have established that a cell reference follows. Pass it in the form the parsers hand back: the surrounding quotes are already stripped and doubled apostrophes collapsed, so `'It''s:Fine'!A1` arrives as the scope `It's:Fine`, ready to match against a workbook's sheets. `splitSheetRange` does no unquoting of its own: handed a still-quoted prefix, it returns `[ "'Sheet 1", "Sheet 3'" ]`, two names with stray quotes and no `undefined` to signal the mistake. A whole prefix is wrong for a second reason too: a colon in a path scope is a Windows drive letter and divides no sheet names. A reference passed whole avoids both, since its scopes are already unquoted and only its sheet scope is ever read.
 
 A 3-D reference is not the same thing as a range whose two ends are on different sheets (`Sheet1!A1:Sheet2!B2`). The two are told apart by where the `!` falls relative to the `:`, and they come out of _Fx_ differently:
 
@@ -139,9 +141,11 @@ A sheet range is a sheet range only in front of a cell reference. In front of a 
 
 None of the four resolves: the bare forms are a range operation over a name that does not exist, and the quoted ones point into a workbook file that does not exist; `[n]` is an external-link index Excel manufactures for it. What varies is the operand, not the prefix: `'C:Book.xlsx'!A1` is a sheet range over sheets named `C` and `Book.xlsx`, while the same prefix in `'C:Book.xlsx'!Name` is a workbook file name, stored as `[n]!Name`.
 
-_Fx_ reads the two bare forms as Excel does. `Alpha:Gamma!SomeName` and `Alpha:Gamma!Table1[Col]` lex as three tokens (a name, the `:` operator, and a prefixed operand), so they parse to a `BinaryExpression` and `parseA1Ref` returns `undefined` for them, exactly as for `Sheet1!A1:Sheet2!B2`.
+_Fx_ reads none of the four as a sheet range. `Alpha:Gamma!SomeName` and `Alpha:Gamma!Table1[Col]` lex as three tokens (a name, the `:` operator, and a prefixed operand), so they parse to a `BinaryExpression` and `parseA1Ref` returns `undefined` for them, exactly as for `Sheet1!A1:Sheet2!B2`.
 
-The two quoted forms it does not. `'Alpha:Gamma'!SomeName` and `'Alpha:Gamma'!Table1[Col]` still yield `context: [ 'Alpha:Gamma' ]`, which `splitSheetRange` still divides into `[ 'Alpha', 'Gamma' ]`. But what Excel reads there is a workbook file name with no sheet component, which _Fx_ has no way to represent. A caller resolving sheet names in front of a defined name or a table should expect a workbook file name rather than a pair of sheets.
+The quoted forms do parse, into a single scope holding the text between the quotes: `parseA1Ref("'Alpha:Gamma'!SomeName")` yields `context: [ 'Alpha:Gamma' ]`. Resolving that scope by the rule this document opens with reaches Excel's reading: a lone scope is tested as a sheet name and then matched against a workbook, and a colon-bearing scope can only fail the sheet test, since `:` is a character no sheet name may hold, so the workbook file is what is left. The scope must not be divided into two sheet names ahead of that resolution, and it is not: handed the reference, `splitSheetRange` sees a name behind the prefix and returns `undefined`.
+
+The xlsx variant still reports such a scope as a sheet. Its prefix syntax marks a workbook by bracketing it, so an unbracketed scope is a `sheetName` by construction, and `parseA1Ref("'Alpha:Gamma'!SomeName")` from `@borgar/fx/xlsx` yields `sheetName: 'Alpha:Gamma'`, a sheet no workbook can have. Moving that to `workbookName` would make the property report something other than the bracketing it is read off, so it is left as it stands, and `splitSheetRange` declines to divide it there too.
 
 
 ### Sheet names that are also cell addresses

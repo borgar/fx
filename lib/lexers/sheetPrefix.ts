@@ -90,9 +90,10 @@ export function isCellAddress (name: string, r1c1: boolean): boolean {
 // sheet-range reading. Only an operand no range lexer can begin on, which is what a name or a
 // table is, gives the colon away.
 //
-// This settles the bare form alone. Excel reads the quoted `'Alpha:Gamma'!SomeName` as a
-// workbook file name with no sheet at all, which fx cannot represent, so quoted prefixes stay
-// sheet ranges whatever follows them.
+// This settles the bare form alone. A quoted prefix is one lexical unit whatever it holds, so
+// `'Alpha:Gamma'!SomeName` is one reference here, as it is for Excel, which reads that scope as
+// a workbook file name with no sheet at all. Refusing the sheet-range reading of it is
+// splitSheetRange's job, since it sees the operand behind the prefix.
 export function operandAllowsSheetRange (str: string, pos: number, r1c1: boolean): boolean {
   return !!(r1c1
     ? lexRangeR1C1(str, pos, { allowTernary: true })

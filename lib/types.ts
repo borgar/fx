@@ -177,3 +177,13 @@ export type ReferenceStructXlsx = {
   /** The table this reference targets */
   table?: string;
 };
+
+/**
+ * Any of the reference objects the parsers return, in either prefix variant. See
+ * [Prefixes.md](Prefixes.md) for documentation on how scopes work in Fx.
+ */
+export type AnyReference =
+  ReferenceA1 | ReferenceA1Xlsx |
+  ReferenceR1C1 | ReferenceR1C1Xlsx |
+  ReferenceName | ReferenceNameXlsx |
+  ReferenceStruct | ReferenceStructXlsx;

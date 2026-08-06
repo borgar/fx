@@ -127,8 +127,8 @@ describe('parser', () => {
           { type: 'ReferenceIdentifier', value: 'Sheet2!Table[Column]', kind: 'table' }
         ]
       });
-      // Quoted, the sheet-range reading stands: Excel reads that form as a workbook file name
-      // with no sheet at all, which fx has no way to represent.
+      // Quoted, it is one reference, as it is for Excel, which reads that scope as a workbook
+      // file name with no sheet at all.
       isParsed("'Sheet1:Sheet2'!Table[Column]", {
         type: 'ReferenceIdentifier', value: "'Sheet1:Sheet2'!Table[Column]", kind: 'table'
       });

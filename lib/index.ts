@@ -63,6 +63,7 @@ export type {
   RangeR1C1,
   Token,
   TokenEnhanced,
+  AnyReference,
   ReferenceA1,
   ReferenceA1Xlsx,
   ReferenceR1C1,

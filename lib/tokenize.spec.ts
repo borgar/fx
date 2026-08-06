@@ -2294,8 +2294,8 @@ describe('lexer', () => {
         { type: OPERATOR, value: ':' },
         { type: REF_STRUCT, value: 'Sheet2!Table[Col]' }
       ]);
-      // Quoted, the sheet-range reading stands, since fx has no way to represent what Excel
-      // reads there: a workbook file name with no sheet at all.
+      // Quoted, it is one reference, as it is for Excel, which reads that scope as a workbook
+      // file name with no sheet at all.
       isTokens("='Sheet1:Sheet2'!Table[Col]", [
         { type: FX_PREFIX, value: '=' },
         { type: REF_STRUCT, value: "'Sheet1:Sheet2'!Table[Col]" }

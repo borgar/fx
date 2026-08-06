@@ -126,8 +126,8 @@ describe('parse structured references', () => {
     isSREqual('Sheet1:Sheet2!Table[Column]', undefined);
     isSREqual('Sheet1:Sheet2!Table[Column]', undefined, { xlsx: true });
 
-    // Quoted, it is still read as a sheet range: Excel reads that form as a workbook file
-    // name with no sheet at all, which fx has no way to represent.
+    // Quoted, it is one reference holding one scope, as it is for Excel, which reads that scope
+    // as a workbook file name with no sheet at all. `splitSheetRange` declines to divide it.
     isSREqual("'Sheet1:Sheet2'!Table[Column]", {
       columns: [ 'Column' ],
       table: 'Table',

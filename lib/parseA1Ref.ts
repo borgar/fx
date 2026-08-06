@@ -45,15 +45,18 @@ export type OptsParseA1Ref = {
  * The sheet scope may name a range of sheets rather than a single one: `Jan:Dec!A1` is a 3-D
  * reference, with both sheet names in the sheet scope, as `context: [ 'Jan:Dec' ]`. Resolving
  * that scope against a workbook's sheets therefore needs {@link splitSheetRange} first, or it
- * matches no sheet at all. The scope is returned unquoted (`'Sheet 1:Sheet 3'!A1` yields
- * `context: [ 'Sheet 1:Sheet 3' ]`), which is the form {@link splitSheetRange} expects, so it
- * needs no further preparation.
+ * matches no sheet at all. Pass it the whole reference: whether the colon divides two sheet
+ * names turns on what follows the prefix. The scope itself is returned unquoted:
+ * `'Sheet 1:Sheet 3'!A1` yields `context: [ 'Sheet 1:Sheet 3' ]`.
  *
- * A sheet range only ever arrives in front of a cell reference. As in Excel, a bare colon-bearing
- * scope in front of a defined name is not a sheet range: the colon is the range operator, making
- * `Alpha:Gamma!SomeName` two operands rather than one reference, so this function returns
- * `undefined` for it. Quoted, it is the exception noted under {@link splitSheetRange}, and is
- * still reported as a sheet range.
+ * A sheet range only ever arrives in front of a cell reference. A bare colon-bearing scope in
+ * front of a defined name is not a sheet range in Excel (the colon is the range operator, so
+ * `Alpha:Gamma!SomeName` is two operands rather than one reference), and this function returns
+ * `undefined` for it, as it does for any expression that is not a single reference. Quoted,
+ * `'Alpha:Gamma'!SomeName` is one reference and is returned as one, holding the single scope
+ * `Alpha:Gamma`. Excel reads that scope as a workbook *file name* with no sheet at all, and
+ * resolving a lone scope reaches the same place on its own: a sheet name may hold no colon, so
+ * the sheet test cannot succeed and the workbook is what is left.
  *
  * @see {@link OptsParseA1Ref}
  * @see {@link splitSheetRange}
@@ -106,15 +109,18 @@ export function parseA1Ref (
  * The sheet scope may name a range of sheets rather than a single one: `Jan:Dec!A1` is a 3-D
  * reference, with both sheet names in the sheet scope, as `sheetName: 'Jan:Dec'`. Resolving
  * that scope against a workbook's sheets therefore needs {@link splitSheetRange} first, or it
- * matches no sheet at all. The scope is returned unquoted (`'Sheet 1:Sheet 3'!A1` yields
- * `sheetName: 'Sheet 1:Sheet 3'`), which is the form {@link splitSheetRange} expects, so it
- * needs no further preparation.
+ * matches no sheet at all. Pass it the whole reference: whether the colon divides two sheet
+ * names turns on what follows the prefix. The scope itself is returned unquoted:
+ * `'Sheet 1:Sheet 3'!A1` yields `sheetName: 'Sheet 1:Sheet 3'`.
  *
- * A sheet range only ever arrives in front of a cell reference. As in Excel, a bare colon-bearing
- * scope in front of a defined name is not a sheet range: the colon is the range operator, making
- * `Alpha:Gamma!SomeName` two operands rather than one reference, so this function returns
- * `undefined` for it. Quoted, it is the exception noted under {@link splitSheetRange}, and is
- * still reported as a sheet range.
+ * A sheet range only ever arrives in front of a cell reference. A bare colon-bearing scope in
+ * front of a defined name is not a sheet range in Excel (the colon is the range operator, so
+ * `Alpha:Gamma!SomeName` is two operands rather than one reference), and this function returns
+ * `undefined` for it, as it does for any expression that is not a single reference. Quoted,
+ * `'Alpha:Gamma'!SomeName` is one reference and is returned as one. Excel reads its scope as a
+ * workbook *file name* with no sheet at all. This variant marks a workbook by bracketing it, so
+ * an unbracketed scope is reported as `sheetName` whatever it holds, and
+ * {@link splitSheetRange} declines to divide it. See [Prefixes.md](./Prefixes.md).
  *
  * @see {@link OptsParseA1Ref}
  * @see {@link splitSheetRange}

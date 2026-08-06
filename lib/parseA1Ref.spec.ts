@@ -121,8 +121,8 @@ describe('parse A1 references', () => {
     // a defined name is the range operator joining a name to a prefixed
     // name, so it is two operands and not one reference, and there is nothing here to resolve.
     isA1Equal('Sheet1:Sheet2!foo', undefined);
-    // Quoted, it is still read as a sheet range: Excel reads that form as a workbook file
-    // name with no sheet at all, which fx has no way to represent.
+    // Quoted, it is one reference holding one scope, as it is for Excel, which reads that scope
+    // as a workbook file name with no sheet at all. `splitSheetRange` declines to divide it.
     isA1Equal("'Sheet1:Sheet2'!foo", { context: [ 'Sheet1:Sheet2' ], name: 'foo' });
 
     isA1Equal('Jan:Dec!A1', { sheetName: 'Jan:Dec', range }, { xlsx: true });
