@@ -299,7 +299,7 @@ function isWholeReference (c: PropertyCase): boolean {
     return false;
   }
   // A sheet name containing "!" has no unquoted form (every writer quotes it), so a prefix
-  // showing one bare is text a round trip was never going to preserve.
+  // with one outside quotes is text a round trip was never going to preserve.
   const slot = ref.sheetName ?? (ref.context ?? []).slice(-1)[0];
   if (slot?.includes('!')) {
     return false;

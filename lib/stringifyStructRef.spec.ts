@@ -52,8 +52,8 @@ describe('serialize structured references', () => {
   });
 
   test('a sheet range in front of a table is quoted whatever its ends look like', () => {
-    // Bare it would not read back as one sheet scope: the colon of a bare sheet range is the range
-    // operator unless a cell reference follows the "!", which a table name is not.
+    // Without quotes it would not read back as one sheet scope: the colon of a bare sheet range
+    // is the range operator unless a cell reference follows the "!", which a table name is not.
     expect(stringifyStructRef({
       columns: [ 'Column' ],
       table: 'Table',

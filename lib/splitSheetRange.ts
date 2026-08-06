@@ -54,7 +54,7 @@ export function splitSheetRange (scope: string): [ string, string ] | undefined 
   const from = scope.slice(0, colon);
   const to = scope.slice(colon + 1);
   // Excel forbids ":" in a sheet name, so wherever a sheet range is a reading at all, a colon here
-  // separates two of them. A scope that does not divide into exactly two names is no sheet range,
-  // and is left to be handled as a (malformed) sheet name.
+  // separates two of them. A scope that does not divide into exactly two names is not a sheet
+  // range, and is left to be handled as a (malformed) sheet name.
   return (from && to && !to.includes(':')) ? [ from, to ] : undefined;
 }

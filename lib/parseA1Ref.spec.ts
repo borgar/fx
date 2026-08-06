@@ -117,8 +117,8 @@ describe('parse A1 references', () => {
     isA1Equal("'Sheet 1:Sheet 2'!A1", { context: [ 'Sheet 1:Sheet 2' ], range });
     isA1Equal('[Book.xlsx]Sheet1:Sheet2!A1', { context: [ 'Book.xlsx', 'Sheet1:Sheet2' ], range });
     isA1Equal("'[Book.xlsx]Sheet 1:Sheet 2'!A1", { context: [ 'Book.xlsx', 'Sheet 1:Sheet 2' ], range });
-    // A sheet range stands in front of a cell reference and nowhere else. Measured in Excel, a
-    // bare one in front of a defined name is the range operator joining a name to a prefixed
+    // A sheet range stands in front of a cell reference and nowhere else. A bare one in front of
+    // a defined name is the range operator joining a name to a prefixed
     // name, so it is two operands and not one reference, and there is nothing here to resolve.
     isA1Equal('Sheet1:Sheet2!foo', undefined);
     // Quoted, it is still read as a sheet range: Excel reads that form as a workbook file

@@ -106,8 +106,8 @@ describe('parser', () => {
     });
 
     test('a sheet range stands only in front of a cell reference', () => {
-      // Measured in Excel: bare, in front of a defined name or a table, the colon is the range
-      // operator. `Alpha:Gamma!SomeName` survives a rename of the sheet `Alpha` untouched, where
+      // In an unquoted prefix in front of a defined name or a table, Excel reads the colon as
+      // the range operator. `Alpha:Gamma!SomeName` survives a rename of the sheet `Alpha` untouched, where
       // both an ordinary `Alpha!SomeName` and a sheet range over a cell are rewritten, so `Alpha`
       // there is a name and not a sheet. Excel goes on to discard the second operand's sheet
       // prefix on a table, storing `Alpha:Gamma!T[C]` as `Alpha:T[C]`.

@@ -107,7 +107,7 @@ parseA1Ref('[1]Sheet1:Sheet2!A1');
 */
 ```
 
-`:` is one of the characters Excel forbids in a sheet name (measured: a rename to such a name is refused), so where the sheet-range reading applies, the colon separates two names rather than belonging to either. A colon elsewhere in the prefix is something else (a Windows drive letter in a path, or part of a workbook file name), which is why the split below takes the sheet scope alone.
+`:` is one of the characters Excel forbids in a sheet name, so where the sheet-range reading applies, the colon separates two names rather than belonging to either. A colon elsewhere in the prefix is something else (a Windows drive letter in a path, or part of a workbook file name), which is why the split below takes the sheet scope alone.
 
 **Anything that resolves a sheet name in front of a cell reference must split that slot first.** A 3-D reference puts `Jan:Dec` where an ordinary reference puts `Sheet1`, so a lookup handed the slot whole matches no sheet at all; it does not fail, it merely finds nothing. Use `splitSheetRange`, which returns the two sheet names, or `undefined` for a single-sheet scope:
 
@@ -127,7 +127,7 @@ A 3-D reference is not the same thing as a range whose two ends are on different
 
 ### What follows the `!`
 
-A sheet range is a sheet range only in front of a cell reference. In front of a defined name or a structured reference, Excel has no sheet-range reading for the prefix and falls back on two others. Measured in Excel (two probe workbooks, shown here on one set of names: sheets `Alpha`, `Beta` and `Gamma`, with a table `Table1` on `Beta`):
+A sheet range is a sheet range only in front of a cell reference. In front of a defined name or a structured reference, Excel has no sheet-range reading for the prefix and falls back on two others. On a workbook with sheets `Alpha`, `Beta` and `Gamma` and a table `Table1` on `Beta`:
 
 | written | how Excel reads the prefix | stored |
 | --- | --- | --- |
@@ -155,9 +155,9 @@ Which names count as cell addresses depends on the notation the cell part uses. 
 
 The quoting rules apply to each sheet name on its own, and the whole prefix is quoted as one unit if either name calls for it. So `=SUM(Sales:Marketing!B3)` needs no quotes, while `'Sheet1:Sheet 2'!A1` does, matching Excel.
 
-What calls for the quotes is a *name*, not the sheet range as a whole, and the names' length has nothing to do with it. Measured in Excel on sheets `A`, `B`, `C`, `D`, `AA` and `AB`: `=SUM(A:B!A1)`, `=SUM(AA:AB!A1)` and `=SUM(A:AB!A1)` are stored as typed, while `=SUM(B:C!A1)` and `=SUM(C:D!A1)` gain quotes. `C` is R1C1 shorthand and Excel quotes it wherever it names a sheet; `R` measures the same way, and _Fx_ quotes `RC` on the same footing. Names that read as cell addresses or consist only of digits go the same way, so serializing the sheet ranges `A1:B2` and `1:5` yields `'A1:B2'!A1` and `'1:5'!A1`. _Fx_ quotes one more: `TRUE` or `FALSE`, since a bare `TRUE!A1` is the boolean joined to a reference, not a prefix at all.
+What calls for the quotes is a *name*, not the sheet range as a whole, and the names' length has nothing to do with it. On sheets `A`, `B`, `C`, `D`, `AA` and `AB`, `=SUM(A:B!A1)`, `=SUM(AA:AB!A1)` and `=SUM(A:AB!A1)` are stored as typed, while `=SUM(B:C!A1)` and `=SUM(C:D!A1)` gain quotes. `C` is R1C1 shorthand and Excel quotes it wherever it names a sheet; `R` behaves the same way, and _Fx_ quotes `RC` on the same footing. Names that read as cell addresses or consist only of digits go the same way, so serializing the sheet ranges `A1:B2` and `1:5` yields `'A1:B2'!A1` and `'1:5'!A1`. _Fx_ quotes one more: `TRUE` or `FALSE`, since a bare `TRUE!A1` is the boolean joined to a reference, not a prefix at all.
 
-A workbook or path in front changes none of this: the per-name rule still decides, and _Fx_ follows it. Measured in Excel, `=SUM([ExtSrc.xlsx]Alpha:Gamma!A1)` is stored as typed, and the quoted `'[ExtSrc.xlsx]Alpha:Gamma'!A1` has its needless quotes removed on entry, exactly as a single external sheet does. (`=SUM([Book.xlsx]S1:S3!A1)` does gain quotes on entry, but because `S1` and `S3`, standing alone, would read as cell addresses, not because of the workbook.)
+A workbook or path in front changes none of this: the per-name rule still decides, and _Fx_ follows it. Excel stores `=SUM([ExtSrc.xlsx]Alpha:Gamma!A1)` as typed, and removes the needless quotes from `'[ExtSrc.xlsx]Alpha:Gamma'!A1` on entry, exactly as for a single external sheet. (`=SUM([Book.xlsx]S1:S3!A1)` does gain quotes on entry, but because `S1` and `S3`, standing alone, would read as cell addresses, not because of the workbook.)
 
 The per-name rule holds where the sheet range does, in front of a cell reference. Serializing a colon-bearing scope in front of a name or a table quotes it whole, so that it reads back as the one scope it was written from: `stringifyA1Ref({ context: [ 'Sales:Marketing' ], name: 'foo' })` yields `'Sales:Marketing'!foo`. Written bare, the colon would go to the range operator instead.
 
@@ -166,7 +166,7 @@ A `$` may not appear on an unquoted sheet name. Excel refuses `=SUM($Jan:$Mar!A1
 
 ### Sheet names quoted separately
 
-A prefix is normally either quoted whole or not at all, but _Fx_ also accepts the two sheet names being quoted separately: `foo:'bar'!A1`, `'foo':'bar baz'!A1`. Both read as the same sheet range as the whole-quoted form, and serializing redistributes the quoting over the whole prefix, so `'foo':'bar baz'!A1` comes back out as `'foo:bar baz'!A1`. A separately quoted name may hold no colon of its own (Excel forbids one in a sheet name, and the colon dividing the two names is behind it), so `Jan:'a:b'!A1` is no sheet range.
+A prefix is normally either quoted whole or not at all, but _Fx_ also accepts the two sheet names being quoted separately: `foo:'bar'!A1`, `'foo':'bar baz'!A1`. Both read as the same sheet range as the whole-quoted form, and serializing redistributes the quoting over the whole prefix, so `'foo':'bar baz'!A1` comes back out as `'foo:bar baz'!A1`. A separately quoted name may hold no colon of its own (Excel forbids one in a sheet name, and the colon dividing the two names is behind it), so `Jan:'a:b'!A1` is not a sheet range.
 
 _Fx_ accepts that to be forgiving of other producers. Excel agrees about one end and not the other. A quote around the *first* name alone is redundant but harmless: hand-written into a file, `'R':Gamma!A1` is read as the sheet range and normalized to `'R:Gamma'!A1`. A quote around the *second* name alone is a different formula: `Alpha:'Q1'!A1` is the range operator joining `Alpha` to `'Q1'!A1` (`#NAME?` where no name `Alpha` exists, a plain rectangle where one does), and Excel never corrects it, even though the same pair written bare or quoted whole is a sheet range. Excel writes that second form itself, on entry of a sheet range whose end names no sheet: `Jan:Nope!A1` stores as `Jan:'[1]Nope'!A1`, the unresolved name bound to a manufactured external-workbook link, and `Nope:Mar!A1` as `Nope:'Mar'!A1`, the surviving second name picking up quotes it did not need. _Fx_ refuses the bracketed form, since a workbook may be named only ahead of the whole prefix, but reads `Nope:'Mar'!A1` (and so also a live `Alpha:'Q1'!A1`) as a sheet range, recovering the likely intent at the price of disagreeing with Excel where the range-operator reading has a value.
 

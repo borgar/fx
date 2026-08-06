@@ -1189,7 +1189,7 @@ describe('lexer', () => {
 
     test('a sheet name containing a "." is not a range and a stray dot', () => {
       // "." is the one character a sheet name may contain that a range is also allowed to end on,
-      // so a range lexer would otherwise stop part-way through one: the "v1" of "v1.0" is no cell
+      // so a range lexer would otherwise stop part-way through one: the "v1" of "v1.0" is not a cell
       isTokens('=v1.0!A1', [
         { type: FX_PREFIX, value: '=' },
         { type: CONTEXT, value: 'v1.0' },
@@ -2276,8 +2276,8 @@ describe('lexer', () => {
     });
 
     test('a colon in front of a name or a table is the range operator', () => {
-      // Measured in Excel: a sheet range stands in front of a cell reference and nowhere else. A
-      // bare one in front of a defined name survives a rename of its first sheet untouched, where
+      // A sheet range stands in front of a cell reference and nowhere else: in Excel, a bare one
+      // in front of a defined name survives a rename of its first sheet untouched, where
       // both an ordinary prefix and a sheet range over a cell are rewritten. So the first name
       // is an ordinary name, and the colon between the two is the range operator.
       isTokens('=Sheet1:Sheet2!name', [
@@ -2348,7 +2348,7 @@ describe('lexer', () => {
         { type: FX_PREFIX, value: '=' },
         { type: REF_RANGE, value: 'a1.b:Dec!A1' }
       ]);
-      // ... and a first name that only starts out as a cell address is no cell, so it keeps no
+      // ... and a first name that only starts out as a cell address is not a cell, so it keeps no
       // colon
       isTokens('=A1.b:Dec!A1', [
         { type: FX_PREFIX, value: '=' },
@@ -2459,7 +2459,7 @@ describe('lexer', () => {
         { type: REF_RANGE, value: "'[1]Nope'!A1" }
       ]);
       // Excel forbids ":" in a sheet name, and the one dividing the two ends is behind us here,
-      // so a quoted endpoint containing one is no endpoint either. (A colon inside a prefix
+      // so a quoted endpoint containing one is not an endpoint either. (A colon inside a prefix
       // quoted as a whole is the divider, and does not come this way.)
       isTokens("=Jan:'a:b'!A1", [
         { type: FX_PREFIX, value: '=' },
@@ -2677,7 +2677,7 @@ describe('lexer', () => {
       // "=SUM(A:C!A1)" and "=SUM(Jan:Mar!A1)" are sheet ranges, since a left side that is only a
       // column letter does not take the colon that way. Only quoting makes such a
       // pair a sheet range. Cell address is meant in this notation: see the R1C1 tests above,
-      // where "A1:B2!R3C3" is a sheet range because "A1" is no cell there.
+      // where "A1:B2!R3C3" is a sheet range because "A1" is not a cell there.
       isTokens('=A1:B2!C3', [
         { type: FX_PREFIX, value: '=' },
         { type: REF_RANGE, value: 'A1' },
@@ -2785,7 +2785,7 @@ describe('lexer', () => {
         { type: OPERATOR, value: ':' },
         { type: REF_RANGE, value: 'baz1!A1' }
       ]);
-      // a later "!" does not supply the missing second name: "!" is no sheet name, so the prefix
+      // a later "!" does not supply the missing second name: "!" is not a sheet name, so the prefix
       // ends at the colon rather than scanning on for a second one
       isTokens('=a:!!A1', [
         { type: FX_PREFIX, value: '=' },

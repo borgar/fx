@@ -230,8 +230,8 @@ Structured ranges are normalized to have consistent order and capitalization
 of sections as well as removing redundant ones.
 
 The sheet range of a 3-D reference is left alone, so `Sheet2:Sheet1!B2:A1`
-becomes `Sheet2:Sheet1!A1:B2` and no further. Normalizing it would take the
-workbook's sheet names, in order, which _Fx_ does not know.
+becomes `Sheet2:Sheet1!A1:B2` and no further. Normalizing the prefix would
+require the workbook's sheet names, in order, which _Fx_ does not know.
 
 Returns a new array of tokens with values and position data updated.
 
@@ -894,7 +894,7 @@ matches no sheet at all. The scope is returned unquoted (`'Sheet 1:Sheet 3'!A1` 
 needs no further preparation.
 
 A sheet range only ever arrives in front of a cell reference. As in Excel, a bare colon-bearing
-scope in front of a defined name is no sheet range: the colon is the range operator, making
+scope in front of a defined name is not a sheet range: the colon is the range operator, making
 `Alpha:Gamma!SomeName` two operands rather than one reference, so this function returns
 `undefined` for it. Quoted, it is the exception noted under [splitSheetRange](#fxfunctionssplitsheetrangemd), and is
 still reported as a sheet range.
@@ -3123,7 +3123,7 @@ matches no sheet at all. The scope is returned unquoted (`'Sheet 1:Sheet 3'!A1` 
 needs no further preparation.
 
 A sheet range only ever arrives in front of a cell reference. As in Excel, a bare colon-bearing
-scope in front of a defined name is no sheet range: the colon is the range operator, making
+scope in front of a defined name is not a sheet range: the colon is the range operator, making
 `Alpha:Gamma!SomeName` two operands rather than one reference, so this function returns
 `undefined` for it. Quoted, it is the exception noted under [splitSheetRange](#fxfunctionssplitsheetrangemd), and is
 still reported as a sheet range.

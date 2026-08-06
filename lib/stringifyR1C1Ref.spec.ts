@@ -34,9 +34,9 @@ describe('stringifyR1C1Ref', () => {
     testRef({ context: [ 'Book.xlsx', 'Sheet1:Sheet2' ], range: rangeA1 }, '[Book.xlsx]Sheet1:Sheet2!R[2]C[4]');
     testRef({ context: [ 'Book.xlsx', 'Sheet1' ], range: rangeA1 }, '[Book.xlsx]Sheet1!R[2]C[4]');
     testRef({ context: [ 'Sheet 1:Sheet 2' ], range: rangeA1 }, "'Sheet 1:Sheet 2'!R[2]C[4]");
-    // A sheet range in front of a name is quoted whatever its ends look like, because bare it
-    // would not read back as one: the colon of a bare sheet range is the range operator unless a
-    // cell reference follows the "!".
+    // A sheet range in front of a name is quoted whatever its ends look like, because without
+    // quotes it would not read back as one: the colon of a bare sheet range is the range operator
+    // unless a cell reference follows the "!".
     testRef({ context: [ 'Jan:Dec' ], name: 'foo' }, "'Jan:Dec'!foo");
     // a first sheet name that is also a cell address in this notation would give the colon to
     // the range operator

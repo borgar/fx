@@ -56,15 +56,15 @@ describe('stringifyA1Ref', () => {
     expect(stringifyA1Ref({ context: [ 'False' ], range: rangeA1 })).toBe("'False'!A1");
     expect(stringifyA1Ref({ context: [ 'False:Jan' ], range: rangeA1 })).toBe("'False:Jan'!A1");
     expect(stringifyA1Ref({ context: [ 'Jan:true' ], range: rangeA1 })).toBe("'Jan:true'!A1");
-    // ... while a name that merely starts with one is no boolean
+    // ... while a name that merely starts with one is not a boolean
     expect(stringifyA1Ref({ context: [ 'Truer' ], range: rangeA1 })).toBe('Truer!A1');
   });
 
   test('3-D references are quoted per endpoint', () => {
     expect(stringifyA1Ref({ context: [ 'Jan:Dec' ], range: rangeA1 })).toBe('Jan:Dec!A1');
-    // A sheet range in front of a name is quoted whatever its ends look like, because bare it
-    // would not read back as one: the colon of a bare sheet range is the range operator unless a
-    // cell reference follows the "!".
+    // A sheet range in front of a name is quoted whatever its ends look like, because without
+    // quotes it would not read back as one: the colon of a bare sheet range is the range operator
+    // unless a cell reference follows the "!".
     expect(stringifyA1Ref({ context: [ 'Sales:Marketing' ], name: 'foo' })).toBe("'Sales:Marketing'!foo");
     expect(stringifyA1Ref({ context: [ 'Sheet 1:Sheet 2' ], range: rangeA1 })).toBe("'Sheet 1:Sheet 2'!A1");
     expect(stringifyA1Ref({ context: [ 'Sheet1:Sheet 2' ], range: rangeA1 })).toBe("'Sheet1:Sheet 2'!A1");
@@ -82,15 +82,15 @@ describe('stringifyA1Ref', () => {
   });
 
   test('a workbook qualifier changes nothing about the quoting', () => {
-    // Measured in Excel: bare "[ExtSrc3.xlsx]Alpha:Gamma!A1" stays bare on entry, and the quoted
+    // Bare "[ExtSrc3.xlsx]Alpha:Gamma!A1" stays bare on entry, and the quoted
     // form has its needless quotes removed, exactly as a single external sheet does.
     expect(stringifyA1Ref({ context: [ 'Book.xlsx', 'Sheet1:Sheet2' ], range: rangeA1 }))
       .toBe('[Book.xlsx]Sheet1:Sheet2!A1');
     expect(stringifyA1Ref({ context: [ 'Book.xlsx', 'Sheet1' ], range: rangeA1 }))
       .toBe('[Book.xlsx]Sheet1!A1');
     // ... while an endpoint that needs quotes anywhere needs them here too ("S1" would read as a
-    // cell address bare), as does a path scope, "/" not being a character an unquoted scope may
-    // hold
+    // cell address if unquoted), as does a path scope, "/" not being a character an unquoted
+    // scope may hold
     expect(stringifyA1Ref({ context: [ '/Docs/', 'Book.xlsx', 'S1:S3' ], range: rangeA1 }))
       .toBe("'/Docs/[Book.xlsx]S1:S3'!A1");
     expect(stringifyA1Ref({ context: [ 'Book.xlsx', 'Sheet1:Sheet2' ], name: 'foo' }))

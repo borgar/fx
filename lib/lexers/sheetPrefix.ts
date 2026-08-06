@@ -81,9 +81,9 @@ export function isCellAddress (name: string, r1c1: boolean): boolean {
 
 // Does a cell reference begin at `pos`, just past the "!" that closes a sheet prefix? A bare sheet
 // range stands in front of one and nowhere else, so this decides whether the colon ahead of the
-// "!" divides two sheet names or is the range operator. Measured in Excel: `Alpha:Gamma!A1` is a
-// sheet range, while `Alpha:Gamma!SomeName` and `Alpha:Gamma!Table1[Col]` are the range operator
-// joining a name to a prefixed operand. See docs/Prefixes.md for the measurements.
+// "!" divides two sheet names or is the range operator. In Excel, `Alpha:Gamma!A1` is a sheet
+// range, while `Alpha:Gamma!SomeName` and `Alpha:Gamma!Table1[Col]` are the range operator
+// joining a name to a prefixed operand. See docs/Prefixes.md.
 //
 // The question is put to the range lexers themselves, so the answer agrees with what the operand
 // will actually lex as, and it is put permissively: any cell reference at all keeps the
@@ -105,8 +105,8 @@ export function operandAllowsSheetRange (str: string, pos: number, r1c1: boolean
 //
 // Each name has to be measured in full, because "." is the one character a sheet name may contain
 // that a range is also allowed to end on, so a range lexer can stop part-way through a name: the
-// "a1" of "a1.b!A1" is no more a cell address than the whole "a1.b" is. That is also why a lone
-// name counts here and not only a pair.
+// "a1" of "a1.b!A1" is not a cell address. That is also why a lone name counts here and not only
+// a pair.
 //
 // Two further tests apply to a pair only. A first name that is also a valid cell address gives
 // the colon to the range operator, and the notation decides which names those are: "A1:B2!C3" is

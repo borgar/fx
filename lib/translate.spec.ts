@@ -39,9 +39,9 @@ describe('translate absolute cells from A1 to RC', () => {
 
   test('3-D references over sheet names that are also R1C1 parts', () => {
     // The sheet range travels verbatim, so the R1C1 leg has to read back as a sheet range what
-    // the A1 leg did: "C", "R" and their numbered forms are R1C1 parts, but they are no more
-    // cells there than "A1" is, so the colon is still a sheet-range separator. The prefix comes
-    // back quoted, which is the form Excel stores for these names anyway.
+    // the A1 leg did: "C", "R" and their numbered forms are R1C1 parts, but not cells, so the
+    // colon is still a sheet-range separator. The prefix comes back quoted, which is the form
+    // Excel stores for these names anyway.
     const rc = translateFormulaToR1C1('=SUM(C:D!A1)', 'C3');
     expect(rc).toBe('=SUM(C:D!R[-2]C[-2])');
     expect(translateFormulaToA1(rc, 'C3')).toBe("=SUM('C:D'!A1)");
@@ -50,8 +50,8 @@ describe('translate absolute cells from A1 to RC', () => {
 
   test('3-D references over sheet names that read as cell addresses in the other notation', () => {
     // A prefix travels verbatim, so a sheet range whose first name reads as a cell where it lands
-    // has to pick up quotes on the way: bare, that end gives the colon to the range operator and
-    // the reference is no longer the same one.
+    // has to pick up quotes on the way: without them, that end gives the colon to the range
+    // operator and the reference is no longer the same one.
     expect(translateFormulaToR1C1('=SUM(RC:Dec!A1)', 'C3')).toBe("=SUM('RC:Dec'!R[-2]C[-2])");
     expect(translateFormulaToR1C1('=R1C1:Dec!A1', 'C3')).toBe("='R1C1:Dec'!R[-2]C[-2]");
     expect(translateFormulaToA1('=A1:Dec!R1C1', 'C3', { mergeRefs: false })).toBe("='A1:Dec'!$A$1");

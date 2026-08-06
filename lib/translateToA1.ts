@@ -159,9 +159,8 @@ export function translateTokensToA1 (
         token.loc[1] += offsetSkew;
       }
     }
-    // see translateTokensToR1C1: a prefix travels through untouched, so a sheet range it holds
-    // arrives in a notation that may not read it as one. "A1:Dec!R1C1" is a sheet range in R1C1,
-    // where "A1" is no cell, but bare "A1:Dec!$A$1" reads back as cell A1 joined to 'Dec'!$A$1.
+    // a sheet name may read as a cell address in one notation and not the other, so translation
+    // can change whether the prefix needs quotes
     else if (token.type === CONTEXT && prefixNeedsQuotes(token.value, false)) {
       token = cloneToken(token);
       const tokenValue = token.value;

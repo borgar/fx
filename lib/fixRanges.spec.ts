@@ -98,7 +98,7 @@ describe('fixRanges prefixes', () => {
   });
 
   test('a workbook qualifier changes nothing about the quoting', () => {
-    // Measured in Excel: the endpoint names alone decide, external or not. "S1" and "S3" would
+    // The endpoint names alone decide, external or not. "S1" and "S3" would
     // read as cell addresses if left bare, so they keep their quotes; "Sheet1:Sheet2" needs none
     // and loses any it has.
     isFixed('=SUM([Book.xlsx]S1:S3!A1)', "=SUM('[Book.xlsx]S1:S3'!A1)");

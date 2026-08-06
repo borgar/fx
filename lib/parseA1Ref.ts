@@ -50,7 +50,7 @@ export type OptsParseA1Ref = {
  * needs no further preparation.
  *
  * A sheet range only ever arrives in front of a cell reference. As in Excel, a bare colon-bearing
- * scope in front of a defined name is no sheet range: the colon is the range operator, making
+ * scope in front of a defined name is not a sheet range: the colon is the range operator, making
  * `Alpha:Gamma!SomeName` two operands rather than one reference, so this function returns
  * `undefined` for it. Quoted, it is the exception noted under {@link splitSheetRange}, and is
  * still reported as a sheet range.
@@ -111,7 +111,7 @@ export function parseA1Ref (
  * needs no further preparation.
  *
  * A sheet range only ever arrives in front of a cell reference. As in Excel, a bare colon-bearing
- * scope in front of a defined name is no sheet range: the colon is the range operator, making
+ * scope in front of a defined name is not a sheet range: the colon is the range operator, making
  * `Alpha:Gamma!SomeName` two operands rather than one reference, so this function returns
  * `undefined` for it. Quoted, it is the exception noted under {@link splitSheetRange}, and is
  * still reported as a sheet range.
