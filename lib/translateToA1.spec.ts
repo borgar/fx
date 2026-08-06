@@ -267,7 +267,7 @@ describe('quote sheet prefix on RHS of range operator', () => {
 describe('translate 3-D references', () => {
   test('the sheet range is quoted only when an endpoint needs it', () => {
     isR2A('=Jan:Dec!R1C1', 'A1', '=Jan:Dec!$A$1');
-    // a workbook-qualified sheet range is always quoted, a single-sheet one is not
+    // "S1" and "S3" are cell addresses, so they force the quotes; the workbook changes nothing
     isR2A('=[Book.xlsx]S1:S3!R1C1', 'A1', "='[Book.xlsx]S1:S3'!$A$1");
     isR2A('=[Book.xlsx]Sheet1!R1C1', 'A1', '=[Book.xlsx]Sheet1!$A$1');
     // a left side that is also a cell address makes the colon a range operator, and the prefix on

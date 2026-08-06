@@ -97,16 +97,18 @@ describe('fixRanges prefixes', () => {
     isFixed('=SUM(A:AB!A1)', '=SUM(A:AB!A1)');
   });
 
-  test('a workbook-qualified 3-D reference is always quoted', () => {
-    // Excel adds the quotes here even though neither sheet name calls for them, in contrast to
-    // a single-sheet external reference, which has needless quotes removed
+  test('a workbook qualifier changes nothing about the quoting', () => {
+    // Measured in Excel: the endpoint names alone decide, external or not. "S1" and "S3" are cell
+    // addresses, so they keep their quotes; "Sheet1:Sheet2" needs none and loses any it has.
     isFixed('=SUM([Book.xlsx]S1:S3!A1)', "=SUM('[Book.xlsx]S1:S3'!A1)");
     isFixed("=SUM('[Book.xlsx]S1:S3'!A1)", "=SUM('[Book.xlsx]S1:S3'!A1)");
     isFixed("=SUM('[Book.xlsx]Sheet1'!A1)", '=SUM([Book.xlsx]Sheet1!A1)');
+    isFixed("=SUM('[Book.xlsx]Sheet1:Sheet2'!A1)", '=SUM([Book.xlsx]Sheet1:Sheet2!A1)');
 
     const opts = { xlsx: true };
     isFixed('=Jan:Dec!A1', '=Jan:Dec!A1', opts);
-    isFixed('=[Book.xlsx]Sheet1:Sheet2!A1', "='[Book.xlsx]Sheet1:Sheet2'!A1", opts);
+    isFixed('=[Book.xlsx]Sheet1:Sheet2!A1', '=[Book.xlsx]Sheet1:Sheet2!A1', opts);
+    // the quotes here come from the digit-leading workbook name, not from the sheet range
     isFixed('=[1]Sheet1:Sheet2!A1', "='[1]Sheet1:Sheet2'!A1", opts);
     // the stored form in a saved xlsx has the external-link index, never a path
     isFixed("=SUM('[1]S1:S3'!A1)", "=SUM('[1]S1:S3'!A1)", opts);
@@ -119,7 +121,7 @@ describe('fixRanges prefixes', () => {
     isFixed("='foo':'bar'!A1", '=foo:bar!A1');
     isFixed("='foo':'bar baz'!A1", "='foo:bar baz'!A1");
     isFixed("='foo bar':'baz'!A1", "='foo bar:baz'!A1");
-    isFixed("='[Book.xlsx]foo':'bar'!A1", "='[Book.xlsx]foo:bar'!A1");
+    isFixed("='[Book.xlsx]foo':'bar'!A1", '=[Book.xlsx]foo:bar!A1');
     isFixed("=foo:'bar'!A1", '=foo:bar!A1', { xlsx: true });
   });
 

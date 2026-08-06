@@ -30,8 +30,8 @@ describe('stringifyR1C1Ref', () => {
 
   test('3-D references', () => {
     testRef({ context: [ 'Jan:Dec' ], range: rangeA1 }, 'Jan:Dec!R[2]C[4]');
-    // a workbook-qualified sheet range is always quoted, a single-sheet one is not
-    testRef({ context: [ 'Book.xlsx', 'Sheet1:Sheet2' ], range: rangeA1 }, "'[Book.xlsx]Sheet1:Sheet2'!R[2]C[4]");
+    // a workbook qualifier changes nothing about the quoting: the endpoint names alone decide
+    testRef({ context: [ 'Book.xlsx', 'Sheet1:Sheet2' ], range: rangeA1 }, '[Book.xlsx]Sheet1:Sheet2!R[2]C[4]');
     testRef({ context: [ 'Book.xlsx', 'Sheet1' ], range: rangeA1 }, '[Book.xlsx]Sheet1!R[2]C[4]');
     testRef({ context: [ 'Sheet 1:Sheet 2' ], range: rangeA1 }, "'Sheet 1:Sheet 2'!R[2]C[4]");
     // A sheet range in front of a name is quoted whatever its ends look like, because bare it
@@ -78,6 +78,7 @@ describe('stringifyR1C1Ref in XLSX mode', () => {
   test('3-D references', () => {
     testRef({ sheetName: 'Jan:Dec', range: rangeA1 }, 'Jan:Dec!R[2]C[4]');
     testRef({ sheetName: 'Sheet 1:Sheet 2', range: rangeA1 }, "'Sheet 1:Sheet 2'!R[2]C[4]");
+    // the quotes here come from the digit-leading workbook name, not from the sheet range
     testRef({ workbookName: '1', sheetName: 'Sheet1:Sheet2', range: rangeA1 }, "'[1]Sheet1:Sheet2'!R[2]C[4]");
     // see the non-xlsx twin: in front of a name the colon has to be quoted to read back
     testRef({ sheetName: 'Jan:Dec', name: 'foo' }, "'Jan:Dec'!foo");

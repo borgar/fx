@@ -81,13 +81,15 @@ describe('stringifyA1Ref', () => {
     expect(stringifyA1Ref({ context: [ 'A:AB' ], range: rangeA1 })).toBe('A:AB!A1');
   });
 
-  test('a workbook-qualified 3-D reference is always quoted', () => {
-    // Excel adds the quotes even though neither sheet name calls for them, in contrast to a
-    // single-sheet external reference, which has needless quotes removed
+  test('a workbook qualifier changes nothing about the quoting', () => {
+    // Measured in Excel: bare "[ExtSrc3.xlsx]Alpha:Gamma!A1" stays bare on entry, and the quoted
+    // form has its needless quotes removed, exactly as a single external sheet does.
     expect(stringifyA1Ref({ context: [ 'Book.xlsx', 'Sheet1:Sheet2' ], range: rangeA1 }))
-      .toBe("'[Book.xlsx]Sheet1:Sheet2'!A1");
+      .toBe('[Book.xlsx]Sheet1:Sheet2!A1');
     expect(stringifyA1Ref({ context: [ 'Book.xlsx', 'Sheet1' ], range: rangeA1 }))
       .toBe('[Book.xlsx]Sheet1!A1');
+    // ... while an endpoint that needs quotes anywhere needs them here too ("S1" is a cell
+    // address), as does a path scope, "/" not being a character an unquoted scope may hold
     expect(stringifyA1Ref({ context: [ '/Docs/', 'Book.xlsx', 'S1:S3' ], range: rangeA1 }))
       .toBe("'/Docs/[Book.xlsx]S1:S3'!A1");
     expect(stringifyA1Ref({ context: [ 'Book.xlsx', 'Sheet1:Sheet2' ], name: 'foo' }))
@@ -157,14 +159,14 @@ describe('stringifyA1Ref in XLSX mode', () => {
       .toBe("'[a:b]Sheet1'!A1");
   });
 
-  test('a workbook-qualified 3-D reference is always quoted', () => {
+  test('a workbook qualifier changes nothing about the quoting', () => {
+    // see the non-xlsx twin: the endpoint names alone decide
     expect(stringifyA1RefXlsx({ workbookName: 'Book.xlsx', sheetName: 'Sheet1:Sheet2', range: rangeA1 }))
-      .toBe("'[Book.xlsx]Sheet1:Sheet2'!A1");
+      .toBe('[Book.xlsx]Sheet1:Sheet2!A1');
     expect(stringifyA1RefXlsx({ workbookName: '1', sheetName: 'S1:S3', range: rangeA1 }))
       .toBe("'[1]S1:S3'!A1");
     expect(stringifyA1RefXlsx({ workbookName: '1', sheetName: 'S1:S3', name: 'foo' }))
       .toBe("'[1]S1:S3'!foo");
-    // in contrast to a single-sheet external reference, which is left bare
     expect(stringifyA1RefXlsx({ workbookName: 'Book.xlsx', sheetName: 'Sheet1', range: rangeA1 }))
       .toBe('[Book.xlsx]Sheet1!A1');
   });

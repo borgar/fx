@@ -93,7 +93,6 @@ export function stringifyPrefix (
   let pre = '';
   let quote = 0;
   let nth = 0;
-  let sheetRange = false;
   // Only a reference to a cell may write a sheet range bare, since that is the only place the
   // lexers read one back (see operandAllowsSheetRange). In front of a name or a table the colon is
   // just another character that forces quotes, so "a:b" comes back out as "'a:b'!Name" and reads
@@ -107,7 +106,6 @@ export function stringifyPrefix (
       pre = part + pre;
       // the last scope is the sheet, and only it may hold a sheet range
       if (nth === 0 && takesSheetRange) {
-        sheetRange = !!splitSheetRange(scope);
         quote += needQuotesSheet(scope, quote, r1c1);
       }
       else {
@@ -115,14 +113,6 @@ export function stringifyPrefix (
       }
       nth++;
     }
-  }
-  if (sheetRange && nth > 1) {
-    // On entry Excel quotes a sheet range qualified by a workbook or path as a whole, even when
-    // neither sheet name needs it: "[Book.xlsx]S1:S3!A1" comes back as "'[Book.xlsx]S1:S3'!A1".
-    // Note the asymmetry with a single sheet, where such quotes are instead removed. This binds
-    // the writer only: a stored formula Excel never took from the formula bar may hold the bare
-    // spelling, "[1]One:Three!A1", which is read here as the same sheet range.
-    quote = 1;
   }
   if (quote) {
     pre = quotePrefix(pre);
@@ -146,10 +136,6 @@ export function stringifyPrefixXlsx (
   if (sheetName) {
     pre += sheetName;
     quote += takesSheetRange ? needQuotesSheet(sheetName, 0, r1c1) : needQuotes(sheetName);
-    if (takesSheetRange && workbookName && splitSheetRange(sheetName)) {
-      // see stringifyPrefix: a workbook-qualified sheet range is written quoted as a whole
-      quote = 1;
-    }
   }
   if (quote) {
     pre = quotePrefix(pre);
