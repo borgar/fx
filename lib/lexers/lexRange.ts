@@ -1,5 +1,5 @@
 import type { Token } from '../types.ts';
-import { startsSheetPrefix } from './advSheetName.ts';
+import { startsSheetPrefix } from './sheetPrefix.ts';
 import { lexRangeA1 } from './lexRangeA1.ts';
 import { lexRangeR1C1 } from './lexRangeR1C1.ts';
 

@@ -1,6 +1,6 @@
 import { OPERATOR_TRIM } from '../constants.ts';
 import type { Token } from '../types.ts';
-import { startsSheetPrefix } from './advSheetName.ts';
+import { startsSheetPrefix } from './sheetPrefix.ts';
 
 const PERIOD = 46;
 const COLON = 58;

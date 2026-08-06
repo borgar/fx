@@ -1,7 +1,7 @@
 import { OPERATOR } from '../constants.ts';
 import type { Token } from '../types.ts';
 import { advRangeOp } from './advRangeOp.ts';
-import { startsSheetPrefix } from './advSheetName.ts';
+import { startsSheetPrefix } from './sheetPrefix.ts';
 
 const EXCL = 33; // !
 const PERIOD = 46; // .

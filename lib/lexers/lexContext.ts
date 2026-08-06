@@ -1,6 +1,6 @@
 import { CONTEXT, CONTEXT_QUOTE } from '../constants.ts';
 import type { Token } from '../types.ts';
-import { advSheetName, isContextChar, operandAllowsSheetRange } from './advSheetName.ts';
+import { advSheetName, isContextChar, operandAllowsSheetRange } from './sheetPrefix.ts';
 import { lexRange } from './lexRange.ts';
 
 const QUOT_SINGLE = 39; // '

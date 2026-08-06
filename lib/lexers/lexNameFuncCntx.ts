@@ -1,6 +1,6 @@
 import { CONTEXT, FUNCTION, REF_NAMED, UNKNOWN } from '../constants.ts';
 import type { Token } from '../types.ts';
-import { advSheetName, operandAllowsSheetRange } from './advSheetName.ts';
+import { advSheetName, operandAllowsSheetRange } from './sheetPrefix.ts';
 import { lexContextUnquoted, type LexContextOptions } from './lexContext.ts';
 
 const BR_OPEN = 91; // [

@@ -9,7 +9,7 @@ import type {
   ReferenceNameXlsx
 } from './types.ts';
 import { splitSheetRange } from './splitSheetRange.ts';
-import { isCellAddress } from './lexers/advSheetName.ts';
+import { isCellAddress } from './lexers/sheetPrefix.ts';
 
 const reBannedChars = /[^0-9A-Za-z._¡¤§¨ª\u00ad¯-\uffff]/;
 // A1-XFD1048575 | R | C | RC
