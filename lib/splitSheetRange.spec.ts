@@ -55,6 +55,9 @@ describe('splitSheetRange', () => {
     expect(splitSheetRange(parseA1Ref('A1'))).toBe(undefined);
     expect(splitSheetRange(parseA1RefXlsx('A1'))).toBe(undefined);
 
+    // a failed parse hands back undefined, which is accepted, so the composition needs no guard
+    expect(splitSheetRange(parseA1Ref('!!') as any)).toBe(undefined);
+
     // the sheet slot is the last scope, so a workbook or path in front of it is passed over
     expect(splitSheetRange(parseA1Ref("'[Book.xlsx]Jan:Dec'!A1"))).toEqual([ 'Jan', 'Dec' ]);
     expect(splitSheetRange(parseR1C1Ref('Jan:Dec!R1C1'))).toEqual([ 'Jan', 'Dec' ]);

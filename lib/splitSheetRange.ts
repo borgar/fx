@@ -37,6 +37,9 @@ function splitScope (scope: string): [ string, string ] | undefined {
  * // => undefined
  * ```
  *
+ * A failed parse hands back `undefined`, which is accepted and returned as `undefined`, so this
+ * composition needs no guard between the two calls.
+ *
  * Anything resolving a sheet name in front of a cell reference must split it first. A 3-D
  * reference puts `Jan:Dec` where an ordinary reference puts `Sheet1`, so a lookup handed the slot
  * whole matches no sheet at all, and finds nothing rather than failing.
@@ -89,6 +92,9 @@ function splitScope (scope: string): [ string, string ] | undefined {
  * prefix is not a cell reference.
  */
 export function splitSheetRange (ref: string | AnyReference): [ string, string ] | undefined {
+  if (!ref) {
+    return;
+  }
   if (typeof ref === 'string') {
     return splitScope(ref);
   }

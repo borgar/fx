@@ -1053,6 +1053,9 @@ splitSheetRange(parseA1Ref('Sheet1!A1'));
 // => undefined
 ```
 
+A failed parse hands back `undefined`, which is accepted and returned as `undefined`, so this
+composition needs no guard between the two calls.
+
 Anything resolving a sheet name in front of a cell reference must split it first. A 3-D
 reference puts `Jan:Dec` where an ordinary reference puts `Sheet1`, so a lookup handed the slot
 whole matches no sheet at all, and finds nothing rather than failing.
