@@ -129,7 +129,7 @@ Being one token is not what makes a 3-D reference special: a plain `A1:B2` is on
 
 ### What follows the `!`
 
-A sheet range is a sheet range only in front of a cell reference. In front of a defined name or a structured reference, Excel has no sheet-range reading for the prefix and falls back on two others. Measured in Excel, on a workbook with sheets `Alpha`, `Beta` and `Gamma` and a table `Table1` on `Beta`:
+A sheet range is a sheet range only in front of a cell reference. In front of a defined name or a structured reference, Excel has no sheet-range reading for the prefix and falls back on two others. Measured in Excel (two probe workbooks, one for the name rows and one for the table rows; the sheet names are unified here as `Alpha`, `Beta` and `Gamma`, with a table `Table1` on `Beta`):
 
 | written | how Excel reads the prefix | stored |
 | --- | --- | --- |
@@ -170,7 +170,7 @@ A `$` may not appear on an unquoted sheet name. Excel refuses `=SUM($Jan:$Mar!A1
 
 A prefix is normally either quoted whole or not at all, but _Fx_ also accepts the two sheet names being quoted separately: `foo:'bar'!A1`, `'foo':'bar baz'!A1`. Both read as the same sheet range as any other spelling, and serializing redistributes the quoting over the whole prefix, so `'foo':'bar baz'!A1` comes back out as `'foo:bar baz'!A1`. A separately quoted name may hold no colon of its own — Excel forbids one in a sheet name, and the colon dividing the two names is behind it — so `Jan:'a:b'!A1` is no sheet range.
 
-_Fx_ accepts that to be forgiving of other producers; it is not a spelling of Excel's. Excel does not read a separately quoted pair as a sheet range at all: it stores `=SUM(plain:'has space'!A1)` as typed and evaluates it to `#NAME?`. Excel does *write* that spelling, though, for a sheet range that has lost one of its sheets — the surviving name picks up quotes, and a name that no longer resolves is bound to a manufactured external-workbook link. `Nope:'Mar'!A1` is a sheet range whose first name no longer names a sheet, and `Jan:'[1]Nope'!A1` one whose second does not. _Fx_ refuses the second, a workbook being nameable only ahead of the whole prefix, but reads the first as the sheet range `Nope:Mar`.
+_Fx_ accepts that to be forgiving of other producers. Excel agrees about one end and not the other. A quote around the *first* name alone is redundant but harmless: hand-written into a file, `'R':Gamma!A1` is read as the sheet range and normalized to `'R:Gamma'!A1`. A quote around the *second* name alone is a different formula: `Alpha:'Q1'!A1` is the range operator joining `Alpha` to `'Q1'!A1` — `#NAME?` where no name `Alpha` exists, a plain rectangle where one does — and Excel never corrects it, even though the same pair written bare or quoted whole is a sheet range. Excel writes that second form itself, on entry of a sheet range whose end names no sheet: `Jan:Nope!A1` stores as `Jan:'[1]Nope'!A1`, the unresolved name bound to a manufactured external-workbook link, and `Nope:Mar!A1` as `Nope:'Mar'!A1`, the surviving second name picking up quotes it did not need. _Fx_ refuses the bracketed form, a workbook being nameable only ahead of the whole prefix, but reads `Nope:'Mar'!A1` — and so also a live `Alpha:'Q1'!A1` — as a sheet range, recovering the likely intent at the price of disagreeing with Excel where the range-operator reading has a value.
 
 
 ### What Excel normalizes and _Fx_ does not

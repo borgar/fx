@@ -2406,9 +2406,10 @@ describe('lexer', () => {
     });
 
     test('each end of a sheet range may be quoted on its own', () => {
-      // Accepted to be forgiving of other producers: Excel does not read a separately-quoted pair
-      // as a sheet range at all. Getting this wrong shows up as an open-ended beam — a lexer
-      // bailing at the quote leaves "foo:" behind, which then normalizes to the unrelated "A:FOO".
+      // Accepted to be forgiving of other producers. Excel reads a quoted first name the same
+      // way, but a quoted second name as the range operator (see docs/Prefixes.md). Getting this
+      // wrong shows up as an open-ended beam — a lexer bailing at the quote leaves "foo:" behind,
+      // which then normalizes to the unrelated "A:FOO".
       isTokens("=foo:'bar'!A1", [
         { type: FX_PREFIX, value: '=' },
         { type: REF_RANGE, value: "foo:'bar'!A1" }
@@ -2442,8 +2443,8 @@ describe('lexer', () => {
         { type: REF_RANGE, value: 'A1' }
       ], { mergeRefs: false });
       // A workbook may only be named ahead of the whole prefix, so a quoted endpoint containing
-      // one is not an endpoint. Excel writes this spelling when the second name of a sheet range
-      // stops naming a sheet: it manufactures an external link for that name, which leaves a
+      // one is not an endpoint. Excel writes this form on entry of a sheet range whose second
+      // name names no sheet: it manufactures an external link for that name, which leaves a
       // reference into another workbook.
       isTokens("=Jan:'[1]Nope'!A1", [
         { type: FX_PREFIX, value: '=' },
@@ -2592,8 +2593,7 @@ describe('lexer', () => {
         { type: REF_RANGE, value: 'R1:Total!R1C1' }
       ], { r1c1: true });
       // ... but a bracket is one thing a sheet name may not contain, so a second name with one
-      // names
-      // no second sheet and the first sheet name is left standing as a beam
+      // names no second sheet and the first sheet name is left standing as a beam
       isTokens('=C1:R[1]C[1]!R1C1', [
         { type: FX_PREFIX, value: '=' },
         { type: REF_BEAM, value: 'C1' },
@@ -2786,8 +2786,7 @@ describe('lexer', () => {
         { type: REF_RANGE, value: 'baz1!A1' }
       ]);
       // a later "!" does not supply the missing second name: "!" is no sheet name, so the prefix
-      // ends
-      // at the colon rather than scanning on for a second one
+      // ends at the colon rather than scanning on for a second one
       isTokens('=a:!!A1', [
         { type: FX_PREFIX, value: '=' },
         { type: REF_NAMED, value: 'a' },
