@@ -886,12 +886,12 @@ parseA1Ref('Sheet1!A$1:$B2');
 For A:A or A1:A style ranges, `null` will be used for any dimensions that the
 syntax does not specify.
 
-The sheet scope may name a range of sheets rather than a single one: a 3-D reference
-(`Jan:Dec!A1`) puts both sheet names in it, as `context: [ 'Jan:Dec' ]`. Resolving that scope
-against a workbook's sheets therefore needs [splitSheetRange](#fxfunctionssplitsheetrangemd) first, or it matches no
-sheet at all. The scope is returned unquoted — `'Sheet 1:Sheet 3'!A1` yields
-`context: [ 'Sheet 1:Sheet 3' ]` — which is the form [splitSheetRange](#fxfunctionssplitsheetrangemd) expects, so pass
-it on as it comes.
+The sheet scope may name a range of sheets rather than a single one: `Jan:Dec!A1` is a 3-D
+reference, with both sheet names in the sheet scope, as `context: [ 'Jan:Dec' ]`. Resolving
+that scope against a workbook's sheets therefore needs [splitSheetRange](#fxfunctionssplitsheetrangemd) first, or it
+matches no sheet at all. The scope is returned unquoted (`'Sheet 1:Sheet 3'!A1` yields
+`context: [ 'Sheet 1:Sheet 3' ]`), which is the form [splitSheetRange](#fxfunctionssplitsheetrangemd) expects, so it
+needs no further preparation.
 
 A sheet range only ever arrives in front of a cell reference. As in Excel, a bare colon-bearing
 scope in front of a defined name is no sheet range: the colon is the range operator, making
@@ -1039,8 +1039,8 @@ function splitSheetRange(scope: string): [string, string];
 Splits the sheet scope of a prefix into the two sheet names of a sheet range, if it contains one.
 
 A 3-D reference (`Sheet1:Sheet2!A1`) spans every sheet from one named sheet to another. Its two
-sheet names occupy the single sheet slot of the reference — `context` (the last scope) or
-`sheetName` in the xlsx variant — which is what this splits apart:
+sheet names occupy the single sheet slot of the reference (the last scope of `context`, or
+`sheetName` in the xlsx variant), which is what this splits apart:
 
 ```js
 splitSheetRange('Jan:Dec');
@@ -1063,7 +1063,7 @@ const sheets = splitSheetRange(scope) ?? [ scope ];
 Pass the sheet scope alone, in the form the parsers hand back. `parseA1Ref` and `parseR1C1Ref`
 have already stripped the surrounding quotes and collapsed doubled apostrophes, so
 `'It''s:Fine'!A1` arrives here as the scope `It's:Fine`. This function does no unquoting of its
-own — it splits on the colon and returns the two halves verbatim, ready to match against a
+own: it splits on the colon and returns the two halves verbatim, ready to match against a
 workbook's sheets.
 
 Handing it a raw quoted prefix instead does not fail at all:
@@ -3115,12 +3115,12 @@ parseA1Ref('Sheet1!A$1:$B2');
 For A:A or A1:A style ranges, `null` will be used for any dimensions that the
 syntax does not specify.
 
-The `sheetName` may name a range of sheets rather than a single one: a 3-D reference
-(`Jan:Dec!A1`) puts both sheet names in it, as `sheetName: 'Jan:Dec'`. Resolving it against a
-workbook's sheets therefore needs [splitSheetRange](#fxfunctionssplitsheetrangemd) first, or it matches no sheet at all.
-The name is returned unquoted — `'Sheet 1:Sheet 3'!A1` yields
-`sheetName: 'Sheet 1:Sheet 3'` — which is the form [splitSheetRange](#fxfunctionssplitsheetrangemd) expects, so pass it
-on as it comes.
+The sheet scope may name a range of sheets rather than a single one: `Jan:Dec!A1` is a 3-D
+reference, with both sheet names in the sheet scope, as `sheetName: 'Jan:Dec'`. Resolving
+that scope against a workbook's sheets therefore needs [splitSheetRange](#fxfunctionssplitsheetrangemd) first, or it
+matches no sheet at all. The scope is returned unquoted (`'Sheet 1:Sheet 3'!A1` yields
+`sheetName: 'Sheet 1:Sheet 3'`), which is the form [splitSheetRange](#fxfunctionssplitsheetrangemd) expects, so it
+needs no further preparation.
 
 A sheet range only ever arrives in front of a cell reference. As in Excel, a bare colon-bearing
 scope in front of a defined name is no sheet range: the colon is the range operator, making

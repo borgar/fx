@@ -2,8 +2,8 @@
  * Splits the sheet scope of a prefix into the two sheet names of a sheet range, if it contains one.
  *
  * A 3-D reference (`Sheet1:Sheet2!A1`) spans every sheet from one named sheet to another. Its two
- * sheet names occupy the single sheet slot of the reference — `context` (the last scope) or
- * `sheetName` in the xlsx variant — which is what this splits apart:
+ * sheet names occupy the single sheet slot of the reference (the last scope of `context`, or
+ * `sheetName` in the xlsx variant), which is what this splits apart:
  *
  * ```js
  * splitSheetRange('Jan:Dec');
@@ -26,7 +26,7 @@
  * Pass the sheet scope alone, in the form the parsers hand back. `parseA1Ref` and `parseR1C1Ref`
  * have already stripped the surrounding quotes and collapsed doubled apostrophes, so
  * `'It''s:Fine'!A1` arrives here as the scope `It's:Fine`. This function does no unquoting of its
- * own — it splits on the colon and returns the two halves verbatim, ready to match against a
+ * own: it splits on the colon and returns the two halves verbatim, ready to match against a
  * workbook's sheets.
  *
  * Handing it a raw quoted prefix instead does not fail at all:

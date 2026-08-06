@@ -66,8 +66,8 @@ export function needQuotes (scope: string, yesItDoes = 0): number {
 // needQuotes, which quotes it because ":" is not a character an unquoted scope may hold.
 //
 // The R1C1 cell addresses are checked on top of that: needQuotes quotes what looks like an A1
-// cell wherever it appears, but "R1C1" is a cell only in R1C1 notation, and a first name that is
-// one there needs the quotes all the same.
+// cell wherever it appears, but "R1C1" reads as a cell only in R1C1 notation, and a first name
+// that reads that way there needs the quotes all the same.
 export function needQuotesSheet (scope: string, yesItDoes = 0, r1c1 = false): number {
   if (yesItDoes) {
     return 1;

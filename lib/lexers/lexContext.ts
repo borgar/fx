@@ -43,7 +43,7 @@ export function lexContextQuoted (str: string, pos: number, options: LexContextO
             return { type: CONTEXT_QUOTE, value: str.slice(start, pos) };
           }
           if (valid && str.charCodeAt(pos) === COLON) {
-            // The first end of a sheet range that quotes its ends separately ("'foo':bar!A1") —
+            // The first end of a sheet range that quotes its ends separately ("'foo':bar!A1"),
             // if the operand admits a sheet range at all. Where it does not, the colon is the
             // range operator and no prefix begins here.
             const len = advSheetName(str, pos + 1);
@@ -121,7 +121,7 @@ export function lexContextUnquoted (str: string, pos: number, options: LexContex
         }
         if (colon && !operandAllowsSheetRange(str, pos + 1, !!options.r1c1)) {
           // No sheet range here, so the colon is the range operator and this run is not one
-          // prefix. Both spellings of the second name reach this test: the bare one, and the
+          // prefix. Both forms of the second name reach this test: the bare one, and the
           // separately quoted one the branch below steps over.
           return;
         }

@@ -98,8 +98,9 @@ describe('fixRanges prefixes', () => {
   });
 
   test('a workbook qualifier changes nothing about the quoting', () => {
-    // Measured in Excel: the endpoint names alone decide, external or not. "S1" and "S3" are cell
-    // addresses, so they keep their quotes; "Sheet1:Sheet2" needs none and loses any it has.
+    // Measured in Excel: the endpoint names alone decide, external or not. "S1" and "S3" would
+    // read as cell addresses if left bare, so they keep their quotes; "Sheet1:Sheet2" needs none
+    // and loses any it has.
     isFixed('=SUM([Book.xlsx]S1:S3!A1)', "=SUM('[Book.xlsx]S1:S3'!A1)");
     isFixed("=SUM('[Book.xlsx]S1:S3'!A1)", "=SUM('[Book.xlsx]S1:S3'!A1)");
     isFixed("=SUM('[Book.xlsx]Sheet1'!A1)", '=SUM([Book.xlsx]Sheet1!A1)');
@@ -117,7 +118,7 @@ describe('fixRanges prefixes', () => {
   test('each end of a 3-D reference may be quoted on its own', () => {
     // the quoting is redistributed over the whole prefix, which is where Excel puts a sheet
     // range's quotes (Excel itself corrects only the first-name-quoted form this way, reading
-    // the second-name-quoted one as the range operator — see docs/Prefixes.md)
+    // the second-name-quoted one as the range operator; see docs/Prefixes.md)
     isFixed("=foo:'bar'!A1", '=foo:bar!A1');
     isFixed("='foo':bar!A1", '=foo:bar!A1');
     isFixed("='foo':'bar'!A1", '=foo:bar!A1');

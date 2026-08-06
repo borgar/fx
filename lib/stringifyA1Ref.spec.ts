@@ -88,8 +88,9 @@ describe('stringifyA1Ref', () => {
       .toBe('[Book.xlsx]Sheet1:Sheet2!A1');
     expect(stringifyA1Ref({ context: [ 'Book.xlsx', 'Sheet1' ], range: rangeA1 }))
       .toBe('[Book.xlsx]Sheet1!A1');
-    // ... while an endpoint that needs quotes anywhere needs them here too ("S1" is a cell
-    // address), as does a path scope, "/" not being a character an unquoted scope may hold
+    // ... while an endpoint that needs quotes anywhere needs them here too ("S1" would read as a
+    // cell address bare), as does a path scope, "/" not being a character an unquoted scope may
+    // hold
     expect(stringifyA1Ref({ context: [ '/Docs/', 'Book.xlsx', 'S1:S3' ], range: rangeA1 }))
       .toBe("'/Docs/[Book.xlsx]S1:S3'!A1");
     expect(stringifyA1Ref({ context: [ 'Book.xlsx', 'Sheet1:Sheet2' ], name: 'foo' }))
@@ -154,7 +155,7 @@ describe('stringifyA1Ref in XLSX mode', () => {
     expect(stringifyA1RefXlsx({ sheetName: 'Sheet1:Sheet 2', range: rangeA1 })).toBe("'Sheet1:Sheet 2'!A1");
     expect(stringifyA1RefXlsx({ sheetName: '1:5', range: rangeA1 })).toBe("'1:5'!A1");
     expect(stringifyA1RefXlsx({ sheetName: 'A1:B2', range: rangeA1 })).toBe("'A1:B2'!A1");
-    // a workbook name is never split on ":" — only sheet names are
+    // a workbook name is never split on ":"; only sheet names are
     expect(stringifyA1RefXlsx({ workbookName: 'a:b', sheetName: 'Sheet1', range: rangeA1 }))
       .toBe("'[a:b]Sheet1'!A1");
   });

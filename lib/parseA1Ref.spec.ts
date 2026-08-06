@@ -121,7 +121,7 @@ describe('parse A1 references', () => {
     // bare one in front of a defined name is the range operator joining a name to a prefixed
     // name, so it is two operands and not one reference, and there is nothing here to resolve.
     isA1Equal('Sheet1:Sheet2!foo', undefined);
-    // Quoted, it is still read as a sheet range: Excel reads that spelling as a workbook file
+    // Quoted, it is still read as a sheet range: Excel reads that form as a workbook file
     // name with no sheet at all, which fx has no way to represent.
     isA1Equal("'Sheet1:Sheet2'!foo", { context: [ 'Sheet1:Sheet2' ], name: 'foo' });
 
@@ -167,7 +167,7 @@ describe('parse A1 references', () => {
     isA1Equal('A1:B2!C3', undefined);
     isA1Equal('A1:Sheet2!B2', undefined);
     isA1Equal('R1:R5!A1', undefined);
-    // ... and only the quoted spelling makes such a pair a sheet range
+    // ... and only quoting makes such a pair a sheet range
     isA1Equal("'A1:B2'!C3", { context: [ 'A1:B2' ], range: { top: 2, left: 2, bottom: 2, right: 2 } });
   });
 

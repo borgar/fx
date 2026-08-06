@@ -2278,7 +2278,7 @@ describe('lexer', () => {
     test('a colon in front of a name or a table is the range operator', () => {
       // Measured in Excel: a sheet range stands in front of a cell reference and nowhere else. A
       // bare one in front of a defined name survives a rename of its first sheet untouched, where
-      // both an ordinary prefix and a sheet range over a cell are rewritten — so the first name
+      // both an ordinary prefix and a sheet range over a cell are rewritten. So the first name
       // is an ordinary name, and the colon between the two is the range operator.
       isTokens('=Sheet1:Sheet2!name', [
         { type: FX_PREFIX, value: '=' },
@@ -2294,8 +2294,8 @@ describe('lexer', () => {
         { type: OPERATOR, value: ':' },
         { type: REF_STRUCT, value: 'Sheet2!Table[Col]' }
       ]);
-      // Quoted, the sheet-range reading stands, fx having no way to represent what Excel makes of
-      // that spelling — a workbook file name with no sheet at all.
+      // Quoted, the sheet-range reading stands, since fx has no way to represent what Excel
+      // reads there: a workbook file name with no sheet at all.
       isTokens("='Sheet1:Sheet2'!Table[Col]", [
         { type: FX_PREFIX, value: '=' },
         { type: REF_STRUCT, value: "'Sheet1:Sheet2'!Table[Col]" }
@@ -2408,8 +2408,8 @@ describe('lexer', () => {
     test('each end of a sheet range may be quoted on its own', () => {
       // Accepted to be forgiving of other producers. Excel reads a quoted first name the same
       // way, but a quoted second name as the range operator (see docs/Prefixes.md). Getting this
-      // wrong shows up as an open-ended beam — a lexer bailing at the quote leaves "foo:" behind,
-      // which then normalizes to the unrelated "A:FOO".
+      // wrong shows up as an open-ended beam: a lexer that bails at the quote leaves "foo:"
+      // behind, which then normalizes to the unrelated "A:FOO".
       isTokens("=foo:'bar'!A1", [
         { type: FX_PREFIX, value: '=' },
         { type: REF_RANGE, value: "foo:'bar'!A1" }
@@ -2479,7 +2479,7 @@ describe('lexer', () => {
         { type: UNKNOWN, value: "'" },
         { type: REF_RANGE, value: 'Dec!A1' }
       ]);
-      // ... nor does a closed one with no prefix behind it, there being no reference to scope
+      // ... nor does a closed one with no prefix behind it, since there is no reference to scope
       isTokens("=Jan:'Dec'", [
         { type: FX_PREFIX, value: '=' },
         { type: REF_NAMED, value: 'Jan' },
@@ -2497,7 +2497,7 @@ describe('lexer', () => {
     });
 
     test('a colon inside the workbook brackets is not a sheet range', () => {
-      // A path scope may contain a colon of its own — a Windows drive letter — which divides no
+      // A path scope may contain a colon of its own (a Windows drive letter), which divides no
       // sheet names. Only a colon past the brackets separates two of those.
       isTokens('=[C:\\Book.xlsx]Sheet1!A1', [
         { type: FX_PREFIX, value: '=' },
@@ -2674,8 +2674,8 @@ describe('lexer', () => {
 
     test('a left side that is also a cell address wins over a sheet range', () => {
       // Excel reads "=SUM(A1:B2!C3)" as cell A1 joined to 'B2'!C3 (and yields #VALUE!), while
-      // "=SUM(A:C!A1)" and "=SUM(Jan:Mar!A1)" are sheet ranges — a left side that is only a
-      // column letter does not take the colon that way. Only the quoted spelling makes such a
+      // "=SUM(A:C!A1)" and "=SUM(Jan:Mar!A1)" are sheet ranges, since a left side that is only a
+      // column letter does not take the colon that way. Only quoting makes such a
       // pair a sheet range. Cell address is meant in this notation: see the R1C1 tests above,
       // where "A1:B2!R3C3" is a sheet range because "A1" is no cell there.
       isTokens('=A1:B2!C3', [
@@ -2709,7 +2709,7 @@ describe('lexer', () => {
         { type: UNKNOWN, value: '$' },
         { type: REF_RANGE, value: 'Mar!A1' }
       ]);
-      // ... but "$" is a legal character in a sheet name, so the quoted spelling is a sheet range
+      // ... but "$" is a legal character in a sheet name, so the quoted form is a sheet range
       isTokens("='$Jan:$Mar'!A1", [
         { type: FX_PREFIX, value: '=' },
         { type: REF_RANGE, value: "'$Jan:$Mar'!A1" }

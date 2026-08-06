@@ -36,7 +36,7 @@ export function isContextChar (c: number): boolean {
 //
 // Brackets and colons are refused, so neither "Jan:'[1]Nope'!A1" nor "Jan:'a:b'!A1" is a sheet
 // range. A workbook may only be named ahead of the whole prefix, and Excel forbids ":" in a sheet
-// name, so the only colon a sheet range can hold is the one dividing its two ends — which is
+// name, so the only colon a sheet range can hold is the one dividing its two ends, which is
 // behind us by the time this runs. See docs/Prefixes.md.
 function advQuotedSheetName (str: string, pos: number): number {
   const start = pos;
@@ -86,11 +86,11 @@ export function isCellAddress (name: string, r1c1: boolean): boolean {
 // joining a name to a prefixed operand. See docs/Prefixes.md for the measurements.
 //
 // The question is put to the range lexers themselves, so the answer agrees with what the operand
-// will actually lex as, and it is put permissively — any cell reference at all keeps the
+// will actually lex as, and it is put permissively: any cell reference at all keeps the
 // sheet-range reading. Only an operand no range lexer can begin on, which is what a name or a
 // table is, gives the colon away.
 //
-// This settles the bare spelling alone. Excel reads the quoted `'Alpha:Gamma'!SomeName` as a
+// This settles the bare form alone. Excel reads the quoted `'Alpha:Gamma'!SomeName` as a
 // workbook file name with no sheet at all, which fx cannot represent, so quoted prefixes stay
 // sheet ranges whatever follows them.
 export function operandAllowsSheetRange (str: string, pos: number, r1c1: boolean): boolean {
@@ -99,7 +99,7 @@ export function operandAllowsSheetRange (str: string, pos: number, r1c1: boolean
     : lexRangeA1(str, pos, { allowTernary: true, mergeRefs: true }));
 }
 
-// Does a sheet prefix start here — one sheet name, or two joined by a ":", followed by the "!"
+// Does a sheet prefix start here: one sheet name, or two joined by a ":", followed by the "!"
 // that closes every prefix? Each name is measured as a name, so it need not be a reference part
 // ("C1:Dec!R1C1"), and either end may be quoted on its own ("C1:'Dec'!R1C1").
 //

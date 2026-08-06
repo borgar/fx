@@ -42,12 +42,12 @@ export type OptsParseA1Ref = {
  * For A:A or A1:A style ranges, `null` will be used for any dimensions that the
  * syntax does not specify.
  *
- * The sheet scope may name a range of sheets rather than a single one: a 3-D reference
- * (`Jan:Dec!A1`) puts both sheet names in it, as `context: [ 'Jan:Dec' ]`. Resolving that scope
- * against a workbook's sheets therefore needs {@link splitSheetRange} first, or it matches no
- * sheet at all. The scope is returned unquoted — `'Sheet 1:Sheet 3'!A1` yields
- * `context: [ 'Sheet 1:Sheet 3' ]` — which is the form {@link splitSheetRange} expects, so pass
- * it on as it comes.
+ * The sheet scope may name a range of sheets rather than a single one: `Jan:Dec!A1` is a 3-D
+ * reference, with both sheet names in the sheet scope, as `context: [ 'Jan:Dec' ]`. Resolving
+ * that scope against a workbook's sheets therefore needs {@link splitSheetRange} first, or it
+ * matches no sheet at all. The scope is returned unquoted (`'Sheet 1:Sheet 3'!A1` yields
+ * `context: [ 'Sheet 1:Sheet 3' ]`), which is the form {@link splitSheetRange} expects, so it
+ * needs no further preparation.
  *
  * A sheet range only ever arrives in front of a cell reference. As in Excel, a bare colon-bearing
  * scope in front of a defined name is no sheet range: the colon is the range operator, making
@@ -103,12 +103,12 @@ export function parseA1Ref (
  * For A:A or A1:A style ranges, `null` will be used for any dimensions that the
  * syntax does not specify.
  *
- * The `sheetName` may name a range of sheets rather than a single one: a 3-D reference
- * (`Jan:Dec!A1`) puts both sheet names in it, as `sheetName: 'Jan:Dec'`. Resolving it against a
- * workbook's sheets therefore needs {@link splitSheetRange} first, or it matches no sheet at all.
- * The name is returned unquoted — `'Sheet 1:Sheet 3'!A1` yields
- * `sheetName: 'Sheet 1:Sheet 3'` — which is the form {@link splitSheetRange} expects, so pass it
- * on as it comes.
+ * The sheet scope may name a range of sheets rather than a single one: `Jan:Dec!A1` is a 3-D
+ * reference, with both sheet names in the sheet scope, as `sheetName: 'Jan:Dec'`. Resolving
+ * that scope against a workbook's sheets therefore needs {@link splitSheetRange} first, or it
+ * matches no sheet at all. The scope is returned unquoted (`'Sheet 1:Sheet 3'!A1` yields
+ * `sheetName: 'Sheet 1:Sheet 3'`), which is the form {@link splitSheetRange} expects, so it
+ * needs no further preparation.
  *
  * A sheet range only ever arrives in front of a cell reference. As in Excel, a bare colon-bearing
  * scope in front of a defined name is no sheet range: the colon is the range operator, making

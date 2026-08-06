@@ -120,13 +120,13 @@ describe('parse structured references', () => {
   test('3-D references', () => {
     // A sheet range stands in front of a cell reference and nowhere else. Measured in Excel, a
     // bare one in front of a table is the range operator joining a name to a prefixed structured
-    // reference — Excel rewrites `Alpha:Gamma!Table1[Col]` to `Alpha:Table1[Col]`, discarding the
+    // reference: Excel rewrites `Alpha:Gamma!Table1[Col]` to `Alpha:Table1[Col]`, discarding the
     // `Gamma!` as it discards any sheet prefix on a table. So this is two operands, not one
     // structured reference, and there is nothing here to resolve.
     isSREqual('Sheet1:Sheet2!Table[Column]', undefined);
     isSREqual('Sheet1:Sheet2!Table[Column]', undefined, { xlsx: true });
 
-    // Quoted, it is still read as a sheet range: Excel reads that spelling as a workbook file
+    // Quoted, it is still read as a sheet range: Excel reads that form as a workbook file
     // name with no sheet at all, which fx has no way to represent.
     isSREqual("'Sheet1:Sheet2'!Table[Column]", {
       columns: [ 'Column' ],

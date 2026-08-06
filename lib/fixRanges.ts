@@ -15,10 +15,14 @@ import { stringifyTokens } from './stringifyTokens.ts';
 // needs to be flipped or not. The solution is to convert to A1 first:
 // translateToRC(fixRanges(translateToA1(...)))
 
-// Why the sheet range of a 3-D reference is left alone (see the fixTokenRanges docstring): Excel
-// normalizes one three ways on entry — ordering the two sheet names ("Mar:Jan" to "Jan:Mar"),
-// collapsing a degenerate range ("Jan:Jan" to "Jan"), and correcting each name's case to the
-// sheet's own — and all three need the workbook's sheet names, in order.
+// Why the sheet range of a 3-D reference is left alone (see the fixTokenRanges docstring): on
+// entry, Excel normalizes a sheet range in three ways:
+//
+// - ordering the two sheet names ("Mar:Jan" to "Jan:Mar")
+// - collapsing a degenerate range ("Jan:Jan" to "Jan")
+// - correcting each name's case to the sheet's own
+//
+// All three need the workbook's sheet names, in order.
 
 /**
  * Options for {@link fixTokenRanges} and {@link fixFormulaRanges}.
@@ -67,8 +71,8 @@ export type OptsFixRanges = {
  * of sections as well as removing redundant ones.
  *
  * The sheet range of a 3-D reference is left alone, so `Sheet2:Sheet1!B2:A1`
- * becomes `Sheet2:Sheet1!A1:B2` and no further. Normalizing it would take the
- * workbook's sheet names, in order, which _Fx_ does not know.
+ * becomes `Sheet2:Sheet1!A1:B2` and no further. Normalizing the prefix would
+ * require the workbook's sheet names, in order, which _Fx_ does not know.
  *
  * Returns a new array of tokens with values and position data updated.
  *

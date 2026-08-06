@@ -282,7 +282,7 @@ function sheetSlots (text: string, c: PropertyCase): string[] {
  * Does the case's fragment read as one whole reference on both paths? The preservation properties
  * below only apply to one that does: a fragment the parsers reject has no reference to preserve,
  * and putting a malformed one through a writer says nothing about the writer. The second half is
- * {@link LITERAL_TYPES} — where the formula path never saw a prefix to begin with, it cannot be
+ * {@link LITERAL_TYPES}: where the formula path never saw a prefix to begin with, it cannot be
  * blamed for not keeping one.
  */
 function isWholeReference (c: PropertyCase): boolean {
@@ -294,8 +294,8 @@ function isWholeReference (c: PropertyCase): boolean {
   if (!ref) {
     return false;
   }
-  // A sheet name containing "!" has no unquoted spelling, every writer quoting it instead, so a
-  // prefix showing one bare is text a round trip was never going to preserve.
+  // A sheet name containing "!" has no unquoted form (every writer quotes it), so a prefix
+  // showing one bare is text a round trip was never going to preserve.
   const slot = ref.sheetName ?? (ref.context ?? []).slice(-1)[0];
   if (slot?.includes('!')) {
     return false;
@@ -319,8 +319,8 @@ export type Property = {
  * counterpart on the reference path: `12!A1` is a number on one and a prefix on the other, and
  * `TRUE!A1` a boolean on one and a prefix on the other. That mismatch predates sheet ranges and
  * applies to a lone sheet name as much as to one of a pair, so it is a gap between the two lexer
- * sets rather than a disagreement about what a sheet range is. Excel quotes both spellings, so
- * neither occurs in a file Excel wrote.
+ * sets rather than a disagreement about what a sheet range is. Excel quotes both names, so
+ * neither bare form occurs in a file Excel wrote.
  */
 const LITERAL_TYPES = new Set([ BOOLEAN, NUMBER ]);
 

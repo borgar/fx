@@ -1,5 +1,5 @@
 /**
- * A large property sweep over sheet ranges. Not part of `npm run check` — the suite runs a small
+ * A large property sweep over sheet ranges. Not part of `npm run check`: the suite runs a small
  * fast slice of the same properties (see `lib/sheetRangeProperties.spec.ts`); this is the long
  * version, for when the grammar or the lexers change.
  *

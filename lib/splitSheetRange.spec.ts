@@ -32,8 +32,8 @@ describe('splitSheetRange', () => {
   });
 
   test('reads the sheet slot of a parsed reference', () => {
-    // the hazard this exists for: the sheet slot contains both names, so a lookup handed it whole
-    // matches no sheet at all
+    // the case this function exists for: the sheet slot contains both names, so a lookup handed
+    // it whole matches no sheet at all
     const ref: any = parseA1Ref('Jan:Dec!A1');
     expect(ref.context).toEqual([ 'Jan:Dec' ]);
     expect(splitSheetRange(ref.context[ref.context.length - 1])).toEqual([ 'Jan', 'Dec' ]);
