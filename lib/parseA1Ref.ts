@@ -54,9 +54,9 @@ export type OptsParseA1Ref = {
  * `Alpha:Gamma!SomeName` is two operands rather than one reference), and this function returns
  * `undefined` for it, as it does for any expression that is not a single reference. Quoted,
  * `'Alpha:Gamma'!SomeName` is one reference and is returned as one, holding the single scope
- * `Alpha:Gamma`. Excel reads that scope as a workbook *file name* with no sheet at all, and
- * resolving a lone scope reaches the same place on its own: a sheet name may hold no colon, so
- * the sheet test cannot succeed and the workbook is what is left.
+ * `Alpha:Gamma`, which Excel reads as a workbook *file name* with no sheet at all. Resolving a
+ * lone scope by the rules in [Prefixes.md](./Prefixes.md) reaches that reading on its own, and
+ * {@link splitSheetRange} declines to divide such a scope.
  *
  * @see {@link OptsParseA1Ref}
  * @see {@link splitSheetRange}
