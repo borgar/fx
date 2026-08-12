@@ -168,6 +168,27 @@ describe('parse A1 references', () => {
     isA1Equal('[Book.xlsx]:Sheet2!A1', undefined);
   });
 
+  test('a digit-leading second sheet name goes to the range operator', () => {
+    const range = { top: 0, left: 0, bottom: 0, right: 0 };
+    // Excel stores these as "Sheet1:'1'!A1" and "Jan:'2020plan'!A1": that name joined to a
+    // sheet-qualified cell, and #NAME? where no such name is defined.
+    isA1Equal('Sheet1:1!A1', undefined);
+    isA1Equal('Jan:2020plan!A1', undefined);
+    isA1Equal('X:1!A1', undefined);
+    isA1Equal('[Book.xlsx]Alpha:3!A1', undefined);
+    // ... but a name may not begin with a digit, so a digit-leading first name leaves nothing to
+    // stand as the range operator's left operand, and the sheet range is what is left
+    isA1Equal('1:5!A1', { context: [ '1:5' ], range });
+    isA1Equal('12:15!A1', { context: [ '12:15' ], range });
+    isA1Equal('1:2020plan!A1', { context: [ '1:2020plan' ], range });
+    isA1Equal('[Book.xlsx]1:3!A1', { context: [ 'Book.xlsx', '1:3' ], range });
+    // ... and a name may not begin with a "." either
+    isA1Equal('.Mar:1!A1', { context: [ '.Mar:1' ], range });
+    // an ordinary second name is untouched by any of this
+    isA1Equal('Sheet1:Sheet2!A1', { context: [ 'Sheet1:Sheet2' ], range });
+    isA1Equal('[Book.xlsx]Alpha:Gamma!A1', { context: [ 'Book.xlsx', 'Alpha:Gamma' ], range });
+  });
+
   test('a left side that is also a cell address wins over a sheet range', () => {
     // "A1:B2!C3" is cell A1 joined to 'B2'!C3, so it is not a single reference at all
     isA1Equal('A1:B2!C3', undefined);

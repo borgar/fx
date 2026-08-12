@@ -6,6 +6,9 @@ const BR_OPEN = 91; // [
 const BR_CLOSE = 93; // ]
 const COLON = 58; // :
 const EXCL = 33; // !
+const PERIOD = 46; // .
+const DIGIT_0 = 48; // 0
+const DIGIT_9 = 57; // 9
 
 // The cell addresses of each notation: "A1", "XFD1048576" in A1, "R1C1", "RC1", "R1C" and "RC" in
 // R1C1. The bracketed R1C1 forms ("R[1]C[1]") need no test of their own: "[" is not a sheet-name
@@ -73,14 +76,38 @@ export function advSheetName (str: string, pos: number): number {
   return pos - start;
 }
 
-// Advances over the second end of a sheet range at `pos`. Returns the number of characters
-// consumed, or 0 where Excel reads the colon as the range operator instead, which any quote
-// around that end makes it do: "Alpha:'Gamma'!A1" is the name "Alpha" joined to 'Gamma'!A1, and
-// so is "Alpha:'My Sheet'!A1", where the name's own characters are what called for the quotes. It
-// makes no difference which of the two put the quote there, and Excel never corrects either: the
-// whole prefix is the one place a sheet range's quotes may go.
-export function advSecondSheetName (str: string, pos: number): number {
-  if (str.charCodeAt(pos) === QUOT_SINGLE) {
+// Could the sheet range's first end, beginning at `pos`, be spelled as the left operand of the
+// range operator? Only a name can be, and a name may not begin with a digit or a ".", so those
+// two spellings leave the operator nothing to join. A quoted end counts as a name, Excel taking
+// the quotes off the operand it leaves standing ("'One':'Three'!A1" comes back "One:'Three'!A1").
+// A first end that is a valid cell address is an operand too, and isCellAddress settles that one.
+function firstEndCanBeName (str: string, pos: number): boolean {
+  const c = str.charCodeAt(pos);
+  return c !== PERIOD && !(c >= DIGIT_0 && c <= DIGIT_9);
+}
+
+// Advances over the second end of a sheet range at `pos`, the first end beginning at `firstStart`
+// (past the workbook brackets, where there are any). Returns the number of characters consumed,
+// or 0 where Excel reads the colon as the range operator instead. Two spellings of the second end
+// make it do that:
+//
+// - Any quote around it. "Alpha:'Gamma'!A1" is the name "Alpha" joined to 'Gamma'!A1, and so is
+//   "Alpha:'My Sheet'!A1", where the name's own characters are what called for the quotes. It
+//   makes no difference which of the two put the quote there, and Excel never corrects either:
+//   the whole prefix is the one place a sheet range's quotes may go.
+// - A digit leading it, where the first end can be a name. "Sheet1:1!A1" and "Jan:2020plan!A1"
+//   are the range operator joining that name to a sheet-qualified cell, which is what Excel
+//   writes them back as: "Sheet1:'1'!A1" and "Jan:'2020plan'!A1". Where no operand can stand in
+//   front of the colon nothing competes with the sheet range, which is what leaves "1:5!A1" one.
+//
+// Both hold behind a workbook bracket as well: "[Book.xlsx]Alpha:3!A1" splits and
+// "[Book.xlsx]1:3!A1" spans, exactly as the two do without one.
+export function advSecondSheetName (str: string, pos: number, firstStart: number): number {
+  const c = str.charCodeAt(pos);
+  if (c === QUOT_SINGLE) {
+    return 0;
+  }
+  if (c >= DIGIT_0 && c <= DIGIT_9 && firstEndCanBeName(str, firstStart)) {
     return 0;
   }
   return advSheetName(str, pos);
@@ -142,7 +169,7 @@ export function startsSheetPrefix (str: string, pos: number, r1c1: boolean): boo
   if (str.charCodeAt(pos + first) !== COLON) {
     return false;
   }
-  const second = advSecondSheetName(str, pos + first + 1);
+  const second = advSecondSheetName(str, pos + first + 1, pos);
   if (!second || str.charCodeAt(pos + first + 1 + second) !== EXCL) {
     return false;
   }

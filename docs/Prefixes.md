@@ -155,6 +155,13 @@ Where the first sheet name is also a valid cell address, the colon goes to the r
 Which names count as cell addresses depends on the notation the cell part uses. With Excel set to the R1C1 reference style, `=SUM(A1:B2!R3C3)` *is* a sheet range, since `A1` addresses nothing in R1C1 notation, while `=SUM(R1C1:R2C2!R3C3)` is cell `R1C1` joined to `'R2C2'!R3C3`. The stored `<f>` is A1 notation whichever style the interface displays, so this belongs to the notation a formula is written in, not to the file. _Fx_ follows: with `{ r1c1: true }`, `A1:B2!R3C3` parses as the sheet range `A1:B2` and `R1C1:R2C2!R3C3` is not one reference at all.
 
 
+### Sheet names that begin with a digit
+
+The two ends are not governed by the same rule, and a digit-leading name is where they part company. On the *left* it costs the sheet range nothing: with sheets named `1` to `5`, `=SUM(1:5!A1)` totals all five, and `=SUM(12:15!A1)` the four named `12` to `15`. On the *right* it costs the sheet range outright. `=SUM(Sheet1:1!A1)` is stored `SUM(Sheet1:'1'!A1)` and `=SUM(Jan:2020plan!A1)` is stored `SUM(Jan:'2020plan'!A1)`, both the range operator joining that name to a sheet-qualified cell, and both `#NAME?` where no such name is defined. A workbook in front changes neither half: `[Book.xlsx]Alpha:3!A1` splits and `[Book.xlsx]1:3!A1` spans.
+
+What separates the two positions is whether anything can stand as the range operator's left operand. A name may not begin with a digit, so `1:5` has no competing reading to lose to and the sheet range is all that is left; `Sheet1:1` has one, and Excel takes it. So the condition is on the *first* name, and merely leading with a digit is enough — `2020plan` goes the same way as `1`. _Fx_ reads all of these as Excel does. It quotes the whole prefix rather than the end, which is the only spelling that reaches the sheet range: `=SUM('Sheet1:1'!A1)` and `=SUM('Jan:2020plan'!A1)`.
+
+
 ### Quoting
 
 The quoting rules apply to each sheet name on its own, and the whole prefix is quoted as one unit if either name calls for it. So `=SUM(Sales:Marketing!B3)` needs no quotes, while `'Sheet1:Sheet 2'!A1` does, matching Excel.

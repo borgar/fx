@@ -74,7 +74,8 @@ const NAME_CHARS = (
 const CELL_SHAPED = [ 'A1', 'B2', 'Q1', 'AB12', 'XFD1048576', 'a1', 'C3', 'R1' ];
 const COLUMN_SHAPED = [ 'A', 'AB', 'C', 'R', 'XFD', 'ZZ', 'S' ];
 const RC_SHAPED = [ 'R1C1', 'RC', 'R1C', 'RC1', 'R[1]C[1]', 'R2C3', 'rc' ];
-const DIGIT_SHAPED = [ '1', '12', '2024', '1048576' ];
+// all-digit, and one merely digit-leading: Excel treats the two alike at a sheet range's ends
+const DIGIT_SHAPED = [ '1', '12', '2024', '1048576', '2020plan' ];
 const BOOLEAN_SHAPED = [ 'TRUE', 'FALSE', 'true', 'False' ];
 const PLAIN = [ 'Jan', 'Dec', 'Mar', 'Sheet1', 'Sales', 'Rep', 'data' ];
 const DOTTED = [ 'a1.b', 'x.y', '1.2', 'A1.', '.b', 'R1C1.z', '.', '..', 'v1.0' ];

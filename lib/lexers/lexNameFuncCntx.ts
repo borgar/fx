@@ -117,7 +117,7 @@ export function lexNameFuncCntx (
         if (colon) {
           cntx = 0; // only 1 allowed
         }
-        else if (advSecondSheetName(str, pos + 1)) {
+        else if (advSecondSheetName(str, pos + 1, start)) {
           colon = pos;
         }
         else {

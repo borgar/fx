@@ -46,7 +46,7 @@ export function lexContextQuoted (str: string, pos: number, options: LexContextO
             // The first end of a sheet range, quoted on its own ("'foo':bar!A1"), if a second end
             // may stand past the colon and the operand admits a sheet range at all. Where either
             // fails the colon is the range operator and no prefix begins here.
-            const len = advSecondSheetName(str, pos + 1);
+            const len = advSecondSheetName(str, pos + 1, start);
             if (
               len &&
               str.charCodeAt(pos + 1 + len) === EXCL &&
@@ -125,7 +125,8 @@ export function lexContextUnquoted (str: string, pos: number, options: LexContex
       else if (c === COLON && (br1 == null || br2 != null)) {
         // Only one ":" is allowed, and it must have a sheet name in front of it. The sheet begins
         // past the workbook brackets when there are any, so "[Book.xlsx]:Sheet2!A1" has none.
-        if (colon || pos === (br2 == null ? start : br2 + 1)) { return; }
+        const nameStart = br2 == null ? start : br2 + 1;
+        if (colon || pos === nameStart) { return; }
         // Nothing is a prefix without a "!" to close it, and endsAWholeRange is the one expensive
         // test in this lexer, so the cheap way out goes first: most colons reaching here are range
         // operators in a formula that holds no prefix at all.
@@ -136,7 +137,7 @@ export function lexContextUnquoted (str: string, pos: number, options: LexContex
         // name is refused here too, since no later "!" can supply one: "!" is not a sheet-name
         // character, so scanning on would take this one for the second name and read "a:!!A1" as
         // a sheet range over a sheet named "!".
-        if (!advSecondSheetName(str, pos + 1)) { return; }
+        if (!advSecondSheetName(str, pos + 1, nameStart)) { return; }
         colon = pos;
       }
       else if ((br1 == null || br2 != null) && !isContextChar(c)) {

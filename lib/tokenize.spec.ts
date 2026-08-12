@@ -5,6 +5,8 @@ import {
   REF_RANGE, REF_BEAM, REF_NAMED, REF_STRUCT, REF_TERNARY, CONTEXT, CONTEXT_QUOTE, NEWLINE
 } from './constants.ts';
 import { tokenize, tokenizeXlsx } from './tokenize.ts';
+// only for the one test that pins a disagreement between the two lexer sets
+import { parseA1Ref } from './parseA1Ref.ts';
 
 function isTokens (expr: string, result: any[], opts?: any) {
   expect(tokenize(expr, { negativeNumbers: false, ...opts })).toEqual(result);
@@ -2718,6 +2720,62 @@ describe('lexer', () => {
         { type: FX_PREFIX, value: '=' },
         { type: REF_RANGE, value: 'Jan:Mar!A1' }
       ]);
+    });
+
+    test('a digit-leading second sheet name goes to the range operator', () => {
+      // Excel stores "=SUM(Sheet1:1!A1)" as "SUM(Sheet1:'1'!A1)": the name "Sheet1" joined to a
+      // sheet-qualified cell, #NAME? where no such name is defined. The condition is on the
+      // first name — a name may not begin with a digit, so "1:5" has nothing to stand as the
+      // operator's left side and keeps the sheet range.
+      isTokens('=Sheet1:1!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_NAMED, value: 'Sheet1' },
+        { type: OPERATOR, value: ':' },
+        { type: NUMBER, value: '1' },
+        { type: OPERATOR, value: '!' },
+        { type: REF_RANGE, value: 'A1' }
+      ]);
+      isTokens('=X:1!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_NAMED, value: 'X' },
+        { type: OPERATOR, value: ':' },
+        { type: NUMBER, value: '1' },
+        { type: OPERATOR, value: '!' },
+        { type: REF_RANGE, value: 'A1' }
+      ]);
+      // ... and a workbook in front lifts neither half of the rule
+      isTokens('=SUM([Book.xlsx]1:3!A1)', [
+        { type: FX_PREFIX, value: '=' },
+        { type: FUNCTION, value: 'SUM' },
+        { type: OPERATOR, value: '(' },
+        { type: REF_RANGE, value: '[Book.xlsx]1:3!A1' },
+        { type: OPERATOR, value: ')' }
+      ]);
+    });
+
+    test('a digit-leading sheet name is a number to the formula lexers', () => {
+      // A gap between the two lexer sets that predates sheet ranges and is not about them: the
+      // formula path offers lexNumber a position before any prefix can be seen, so a lone
+      // "2020plan!A1" is a number and a reference here while parseA1Ref reads one prefix. The
+      // same split is what a sheet range's ends come apart on, whichever end holds the digits,
+      // so neither line below is the sheet-range reading being decided.
+      isTokens('=2020plan!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: NUMBER, value: '2020' },
+        { type: REF_RANGE, value: 'plan!A1' }
+      ]);
+      expect(parseA1Ref('2020plan!A1')?.context).toEqual([ '2020plan' ]);
+      // "1:5!A1" is Excel's sheet range over sheets "1" .. "5" (=SUM(1:5!A1) totals all five),
+      // and the reference lexers reach it; the formula lexers stop at the number.
+      isTokens('=1:5!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: NUMBER, value: '1' },
+        { type: OPERATOR, value: ':' },
+        { type: NUMBER, value: '5' },
+        { type: OPERATOR, value: '!' },
+        { type: REF_RANGE, value: 'A1' }
+      ]);
+      expect(parseA1Ref('1:5!A1')?.context).toEqual([ '1:5' ]);
     });
 
     test('"$" is not allowed on an unquoted sheet name', () => {

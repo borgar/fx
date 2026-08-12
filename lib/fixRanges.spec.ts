@@ -134,6 +134,21 @@ describe('fixRanges prefixes', () => {
     isFixed("=Jan:'[1]Nope'!A1", "=Jan:'[1]Nope'!A1");
   });
 
+  test('a digit-leading second sheet name goes to the range operator', () => {
+    // the whole prefix quoted is the only spelling that reaches the sheet range, so these are
+    // left as the range operations they are, rather than gaining quotes as a prefix would
+    isFixed('=SUM(Sheet1:1!A1)', '=SUM(Sheet1:1!A1)');
+    isFixed('=SUM(X:1!A1)', '=SUM(X:1!A1)');
+    isFixed("=SUM(Sheet1:'1'!A1)", "=SUM(Sheet1:'1'!A1)");
+    isFixed("=SUM(Jan:'2020plan'!A1)", "=SUM(Jan:'2020plan'!A1)");
+    // ... while a digit-leading first name keeps the sheet range, which is quoted whole. Bare,
+    // "1:5!A1" is not this rule but the number gap of tokenize.spec.ts: a formula lexes the "1"
+    // as a number before any prefix can be seen, so the reference lexers reach that sheet range
+    // and the formula lexers do not.
+    isFixed("=SUM('1:5'!A1)", "=SUM('1:5'!A1)");
+    isFixed('=SUM([Book.xlsx]1:3!A1)', "=SUM('[Book.xlsx]1:3'!A1)");
+  });
+
   test('a left side that is also a cell address wins over a 3-D reference', () => {
     isFixed('=SUM(A1:B2!C3)', "=SUM(A1:'B2'!C3)");
     isFixed("=SUM('A1:B2'!C3)", "=SUM('A1:B2'!C3)");
