@@ -82,10 +82,10 @@ type RefParserPart = (t: Token | undefined, data: Partial<RefParseData>, xlsx?: 
 const unquote = d => d.slice(1, -1).replace(/''/g, "'");
 
 // A prefix is normally either quoted whole or not at all, but the lexers also read a sheet range
-// with one sheet name quoted on its own ("foo:'bar'", "'foo':bar"). That is more lenient than
-// Excel, which reads a quoted *second* name as the range operator joining a name to a prefixed
-// reference (see "Sheet names quoted separately" in docs/Prefixes.md). Unquoting each quoted run
-// in place handles every form: separately quoted, wholly quoted, or bare.
+// whose *first* name is quoted on its own ("'foo':bar"), which is a redundant quote rather than a
+// wrong one and is what Excel makes of it too (see "A quote around one sheet name" in
+// docs/Prefixes.md). Unquoting each quoted run in place handles that form as well as the wholly
+// quoted and bare ones.
 export function unquoteParts (value: string): string {
   if (!value.includes("'")) {
     return value;

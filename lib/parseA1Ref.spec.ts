@@ -132,25 +132,31 @@ describe('parse A1 references', () => {
     isA1Equal("'Sheet1:Sheet2'!foo", { sheetName: 'Sheet1:Sheet2', name: 'foo' }, { xlsx: true });
   });
 
-  test('each end of a sheet range may be quoted on its own', () => {
-    // However the ends are spelled, they read as the same pair of sheet names.
+  test('the first end of a sheet range may be quoted on its own', () => {
+    // A quote there is redundant, and the pair reads as the same two sheet names without it.
     const range = { top: 0, left: 0, bottom: 0, right: 0 };
-    isA1Equal("foo:'bar'!A1", { context: [ 'foo:bar' ], range });
     isA1Equal("'foo':bar!A1", { context: [ 'foo:bar' ], range });
-    isA1Equal("'foo':'bar'!A1", { context: [ 'foo:bar' ], range });
-    isA1Equal("'foo':'bar baz'!A1", { context: [ 'foo:bar baz' ], range });
-    isA1Equal("'foo bar':'baz'!A1", { context: [ 'foo bar:baz' ], range });
-    isA1Equal("'O''Neil':'baz'!A1", { context: [ "O'Neil:baz" ], range });
-    isA1Equal("'[Book.xlsx]foo':'bar'!A1", { context: [ 'Book.xlsx', 'foo:bar' ], range });
-    isA1Equal("foo:'bar'!A1", { sheetName: 'foo:bar', range }, { xlsx: true });
-    isA1Equal("'[1]foo':'bar'!A1", { workbookName: '1', sheetName: 'foo:bar', range }, { xlsx: true });
-    // a digit-leading first sheet name reads the same way here, where no number is lexed first
-    isA1Equal("1:'Dec'!A1", { context: [ '1:Dec' ], range });
-    isA1Equal("5:'a b'!A1", { context: [ '5:a b' ], range });
-    // ... and a quoted second name with no prefix behind it scopes nothing, so it is no
-    // sheet range
-    isA1Equal("1:'Dec'", undefined);
-    isA1Equal("[1]Jan:'Dec'", undefined);
+    isA1Equal("'foo bar':baz!A1", { context: [ 'foo bar:baz' ], range });
+    isA1Equal("'O''Neil':baz!A1", { context: [ "O'Neil:baz" ], range });
+    isA1Equal("'[Book.xlsx]foo':bar!A1", { context: [ 'Book.xlsx', 'foo:bar' ], range });
+    isA1Equal("'foo':bar!A1", { sheetName: 'foo:bar', range }, { xlsx: true });
+    isA1Equal("'[1]foo':bar!A1", { workbookName: '1', sheetName: 'foo:bar', range }, { xlsx: true });
+  });
+
+  test('a quote around the second end is the range operator, not a sheet range', () => {
+    // Whatever put the quote there — the name's own characters, or a writer quoting an end it
+    // read as something else — what is left is a name joined to a reference, so it is two
+    // operands and not one reference. Excel reads it the same way; see docs/Prefixes.md.
+    isA1Equal("foo:'bar'!A1", undefined);
+    isA1Equal("foo:'bar baz'!A1", undefined);
+    isA1Equal("'foo':'bar'!A1", undefined);
+    isA1Equal("'foo bar':'baz'!A1", undefined);
+    isA1Equal("'[Book.xlsx]foo':'bar'!A1", undefined);
+    isA1Equal("foo:'bar'!A1", undefined, { xlsx: true });
+    // ... including where the first name is one no operand can be spelled as, so that nothing
+    // but the quote competes with the sheet range
+    isA1Equal("1:'Dec'!A1", undefined);
+    isA1Equal("5:'a b'!A1", undefined);
   });
 
   test('a sheet range has exactly two endpoints', () => {

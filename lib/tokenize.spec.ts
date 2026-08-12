@@ -2405,43 +2405,55 @@ describe('lexer', () => {
       ]);
     });
 
-    test('each end of a sheet range may be quoted on its own', () => {
-      // Accepted to be forgiving of other producers. Excel reads a quoted first name the same
-      // way, but a quoted second name as the range operator (see docs/Prefixes.md). Getting this
-      // wrong shows up as an open-ended beam: a lexer that bails at the quote leaves "foo:"
-      // behind, which then normalizes to the unrelated "A:FOO".
-      isTokens("=foo:'bar'!A1", [
-        { type: FX_PREFIX, value: '=' },
-        { type: REF_RANGE, value: "foo:'bar'!A1" }
-      ]);
+    test('the first end of a sheet range may be quoted on its own', () => {
+      // A quote there is redundant, and Excel reads the pair as the sheet range it would be
+      // without it. Getting this wrong shows up as an open-ended beam: a lexer that bails at the
+      // quote leaves "foo:" behind, which then normalizes to the unrelated "A:FOO".
       isTokens("='foo':bar!A1", [
         { type: FX_PREFIX, value: '=' },
         { type: REF_RANGE, value: "'foo':bar!A1" }
       ]);
-      isTokens("='foo':'bar'!A1", [
+      isTokens("='foo bar':baz!A1", [
         { type: FX_PREFIX, value: '=' },
-        { type: REF_RANGE, value: "'foo':'bar'!A1" }
+        { type: REF_RANGE, value: "'foo bar':baz!A1" }
       ]);
-      isTokens("='foo bar':'baz'!A1", [
+      isTokens("='[Book.xlsx]foo':bar!A1", [
         { type: FX_PREFIX, value: '=' },
-        { type: REF_RANGE, value: "'foo bar':'baz'!A1" }
+        { type: REF_RANGE, value: "'[Book.xlsx]foo':bar!A1" }
       ]);
-      isTokens("='[Book.xlsx]foo':'bar'!A1", [
+      isTokens("='foo':bar!A1", [
         { type: FX_PREFIX, value: '=' },
-        { type: REF_RANGE, value: "'[Book.xlsx]foo':'bar'!A1" }
+        { type: CONTEXT_QUOTE, value: "'foo':bar" },
+        { type: OPERATOR, value: '!' },
+        { type: REF_RANGE, value: 'A1' }
+      ], { mergeRefs: false });
+    });
+
+    test('a quote around the second end is the range operator, not a sheet range', () => {
+      // The quote takes the sheet range away whatever put it there, so what is left is the name
+      // "foo" joined to a reference of its own (see docs/Prefixes.md).
+      isTokens("=foo:'bar'!A1", [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_NAMED, value: 'foo' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_RANGE, value: "'bar'!A1" }
       ]);
       isTokens("=foo:'bar'!A1", [
         { type: FX_PREFIX, value: '=' },
-        { type: CONTEXT, value: "foo:'bar'" },
+        { type: REF_NAMED, value: 'foo' },
+        { type: OPERATOR, value: ':' },
+        { type: CONTEXT_QUOTE, value: "'bar'" },
         { type: OPERATOR, value: '!' },
         { type: REF_RANGE, value: 'A1' }
       ], { mergeRefs: false });
+      // A quoted first name is then left with nothing to be, "'foo'" being no token of its own —
+      // which is what any quoted run outside a prefix already lexes as.
       isTokens("='foo':'bar'!A1", [
         { type: FX_PREFIX, value: '=' },
-        { type: CONTEXT_QUOTE, value: "'foo':'bar'" },
-        { type: OPERATOR, value: '!' },
-        { type: REF_RANGE, value: 'A1' }
-      ], { mergeRefs: false });
+        { type: UNKNOWN, value: "'foo'" },
+        { type: OPERATOR, value: ':' },
+        { type: REF_RANGE, value: "'bar'!A1" }
+      ]);
       // A workbook may only be named ahead of the whole prefix, so a quoted endpoint containing
       // one is not an endpoint. Excel writes this form on entry of a sheet range whose second
       // name names no sheet: it manufactures an external link for that name, which leaves a
@@ -2575,14 +2587,22 @@ describe('lexer', () => {
         { type: FX_PREFIX, value: '=' },
         { type: REF_BEAM, value: 'C1:C5' }
       ], { r1c1: true });
-      // the second sheet name is a sheet name, so it need not be an R1C1 part itself, nor unquoted
+      // the second sheet name is a sheet name, so it need not be an R1C1 part itself
       isTokens('=C1:Dec!R1C1', [
         { type: FX_PREFIX, value: '=' },
         { type: REF_RANGE, value: 'C1:Dec!R1C1' }
       ], { r1c1: true });
+      // ... but a quote around it gives the colon to the range operator, here as in A1 notation,
+      // which leaves the first name standing as the beam it reads as
       isTokens("=C1:'Dec'!R1C1", [
         { type: FX_PREFIX, value: '=' },
-        { type: REF_RANGE, value: "C1:'Dec'!R1C1" }
+        { type: REF_BEAM, value: 'C1' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_RANGE, value: "'Dec'!R1C1" }
+      ], { r1c1: true });
+      isTokens("='C1':Dec!R1C1", [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: "'C1':Dec!R1C1" }
       ], { r1c1: true });
       isTokens('=C:D!R1C1', [
         { type: FX_PREFIX, value: '=' },

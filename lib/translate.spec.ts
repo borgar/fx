@@ -55,9 +55,9 @@ describe('translate absolute cells from A1 to RC', () => {
     expect(translateFormulaToR1C1('=SUM(RC:Dec!A1)', 'C3')).toBe("=SUM('RC:Dec'!R[-2]C[-2])");
     expect(translateFormulaToR1C1('=R1C1:Dec!A1', 'C3')).toBe("='R1C1:Dec'!R[-2]C[-2]");
     expect(translateFormulaToA1('=A1:Dec!R1C1', 'C3', { mergeRefs: false })).toBe("='A1:Dec'!$A$1");
-    // ... including where only the second name arrives quoted, which the whole-prefix quotes
-    // replace
-    expect(translateFormulaToR1C1("=RC:'Dec'!A1", 'C3')).toBe("='RC:Dec'!R[-2]C[-2]");
+    // ... and where that name already arrives quoted on its own, nothing needs adding: the quote
+    // is on the end that would otherwise read as a cell address, so the pair survives as written
+    expect(translateFormulaToR1C1("='RC':Dec!A1", 'C3')).toBe("='RC':Dec!R[-2]C[-2]");
     okayRoundTrip("='RC:Dec'!A1", 'C3');
     okayRoundTrip("='A1:Dec'!A1", 'C3');
     // ... and the sheet is what follows the workbook brackets, so a workbook ahead of the pair
@@ -66,14 +66,22 @@ describe('translate absolute cells from A1 to RC', () => {
     expect(translateFormulaToA1('=[1]A1:Dec!R1C1', 'C3', { mergeRefs: false })).toBe("='[1]A1:Dec'!$A$1");
   });
 
-  test('3-D references with each end quoted on its own', () => {
+  test('3-D references with the first end quoted on its own', () => {
     // the A1 leg redistributes the quoting over the whole sheet range, so these do not come
     // back verbatim; they settle on the whole-prefix quoting
+    const rc = translateFormulaToR1C1("='foo':bar!A1", 'C3');
+    expect(rc).toBe("='foo':bar!R[-2]C[-2]");
+    expect(translateFormulaToA1(rc, 'C3')).toBe('=foo:bar!A1');
+    expect(translateFormulaToA1(translateFormulaToR1C1("='foo bar':baz!A1", 'C3'), 'C3'))
+      .toBe("='foo bar:baz'!A1");
+  });
+
+  test('a quote around the second end travels as the range operator it is', () => {
+    // Not a prefix, so no quoting decision is redistributed over it; the reference on the right
+    // of the operator keeps its own quotes through both legs.
     const rc = translateFormulaToR1C1("=foo:'bar'!A1", 'C3');
     expect(rc).toBe("=foo:'bar'!R[-2]C[-2]");
-    expect(translateFormulaToA1(rc, 'C3')).toBe('=foo:bar!A1');
-    expect(translateFormulaToA1(translateFormulaToR1C1("='foo bar':'baz'!A1", 'C3'), 'C3'))
-      .toBe("='foo bar:baz'!A1");
+    expect(translateFormulaToA1(rc, 'C3')).toBe("=foo:'bar'!A1");
   });
 
   test('ternary ranges with allowTernary disabled', () => {

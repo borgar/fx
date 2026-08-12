@@ -1,6 +1,6 @@
 import { CONTEXT, CONTEXT_QUOTE } from '../constants.ts';
 import type { Token } from '../types.ts';
-import { advSheetName, isContextChar, operandAllowsSheetRange } from './sheetPrefix.ts';
+import { advSecondSheetName, isContextChar, operandAllowsSheetRange } from './sheetPrefix.ts';
 import { lexRange } from './lexRange.ts';
 
 const QUOT_SINGLE = 39; // '
@@ -43,10 +43,10 @@ export function lexContextQuoted (str: string, pos: number, options: LexContextO
             return { type: CONTEXT_QUOTE, value: str.slice(start, pos) };
           }
           if (valid && str.charCodeAt(pos) === COLON) {
-            // The first end of a sheet range that quotes its ends separately ("'foo':bar!A1"),
-            // if the operand admits a sheet range at all. Where it does not, the colon is the
-            // range operator and no prefix begins here.
-            const len = advSheetName(str, pos + 1);
+            // The first end of a sheet range, quoted on its own ("'foo':bar!A1"), if a second end
+            // may stand past the colon and the operand admits a sheet range at all. Where either
+            // fails the colon is the range operator and no prefix begins here.
+            const len = advSecondSheetName(str, pos + 1);
             if (
               len &&
               str.charCodeAt(pos + 1 + len) === EXCL &&
@@ -113,16 +113,9 @@ export function lexContextUnquoted (str: string, pos: number, options: LexContex
         if ((br1 >= start) && (br2 < pos - 1) && (br2 > br1 + 1)) {
           valid = true;
         }
-        if (colon && colon === pos - 1) {
-          // The second sheet name is missing, and no later "!" can supply one: "!" is not a
-          // sheet-name character, so scanning on would take this one for the second name and read
-          // "a:!!A1" as a sheet range over a sheet named "!".
-          return;
-        }
         if (colon && !operandAllowsSheetRange(str, pos + 1, !!options.r1c1)) {
           // No sheet range here, so the colon is the range operator and this run is not one
-          // prefix. Both forms of the second name reach this test: the bare one, and the
-          // separately quoted one the branch below steps over.
+          // prefix.
           return;
         }
         if (valid) {
@@ -138,13 +131,13 @@ export function lexContextUnquoted (str: string, pos: number, options: LexContex
         // operators in a formula that holds no prefix at all.
         if (str.indexOf('!', pos) < 0) { return; }
         if (endsAWholeRange(str, start, pos, options)) { return; }
+        // Not every name may stand as the second end (see advSecondSheetName), and where none
+        // does, the colon is the range operator and this run is not one prefix. A missing second
+        // name is refused here too, since no later "!" can supply one: "!" is not a sheet-name
+        // character, so scanning on would take this one for the second name and read "a:!!A1" as
+        // a sheet range over a sheet named "!".
+        if (!advSecondSheetName(str, pos + 1)) { return; }
         colon = pos;
-        if (str.charCodeAt(pos + 1) === QUOT_SINGLE) {
-          // the second name of a sheet range may be quoted on its own: "foo:'bar'!A1"
-          const len = advSheetName(str, pos + 1);
-          if (!len || str.charCodeAt(pos + 1 + len) !== EXCL) { return; }
-          pos += len;
-        }
       }
       else if ((br1 == null || br2 != null) && !isContextChar(c)) {
         return;

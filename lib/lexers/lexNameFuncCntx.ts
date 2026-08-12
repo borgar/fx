@@ -1,13 +1,12 @@
 import { CONTEXT, FUNCTION, REF_NAMED, UNKNOWN } from '../constants.ts';
 import type { Token } from '../types.ts';
-import { advSheetName, operandAllowsSheetRange } from './sheetPrefix.ts';
+import { advSecondSheetName, operandAllowsSheetRange } from './sheetPrefix.ts';
 import { lexContextUnquoted, type LexContextOptions } from './lexContext.ts';
 
 const BR_OPEN = 91; // [
 const PAREN_OPEN = 40;
 const EXCL = 33; // !
 const COLON = 58; // :
-const QUOT_SINGLE = 39; // '
 const OFFS = 32;
 
 // build a map of characters to allow-bitmasks
@@ -118,20 +117,14 @@ export function lexNameFuncCntx (
         if (colon) {
           cntx = 0; // only 1 allowed
         }
-        else if (str.charCodeAt(pos + 1) === QUOT_SINGLE) {
-          // the second name of a sheet range may be quoted on its own: "foo:'bar'!A1"
-          const len = advSheetName(str, pos + 1);
-          if (
-            len &&
-            str.charCodeAt(pos + 1 + len) === EXCL &&
-            operandAllowsSheetRange(str, pos + len + 2, !!opts.r1c1)
-          ) {
-            return { type: CONTEXT, value: str.slice(start, pos + 1 + len) };
-          }
-          cntx = 0;
+        else if (advSecondSheetName(str, pos + 1)) {
+          colon = pos;
         }
         else {
-          colon = pos;
+          // Not every name may stand as a sheet range's second end (see advSecondSheetName), and
+          // where none does the colon is the range operator and the run up to it is a name:
+          // "Alpha:'Gamma'!A1" is "Alpha" joined to 'Gamma'!A1.
+          cntx = 0;
         }
       }
     }
@@ -139,12 +132,11 @@ export function lexNameFuncCntx (
       if (c === PAREN_OPEN && func) {
         return { type: FUNCTION, value: str.slice(start, pos) };
       }
-      // A trailing colon means the second sheet name is missing. A colon at all means a sheet
-      // range, and one stands only in front of a cell reference: where the operand is not one,
-      // the colon is the range operator and what precedes it is a name, not a prefix.
+      // A colon means a sheet range, and one stands only in front of a cell reference: where the
+      // operand is not one, the colon is the range operator and what precedes it is a name, not
+      // a prefix.
       else if (
         c === EXCL && cntx &&
-        !(colon && colon === pos - 1) &&
         (!colon || operandAllowsSheetRange(str, pos + 1, !!opts.r1c1))
       ) {
         return { type: CONTEXT, value: str.slice(start, pos) };

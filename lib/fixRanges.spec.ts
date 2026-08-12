@@ -115,17 +115,23 @@ describe('fixRanges prefixes', () => {
     isFixed("=SUM('[1]S1:S3'!A1)", "=SUM('[1]S1:S3'!A1)", opts);
   });
 
-  test('each end of a 3-D reference may be quoted on its own', () => {
-    // the quoting is redistributed over the whole prefix, which is where Excel puts a sheet
-    // range's quotes (Excel itself corrects only the first-name-quoted form this way, reading
-    // the second-name-quoted one as the range operator; see docs/Prefixes.md)
-    isFixed("=foo:'bar'!A1", '=foo:bar!A1');
+  test('the first end of a 3-D reference may be quoted on its own', () => {
+    // a quote there is redundant, and the quoting is redistributed over the whole prefix, which
+    // is where Excel puts a sheet range's quotes
     isFixed("='foo':bar!A1", '=foo:bar!A1');
-    isFixed("='foo':'bar'!A1", '=foo:bar!A1');
-    isFixed("='foo':'bar baz'!A1", "='foo:bar baz'!A1");
-    isFixed("='foo bar':'baz'!A1", "='foo bar:baz'!A1");
-    isFixed("='[Book.xlsx]foo':'bar'!A1", '=[Book.xlsx]foo:bar!A1');
-    isFixed("=foo:'bar'!A1", '=foo:bar!A1', { xlsx: true });
+    isFixed("='foo bar':baz!A1", "='foo bar:baz'!A1");
+    isFixed("='[Book.xlsx]foo':bar!A1", '=[Book.xlsx]foo:bar!A1');
+    isFixed("='foo':bar!A1", '=foo:bar!A1', { xlsx: true });
+  });
+
+  test('a quote around the second end is the range operator, not a 3-D reference', () => {
+    // "foo" is a name joined to a reference of its own, so neither is a prefix to redistribute
+    // quotes over (see docs/Prefixes.md)
+    isFixed("=foo:'bar baz'!A1", "=foo:'bar baz'!A1");
+    isFixed("='foo':'bar baz'!A1", "='foo':'bar baz'!A1");
+    isFixed("=foo:'bar baz'!A1", "=foo:'bar baz'!A1", { xlsx: true });
+    // ... which is the form Excel itself writes where the second sheet names no sheet
+    isFixed("=Jan:'[1]Nope'!A1", "=Jan:'[1]Nope'!A1");
   });
 
   test('a left side that is also a cell address wins over a 3-D reference', () => {

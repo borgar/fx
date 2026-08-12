@@ -57,9 +57,11 @@ function advQuotedSheetName (str: string, pos: number): number {
   return 0;
 }
 
-// Advances over one end of a sheet range, quoted or not. Excel quotes such a prefix as a whole or
-// not at all, but other producers quote the ends separately ("foo:'bar'!A1"), so each end is
-// taken on its own.
+// Advances over a sheet name, quoted or not: a lone one, or the first end of a sheet range. Excel
+// quotes a prefix as a whole rather than end by end, but a quote around the first end alone is
+// redundant rather than wrong, and Excel reads one back as the sheet range it looks like:
+// "'R':Gamma!A1" hand-written into a file comes back as "'R:Gamma'!A1". The second end is
+// advSecondSheetName's business, and a quote there is not redundant at all.
 export function advSheetName (str: string, pos: number): number {
   if (str.charCodeAt(pos) === QUOT_SINGLE) {
     return advQuotedSheetName(str, pos);
@@ -69,6 +71,19 @@ export function advSheetName (str: string, pos: number): number {
     pos++;
   }
   return pos - start;
+}
+
+// Advances over the second end of a sheet range at `pos`. Returns the number of characters
+// consumed, or 0 where Excel reads the colon as the range operator instead, which any quote
+// around that end makes it do: "Alpha:'Gamma'!A1" is the name "Alpha" joined to 'Gamma'!A1, and
+// so is "Alpha:'My Sheet'!A1", where the name's own characters are what called for the quotes. It
+// makes no difference which of the two put the quote there, and Excel never corrects either: the
+// whole prefix is the one place a sheet range's quotes may go.
+export function advSecondSheetName (str: string, pos: number): number {
+  if (str.charCodeAt(pos) === QUOT_SINGLE) {
+    return 0;
+  }
+  return advSheetName(str, pos);
 }
 
 // Is this sheet name also a valid cell address in the given notation? Where the first sheet name
@@ -102,17 +117,18 @@ export function operandAllowsSheetRange (str: string, pos: number, r1c1: boolean
 
 // Does a sheet prefix start here: one sheet name, or two joined by a ":", followed by the "!"
 // that closes every prefix? Each name is measured as a name, so it need not be a reference part
-// ("C1:Dec!R1C1"), and either end may be quoted on its own ("C1:'Dec'!R1C1").
+// ("C1:Dec!R1C1"), and the first may be quoted on its own ("'C1':Dec!R1C1").
 //
 // Each name has to be measured in full, because "." is the one character a sheet name may contain
 // that a range is also allowed to end on, so a range lexer can stop part-way through a name: the
 // "a1" of "a1.b!A1" is not a cell address. That is also why a lone name counts here and not only
 // a pair.
 //
-// Two further tests apply to a pair only. A first name that is also a valid cell address gives
-// the colon to the range operator, and the notation decides which names those are: "A1:B2!C3" is
-// cell A1 joined to 'B2'!C3, while "A1:B2!R3C3" in R1C1 is a sheet range, "A1" addressing nothing
-// there. And the operand has to admit a sheet range at all. A lone name is exempt from both: no
+// Three further tests apply to a pair only. Which names may stand as the second end is
+// advSecondSheetName's question. A first name that is also a valid cell address gives the colon
+// to the range operator, and the notation decides which names those are: "A1:B2!C3" is cell A1
+// joined to 'B2'!C3, while "A1:B2!R3C3" in R1C1 is a sheet range, "A1" addressing nothing there.
+// And the operand has to admit a sheet range at all. A lone name is exempt from all three: no
 // range lexer can take one whole ("!" being no range character), and "Jan!SomeName" is an
 // ordinary prefix on an ordinary name.
 export function startsSheetPrefix (str: string, pos: number, r1c1: boolean): boolean {
@@ -126,7 +142,7 @@ export function startsSheetPrefix (str: string, pos: number, r1c1: boolean): boo
   if (str.charCodeAt(pos + first) !== COLON) {
     return false;
   }
-  const second = advSheetName(str, pos + first + 1);
+  const second = advSecondSheetName(str, pos + first + 1);
   if (!second || str.charCodeAt(pos + first + 1 + second) !== EXCL) {
     return false;
   }
