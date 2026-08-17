@@ -6,6 +6,7 @@ const BR_OPEN = 91; // [
 const PAREN_OPEN = 40;
 const EXCL = 33; // !
 const OFFS = 32;
+const COLON = 58;
 
 // build a map of characters to allow-bitmasks
 const ALLOWED = new Uint8Array(180 - OFFS);
@@ -51,6 +52,11 @@ function nameOrUnknown (str, s, start, pos, name) {
   return { type: UNKNOWN, value: str.slice(start, pos) };
 }
 
+export function isIdentityChar (s: number) {
+  const a = s > 180 ? OK_HIGHCHAR : ALLOWED[s - OFFS];
+  return (a & OK_0);
+}
+
 export function lexNameFuncCntx (
   str: string,
   pos: number,
@@ -59,6 +65,14 @@ export function lexNameFuncCntx (
   const start = pos;
 
   const s = str.charCodeAt(pos);
+
+  // allow `[Book1.xlsx]` prefix + Unquoted
+  if (s === BR_OPEN) {
+    const xx = lexContextUnquoted(str, pos, opts);
+    // console.log(str.slice(pos), xx);
+    return xx;
+  }
+
   const a = s > 180 ? OK_HIGHCHAR : ALLOWED[s - OFFS];
   // name: [a-zA-Z_\\\u00a1-\uffff]
   // func: [a-zA-Z_]
@@ -97,7 +111,9 @@ export function lexNameFuncCntx (
       if (c === PAREN_OPEN && func) {
         return { type: FUNCTION, value: str.slice(start, pos) };
       }
-      else if (c === EXCL && cntx) {
+      // XXX: or (c === COLON && cntx)
+      // `foo:bar` is a valid expression of [ name RANGE name ]
+      else if (cntx && (c === EXCL /* || c === COLON*/)) {
         return { type: CONTEXT, value: str.slice(start, pos) };
       }
       return nameOrUnknown(str, s, start, pos, name);

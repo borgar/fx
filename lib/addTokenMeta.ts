@@ -146,7 +146,7 @@ class Reflist {
  * All will be tagged with `.error` (boolean `true`).
  *
  * @param tokenlist An array of tokens (from `tokenize()`)
- * @param [context={}] A contest used to match `A1` to `Sheet1!A1`.
+ * @param [context={}] A context used to match `A1` to `Sheet1!A1`.
  * @param [context.sheetName=''] An implied sheet name ('Sheet1')
  * @param [context.workbookName=''] An implied workbook name ('report.xlsx')
  * @returns The input array with the enchanced tokens

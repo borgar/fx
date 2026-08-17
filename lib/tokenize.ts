@@ -86,7 +86,7 @@ export function getTokens (fx: string, tokenHandlers: PartLexer[], options: Opts
     xlsx: options.xlsx ?? false
   };
 
-  const tokens = [];
+  const tokens: Token[] = [];
   let pos = 0;
   let letOrLambda = 0;
   let unknownRC = 0;
@@ -139,7 +139,7 @@ export function getTokens (fx: string, tokenHandlers: PartLexer[], options: Opts
   const numHandlers = tokenHandlers.length;
   while (pos < fx.length) {
     const startPos = pos;
-    let token;
+    let token: Token;
     for (let i = 0; i < numHandlers; i++) {
       token = tokenHandlers[i](fx, pos, opts);
       if (token) {

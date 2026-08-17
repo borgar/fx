@@ -56,7 +56,7 @@ describe('add extra meta to operators', () => {
   });
 
   test('group ranges if they are equivalent', () => {
-    isMetaTokens("=B11,B11:B12,'Sheet11'!B11,SHEET1!$B11,sheet1!$b$11,A1:B11,[foo]Sheet1!B11,'[foo]Sheet1'!B11", [
+    isMetaTokens("=B11,B11:B12,'Sheet11'!B11,Sheet11!B11,SHEET1!$B11,sheet1!$b$11,A1:B11,[foo]Sheet1!B11,'[foo]Sheet1'!B11", [
       { index: 0, depth: 0, type: FX_PREFIX, value: '=' },
       { index: 1, depth: 0, type: REF_RANGE, value: 'B11', groupId: 'fxg1' },
       { index: 2, depth: 0, type: OPERATOR, value: ',' },
@@ -64,15 +64,36 @@ describe('add extra meta to operators', () => {
       { index: 4, depth: 0, type: OPERATOR, value: ',' },
       { index: 5, depth: 0, type: REF_RANGE, value: "'Sheet11'!B11", groupId: 'fxg3' },
       { index: 6, depth: 0, type: OPERATOR, value: ',' },
-      { index: 7, depth: 0, type: REF_RANGE, value: 'SHEET1!$B11', groupId: 'fxg1' },
+      { index: 7, depth: 0, type: REF_RANGE, value: 'Sheet11!B11', groupId: 'fxg3' },
       { index: 8, depth: 0, type: OPERATOR, value: ',' },
-      { index: 9, depth: 0, type: REF_RANGE, value: 'sheet1!$b$11', groupId: 'fxg1' },
+      { index: 9, depth: 0, type: REF_RANGE, value: 'SHEET1!$B11', groupId: 'fxg1' },
       { index: 10, depth: 0, type: OPERATOR, value: ',' },
-      { index: 11, depth: 0, type: REF_RANGE, value: 'A1:B11', groupId: 'fxg4' },
+      { index: 11, depth: 0, type: REF_RANGE, value: 'sheet1!$b$11', groupId: 'fxg1' },
       { index: 12, depth: 0, type: OPERATOR, value: ',' },
-      { index: 13, depth: 0, type: REF_RANGE, value: '[foo]Sheet1!B11', groupId: 'fxg1' },
+      { index: 13, depth: 0, type: REF_RANGE, value: 'A1:B11', groupId: 'fxg4' },
       { index: 14, depth: 0, type: OPERATOR, value: ',' },
-      { index: 15, depth: 0, type: REF_RANGE, value: "'[foo]Sheet1'!B11", groupId: 'fxg1' }
+      { index: 15, depth: 0, type: REF_RANGE, value: '[foo]Sheet1!B11', groupId: 'fxg1' },
+      { index: 16, depth: 0, type: OPERATOR, value: ',' },
+      { index: 17, depth: 0, type: REF_RANGE, value: "'[foo]Sheet1'!B11", groupId: 'fxg1' }
+    ], { sheetName: 'Sheet1', workbookName: 'foo' });
+  });
+
+  test('group 3-D references by their whole sheet range', () => {
+    isMetaTokens("=Jan:Dec!B11,'jan:dec'!B11,'jan':'dec'!B11,'jan':dec!B11,JAN:dEc!B11,Jan!B11,Dec!B11", [
+      { index: 0, depth: 0, type: FX_PREFIX, value: '=' },
+      { index: 1, depth: 0, type: REF_RANGE, value: 'Jan:Dec!B11', groupId: 'fxg1' },
+      { index: 2, depth: 0, type: OPERATOR, value: ',' },
+      { index: 3, depth: 0, type: REF_RANGE, value: "'jan:dec'!B11", groupId: 'fxg1' },
+      { index: 4, depth: 0, type: OPERATOR, value: ',' },
+      { index: 5, depth: 0, type: REF_RANGE, value: "'jan':'dec'!B11", groupId: 'fxg1' },
+      { index: 6, depth: 0, type: OPERATOR, value: ',' },
+      { index: 7, depth: 0, type: REF_RANGE, value: "'jan':dec!B11", groupId: 'fxg1' },
+      { index: 8, depth: 0, type: OPERATOR, value: ',' },
+      { index: 9, depth: 0, type: REF_RANGE, value: 'JAN:dEc!B11', groupId: 'fxg1' },
+      { index: 10, depth: 0, type: OPERATOR, value: ',' },
+      { index: 11, depth: 0, type: REF_RANGE, value: 'Jan!B11', groupId: 'fxg2' },
+      { index: 12, depth: 0, type: OPERATOR, value: ',' },
+      { index: 13, depth: 0, type: REF_RANGE, value: 'Dec!B11', groupId: 'fxg3' }
     ], { sheetName: 'Sheet1', workbookName: 'foo' });
   });
 

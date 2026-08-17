@@ -179,7 +179,6 @@ export function parseRefCtx (ref: string, opts: ParseRefOptions = {}): RefParseD
     r1c1: opts.r1c1 ?? false
   };
   const tokens = getTokens(ref, lexersRefs, options);
-
   // discard the "="-prefix if it is there
   if (tokens.length && tokens[0].type === FX_PREFIX) {
     tokens.shift();
@@ -214,7 +213,7 @@ export function parseRefXlsx (ref: string, opts: ParseRefOptions = {}): RefParse
     xlsx: true
   };
   const tokens = getTokens(ref, lexersRefs, options);
-
+  // console.log(tokens);
   // discard the "="-prefix if it is there
   if (tokens.length && tokens[0].type === FX_PREFIX) {
     tokens.shift();

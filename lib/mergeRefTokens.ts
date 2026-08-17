@@ -4,6 +4,7 @@ import type { Token } from './types.ts';
 const END = '$';
 
 const validRunsMerge = [
+  // A1 | A1:B2 | A:B | 1:2 | A1:B
   [ REF_CELL, ':', REF_CELL ],
   [ REF_CELL, '.:', REF_CELL ],
   [ REF_CELL, ':.', REF_CELL ],
@@ -11,29 +12,47 @@ const validRunsMerge = [
   [ REF_RANGE ],
   [ REF_BEAM ],
   [ REF_TERNARY ],
-  [ CONTEXT, '!', REF_CELL, ':', REF_CELL ],
-  [ CONTEXT, '!', REF_CELL, '.:', REF_CELL ],
-  [ CONTEXT, '!', REF_CELL, ':.', REF_CELL ],
-  [ CONTEXT, '!', REF_CELL, '.:.', REF_CELL ],
-  [ CONTEXT, '!', REF_CELL ],
-  [ CONTEXT, '!', REF_RANGE ],
-  [ CONTEXT, '!', REF_BEAM ],
-  [ CONTEXT, '!', REF_TERNARY ],
-  [ CONTEXT_QUOTE, '!', REF_CELL, ':', REF_CELL ],
-  [ CONTEXT_QUOTE, '!', REF_CELL, '.:', REF_CELL ],
-  [ CONTEXT_QUOTE, '!', REF_CELL, ':.', REF_CELL ],
-  [ CONTEXT_QUOTE, '!', REF_CELL, '.:.', REF_CELL ],
-  [ CONTEXT_QUOTE, '!', REF_CELL ],
-  [ CONTEXT_QUOTE, '!', REF_RANGE ],
-  [ CONTEXT_QUOTE, '!', REF_BEAM ],
-  [ CONTEXT_QUOTE, '!', REF_TERNARY ],
+
+  // Sheet1!A1 | 'Sheet1'!A1 | 'Sheet1:Sheet2'!A1
+  [ [ CONTEXT, CONTEXT_QUOTE ], '!', REF_CELL, ':', REF_CELL ],
+  [ [ CONTEXT, CONTEXT_QUOTE ], '!', REF_CELL, '.:', REF_CELL ],
+  [ [ CONTEXT, CONTEXT_QUOTE ], '!', REF_CELL, ':.', REF_CELL ],
+  [ [ CONTEXT, CONTEXT_QUOTE ], '!', REF_CELL, '.:.', REF_CELL ],
+  [ [ CONTEXT, CONTEXT_QUOTE ], '!', REF_CELL ],
+  [ [ CONTEXT, CONTEXT_QUOTE ], '!', REF_RANGE ],
+  [ [ CONTEXT, CONTEXT_QUOTE ], '!', REF_BEAM ],
+  [ [ CONTEXT, CONTEXT_QUOTE ], '!', REF_TERNARY ],
+
+  // 'Sheet1':Sheet2!A1 | 'Sheet1':'Sheet2'!A1
+  [ CONTEXT_QUOTE, ':', [ CONTEXT, CONTEXT_QUOTE ], '!', REF_CELL, ':', REF_CELL ],
+  [ CONTEXT_QUOTE, ':', [ CONTEXT, CONTEXT_QUOTE ], '!', REF_CELL, '.:', REF_CELL ],
+  [ CONTEXT_QUOTE, ':', [ CONTEXT, CONTEXT_QUOTE ], '!', REF_CELL, ':.', REF_CELL ],
+  [ CONTEXT_QUOTE, ':', [ CONTEXT, CONTEXT_QUOTE ], '!', REF_CELL, '.:.', REF_CELL ],
+  [ CONTEXT_QUOTE, ':', [ CONTEXT, CONTEXT_QUOTE ], '!', REF_CELL ],
+  [ CONTEXT_QUOTE, ':', [ CONTEXT, CONTEXT_QUOTE ], '!', REF_RANGE ],
+  [ CONTEXT_QUOTE, ':', [ CONTEXT, CONTEXT_QUOTE ], '!', REF_BEAM ],
+  [ CONTEXT_QUOTE, ':', [ CONTEXT, CONTEXT_QUOTE ], '!', REF_TERNARY ],
+
+  // Sheet1:Sheet2!A1 | 'Sheet1':Sheet2!A1
+  [ [ REF_NAMED, CONTEXT, CONTEXT_QUOTE ], ':', CONTEXT, '!', REF_CELL, ':', REF_CELL ],
+  [ [ REF_NAMED, CONTEXT, CONTEXT_QUOTE ], ':', CONTEXT, '!', REF_CELL, '.:', REF_CELL ],
+  [ [ REF_NAMED, CONTEXT, CONTEXT_QUOTE ], ':', CONTEXT, '!', REF_CELL, ':.', REF_CELL ],
+  [ [ REF_NAMED, CONTEXT, CONTEXT_QUOTE ], ':', CONTEXT, '!', REF_CELL, '.:.', REF_CELL ],
+  [ [ REF_NAMED, CONTEXT, CONTEXT_QUOTE ], ':', CONTEXT, '!', REF_CELL ],
+  [ [ REF_NAMED, CONTEXT, CONTEXT_QUOTE ], ':', CONTEXT, '!', REF_RANGE ],
+  [ [ REF_NAMED, CONTEXT, CONTEXT_QUOTE ], ':', CONTEXT, '!', REF_BEAM ],
+  [ [ REF_NAMED, CONTEXT, CONTEXT_QUOTE ], ':', CONTEXT, '!', REF_TERNARY ],
+
+  // name | Sheet1!name | Book1.xlsx!name
   [ REF_NAMED ],
   [ CONTEXT, '!', REF_NAMED ],
-  [ CONTEXT_QUOTE, '!', REF_NAMED ],
+  [ CONTEXT_QUOTE, '!', REF_NAMED ], // XXX: Context must not contain a :
+
+  // [col] | table![col] | Sheet1!table[col] | 'Sheet1'!table[col]
   [ REF_STRUCT ],
   [ REF_NAMED, REF_STRUCT ],
   [ CONTEXT, '!', REF_NAMED, REF_STRUCT ],
-  [ CONTEXT_QUOTE, '!', REF_NAMED, REF_STRUCT ]
+  [ CONTEXT_QUOTE, '!', REF_NAMED, REF_STRUCT ] // XXX: Context must not contain a :
 ];
 
 type TypeNode = {
@@ -42,11 +61,13 @@ type TypeNode = {
 
 // valid token runs are converted to a tree structure
 const refPartsTree: TypeNode = {};
-function packList (f: string[], node: TypeNode) {
+function packList (f: (string | string[])[], node: TypeNode) {
   if (f.length) {
-    const key = f[0];
-    if (!node[key]) { node[key] = {}; }
-    packList(f.slice(1), node[key] as TypeNode);
+    const keys = Array.isArray(f[0]) ? f[0] : [ f[0] ];
+    for (const key of keys) {
+      if (!node[key]) { node[key] = {}; }
+      packList(f.slice(1), node[key] as TypeNode);
+    }
   }
   else {
     node[END] = true;
@@ -54,33 +75,55 @@ function packList (f: string[], node: TypeNode) {
 }
 validRunsMerge.forEach(run => packList(run.concat().reverse(), refPartsTree));
 
-// attempt to match a backwards run of tokens from a given point
-// to a path in the tree
-const matcher = (tokens: Token[], currNode, anchorIndex, index = 0) => {
+// attempt to match a backwards run of tokens from a given point to a path in the tree
+const matcher = (tokens: Token[], currNode: TypeNode, anchorIndex: number, index = 0) => {
   let i = index;
   let node = currNode;
   const max = tokens.length - index;
+  let cols = 0;
+  let brackets = 0;
+  let haveBang = false;
+  // the longest run so far that ended on a terminal: a longer run may turn out
+  // to be invalid, in which case we fall back to the best valid subset run
+  let best = 0;
   // keep walking as long as the next backward token matches a child key
   while (i <= max) {
+    // a run may only have a single ":" in its context part
+    if (node[END] && cols < 2) {
+      best = i;
+    }
     const token = tokens[anchorIndex - i];
-    if (token) {
-      const value = token.value;
-      let key = (token.type === OPERATOR) ? value : token.type;
-      // we need to prevent merging ["A1:B2" ":" "C3"] as a range is only
-      // allowed to contain a single ":" operator even if "A1:B2:C3" is
-      // valid Excel syntax
-      if (key === REF_RANGE && !value.includes(':')) {
-        key = REF_CELL;
+    if (!token) { break; }
+    const value = token.value;
+    if (haveBang) {
+      const quotedBr = value.startsWith("'[");
+      if (quotedBr || value.startsWith('[')) {
+        brackets++;
+        if (brackets >= 2) { break; }
       }
-      if (key in node) {
-        node = node[key];
-        i += 1;
-        continue;
+      if (value.includes(':')) {
+        cols++;
+        if ((quotedBr ? brackets - 1 : brackets) || cols >= 2) { break; }
       }
     }
-    // can't advance further; accept only if current node is a terminal
-    return node[END] ? i : 0;
+    let key: string = token.type;
+    if (token.type === OPERATOR) {
+      if (value === '!') {
+        haveBang = true;
+      }
+      key = value;
+    }
+    // we need to prevent merging ["A1:B2" ":" "C3"] as a range is only
+    // allowed to contain a single ":" operator even if "A1:B2:C3" is
+    // valid Excel syntax
+    if (key === REF_RANGE && !value.includes(':')) {
+      key = REF_CELL;
+    }
+    if (!(key in node)) { break; }
+    node = node[key] as TypeNode;
+    i += 1;
   }
+  return best;
 };
 
 /**
@@ -100,7 +143,7 @@ export function mergeRefTokens (tokenlist: Token[]): Token[] {
   for (let i = tokenlist.length - 1; i >= 0; i--) {
     let token = tokenlist[i];
     const type = token.type;
-    // Quick check if token type could even start a valid run
+    // Quick check if token type can start a valid run
     if (type === REF_RANGE || type === REF_BEAM || type === REF_TERNARY ||
         type === REF_NAMED || type === REF_STRUCT) {
       const valid = matcher(tokenlist, refPartsTree, i);

@@ -1,7 +1,7 @@
 import { WHITESPACE } from '../constants.ts';
 import type { Token } from '../types.ts';
 
-export function isWS (c) {
+export function isWS (c: number) {
   return (
     c === 0x9 ||
     c === 0xB ||
