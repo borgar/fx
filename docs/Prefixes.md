@@ -37,13 +37,14 @@ Notably, the form `scope!entity` is ambiguous! A given that a workbook `Workbook
 * `[Workbook.xlsx]Sheet1!A1`
 * `'/Users/MyName/Documents/[Workbook.xlsx]Sheet1'!A1`
 
-However, `[Workbook.xlsx]!A1` and `[Sheet]!A1` will yield a #REF! error. This can be verified with the INDIRECT function.
+However, `[Workbook.xlsx]!A1` and `[Sheet1]!A1` will yield a #REF! error. This can be verified with the INDIRECT function.
 
 There is no difference in how the syntax works between ranges, names, or tables. And there is no difference in how the syntax works in external references vs. internal ones. Excel just tries hard to normalize references and remove redundancies when a user edits a formula.
 
 When parsing references, _Fx_ will output the scopes in order of appearance:
 
 ```js
+import { parseA1Ref } from '@borgar/fx';
 parseA1Ref('[Workbook.xlsx]Sheet1!A1');
 /* ⇒ {
   context: [ 'Workbook.xlsx', 'Sheet1' ],
@@ -53,6 +54,8 @@ parseA1Ref('[Workbook.xlsx]Sheet1!A1');
 ```
 
 Inversely, when serializing a reference object, _Fx_ expects the `context` property to have a list of scopes.
+
+When the sheet scope is a "3D" sheet range (`Sheet1:Sheet2!A1`) the scope will not be split but emitted as it was found (`[ 'Sheet1:Sheet2' ]`).
 
 
 ## XLSX variant
@@ -70,6 +73,7 @@ Why the formula language does not use this unambiguous and somewhat more intuiti
 When parsing references in `xlsx` mode, _Fx_ will emit `workbookName` and `sheetName` properties corresponding to the bracketing:
 
 ```js
+import { parseA1Ref } from '@borgar/fx/xlsx';
 parseA1Ref('[1]!A1', { xlsx: true });
 /* ⇒ {
   workbookName: '1',
@@ -80,3 +84,5 @@ parseA1Ref('[1]!A1', { xlsx: true });
 ```
 
 Inversely, when serializing a reference object, _Fx_ expects the `workbookName` and `sheetName` properties to dictate how to compose the prefix.
+
+When the sheet scope is a "3D" sheet range (`Sheet1:Sheet2!A1`) the scope will not be split but emitted as it was found (`{ sheetName: 'Sheet1:Sheet2' }`).
