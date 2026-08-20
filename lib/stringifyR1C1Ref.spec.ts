@@ -27,6 +27,18 @@ describe('stringifyR1C1Ref', () => {
     testRef({ context: [ 'MyFile.xlsx' ], name: 'foo' }, 'MyFile.xlsx!foo');
     testRef({ context: [ 'My File.xlsx' ], name: 'foo' }, "'My File.xlsx'!foo");
   });
+
+  test('3D references', () => {
+    testRef({ context: [ 'Jan:Dec' ], range: rangeA1 }, 'Jan:Dec!R[2]C[4]');
+    testRef({ context: [ 'Book.xlsx', 'Sheet1:Sheet2' ], range: rangeA1 }, '[Book.xlsx]Sheet1:Sheet2!R[2]C[4]');
+    testRef({ context: [ 'Book.xlsx', 'Sheet1' ], range: rangeA1 }, '[Book.xlsx]Sheet1!R[2]C[4]');
+    testRef({ context: [ 'Sheet 1:Sheet 2' ], range: rangeA1 }, "'Sheet 1:Sheet 2'!R[2]C[4]");
+    testRef({ context: [ 'R1C1:Dec' ], range: rangeA1 }, "'R1C1:Dec'!R[2]C[4]");
+    testRef({ context: [ 'RC:Dec' ], range: rangeA1 }, "'RC:Dec'!R[2]C[4]");
+    testRef({ context: [ 'Dec:R1C1' ], range: rangeA1 }, "'Dec:R1C1'!R[2]C[4]");
+    testRef({ context: [ 'C:D' ], range: rangeA1 }, "'C:D'!R[2]C[4]");
+    testRef({ context: [ 'Jan:Dec' ], name: 'foo' }, "'Jan:Dec'!foo");
+  });
 });
 
 describe('stringifyR1C1Ref in XLSX mode', () => {
@@ -54,6 +66,18 @@ describe('stringifyR1C1Ref in XLSX mode', () => {
     testRef({ workbookName: 'My File.xlsx', sheetName: 'Sheet1', name: 'foo' }, "'[My File.xlsx]Sheet1'!foo");
     testRef({ workbookName: 'MyFile.xlsx', name: 'foo' }, '[MyFile.xlsx]!foo');
     testRef({ workbookName: 'My File.xlsx', name: 'foo' }, "'[My File.xlsx]'!foo");
+  });
+
+  test('3D references', () => {
+    testRef({ workbookName: '', sheetName: 'Jan:Dec', range: rangeA1 }, 'Jan:Dec!R[2]C[4]');
+    testRef({ workbookName: 'Book.xlsx', sheetName: 'Sheet1:Sheet2', range: rangeA1 }, '[Book.xlsx]Sheet1:Sheet2!R[2]C[4]');
+    testRef({ workbookName: 'Book.xlsx', sheetName: 'Sheet1', range: rangeA1 }, '[Book.xlsx]Sheet1!R[2]C[4]');
+    testRef({ workbookName: '', sheetName: 'Sheet 1:Sheet 2', range: rangeA1 }, "'Sheet 1:Sheet 2'!R[2]C[4]");
+    testRef({ workbookName: '', sheetName: 'R1C1:Dec', range: rangeA1 }, "'R1C1:Dec'!R[2]C[4]");
+    testRef({ workbookName: '', sheetName: 'RC:Dec', range: rangeA1 }, "'RC:Dec'!R[2]C[4]");
+    testRef({ workbookName: '', sheetName: 'Dec:R1C1', range: rangeA1 }, "'Dec:R1C1'!R[2]C[4]");
+    testRef({ workbookName: '', sheetName: 'C:D', range: rangeA1 }, "'C:D'!R[2]C[4]");
+    testRef({ workbookName: 'Jan:Dec', sheetName: '', name: 'foo' }, "'[Jan:Dec]'!foo");
   });
 
   test('ignores context in XLSX mode', () => {

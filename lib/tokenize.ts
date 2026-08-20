@@ -11,7 +11,7 @@ import {
   REF_RANGE,
   REF_BEAM
 } from './constants.ts';
-import { mergeRefTokens } from './mergeRefTokens.ts';
+import { mergeRefTokens, mergeRefTokensXlsx } from './mergeRefTokens.ts';
 import { lexers, type PartLexer } from './lexers/sets.ts';
 import type { Token } from './types.ts';
 import { isRCTokenValue } from './isRCTokenValue.ts';
@@ -219,7 +219,9 @@ export function getTokens (fx: string, tokenHandlers: PartLexer[], options: Opts
   }
 
   if (mergeRefs) {
-    return mergeRefTokens(tokens);
+    return opts.xlsx
+      ? mergeRefTokensXlsx(tokens)
+      : mergeRefTokens(tokens);
   }
 
   return tokens;

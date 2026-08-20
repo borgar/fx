@@ -78,7 +78,7 @@ describe('add extra meta to operators', () => {
     ], { sheetName: 'Sheet1', workbookName: 'foo' });
   });
 
-  test('group 3-D references by their whole sheet range', () => {
+  test('group 3D references by their whole sheet range', () => {
     isMetaTokens("=Jan:Dec!B11,'jan:dec'!B11,'jan':'dec'!B11,'jan':dec!B11,JAN:dEc!B11,Jan!B11,Dec!B11", [
       { index: 0, depth: 0, type: FX_PREFIX, value: '=' },
       { index: 1, depth: 0, type: REF_RANGE, value: 'Jan:Dec!B11', groupId: 'fxg1' },

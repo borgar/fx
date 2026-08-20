@@ -1712,7 +1712,7 @@ describe('lexer', () => {
       ], opts);
 
       isTokens('1:D$1', [
-        { type: NUMBER, value: '1' },
+        { type: CONTEXT, value: '1' },
         { type: OPERATOR, value: ':' },
         { type: REF_RANGE, value: 'D$1' }
       ]);
@@ -1879,7 +1879,7 @@ describe('lexer', () => {
     test('invalid partial range syntax', () => {
       isTokens('=1:A1.', [
         { type: FX_PREFIX, value: '=' },
-        { type: NUMBER, value: '1' },
+        { type: CONTEXT, value: '1' },
         { type: OPERATOR, value: ':' },
         { type: REF_RANGE, value: 'A1' },
         { type: UNKNOWN, value: '.' }

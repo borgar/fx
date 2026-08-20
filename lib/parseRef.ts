@@ -13,9 +13,41 @@ import { lexersRefs } from './lexers/sets.ts';
 import { getTokens } from './tokenize.ts';
 import type { Token } from './types.ts';
 
+type RefParseData = {
+  operator: string,
+  r0: string,
+  r1: string,
+  name: string,
+  struct: string,
+};
+export type RefParseDataXls = RefParseData & { workbookName: string, sheetName: string };
+export type RefParseDataCtx = RefParseData & { context: string[] };
+
+type RefParserPart = (
+  t: Token | undefined,
+  data: Partial<RefParseDataCtx & RefParseDataXls>,
+  xlsx: boolean,
+  r1c1: boolean,
+  tokens: Token[],
+) => 1 | undefined;
+
+type ParseRefOptions = {
+  withLocation?: boolean,
+  mergeRefs?: boolean,
+  allowTernary?: boolean,
+  allowNamed?: boolean,
+  r1c1?: boolean,
+};
+
+type SplitItem = {
+  value: string,
+  braced: boolean,
+};
 // Liberally split a context string up into parts.
 // Permits any combination of braced and unbraced items.
-export function splitPrefix (str: string, stringsOnly = false) {
+export function splitPrefix (str: string, stringsOnly: true): string[];
+export function splitPrefix (str: string, stringsOnly?: false): SplitItem[];
+export function splitPrefix (str: string, stringsOnly: boolean = false): string[] | SplitItem[] {
   let inBrace = false;
   let currStr = '';
   const parts = [];
@@ -48,9 +80,9 @@ export function splitPrefix (str: string, stringsOnly = false) {
   return parts;
 }
 
-export function splitContext (contextString, data, xlsx) {
-  const ctx = splitPrefix(contextString, !xlsx);
+export function splitContext (contextString: string, data: Partial<RefParseDataCtx & RefParseDataXls>, xlsx: boolean) {
   if (xlsx) {
+    const ctx = splitPrefix(contextString, false);
     if (ctx.length > 1) {
       data.workbookName = ctx[ctx.length - 2].value;
       data.sheetName = ctx[ctx.length - 1].value;
@@ -66,20 +98,11 @@ export function splitContext (contextString, data, xlsx) {
     }
   }
   else {
-    data.context = ctx;
+    data.context = splitPrefix(contextString, true);
   }
 }
 
-type RefParseData = {
-  operator: string,
-  r0: string,
-  r1: string,
-  name: string,
-  struct: string,
-};
-type RefParserPart = (t: Token | undefined, data: Partial<RefParseData>, xlsx?: boolean) => 1 | undefined;
-
-const unquote = d => d.slice(1, -1).replace(/''/g, "'");
+export const unquotePrefix = (d: string) => d.slice(1, -1).replace(/''/g, "'");
 
 const pRangeOp: RefParserPart = (t, data) => {
   const value = t?.value;
@@ -111,6 +134,11 @@ const pBang: RefParserPart = t => {
     return 1;
   }
 };
+const pColon: RefParserPart = t => {
+  if (t?.type === OPERATOR && t.value === ':') {
+    return 1;
+  }
+};
 const pBeam: RefParserPart = (t, data) => {
   if (t?.type === REF_BEAM) {
     data.r0 = t.value;
@@ -123,15 +151,74 @@ const pStrucured: RefParserPart = (t, data) => {
     return 1;
   }
 };
-const pContext: RefParserPart = (t, data, xlsx) => {
+const pContext: RefParserPart = (t, data, xlsx, r1c1 = false) => {
+  const type = t?.type;
+  let isCtx = type === CONTEXT;
+  let usable = isCtx || type === CONTEXT_QUOTE;
+  // r1c1 exception
+  if (r1c1 && type === REF_BEAM && !t.value.includes('[')) {
+    usable = true;
+    isCtx = true;
+  }
+  if (usable) {
+    splitContext(isCtx ? t.value : unquotePrefix(t.value), data, xlsx);
+    return 1;
+  }
+};
+const pContextNames: RefParserPart = (t, data, xlsx) => {
   const type = t?.type;
   if (type === CONTEXT) {
+    // this won't not have ":" as lexer doesn't allow it
     splitContext(t.value, data, xlsx);
     return 1;
   }
-  if (type === CONTEXT_QUOTE) {
-    splitContext(unquote(t.value), data, xlsx);
-    return 1;
+  else if (type === CONTEXT_QUOTE && !xlsx) {
+    const ctx = splitPrefix(unquotePrefix(t.value), true);
+    if (!(ctx.length > 1 && ctx.at(-1).includes(':'))) {
+      data.context = ctx;
+      return 1;
+    }
+  }
+  else if (type === CONTEXT_QUOTE) {
+    const ctx = splitPrefix(unquotePrefix(t.value), false);
+    if (ctx.length === 1) {
+      const item = ctx[0];
+      if (item.braced) {
+        data.workbookName = item.value;
+        return 1;
+      }
+      else if (!item.value.includes(':')) {
+        data.sheetName = item.value;
+        return 1;
+      }
+    }
+    else if (ctx.length > 1) {
+      data.workbookName = ctx[ctx.length - 2].value;
+      const sn = ctx[ctx.length - 1].value;
+      if (!sn.includes(':')) {
+        data.sheetName = sn;
+        return 1;
+      }
+    }
+  }
+};
+const pExtendedContext: RefParserPart = (t, data, xlsx, r1c1, tokens) => {
+  const type = t?.type;
+  // We don't allow quoted sheet ranges if the prev context was unquoted:
+  //   ✅ a:b   ✅ 'a':'b'   ✅ 'a':b   ⛔️ a:'b'
+  if (type === CONTEXT || (type === CONTEXT_QUOTE && tokens[0].type === CONTEXT_QUOTE)) {
+    const d: Partial<RefParseDataCtx & RefParseDataXls> = {};
+    const value = type === CONTEXT_QUOTE ? unquotePrefix(t.value) : t.value;
+    splitContext(value, d, xlsx);
+    if (xlsx && d.sheetName && !d.workbookName) {
+      data.sheetName += ':' + d.sheetName;
+      return 1;
+    }
+    else if (!xlsx && d.context?.length === 1) {
+      const scope = data.context.pop();
+      data.context.push(scope + ':' + d.context[0]);
+      return 1;
+    }
   }
 };
 const pNamed: RefParserPart = (t, data) => {
@@ -149,26 +236,21 @@ const validRuns = [
   [ pContext, pBang, pPartial ],
   [ pContext, pBang, pRange, pRangeOp, pRange2 ],
   [ pContext, pBang, pRange ],
-  [ pContext, pBang, pBeam ]
+  [ pContext, pBang, pBeam ],
+  // 3D ranges:
+  [ pContext, pColon, pExtendedContext, pBang, pPartial ],
+  [ pContext, pColon, pExtendedContext, pBang, pRange, pRangeOp, pRange2 ],
+  [ pContext, pColon, pExtendedContext, pBang, pRange ],
+  [ pContext, pColon, pExtendedContext, pBang, pBeam ]
 ];
 
 const validRunsNamed = validRuns.concat([
   [ pNamed ],
-  [ pContext, pBang, pNamed ],
+  [ pContextNames, pBang, pNamed ],
   [ pStrucured ],
   [ pNamed, pStrucured ],
-  [ pContext, pBang, pNamed, pStrucured ]
+  [ pContextNames, pBang, pNamed, pStrucured ]
 ]);
-
-type ParseRefOptions = {
-  withLocation?: boolean,
-  mergeRefs?: boolean,
-  allowTernary?: boolean,
-  allowNamed?: boolean,
-  r1c1?: boolean,
-};
-export type RefParseDataXls = RefParseData & { workbookName: string, sheetName: string };
-export type RefParseDataCtx = RefParseData & { context: string[] };
 
 export function parseRefCtx (ref: string, opts: ParseRefOptions = {}): RefParseDataCtx | null {
   const options = {
@@ -195,7 +277,7 @@ export function parseRefCtx (ref: string, opts: ParseRefOptions = {}): RefParseD
         struct: '',
         operator: ''
       };
-      const valid = run.every((parse, i) => parse(tokens[i], data, false));
+      const valid = run.every((parse, i) => parse(tokens[i], data, false, options.r1c1, tokens));
       if (valid) {
         return data;
       }
@@ -213,7 +295,6 @@ export function parseRefXlsx (ref: string, opts: ParseRefOptions = {}): RefParse
     xlsx: true
   };
   const tokens = getTokens(ref, lexersRefs, options);
-  // console.log(tokens);
   // discard the "="-prefix if it is there
   if (tokens.length && tokens[0].type === FX_PREFIX) {
     tokens.shift();
@@ -230,7 +311,7 @@ export function parseRefXlsx (ref: string, opts: ParseRefOptions = {}): RefParse
         struct: '',
         operator: ''
       };
-      const valid = run.every((parse, i) => parse(tokens[i], data, true));
+      const valid = run.every((parse, i) => parse(tokens[i], data, true, options.r1c1, tokens));
       if (valid) {
         return data as any;
       }

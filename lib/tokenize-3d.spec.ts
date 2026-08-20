@@ -470,19 +470,29 @@ describe('lexer: 3d ranges', () => {
   test('colons within braces', () => {
     expect(tokenize("'[foo:bar]:baz:smu'!A1", { mergeRefs: false })).toEqual([
       { type: UNKNOWN, value: "'" },
-      { type: CONTEXT, value: '[foo:bar]:baz' },
+      { type: REF_STRUCT, value: '[foo:bar]' },
+      { type: OPERATOR, value: ':' },
+      { type: REF_NAMED, value: 'baz' },
       { type: OPERATOR, value: ':' },
       { type: UNKNOWN, value: "smu'" },
       { type: OPERATOR, value: '!' },
       { type: REF_RANGE, value: 'A1' }
     ]);
-    expect(tokenize("'[foo:bar]:baz:smu'!A1")).toEqual([
-      { type: UNKNOWN, value: "'" },
-      { type: CONTEXT, value: '[foo:bar]:baz' },
+    expect(tokenize("'[foo:bar]baz:smu'!A1")).toEqual([
+      { type: UNKNOWN, value: "'[" },
+      { type: REF_BEAM, value: 'foo:bar' },
+      { type: UNKNOWN, value: ']baz' },
       { type: OPERATOR, value: ':' },
       { type: UNKNOWN, value: "smu'" },
       { type: OPERATOR, value: '!' },
       { type: REF_RANGE, value: 'A1' }
+    ]);
+    expect(tokenize('[foo:bar]baz:smu!A1')).toEqual([
+      { type: UNKNOWN, value: '[' },
+      { type: REF_BEAM, value: 'foo:bar' },
+      { type: UNKNOWN, value: ']baz' },
+      { type: OPERATOR, value: ':' },
+      { type: REF_RANGE, value: 'smu!A1' }
     ]);
   });
 });
