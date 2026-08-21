@@ -106,7 +106,7 @@ describe('fixRanges prefixes', () => {
     isFixed("=SUM('[Book.xlsx]Sheet1:Sheet2'!A1)", '=SUM([Book.xlsx]Sheet1:Sheet2!A1)');
     isFixed('=Jan:Dec!A1', '=Jan:Dec!A1', { xlsx: true });
     isFixed('=[Book.xlsx]Sheet1:Sheet2!A1', '=[Book.xlsx]Sheet1:Sheet2!A1', { xlsx: true });
-    isFixed('=[1]Sheet1:Sheet2!A1', "='[1]Sheet1:Sheet2'!A1", { xlsx: true });
+    isFixed('=[1]Sheet1:Sheet2!A1', '=[1]Sheet1:Sheet2!A1', { xlsx: true });
     isFixed("=SUM('[1]S1:S3'!A1)", "=SUM('[1]S1:S3'!A1)", { xlsx: true });
   });
 
@@ -122,7 +122,7 @@ describe('fixRanges prefixes', () => {
     // Excel fixes this to `=foo:'bar baz'!A1`
     isFixed("='foo':'bar baz'!A1", "='foo:bar baz'!A1");
     isFixed("=foo:'bar baz'!A1", "=foo:'bar baz'!A1", { xlsx: true });
-    isFixed("=Jan:'[1]Nope'!A1", "=Jan:'[1]Nope'!A1");
+    isFixed("=Jan:'[1]Nope'!A1", '=Jan:[1]Nope!A1');
   });
 
   test('a digit-leading second sheet name goes to the range operator', () => {
@@ -148,6 +148,12 @@ describe('fixRanges prefixes', () => {
   test('leaves cross-sheet ranges as two references', () => {
     isFixed('=B!F2:B!F20', '=B!F2:B!F20');
     isFixed('=Sheet1!A1:Sheet2!B2', '=Sheet1!A1:Sheet2!B2');
+  });
+
+  test('leaves an external link index unquoted', () => {
+    isFixed('=SUM([1]Sheet1!A1)', '=SUM([1]Sheet1!A1)');
+    isFixed("=SUM('[1]Sheet1'!A1)", '=SUM([1]Sheet1!A1)');
+    isFixed('=[1]1040!B2', "='[1]1040'!B2");
   });
 });
 

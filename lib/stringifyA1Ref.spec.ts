@@ -26,6 +26,16 @@ describe('stringifyA1Ref', () => {
     expect(stringifyA1Ref({ context: [ '1', '1040' ], name: 'foo' })).toBe("'[1]1040'!foo");
   });
 
+  test('an external link index is not quoted', () => {
+    expect(stringifyA1Ref({ context: [ '1', 'Sheet1' ], range: rangeA1 })).toBe('[1]Sheet1!A1');
+    expect(stringifyA1Ref({ context: [ '12', 'Sheet1' ], range: rangeA1 })).toBe('[12]Sheet1!A1');
+    expect(stringifyA1Ref({ context: [ '1', 'Sheet1' ], name: 'foo' })).toBe('[1]Sheet1!foo');
+    // the exemption is the bracketed index only
+    expect(stringifyA1Ref({ context: [ '1' ], range: rangeA1 })).toBe("'1'!A1");
+    expect(stringifyA1Ref({ context: [ '1', 'Sheet 1' ], range: rangeA1 })).toBe("'[1]Sheet 1'!A1");
+    expect(stringifyA1Ref({ context: [ '1040.xlsx', 'Sheet1' ], range: rangeA1 })).toBe("'[1040.xlsx]Sheet1'!A1");
+  });
+
   test('named ranges', () => {
     expect(stringifyA1Ref({ name: 'foo' })).toBe('foo');
     expect(stringifyA1Ref({ context: [ 'Sheet1' ], name: 'foo' })).toBe('Sheet1!foo');
@@ -136,5 +146,16 @@ describe('stringifyA1Ref in XLSX mode', () => {
     expect(stringifyA1RefXlsx({ workbookName: '1040.xlsx', sheetName: 'Sheet1', range: rangeA1 })).toBe("'[1040.xlsx]Sheet1'!A1");
     expect(stringifyA1RefXlsx({ workbookName: '1040.xlsx', name: 'foo' })).toBe("'[1040.xlsx]'!foo");
     expect(stringifyA1RefXlsx({ sheetName: '1040', name: 'foo' })).toBe("'1040'!foo");
+  });
+
+  test('an external link index is not quoted', () => {
+    expect(stringifyA1RefXlsx({ workbookName: '1', sheetName: 'Sheet1', range: rangeA1 })).toBe('[1]Sheet1!A1');
+    expect(stringifyA1RefXlsx({ workbookName: '12', sheetName: 'Sheet1', range: rangeA1 })).toBe('[12]Sheet1!A1');
+    expect(stringifyA1RefXlsx({ workbookName: '1', range: rangeA1 })).toBe('[1]!A1');
+    expect(stringifyA1RefXlsx({ workbookName: '1', sheetName: 'Sheet1', name: 'foo' })).toBe('[1]Sheet1!foo');
+    expect(stringifyA1RefXlsx({ workbookName: '1', name: 'foo' })).toBe('[1]!foo');
+    // the exemption is the bracketed index only
+    expect(stringifyA1RefXlsx({ workbookName: '1', sheetName: '1040', range: rangeA1 })).toBe("'[1]1040'!A1");
+    expect(stringifyA1RefXlsx({ workbookName: '1', sheetName: 'Sheet 1', range: rangeA1 })).toBe("'[1]Sheet 1'!A1");
   });
 });
