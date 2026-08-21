@@ -55,9 +55,9 @@ export const tokenTypes = Object.freeze({
   WHITESPACE: WHITESPACE,
   /** String literal (`"Lorem ipsum"`) */
   STRING: STRING,
-  /** Reference context ([Workbook.xlsx]Sheet1) */
+  /** Reference context (`[Workbook.xlsx]Sheet1` or `Sheet1`) */
   CONTEXT: CONTEXT,
-  /** Quoted reference context (`'[My workbook.xlsx]Sheet1'`) */
+  /** Quoted reference context (`'[My workbook.xlsx]Sheet1'` or `'Sheet1'`) */
   CONTEXT_QUOTE: CONTEXT_QUOTE,
   /** A range identifier (`A1`) */
   REF_RANGE: REF_RANGE,

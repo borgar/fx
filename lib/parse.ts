@@ -4,9 +4,6 @@
  * This parser is a Top-Down Operator Precedence (Pratt) parser. It's based on
  * the one that Douglas Crockford describes in Chapter 9 of the O'Reilly book
  * Beutiful Code (http://crockford.com/javascript/tdop/tdop.html).
- *
- * The parser handles most basic things Excel/Sheets do except:
- * `Sheet1:Sheet2!A1` references cross contexts (3D references)
  */
 import {
   isReference,

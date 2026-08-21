@@ -29,7 +29,6 @@ describe('parse A1 references', () => {
   test('basic A1 references', () => {
     isA1Equal('A1', { range: { top: 0, left: 0, bottom: 0, right: 0 } });
     isA1Equal('A1:B2', { range: { top: 0, left: 0, bottom: 1, right: 1 } });
-
     isA1Equal('$A1:B2', { range: { top: 0, left: 0, bottom: 1, right: 1, $left: true } });
     isA1Equal('A$1:B2', { range: { top: 0, left: 0, bottom: 1, right: 1, $top: true } });
     isA1Equal('A1:$B2', { range: { top: 0, left: 0, bottom: 1, right: 1, $right: true } });
@@ -107,12 +106,97 @@ describe('parse A1 references', () => {
     });
   });
 
+  test('3D references', () => {
+    const range = { top: 0, left: 0, bottom: 0, right: 0 };
+    isA1Equal('Jan:Dec!A1', { context: [ 'Jan:Dec' ], range });
+    isA1Equal('A:C!A1', { context: [ 'A:C' ], range });
+    isA1Equal('fool:bard!A1:B2', { context: [ 'fool:bard' ], range: { top: 0, left: 0, bottom: 1, right: 1 } });
+    isA1Equal("'Sheet 1:Sheet 2'!A1", { context: [ 'Sheet 1:Sheet 2' ], range });
+    isA1Equal('[1]Sheet1:Sheet2!A1', { context: [ '1', 'Sheet1:Sheet2' ], range });
+    isA1Equal('[1]Sheet1:Sheet2!A1', { workbookName: '1', sheetName: 'Sheet1:Sheet2', range }, { xlsx: true });
+    isA1Equal("'[1]Sheet 1:Sheet 2'!A1", { context: [ '1', 'Sheet 1:Sheet 2' ], range });
+    isA1Equal("'[1]Sheet1:Sheet2'!A1", { workbookName: '1', sheetName: 'Sheet1:Sheet2', range }, { xlsx: true });
+    // We fully reject this whereas Excel attempts to correct it to `=Sheet1:'C:\Users\username\Sheet1:Sheet2'!foo`
+    isA1Equal('Sheet1:Sheet2!foo', undefined);
+    isA1Equal('Sheet1:Sheet2!foo', undefined, { xlsx: true });
+    isA1Equal("'Sheet1:Sheet2'!foo", { context: [ 'Sheet1:Sheet2' ], name: 'foo' });
+    isA1Equal("'Sheet1:Sheet2'!foo", undefined, { xlsx: true });
+    isA1Equal('Jan:Dec!A1', { sheetName: 'Jan:Dec', range }, { xlsx: true });
+    isA1Equal('Sheet1:Sheet2!foo', undefined, { xlsx: true });
+  });
+
+  test('the first end of a sheet range may be quoted individually', () => {
+    const range = { top: 0, left: 0, bottom: 0, right: 0 };
+    isA1Equal("'foo':bar!A1", { context: [ 'foo:bar' ], range });
+    isA1Equal("'foo bar':baz!A1", { context: [ 'foo bar:baz' ], range });
+    isA1Equal("'O''Neil':baz!A1", { context: [ "O'Neil:baz" ], range });
+    isA1Equal("'[Book.xlsx]foo':bar!A1", { context: [ 'Book.xlsx', 'foo:bar' ], range });
+    isA1Equal("'foo':bar!A1", { sheetName: 'foo:bar', range }, { xlsx: true });
+    isA1Equal("'[1]foo':bar!A1", { workbookName: '1', sheetName: 'foo:bar', range }, { xlsx: true });
+    isA1Equal("'foo':'bar'!A1", { sheetName: 'foo:bar', range }, { xlsx: true });
+    isA1Equal("'[1]foo':'bar'!A1", { workbookName: '1', sheetName: 'foo:bar', range }, { xlsx: true });
+    isA1Equal("'foo bar':'baz'!A1", { sheetName: 'foo bar:baz', range }, { xlsx: true });
+  });
+
+  test('a quote around the second end is the range operator, not a sheet range', () => {
+    isA1Equal("foo:'bar'!A1", undefined);
+    isA1Equal("foo:'bar baz'!A1", undefined);
+    isA1Equal("1:'Dec'!A1", undefined);
+    isA1Equal("5:'a b'!A1", undefined);
+    isA1Equal("foo:'bar'!A1", undefined, { xlsx: true });
+    isA1Equal("foo:'bar baz'!A1", undefined, { xlsx: true });
+    isA1Equal("1:'Dec'!A1", undefined, { xlsx: true });
+    isA1Equal("5:'a b'!A1", undefined, { xlsx: true });
+  });
+
+  test('a workbook specifier is not allowed in the second section of a sheet-range', () => {
+    isA1Equal('foo:[1]bar!A1', undefined);
+    isA1Equal("'foo:[1]bar'!A1", undefined);
+    isA1Equal("'foo':'[1]bar'!A1", undefined);
+    isA1Equal("'foo':[1]bar!A1", undefined);
+    isA1Equal('foo:[1]bar!A1', undefined, { xlsx: true });
+    isA1Equal("'foo:[1]bar'!A1", undefined, { xlsx: true });
+    isA1Equal("'foo':'[1]bar'!A1", undefined, { xlsx: true });
+    isA1Equal("'foo':[1]bar!A1", undefined, { xlsx: true });
+  });
+
+  test('a sheet range has exactly two endpoints', () => {
+    isA1Equal('a:b:c!A1', undefined);
+    isA1Equal('zoo1:bar1:baz1!A1', undefined);
+    isA1Equal('Sheet1:!A1', undefined);
+    isA1Equal(':Sheet1!A1', undefined);
+    isA1Equal('[Book.xlsx]:Sheet2!A1', undefined);
+  });
+
+  test('a period/digit-leading sheet names', () => {
+    // These aren't strictly legal, as sheets that begin with digits or periods must
+    // be quoted. But Excel will parse and convert them to quoted, so we do to.
+    const range = { top: 0, left: 0, bottom: 0, right: 0 };
+    isA1Equal('Sheet1:1!A1', { context: [ 'Sheet1:1' ], range });
+    isA1Equal('Jan:2020plan!A1', { context: [ 'Jan:2020plan' ], range });
+    isA1Equal('X:1!A1', { context: [ 'X:1' ], range });
+    isA1Equal('[Book.xlsx]Alpha:3!A1', { context: [ 'Book.xlsx', 'Alpha:3' ], range });
+    isA1Equal('1:5!A1', { context: [ '1:5' ], range });
+    isA1Equal('12:15!A1', { context: [ '12:15' ], range });
+    isA1Equal('1:2020plan!A1', { context: [ '1:2020plan' ], range });
+    isA1Equal('[Book.xlsx]1:3!A1', { context: [ 'Book.xlsx', '1:3' ], range });
+  });
+
+  test('a left side that is also a cell address wins over a sheet range', () => {
+    isA1Equal('A1:B2!C3', undefined);
+    isA1Equal('A1:Sheet2!B2', undefined);
+    isA1Equal('R1:R5!A1', undefined);
+    isA1Equal("'A1:B2'!C3", { context: [ 'A1:B2' ], range: { top: 2, left: 2, bottom: 2, right: 2 } });
+  });
+
   test('invalid references', () => {
     isA1Equal('[Workbook.xlsx]!A1', undefined);
     isA1Equal('[Workbook.xlsx]!A1:B2', undefined);
     isA1Equal('[Workbook.xlsx]!A:A', undefined);
     isA1Equal('[Workbook.xlsx]!1:1', undefined);
     isA1Equal('[]Sheet1!A1', undefined);
+    isA1Equal('.Mar:1!A1', undefined);
+    isA1Equal('Jan:.Mar!A1', undefined);
   });
 
   test('named ranges', () => {

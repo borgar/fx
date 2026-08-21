@@ -48,6 +48,43 @@ describe('stringifyA1Ref', () => {
     expect(stringifyA1Ref({ context: [ 'Sch1' ], range: rangeA1 })).toBe("'Sch1'!A1");
     expect(stringifyA1Ref({ context: [ 'Foo12345' ], range: rangeA1 })).toBe("'Foo12345'!A1");
   });
+
+  test('should quote prefixes that read as booleans', () => {
+    expect(stringifyA1Ref({ context: [ 'TRUE' ], range: rangeA1 })).toBe("'TRUE'!A1");
+    expect(stringifyA1Ref({ context: [ 'False' ], range: rangeA1 })).toBe("'False'!A1");
+    expect(stringifyA1Ref({ context: [ 'False:Jan' ], range: rangeA1 })).toBe("'False:Jan'!A1");
+    expect(stringifyA1Ref({ context: [ 'Jan:true' ], range: rangeA1 })).toBe("'Jan:true'!A1");
+    expect(stringifyA1Ref({ context: [ 'Truer' ], range: rangeA1 })).toBe('Truer!A1');
+  });
+
+  test('3D references are quoted per endpoint', () => {
+    expect(stringifyA1Ref({ context: [ 'Jan:Dec' ], range: rangeA1 })).toBe('Jan:Dec!A1');
+    expect(stringifyA1Ref({ context: [ 'Sheet 1:Sheet 2' ], range: rangeA1 })).toBe("'Sheet 1:Sheet 2'!A1");
+    expect(stringifyA1Ref({ context: [ 'Sheet1:Sheet 2' ], range: rangeA1 })).toBe("'Sheet1:Sheet 2'!A1");
+    expect(stringifyA1Ref({ context: [ 'Sheet 1:Sheet2' ], range: rangeA1 })).toBe("'Sheet 1:Sheet2'!A1");
+    expect(stringifyA1Ref({ context: [ '1:5' ], range: rangeA1 })).toBe("'1:5'!A1");
+    expect(stringifyA1Ref({ context: [ 'A1:B2' ], range: rangeA1 })).toBe("'A1:B2'!A1");
+    expect(stringifyA1Ref({ context: [ 'A:C' ], range: rangeA1 })).toBe("'A:C'!A1");
+    expect(stringifyA1Ref({ context: [ 'B:C' ], range: rangeA1 })).toBe("'B:C'!A1");
+    expect(stringifyA1Ref({ context: [ 'C:D' ], range: rangeA1 })).toBe("'C:D'!A1");
+    expect(stringifyA1Ref({ context: [ 'A:B' ], range: rangeA1 })).toBe('A:B!A1');
+    expect(stringifyA1Ref({ context: [ 'AA:AB' ], range: rangeA1 })).toBe('AA:AB!A1');
+    expect(stringifyA1Ref({ context: [ 'A:AB' ], range: rangeA1 })).toBe('A:AB!A1');
+    expect(stringifyA1Ref({ context: [ 'Book.xlsx', 'Sheet1:Sheet2' ], range: rangeA1 })).toBe('[Book.xlsx]Sheet1:Sheet2!A1');
+    expect(stringifyA1Ref({ context: [ 'Book.xlsx', 'Sheet1' ], range: rangeA1 })).toBe('[Book.xlsx]Sheet1!A1');
+    expect(stringifyA1Ref({ context: [ 'Book.xlsx', 'S1:S3' ], range: rangeA1 })).toBe("'[Book.xlsx]S1:S3'!A1");
+    expect(stringifyA1Ref({ context: [ 'Book.xlsx', 'S1:S3' ], range: rangeA1 })).toBe("'[Book.xlsx]S1:S3'!A1");
+  });
+
+  test('only the sheet scope is split on ":"', () => {
+    expect(stringifyA1Ref({ context: [ 'D:\\Reports\\Sales.xlsx' ], name: 'namedrange' })).toBe("'D:\\Reports\\Sales.xlsx'!namedrange");
+    expect(stringifyA1RefXlsx({ workbookName: 'D:\\Reports\\Sales.xlsx', name: 'namedrange' })).toBe("'[D:\\Reports\\Sales.xlsx]'!namedrange");
+    expect(stringifyA1Ref({ context: [ '/Users/username/Spreadsheets/Alpha:Delta' ], name: 'foo' })).toBe("'/Users/username/Spreadsheets/Alpha:Delta'!foo");
+    expect(stringifyA1RefXlsx({ workbookName: '/Users/username/Spreadsheets/Alpha:Delta', name: 'foo' })).toBe("'[/Users/username/Spreadsheets/Alpha:Delta]'!foo");
+    expect(stringifyA1Ref({ context: [ 'Sales:Marketing' ], name: 'foo' })).toBe("'Sales:Marketing'!foo");
+    expect(stringifyA1RefXlsx({ workbookName: 'Sales:Marketing', name: 'foo' })).toBe("'[Sales:Marketing]'!foo");
+    expect(stringifyA1Ref({ context: [ 'a:b', 'Book.xlsx', 'Sheet1' ], range: rangeA1 })).toBe("'a:b[Book.xlsx]Sheet1'!A1");
+  });
 });
 
 describe('stringifyA1Ref in XLSX mode', () => {

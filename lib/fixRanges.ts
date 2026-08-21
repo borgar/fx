@@ -118,7 +118,8 @@ export function fixTokenRanges (
 }
 
 /**
- * Normalizes A1 style ranges and structured references in a list of tokens.
+ * Normalizes A1 style ranges and structured references in a list of tokens and
+ * returns a new array of tokens with values and position-data updated.
  *
  * It ensures that that the top and left coordinates of an A1 range are on the
  * left-hand side of a colon operator:
@@ -147,7 +148,7 @@ export function fixTokenRanges (
  * Structured ranges are normalized to have consistent order and capitalization
  * of sections as well as removing redundant ones.
  *
- * Returns a new array of tokens with values and position data updated.
+ * Unlike Excel, _fx_ does not normalize sheet or workbook names of references.
  *
  * @see {@link OptsFixRanges}
  * @param tokens A list of tokens to be adjusted.
@@ -158,6 +159,11 @@ export function fixTokenRangesXlsx (
   tokens: Token[],
   options: OptsFixRanges = {}
 ): Token[] {
+  // TODO: We can remove redundant sheets/worbooks given a context
+  // Given sheet order and names...
+  // TODO: Fix casing: `sheet1`/`sheet1:sheet2` is corrected to `Sheet1`/`Sheet1:Sheet2`, matching the real names.
+  // TODO: Fix 3D sheets order: `Sheet8:Sheet1!A1` is rewritten to `Sheet1:Sheet8!A1`
+  // TODO: Fix Redundant ranges: `Sheet1:Sheet1!A1` collapses to `Sheet1!A1`
   if (!Array.isArray(tokens)) {
     throw new Error('fixRanges expects an array of tokens');
   }

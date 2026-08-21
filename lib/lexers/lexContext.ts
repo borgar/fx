@@ -5,6 +5,8 @@ const QUOT_SINGLE = 39; // '
 const BR_OPEN = 91; // [
 const BR_CLOSE = 93; // ]
 const EXCL = 33; // !
+const COLON = 58; // :
+const PERIOD = 46; // .
 
 // xlsx xml uses a variant of the syntax that has external references in
 // bracets. Any of: [1]Sheet1!A1, '[1]Sheet one'!A1, [1]!named
@@ -12,6 +14,7 @@ export function lexContextQuoted (str: string, pos: number, options: { xlsx: boo
   const c0 = str.charCodeAt(pos);
   let br1: number;
   let br2: number;
+  let col: number;
   // quoted context: '(?:''|[^'])*('|$)(?=!)
   if (c0 === QUOT_SINGLE) {
     const start = pos;
@@ -19,15 +22,21 @@ export function lexContextQuoted (str: string, pos: number, options: { xlsx: boo
     while (pos < str.length) {
       const c = str.charCodeAt(pos);
       if (c === BR_OPEN) {
+        if (col) { return; } // don't allow bracets past a colon
         if (br1) { return; } // only 1 allowed
         br1 = pos;
       }
-      else if (c === BR_CLOSE) {
+      else if (c === BR_CLOSE && br1) {
         if (br2) { return; } // only 1 allowed
         br2 = pos;
       }
+      else if (c === COLON) {
+        if (col) { return; } // only 1 allowed
+        col = pos;
+      }
       else if (c === QUOT_SINGLE) {
         pos++;
+        // '' may occur as escaped '
         if (str.charCodeAt(pos) !== QUOT_SINGLE) {
           let valid = br1 == null && br2 == null;
           if (options.xlsx && (br1 === start + 1) && (br2 === pos - 2)) {
@@ -36,7 +45,7 @@ export function lexContextQuoted (str: string, pos: number, options: { xlsx: boo
           if ((br1 >= start + 1) && (br2 < pos - 2) && (br2 > br1 + 1)) {
             valid = true;
           }
-          if (valid && str.charCodeAt(pos) === EXCL) {
+          if (valid && (str.charCodeAt(pos) === EXCL || str.charCodeAt(pos) === COLON)) {
             return { type: CONTEXT_QUOTE, value: str.slice(start, pos) };
           }
           return;
@@ -53,7 +62,7 @@ export function lexContextUnquoted (str: string, pos: number, options: { xlsx: b
   const c0 = str.charCodeAt(pos);
   let br1: number;
   let br2: number;
-  if (c0 !== QUOT_SINGLE && c0 !== EXCL) {
+  if (c0 !== QUOT_SINGLE && c0 !== EXCL && c0 !== PERIOD) {
     const start = pos;
     while (pos < str.length) {
       const c = str.charCodeAt(pos);
@@ -65,7 +74,7 @@ export function lexContextUnquoted (str: string, pos: number, options: { xlsx: b
         if (br2) { return; } // only 1 allowed
         br2 = pos;
       }
-      else if (c === EXCL) {
+      else if ((c === EXCL || c === COLON) && pos > start) {
         let valid = br1 == null && br2 == null;
         if (options.xlsx && (br1 === start) && (br2 === pos - 1)) {
           valid = true;
@@ -76,6 +85,7 @@ export function lexContextUnquoted (str: string, pos: number, options: { xlsx: b
         if (valid) {
           return { type: CONTEXT, value: str.slice(start, pos) };
         }
+        return undefined;
       }
       else if (
         (br1 == null || br2 != null) &&

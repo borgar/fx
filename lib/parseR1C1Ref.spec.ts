@@ -164,6 +164,25 @@ describe('parse joined R1C1 references', () => {
     isRCEqual('R[1]C1:R1C[-1]', { range: { r0: 1, c0: 0, r1: 0, c1: -1, $c0: true, $r1: true, $c1: false } });
   });
 
+  test('3D references', () => {
+    const relRC = { r0: 0, c0: 0, r1: 0, c1: 0 };
+    const absAll = { $r0: true, $c0: true, $r1: true, $c1: true };
+    isRCEqual('Jan:Dec!R1C1', { context: [ 'Jan:Dec' ], range: { ...relRC, ...absAll } });
+    isRCEqual("'Sheet 1:Sheet 2'!RC", { context: [ 'Sheet 1:Sheet 2' ], range: relRC });
+    isRCEqual('C1:C5!RC', { context: [ 'C1:C5' ], range: relRC });
+    isRCEqual('C1:Dec!RC', { context: [ 'C1:Dec' ], range: relRC });
+    isRCEqual("C1:'Dec'!RC", undefined);
+    isRCEqual("'C1':Dec!RC", { context: [ 'C1:Dec' ], range: relRC });
+    isRCEqual('Jan:Dec!R1C1', { sheetName: 'Jan:Dec', range: { ...relRC, ...absAll } }, { xlsx: true });
+    isRCEqual('A1:B2!R3C3', { context: [ 'A1:B2' ], range: { r0: 2, c0: 2, r1: 2, c1: 2, ...absAll } });
+    isRCEqual('R1C1:B2!R3C3', undefined);
+    isRCEqual('R1C1:R2C2!R3C3', undefined);
+    isRCEqual('RC:R2C2!R3C3', undefined);
+    isRCEqual('R1C1:C5.b!R1C1', undefined, { allowTernary: true });
+    isRCEqual('RC:R.b!R1C1', undefined, { allowTernary: true });
+    isRCEqual("'R1C1:R2C2'!R3C3", { context: [ 'R1C1:R2C2' ], range: { r0: 2, c0: 2, r1: 2, c1: 2, ...absAll } });
+  });
+
   test('invalid mixed references', () => {
     isRCEqual('R:C', undefined);
     isRCEqual('R:RC', undefined);
@@ -228,6 +247,17 @@ describe('parse R1C1 ranges in XLSX mode', () => {
     isRCEqual('[Workbook.xlsx]Sheet1!name', {
       workbookName: 'Workbook.xlsx',
       sheetName: 'Sheet1',
+      name: 'name'
+    }, opts);
+
+    isRCEqual('C1!name', {
+      sheetName: 'C1',
+      name: 'name'
+    }, opts);
+
+    isRCEqual('[Workbook.xlsx]C1!name', {
+      workbookName: 'Workbook.xlsx',
+      sheetName: 'C1',
       name: 'name'
     }, opts);
   });

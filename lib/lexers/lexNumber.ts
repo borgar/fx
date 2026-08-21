@@ -1,6 +1,9 @@
 import { NUMBER } from '../constants.ts';
 import type { Token } from '../types.ts';
 
+const EXCL = 33; // !
+const COLON = 58; // :
+
 function advDigits (str: string, pos: number): number {
   const start = pos;
   do {
@@ -42,6 +45,12 @@ export function lexNumber (str: string, pos: number): Token | undefined {
     const exp = advDigits(str, pos);
     if (!exp) { return; }
     pos += exp;
+  }
+
+  // don't allow ! or : to follow a number
+  const tail = str.charCodeAt(pos);
+  if (tail === EXCL || tail === COLON) {
+    return;
   }
 
   return { type: NUMBER, value: str.slice(start, pos) };

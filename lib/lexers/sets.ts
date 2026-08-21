@@ -43,9 +43,9 @@ export const lexers: PartLexer[] = [
 
 export const lexersRefs = [
   lexRefOp,
+  lexRange,
   lexContextQuoted,
   lexContextUnquoted,
-  lexRange,
   lexStructured,
   lexNamed
 ];

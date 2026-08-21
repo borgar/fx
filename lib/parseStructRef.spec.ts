@@ -117,6 +117,25 @@ describe('parse structured references', () => {
     });
   });
 
+  test('3D sheet ranges are invalid against structured references except as "paths"', () => {
+    isSREqual('Sheet1:Sheet2!Table[Column]', undefined);
+    isSREqual('Sheet1:Sheet2!Table[Column]', undefined, { xlsx: true });
+    isSREqual("'Sheet1:Sheet2'!Table[Column]", {
+      columns: [ 'Column' ],
+      context: [ 'Sheet1:Sheet2' ],
+      table: 'Table'
+    });
+    isSREqual("'Sheet1:Sheet2'!Table[Column]", undefined, { xlsx: true });
+    isSREqual("'Sheet 1:Sheet 2'!Table[Column]", {
+      columns: [ 'Column' ],
+      context: [ 'Sheet 1:Sheet 2' ],
+      table: 'Table'
+    });
+    isSREqual("'Sheet 1:Sheet 2'!Table[Column]", undefined, { xlsx: true });
+    isSREqual("'Sheet1':'Sheet2'!Table[Column]", undefined);
+    isSREqual("'Sheet1':'Sheet2'!Table[Column]", undefined, { xlsx: true });
+  });
+
   test('duplicate section handling', () => {
     isSREqual('[[#Data],[#data],[#Data],[#Data],[#Totals],[#Totals],[#Totals],foo]', {
       columns: [ 'foo' ],

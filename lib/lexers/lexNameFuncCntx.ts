@@ -6,6 +6,7 @@ const BR_OPEN = 91; // [
 const PAREN_OPEN = 40;
 const EXCL = 33; // !
 const OFFS = 32;
+const COLON = 58;
 
 // build a map of characters to allow-bitmasks
 const ALLOWED = new Uint8Array(180 - OFFS);
@@ -25,30 +26,36 @@ for (let c = OFFS; c < 180; c++) {
   const nN = /^[a-zA-Z0-9_.\\?\u00a1-\uffff]$/.test(char);
   const fN = /^[a-zA-Z0-9_.]$/.test(char);
   const cX = /^[a-zA-Z0-9_.¡¤§¨ª\u00ad¯-\uffff]$/.test(char);
+  const cN = cX;
   ALLOWED[c - OFFS] = (
     (n0 ? OK_NAME_0 : 0) |
     (nN ? OK_NAME_N : 0) |
     (f0 ? OK_FUNC_0 : 0) |
     (fN ? OK_FUNC_N : 0) |
     (cX ? OK_CNTX_0 : 0) |
-    (cX ? OK_CNTX_N : 0)
+    (cN ? OK_CNTX_N : 0)
   );
 }
 
-function nameOrUnknown (str, s, start, pos, name) {
+function isValidName (str: string, s: number, start: number, pos: number, name: number) {
   const len = pos - start;
   if (name && len && len < 255) {
     // names starting with \ must be at least 3 char long
     if (s === 92 && len < 3) {
-      return;
+      return false;
     }
     // single characters R and C are forbidden as names
     if (len === 1 && (s === 114 || s === 82 || s === 99 || s === 67)) {
-      return;
+      return false;
     }
-    return { type: REF_NAMED, value: str.slice(start, pos) };
+    return true;
   }
-  return { type: UNKNOWN, value: str.slice(start, pos) };
+  return false;
+}
+
+export function isIdentityChar (s: number) {
+  const a = s > 180 ? OK_HIGHCHAR : ALLOWED[s - OFFS];
+  return (a & OK_0);
 }
 
 export function lexNameFuncCntx (
@@ -59,6 +66,12 @@ export function lexNameFuncCntx (
   const start = pos;
 
   const s = str.charCodeAt(pos);
+
+  // allow `[Book1.xlsx]` prefix + Unquoted
+  if (s === BR_OPEN) {
+    return lexContextUnquoted(str, pos, opts);
+  }
+
   const a = s > 180 ? OK_HIGHCHAR : ALLOWED[s - OFFS];
   // name: [a-zA-Z_\\\u00a1-\uffff]
   // func: [a-zA-Z_]
@@ -97,16 +110,21 @@ export function lexNameFuncCntx (
       if (c === PAREN_OPEN && func) {
         return { type: FUNCTION, value: str.slice(start, pos) };
       }
-      else if (c === EXCL && cntx) {
+      // `foo:bar` is a valid expression of [ name RANGE name ]
+      else if (cntx && c === EXCL) {
         return { type: CONTEXT, value: str.slice(start, pos) };
       }
-      return nameOrUnknown(str, s, start, pos, name);
+      return isValidName(str, s, start, pos, name)
+        ? { type: REF_NAMED, value: str.slice(start, pos) }
+        : { type: (cntx && c === COLON) ? CONTEXT : UNKNOWN, value: str.slice(start, pos) };
     }
     pos++;
   }
   while ((name || func || cntx) && pos < str.length);
 
   if (start !== pos) {
-    return nameOrUnknown(str, s, start, pos, name);
+    return isValidName(str, s, start, pos, name)
+      ? { type: REF_NAMED, value: str.slice(start, pos) }
+      : { type: UNKNOWN, value: str.slice(start, pos) };
   }
 }

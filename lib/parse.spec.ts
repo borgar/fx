@@ -93,6 +93,73 @@ describe('parser', () => {
       isParsed('Workbook!foo', { type: 'ReferenceIdentifier', value: 'Workbook!foo', kind: 'name' });
       isParsed('[Workbook]Sheet!foo', { type: 'ReferenceIdentifier', value: '[Workbook]Sheet!foo', kind: 'name' });
     });
+
+    test('3D references', () => {
+      isParsed('Jan:Dec!A1', { type: 'ReferenceIdentifier', value: 'Jan:Dec!A1', kind: 'range' });
+      isParsed('A:C!A1', { type: 'ReferenceIdentifier', value: 'A:C!A1', kind: 'range' });
+      isParsed('Jan:Dec!A:C', { type: 'ReferenceIdentifier', value: 'Jan:Dec!A:C', kind: 'beam' });
+      isParsed("'Sheet 1:Sheet 2'!A1", { type: 'ReferenceIdentifier', value: "'Sheet 1:Sheet 2'!A1", kind: 'range' });
+      isParsed('[Book.xlsx]Sheet1:Sheet2!A1', { type: 'ReferenceIdentifier', value: '[Book.xlsx]Sheet1:Sheet2!A1', kind: 'range' });
+      isParsed("'Sheet1:Sheet2'!foo", { type: 'ReferenceIdentifier', value: "'Sheet1:Sheet2'!foo", kind: 'name' });
+    });
+
+    test('a sheet range stands only in front of a cell reference', () => {
+      isParsed('Sheet1:Sheet2!foo', {
+        type: 'BinaryExpression',
+        operator: ':',
+        arguments: [
+          { type: 'ReferenceIdentifier', value: 'Sheet1', kind: 'name' },
+          { type: 'ReferenceIdentifier', value: 'Sheet2!foo', kind: 'name' }
+        ]
+      });
+      isParsed('Sheet1:Sheet2!Table[Column]', {
+        type: 'BinaryExpression',
+        operator: ':',
+        arguments: [
+          { type: 'ReferenceIdentifier', value: 'Sheet1', kind: 'name' },
+          { type: 'ReferenceIdentifier', value: 'Sheet2!Table[Column]', kind: 'table' }
+        ]
+      });
+      isParsed("'Sheet1:Sheet2'!Table[Column]", {
+        type: 'ReferenceIdentifier', value: "'Sheet1:Sheet2'!Table[Column]", kind: 'table'
+      });
+    });
+
+    test('a left side that is also a cell address wins over a sheet range', () => {
+      isParsed('A1:B2!C3', {
+        type: 'BinaryExpression',
+        operator: ':',
+        arguments: [
+          { type: 'ReferenceIdentifier', value: 'A1', kind: 'range' },
+          { type: 'ReferenceIdentifier', value: 'B2!C3', kind: 'range' }
+        ]
+      });
+      isParsed("'A1:B2'!C3", { type: 'ReferenceIdentifier', value: "'A1:B2'!C3", kind: 'range' });
+    });
+
+    test('"$" is not allowed on an unquoted sheet name', () => {
+      isInvalidExpr('=SUM($Jan:$Mar!A1)');
+      isParsed("'$Jan:$Mar'!A1", { type: 'ReferenceIdentifier', value: "'$Jan:$Mar'!A1", kind: 'range' });
+    });
+
+    test('cross-sheet ranges stay two references', () => {
+      isParsed('B!F2:B!F20', {
+        type: 'BinaryExpression',
+        operator: ':',
+        arguments: [
+          { type: 'ReferenceIdentifier', value: 'B!F2', kind: 'range' },
+          { type: 'ReferenceIdentifier', value: 'B!F20', kind: 'range' }
+        ]
+      });
+      isParsed('Sheet1!A1:Sheet2!B2', {
+        type: 'BinaryExpression',
+        operator: ':',
+        arguments: [
+          { type: 'ReferenceIdentifier', value: 'Sheet1!A1', kind: 'range' },
+          { type: 'ReferenceIdentifier', value: 'Sheet2!B2', kind: 'range' }
+        ]
+      });
+    });
   });
 
   describe('parse array literals', () => {

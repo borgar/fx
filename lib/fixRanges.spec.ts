@@ -78,6 +78,77 @@ describe('fixRanges prefixes', () => {
     isFixed('=RC!B2', "='RC'!B2");
     isFixed('=CR!B2', '=CR!B2');
   });
+
+  test('quotes 3D references per endpoint', () => {
+    isFixed('=Jan:Dec!A1', '=Jan:Dec!A1');
+    isFixed('=SUM(Sales:Marketing!B3)', '=SUM(Sales:Marketing!B3)');
+    isFixed('=SUM(Jan:Mar!A1)', '=SUM(Jan:Mar!A1)');
+    isFixed('=fool:bard!B2:A1', '=fool:bard!A1:B2');
+    isFixed("='Jan:Dec'!A1", '=Jan:Dec!A1');
+    isFixed("='Sheet 1:Sheet 2'!A1", "='Sheet 1:Sheet 2'!A1");
+    isFixed("='Sheet1:Sheet 2'!A1", "='Sheet1:Sheet 2'!A1");
+    isFixed('=SUM(A:C!A1)', "=SUM('A:C'!A1)");
+    isFixed('=SUM(B:C!A1)', "=SUM('B:C'!A1)");
+    isFixed('=SUM(C:D!A1)', "=SUM('C:D'!A1)");
+    isFixed('=SUM(A:8!A1)', "=SUM('A:8'!A1)");
+    isFixed('=SUM(B:8!A1)', "=SUM('B:8'!A1)");
+    isFixed('=SUM(8:D!A1)', "=SUM('8:D'!A1)");
+    isFixed('=SUM(10:23!A1)', "=SUM('10:23'!A1)");
+    isFixed('=A:B!A1', '=A:B!A1');
+    isFixed('=SUM(AA:AB!A1)', '=SUM(AA:AB!A1)');
+    isFixed('=SUM(A:AB!A1)', '=SUM(A:AB!A1)');
+  });
+
+  test('a workbook qualifier changes nothing about the quoting', () => {
+    isFixed('=SUM([Book.xlsx]S1:S3!A1)', "=SUM('[Book.xlsx]S1:S3'!A1)");
+    isFixed("=SUM('[Book.xlsx]S1:S3'!A1)", "=SUM('[Book.xlsx]S1:S3'!A1)");
+    isFixed("=SUM('[Book.xlsx]Sheet1'!A1)", '=SUM([Book.xlsx]Sheet1!A1)');
+    isFixed("=SUM('[Book.xlsx]Sheet1:Sheet2'!A1)", '=SUM([Book.xlsx]Sheet1:Sheet2!A1)');
+    isFixed('=Jan:Dec!A1', '=Jan:Dec!A1', { xlsx: true });
+    isFixed('=[Book.xlsx]Sheet1:Sheet2!A1', '=[Book.xlsx]Sheet1:Sheet2!A1', { xlsx: true });
+    isFixed('=[1]Sheet1:Sheet2!A1', "='[1]Sheet1:Sheet2'!A1", { xlsx: true });
+    isFixed("=SUM('[1]S1:S3'!A1)", "=SUM('[1]S1:S3'!A1)", { xlsx: true });
+  });
+
+  test('the first end of a 3D reference may be quoted on its own', () => {
+    isFixed("='foo':bar!A1", '=foo:bar!A1');
+    isFixed("='foo bar':baz!A1", "='foo bar:baz'!A1");
+    isFixed("='[Book.xlsx]foo':bar!A1", '=[Book.xlsx]foo:bar!A1');
+    isFixed("='foo':bar!A1", '=foo:bar!A1', { xlsx: true });
+  });
+
+  test('a quote around the second end is the range operator, not a 3D reference', () => {
+    isFixed("=foo:'bar baz'!A1", "=foo:'bar baz'!A1");
+    // Excel fixes this to `=foo:'bar baz'!A1`
+    isFixed("='foo':'bar baz'!A1", "='foo:bar baz'!A1");
+    isFixed("=foo:'bar baz'!A1", "=foo:'bar baz'!A1", { xlsx: true });
+    isFixed("=Jan:'[1]Nope'!A1", "=Jan:'[1]Nope'!A1");
+  });
+
+  test('a digit-leading second sheet name goes to the range operator', () => {
+    isFixed('=SUM(Sheet1:1!A1)', "=SUM('Sheet1:1'!A1)");
+    isFixed('=SUM(X:1!A1)', "=SUM('X:1'!A1)");
+    isFixed("=SUM(Sheet1:'1'!A1)", "=SUM(Sheet1:'1'!A1)");
+    isFixed("=SUM(Jan:'2020plan'!A1)", "=SUM(Jan:'2020plan'!A1)");
+    isFixed("=SUM('1:5'!A1)", "=SUM('1:5'!A1)");
+    isFixed('=SUM([Book.xlsx]1:3!A1)', "=SUM('[Book.xlsx]1:3'!A1)");
+  });
+
+  test('a left side that is also a cell address wins over a 3D reference', () => {
+    isFixed('=SUM(A1:B2!C3)', "=SUM(A1:'B2'!C3)");
+    isFixed("=SUM('A1:B2'!C3)", "=SUM('A1:B2'!C3)");
+  });
+
+  test('leaves the sheet order of a 3D reference alone', () => {
+    // the range is normalized, the sheet range is not: fx does not know the workbook's sheet order
+    isFixed('=Sheet2:Sheet1!B2:A1', '=Sheet2:Sheet1!A1:B2');
+    isFixed('=Sheet2:Sheet1!B2:A1', '=Sheet2:Sheet1!A1:B2', { xlsx: true });
+  });
+
+  test('leaves cross-sheet ranges as two references', () => {
+    isFixed('=B!F2:B!F20', '=B!F2:B!F20');
+    isFixed('=Sheet1!A1:Sheet2!B2', '=Sheet1!A1:Sheet2!B2');
+  });
 });
 
 describe('fixRanges A1', () => {

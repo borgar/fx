@@ -157,9 +157,9 @@ describe('tokenize structured references', () => {
       ]);
 
       isTokens('[[#data]foo]', [
-        { type: UNKNOWN, value: '[' },
-        { type: REF_STRUCT, value: '[#data]' },
-        { type: UNKNOWN, value: 'foo]' }
+        { type: UNKNOWN, value: '[[' },
+        { type: OPERATOR, value: '#' },
+        { type: UNKNOWN, value: 'data]foo]' }
       ]);
     });
 

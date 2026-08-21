@@ -29,4 +29,4 @@ export { stringifyR1C1RefXlsx as stringifyR1C1Ref } from '../stringifyR1C1Ref.ts
 export { stringifyStructRefXlsx as stringifyStructRef } from '../stringifyStructRef.ts';
 
 export { tokenizeXlsx as tokenize } from '../tokenize.ts';
-
+export { mergeRefTokensXlsx as mergeRefTokens } from '../mergeRefTokens.ts';
