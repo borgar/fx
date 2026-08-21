@@ -11,7 +11,6 @@ const PERIOD = 46; // .
 // xlsx xml uses a variant of the syntax that has external references in
 // bracets. Any of: [1]Sheet1!A1, '[1]Sheet one'!A1, [1]!named
 export function lexContextQuoted (str: string, pos: number, options: { xlsx: boolean }): Token | undefined {
-  // console.log('lexContextQuoted', str.slice(pos, pos + 5));
   const c0 = str.charCodeAt(pos);
   let br1: number;
   let br2: number;
@@ -37,7 +36,7 @@ export function lexContextQuoted (str: string, pos: number, options: { xlsx: boo
       }
       else if (c === QUOT_SINGLE) {
         pos++;
-        // '' may occur is escaped '
+        // '' may occur as escaped '
         if (str.charCodeAt(pos) !== QUOT_SINGLE) {
           let valid = br1 == null && br2 == null;
           if (options.xlsx && (br1 === start + 1) && (br2 === pos - 2)) {
@@ -60,7 +59,6 @@ export function lexContextQuoted (str: string, pos: number, options: { xlsx: boo
 // xlsx xml uses a variant of the syntax that has external references in
 // bracets. Any of: [1]Sheet1!A1, '[1]Sheet one'!A1, [1]!named
 export function lexContextUnquoted (str: string, pos: number, options: { xlsx: boolean }): Token | undefined {
-  // console.log('lexContextUnquoted', str.slice(pos, pos + 5));
   const c0 = str.charCodeAt(pos);
   let br1: number;
   let br2: number;

@@ -27,13 +27,12 @@ function isA1Equal (expr: string, expected: any, opts?: IsA1EqualOptions) {
 
 describe('parse A1 references', () => {
   test('basic A1 references', () => {
-    // isA1Equal('A1', { range: { top: 0, left: 0, bottom: 0, right: 0 } });
+    isA1Equal('A1', { range: { top: 0, left: 0, bottom: 0, right: 0 } });
     isA1Equal('A1:B2', { range: { top: 0, left: 0, bottom: 1, right: 1 } });
-
-    // isA1Equal('$A1:B2', { range: { top: 0, left: 0, bottom: 1, right: 1, $left: true } });
-    // isA1Equal('A$1:B2', { range: { top: 0, left: 0, bottom: 1, right: 1, $top: true } });
-    // isA1Equal('A1:$B2', { range: { top: 0, left: 0, bottom: 1, right: 1, $right: true } });
-    // isA1Equal('A1:B$2', { range: { top: 0, left: 0, bottom: 1, right: 1, $bottom: true } });
+    isA1Equal('$A1:B2', { range: { top: 0, left: 0, bottom: 1, right: 1, $left: true } });
+    isA1Equal('A$1:B2', { range: { top: 0, left: 0, bottom: 1, right: 1, $top: true } });
+    isA1Equal('A1:$B2', { range: { top: 0, left: 0, bottom: 1, right: 1, $right: true } });
+    isA1Equal('A1:B$2', { range: { top: 0, left: 0, bottom: 1, right: 1, $bottom: true } });
   });
 
   test('column and row ranges', () => {

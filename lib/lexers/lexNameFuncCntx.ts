@@ -26,7 +26,7 @@ for (let c = OFFS; c < 180; c++) {
   const nN = /^[a-zA-Z0-9_.\\?\u00a1-\uffff]$/.test(char);
   const fN = /^[a-zA-Z0-9_.]$/.test(char);
   const cX = /^[a-zA-Z0-9_.¡¤§¨ª\u00ad¯-\uffff]$/.test(char);
-  const cN = cX; //  || c === COLON;
+  const cN = cX;
   ALLOWED[c - OFFS] = (
     (n0 ? OK_NAME_0 : 0) |
     (nN ? OK_NAME_N : 0) |
@@ -69,9 +69,7 @@ export function lexNameFuncCntx (
 
   // allow `[Book1.xlsx]` prefix + Unquoted
   if (s === BR_OPEN) {
-    const xx = lexContextUnquoted(str, pos, opts);
-    // console.log(str.slice(pos), xx);
-    return xx;
+    return lexContextUnquoted(str, pos, opts);
   }
 
   const a = s > 180 ? OK_HIGHCHAR : ALLOWED[s - OFFS];
@@ -113,7 +111,7 @@ export function lexNameFuncCntx (
         return { type: FUNCTION, value: str.slice(start, pos) };
       }
       // `foo:bar` is a valid expression of [ name RANGE name ]
-      else if (cntx && (c === EXCL /* || c === COLON*/)) {
+      else if (cntx && c === EXCL) {
         return { type: CONTEXT, value: str.slice(start, pos) };
       }
       return isValidName(str, s, start, pos, name)
