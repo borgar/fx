@@ -93,9 +93,8 @@ describe('R1C1 partial ranges', () => {
   const opts = { allowTernary: true };
 
   test('partials are not allowed by default', () => {
-    expect(parseR1C1Ref('R[-5]C[-2]:C[-2]')).toBe(undefined);
-    // isRCEqual('R[-5]C[-2]:C[-2]', undefined);
-    // isRCEqual('R1:R1C1', undefined);
+    isRCEqual('R[-5]C[-2]:C[-2]', undefined);
+    isRCEqual('R1:R1C1', undefined);
   });
 
   test('beam type partials', () => {
