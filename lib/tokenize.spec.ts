@@ -229,6 +229,83 @@ describe('lexer', () => {
         { type: OPERATOR, value: '}' }
       ]);
     });
+
+    test('sheet name with a non-ASCII letter after an ASCII start', () => {
+      // A name starting with an ASCII char but containing a high char (e.g. æ)
+      // must not split at that char (it did: `Foruds` + `ætninger`).
+      isTokens('=Forudsætninger!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: CONTEXT, value: 'Forudsætninger' },
+        { type: OPERATOR, value: '!' },
+        { type: REF_RANGE, value: 'A1' }
+      ], { mergeRefs: false });
+      isTokens('=Forudsætninger!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'Forudsætninger!A1' }
+      ]);
+      // Bare name (no sheet) is likewise a single token.
+      isTokens('=Forudsætninger', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_NAMED, value: 'Forudsætninger' }
+      ]);
+    });
+
+    test('sheet name starting with a non-ASCII letter', () => {
+      // Reading the mask off the name's first character let every character after a high one
+      // pass, swallowing the "!" and the range behind it into a single name token.
+      isTokens('=Ærið!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: CONTEXT, value: 'Ærið' },
+        { type: OPERATOR, value: '!' },
+        { type: REF_RANGE, value: 'A1' }
+      ], { mergeRefs: false });
+      isTokens('=Ærið!A1+1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'Ærið!A1' },
+        { type: OPERATOR, value: '+' },
+        { type: NUMBER, value: '1' }
+      ]);
+      // Both endpoints of a range are lexed on their own, rather than as one name.
+      isTokens('=Ærið:Ärger!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_NAMED, value: 'Ærið' },
+        { type: OPERATOR, value: ':' },
+        { type: CONTEXT, value: 'Ärger' },
+        { type: OPERATOR, value: '!' },
+        { type: REF_RANGE, value: 'A1' }
+      ], { mergeRefs: false });
+    });
+
+    test('sheet name using the character just past the character table', () => {
+      // U+00B4 sits one past ALLOWED's last entry, so it has to be taken by the high-character
+      // branch. It fell outside both, and so read as no mask at all, as a first character ...
+      isTokens('=´!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: CONTEXT, value: '´' },
+        { type: OPERATOR, value: '!' },
+        { type: REF_RANGE, value: 'A1' }
+      ], { mergeRefs: false });
+      // ... and as a later one, where it ended the token.
+      isTokens('=a´!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: CONTEXT, value: 'a´' },
+        { type: OPERATOR, value: '!' },
+        { type: REF_RANGE, value: 'A1' }
+      ], { mergeRefs: false });
+      // The characters bracketing it: U+00B3 is the table's last entry, U+00B5 is past it.
+      isTokens('=a³!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: CONTEXT, value: 'a³' },
+        { type: OPERATOR, value: '!' },
+        { type: REF_RANGE, value: 'A1' }
+      ], { mergeRefs: false });
+      isTokens('=aµ!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: CONTEXT, value: 'aµ' },
+        { type: OPERATOR, value: '!' },
+        { type: REF_RANGE, value: 'A1' }
+      ], { mergeRefs: false });
+    });
   });
 
   describe('functions', () => {
@@ -1215,6 +1292,30 @@ describe('lexer', () => {
       isTokens('=[filename]Sheetname!A1', [
         { type: FX_PREFIX, value: '=' },
         { type: CONTEXT, value: '[filename]Sheetname' },
+        { type: OPERATOR, value: '!' },
+        { type: REF_RANGE, value: 'A1' }
+      ], { mergeRefs: false });
+
+      isTokens('=[æði]æði!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: '[æði]æði!A1' }
+      ]);
+
+      isTokens('=[æði]æði!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: CONTEXT, value: '[æði]æði' },
+        { type: OPERATOR, value: '!' },
+        { type: REF_RANGE, value: 'A1' }
+      ], { mergeRefs: false });
+
+      isTokens('=[fræði]fræði!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: '[fræði]fræði!A1' }
+      ]);
+
+      isTokens('=[fræði]fræði!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: CONTEXT, value: '[fræði]fræði' },
         { type: OPERATOR, value: '!' },
         { type: REF_RANGE, value: 'A1' }
       ], { mergeRefs: false });

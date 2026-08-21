@@ -54,7 +54,7 @@ function isValidName (str: string, s: number, start: number, pos: number, name: 
 }
 
 export function isIdentityChar (s: number) {
-  const a = s > 180 ? OK_HIGHCHAR : ALLOWED[s - OFFS];
+  const a = s >= 180 ? OK_HIGHCHAR : ALLOWED[s - OFFS];
   return (a & OK_0);
 }
 
@@ -72,7 +72,7 @@ export function lexNameFuncCntx (
     return lexContextUnquoted(str, pos, opts);
   }
 
-  const a = s > 180 ? OK_HIGHCHAR : ALLOWED[s - OFFS];
+  const a = s >= 180 ? OK_HIGHCHAR : ALLOWED[s - OFFS];
   // name: [a-zA-Z_\\\u00a1-\uffff]
   // func: [a-zA-Z_]
   // cntx: [a-zA-Z_0-9.¡¤§¨ª\u00ad¯-\uffff]
@@ -91,7 +91,7 @@ export function lexNameFuncCntx (
   let c: number;
   do {
     c = str.charCodeAt(pos);
-    const a = s > 180 ? OK_HIGHCHAR : ALLOWED[c - OFFS] ?? 0;
+    const a = c >= 180 ? OK_HIGHCHAR : ALLOWED[c - OFFS] ?? 0;
     if (a & OK_N) {
       // name: [a-zA-Z_0-9.\\?\u00a1-\uffff]
       // func: [a-zA-Z_0-9.]
