@@ -28,7 +28,7 @@ type RefParserPart = (
   data: Partial<RefParseDataCtx & RefParseDataXls>,
   xlsx: boolean,
   r1c1: boolean,
-  tokens: Token[],
+  tokens: Token[]
 ) => 1 | undefined;
 
 type ParseRefOptions = {
@@ -313,7 +313,7 @@ export function parseRefXlsx (ref: string, opts: ParseRefOptions = {}): RefParse
       };
       const valid = run.every((parse, i) => parse(tokens[i], data, true, options.r1c1, tokens));
       if (valid) {
-        return data as any;
+        return data;
       }
     }
   }

@@ -64,14 +64,14 @@ export function parseR1C1Ref (
   const d = parseRefCtx(refString, { allowNamed, allowTernary, r1c1: true });
   if (d) {
     if (d.name) {
-      return { context: d.context, name: d.name } as ReferenceName;
+      return { context: d.context, name: d.name };
     }
     else if (d.r0) {
       const range = d.r1
         ? parseR1C1Range(d.r0 + d.operator + d.r1)
         : parseR1C1Range(d.r0);
       if (range) {
-        return { context: d.context, range } as ReferenceR1C1;
+        return { context: d.context, range };
       }
     }
   }
@@ -113,14 +113,14 @@ export function parseR1C1RefXlsx (
   const d = parseRefXlsx(refString, { allowNamed, allowTernary, r1c1: true });
   if (d) {
     if (d.name && allowNamed) {
-      return { workbookName: d.workbookName, sheetName: d.sheetName, name: d.name } as ReferenceNameXlsx;
+      return { workbookName: d.workbookName, sheetName: d.sheetName, name: d.name };
     }
     else if (d.r0) {
       const range = d.r1
         ? parseR1C1Range(d.r0 + d.operator + d.r1)
         : parseR1C1Range(d.r0);
       if (range) {
-        return { workbookName: (d).workbookName, sheetName: (d).sheetName, range } as ReferenceR1C1Xlsx;
+        return { workbookName: (d).workbookName, sheetName: (d).sheetName, range };
       }
     }
   }

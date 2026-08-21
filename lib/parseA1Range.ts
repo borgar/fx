@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-assignment */
 import { MAX_COLS, MAX_ROWS } from './constants.ts';
 import type { RangeA1 } from './types.ts';
 
