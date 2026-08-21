@@ -113,12 +113,18 @@ describe('longform serialize (in xlsx mode)', () => {
       table: 'Table2',
       columns: [ 'col1' ],
       sections: [ 'this row' ]
-    }, { thisRow: true })).toBe('Table2[[#This row],[col1]]');
+    }, { thisRow: true })).toBe('Table2[[#This Row],[col1]]');
 
     expect(stringifyStructRef({
       table: 'Table2',
       columns: [ 'col1' ],
       sections: [ 'this row' ]
-    }, { thisRow: true })).toBe('Table2[[#This row],[col1]]');
+    }, { thisRow: true })).toBe('Table2[[#This Row],[col1]]');
+
+    // Keyword-only this-row (no column) also title-cases both words.
+    expect(stringifyStructRef({
+      table: 'Table2',
+      sections: [ 'this row' ]
+    }, { thisRow: true })).toBe('Table2[#This Row]');
   });
 });
