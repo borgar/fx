@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest';
-import { CONTEXT, FUNCTION, FX_PREFIX, OPERATOR, REF_RANGE, REF_BEAM, REF_NAMED, REF_TERNARY, UNKNOWN } from './constants.ts';
+import { CONTEXT, CONTEXT_QUOTE, FUNCTION, FX_PREFIX, OPERATOR, REF_RANGE, REF_BEAM, REF_NAMED, REF_TERNARY, UNKNOWN } from './constants.ts';
 import { mergeRefTokens } from './mergeRefTokens.ts';
 import { tokenize } from './tokenize.ts';
 
@@ -137,5 +137,20 @@ describe('mergeRefTokens', () => {
         { type: REF_NAMED, value: '[path]prefix!foo' }
       ]);
     });
+  });
+
+  test('declines to merge an empty quoted sheet prefix instead of throwing', () => {
+    // splitPrefix('') has no parts, so there is no name to reference; the run
+    // is left unmerged, as other invalid prefixes are.
+    expect(tokenize("''!A1")).toEqual([
+      { type: CONTEXT_QUOTE, value: "''" },
+      { type: OPERATOR, value: '!' },
+      { type: REF_RANGE, value: 'A1' }
+    ]);
+    expect(tokenize("''!U")).toEqual([
+      { type: CONTEXT_QUOTE, value: "''" },
+      { type: OPERATOR, value: '!' },
+      { type: REF_NAMED, value: 'U' }
+    ]);
   });
 });
