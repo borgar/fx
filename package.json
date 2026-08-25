@@ -26,7 +26,7 @@
     "build": "tsup",
     "build:all": "npm run docs && npm run build",
     "docs": "typedoc && concat-md tempdocs > docs/API.md && rm -rf tempdocs",
-    "release": "git diff --exit-code && tsup && npm publish && V=$(jq -r .version package.json) && git tag -a $V -m $V && git push origin $V && gh release create $V --generate-notes"
+    "release": "git diff --exit-code && PACKAGE_VERSION=$(jq -r .version package.json) && echo \"About to tag and push v$PACKAGE_VERSION. Continue? (y/n)\" && read -r REPLY && [ \"$REPLY\" = \"y\" ] && git tag --annotate v$PACKAGE_VERSION --message=v$PACKAGE_VERSION && git push origin v$PACKAGE_VERSION"
   },
   "tsup": {
     "entry": [
