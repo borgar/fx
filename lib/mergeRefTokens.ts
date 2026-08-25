@@ -142,6 +142,10 @@ const matcher = (
       // quoted prefix
       else if (token.type === CONTEXT_QUOTE) {
         const parts = splitPrefix(unquotePrefix(token.value));
+        // an empty quoted prefix ('') names nothing that can be referenced
+        if (!parts.length) {
+          break runloop;
+        }
         if (!parts.at(-1).braced && parts.at(-1)?.value.includes(':')) {
           cols++;
           if (cols >= 2) {
