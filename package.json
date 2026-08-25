@@ -1,6 +1,6 @@
 {
   "name": "@borgar/fx",
-  "version": "5.1.0",
+  "version": "5.1.1",
   "description": "Utilities for working with Excel formulas",
   "type": "module",
   "exports": {
