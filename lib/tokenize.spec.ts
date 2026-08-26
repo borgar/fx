@@ -551,6 +551,13 @@ describe('lexer', () => {
       ]);
     });
 
+    test('a decimal with no integer part still yields to a following : or !', () => {
+      // the tail guard applies to the new form as to any number
+      for (const expr of [ '=.5:A1', '=.5!A1' ]) {
+        expect(tokenize(expr).filter(t => t.type === NUMBER)).toEqual([]);
+      }
+    });
+
     test('decimals with no fraction part', () => {
       isTokens('=1.*2', [
         { type: FX_PREFIX, value: '=' },
