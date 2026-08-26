@@ -511,6 +511,87 @@ describe('lexer', () => {
       ]);
     });
 
+    test('decimals with no integer part', () => {
+      isTokens('=.5', [
+        { type: FX_PREFIX, value: '=' },
+        { type: NUMBER, value: '.5' }
+      ]);
+      isTokens('=A1*.95', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'A1' },
+        { type: OPERATOR, value: '*' },
+        { type: NUMBER, value: '.95' }
+      ]);
+      isTokens('=.5E-1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: NUMBER, value: '.5E-1' }
+      ]);
+      isTokensNeg('=-.5', [
+        { type: FX_PREFIX, value: '=' },
+        { type: NUMBER, value: '-.5' }
+      ]);
+      // unary minus after a binary operator
+      isTokensNeg('=A1*-.95', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'A1' },
+        { type: OPERATOR, value: '*' },
+        { type: NUMBER, value: '-.95' }
+      ]);
+      isTokens('=A1*-.95', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'A1' },
+        { type: OPERATOR, value: '*' },
+        { type: OPERATOR, value: '-' },
+        { type: NUMBER, value: '.95' }
+      ]);
+      // a lone period is not a number
+      isTokens('=.', [
+        { type: FX_PREFIX, value: '=' },
+        { type: UNKNOWN, value: '.' }
+      ]);
+    });
+
+    test('decimals with no fraction part', () => {
+      isTokens('=1.*2', [
+        { type: FX_PREFIX, value: '=' },
+        { type: NUMBER, value: '1.' },
+        { type: OPERATOR, value: '*' },
+        { type: NUMBER, value: '2' }
+      ]);
+      isTokens('=(1.)', [
+        { type: FX_PREFIX, value: '=' },
+        { type: OPERATOR, value: '(' },
+        { type: NUMBER, value: '1.' },
+        { type: OPERATOR, value: ')' }
+      ]);
+      isTokens('=1.E5', [
+        { type: FX_PREFIX, value: '=' },
+        { type: NUMBER, value: '1.E5' }
+      ]);
+      isTokens('=1.e-2', [
+        { type: FX_PREFIX, value: '=' },
+        { type: NUMBER, value: '1.e-2' }
+      ]);
+      // Excel reads `=1.` as 1, at the end of the input like anywhere else
+      isTokens('=1.', [
+        { type: FX_PREFIX, value: '=' },
+        { type: NUMBER, value: '1.' }
+      ]);
+    });
+
+    test('dangling exponents are not numbers', () => {
+      // Excel refuses `=1E` and `=1.5e+` at entry
+      isTokens('=1E', [
+        { type: FX_PREFIX, value: '=' },
+        { type: UNKNOWN, value: '1E' }
+      ]);
+      isTokens('=1.5e+', [
+        { type: FX_PREFIX, value: '=' },
+        { type: UNKNOWN, value: '1.5e' },
+        { type: OPERATOR, value: '+' }
+      ]);
+    });
+
     test('scientific notation', () => {
       isTokens('=1E-1', [
         { type: FX_PREFIX, value: '=' },

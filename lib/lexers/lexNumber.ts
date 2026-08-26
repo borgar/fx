@@ -6,33 +6,34 @@ const COLON = 58; // :
 
 function advDigits (str: string, pos: number): number {
   const start = pos;
-  do {
+  while (pos < str.length) {
     const c = str.charCodeAt(pos);
     if (c < 48 || c > 57) { // 0-9
       break;
     }
     pos++;
   }
-  while (pos < str.length);
   return pos - start;
 }
 
-// \d+(\.\d+)?(?:[eE][+-]?\d+)?
+// (?:\d+(\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?
 export function lexNumber (str: string, pos: number): Token | undefined {
   const start = pos;
 
-  // integer
+  // integer part, optional when there is a fraction part (.5)
   const lead = advDigits(str, pos);
-  if (!lead) { return; }
   pos += lead;
 
-  // optional fraction part
+  // fraction part, optional when there is an integer part (5.)
   const c0 = str.charCodeAt(pos);
+  let frac = 0;
   if (c0 === 46) { // .
     pos++;
-    const frac = advDigits(str, pos);
-    if (!frac) { return; }
+    frac = advDigits(str, pos);
     pos += frac;
+  }
+  if (!frac && !lead) {
+    return;
   }
   // optional exponent part
   const c1 = str.charCodeAt(pos);
