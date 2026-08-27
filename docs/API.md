@@ -2385,6 +2385,7 @@ See [Prefixes.md](./Prefixes.md) for documentation on how scopes work in Fx.
 - [addTokenMeta](#fxxlsxfunctionsaddtokenmetamd)
 - [fixFormulaRanges](#fxxlsxfunctionsfixformularangesmd)
 - [fixTokenRanges](#fxxlsxfunctionsfixtokenrangesmd)
+- [mergeRefTokens](#fxxlsxfunctionsmergereftokensmd)
 - [parseA1Ref](#fxxlsxfunctionsparsea1refmd)
 - [parseR1C1Ref](#fxxlsxfunctionsparser1c1refmd)
 - [parseStructRef](#fxxlsxfunctionsparsestructrefmd)
@@ -2602,12 +2603,6 @@ Re-exports [MAX_COLS](#fxvariablesmax_colsmd)
 ### MAX\_ROWS
 
 Re-exports [MAX_ROWS](#fxvariablesmax_rowsmd)
-
-***
-
-### mergeRefTokens
-
-Re-exports [mergeRefTokens](#fxfunctionsmergereftokensmd)
 
 ***
 
@@ -2887,7 +2882,7 @@ All will be tagged with `.error` (boolean `true`).
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
 | `tokenlist` | [`Token`](#fxtype-aliasestokenmd)[] | An array of tokens (from `tokenize()`) |
-| `context?` | \{ `sheetName?`: `string`; `workbookName?`: `string`; \} | A contest used to match `A1` to `Sheet1!A1`. |
+| `context?` | \{ `sheetName?`: `string`; `workbookName?`: `string`; \} | A context used to match `A1` to `Sheet1!A1`. |
 | `context.sheetName?` | `string` | An implied sheet name ('Sheet1') |
 | `context.workbookName?` | `string` | An implied workbook name ('report.xlsx') |
 
@@ -2939,7 +2934,8 @@ A formula string with ranges adjusted
 function fixTokenRanges(tokens: Token[], options?: OptsFixRanges): Token[];
 ```
 
-Normalizes A1 style ranges and structured references in a list of tokens.
+Normalizes A1 style ranges and structured references in a list of tokens and
+returns a new array of tokens with values and position-data updated.
 
 It ensures that that the top and left coordinates of an A1 range are on the
 left-hand side of a colon operator:
@@ -2968,7 +2964,7 @@ B2:2 → B2:XFD2
 Structured ranges are normalized to have consistent order and capitalization
 of sections as well as removing redundant ones.
 
-Returns a new array of tokens with values and position data updated.
+Unlike Excel, _fx_ does not normalize sheet or workbook names of references.
 
 ## Parameters
 
@@ -2986,6 +2982,33 @@ A token list with ranges adjusted.
 ## See
 
 [OptsFixRanges](#fxtype-aliasesoptsfixrangesmd)
+
+
+<a name="fxxlsxfunctionsmergereftokensmd"></a>
+
+# mergeRefTokens()
+
+```ts
+function mergeRefTokens(tokenlist: Token[]): Token[];
+```
+
+Merges context with reference tokens as possible in a list of tokens.
+
+When given a tokenlist, this function returns a new list with ranges returned
+as whole references (`Sheet1!A1:B2`) rather than separate tokens for each
+part: (`Sheet1`,`!`,`A1`,`:`,`B2`).
+
+## Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `tokenlist` | [`Token`](#fxtype-aliasestokenmd)[] | An array of tokens. |
+
+## Returns
+
+[`Token`](#fxtype-aliasestokenmd)[]
+
+A new list of tokens with range parts merged.
 
 
 <a name="fxxlsxfunctionsparsea1refmd"></a>
