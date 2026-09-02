@@ -97,6 +97,10 @@ describe('fixRanges prefixes', () => {
     isFixed('=A:B!A1', '=A:B!A1');
     isFixed('=SUM(AA:AB!A1)', '=SUM(AA:AB!A1)');
     isFixed('=SUM(A:AB!A1)', '=SUM(A:AB!A1)');
+    // a name that only opens with a column ID is stored unquoted
+    isFixed('=SUM(Jan:Bar_Baz!B2)', '=SUM(Jan:Bar_Baz!B2)');
+    isFixed("=SUM('Jan:Bar_Baz'!B2)", '=SUM(Jan:Bar_Baz!B2)');
+    isFixed('=SUM(Jan:A0U!B2)', '=SUM(Jan:A0U!B2)');
   });
 
   test('a workbook qualifier changes nothing about the quoting', () => {

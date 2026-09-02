@@ -1324,6 +1324,33 @@ describe('lexer', () => {
       ]);
     });
 
+    test('an end sheet name that only opens with a column ID', () => {
+      // Jan:Bar spells a column range, but the name runs on to the !
+      isTokens('=SUM(Jan:Bar_Baz!B2)', [
+        { type: FX_PREFIX, value: '=' },
+        { type: FUNCTION, value: 'SUM' },
+        { type: OPERATOR, value: '(' },
+        { type: REF_RANGE, value: 'Jan:Bar_Baz!B2' },
+        { type: OPERATOR, value: ')' }
+      ]);
+      for (const name of [ 'A_', 'A0U', 'C0C', 'AÄl', 'Mär' ]) {
+        isTokens(`=Jan:${name}!B2`, [
+          { type: FX_PREFIX, value: '=' },
+          { type: REF_RANGE, value: `Jan:${name}!B2` }
+        ]);
+      }
+      // after a range colon it is still that sheet range, not the column range A1:Jan
+      isTokens('=SUM(A1:Jan:Bar_Baz!B2)', [
+        { type: FX_PREFIX, value: '=' },
+        { type: FUNCTION, value: 'SUM' },
+        { type: OPERATOR, value: '(' },
+        { type: REF_RANGE, value: 'A1' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_RANGE, value: 'Jan:Bar_Baz!B2' },
+        { type: OPERATOR, value: ')' }
+      ]);
+    });
+
     test('quoted sheet names', () => {
       isTokens("='Sheets'' name'!A1:B2", [
         { type: FX_PREFIX, value: '=' },
