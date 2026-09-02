@@ -169,17 +169,28 @@ describe('parse A1 references', () => {
   });
 
   test('a period/digit-leading sheet names', () => {
-    // These aren't strictly legal, as sheets that begin with digits or periods must
-    // be quoted. But Excel will parse and convert them to quoted, so we do to.
+    // A sheet name that begins with a digit must be quoted. At the right end of an unquoted pair
+    // Excel quotes that name alone, which leaves the colon to the range operator.
     const range = { top: 0, left: 0, bottom: 0, right: 0 };
-    isA1Equal('Sheet1:1!A1', { context: [ 'Sheet1:1' ], range });
-    isA1Equal('Jan:2020plan!A1', { context: [ 'Jan:2020plan' ], range });
-    isA1Equal('X:1!A1', { context: [ 'X:1' ], range });
-    isA1Equal('[Book.xlsx]Alpha:3!A1', { context: [ 'Book.xlsx', 'Alpha:3' ], range });
+    // Unquoted, a digit-led second name makes the colon a range operator rather than a sheet range
+    // marker, so these are not a single reference.
+    expect(parseA1Ref('Sheet1:1!A1')).toBe(undefined);
+    expect(parseA1Ref('Jan:2020plan!A1')).toBe(undefined);
+    expect(parseA1Ref('X:1!A1')).toBe(undefined);
+    expect(parseA1Ref('[Book.xlsx]Alpha:3!A1')).toBe(undefined);
+    // A number cannot be the left operand of the range operator, so these are sheet ranges.
     isA1Equal('1:5!A1', { context: [ '1:5' ], range });
     isA1Equal('12:15!A1', { context: [ '12:15' ], range });
     isA1Equal('1:2020plan!A1', { context: [ '1:2020plan' ], range });
     isA1Equal('[Book.xlsx]1:3!A1', { context: [ 'Book.xlsx', '1:3' ], range });
+    // the same rule in the xlsx variant
+    isA1Equal('Sheet1:1!A1', undefined, { xlsx: true });
+    isA1Equal('Jan:2020plan!A1', undefined, { xlsx: true });
+    isA1Equal('[1]Alpha:3!A1', undefined, { xlsx: true });
+    isA1Equal('1:5!A1', { sheetName: '1:5', range }, { xlsx: true });
+    isA1Equal('[1]1:3!A1', { workbookName: '1', sheetName: '1:3', range }, { xlsx: true });
+    // Quoting the whole prefix makes a sheet range whatever the right name is.
+    isA1Equal("'Sheet1:1'!A1", { context: [ 'Sheet1:1' ], range });
   });
 
   test('a left side that is also a cell address wins over a sheet range', () => {
