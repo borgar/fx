@@ -1656,6 +1656,22 @@ describe('lexer', () => {
       isTokens('truesheet!A1', [
         { type: REF_RANGE, value: 'truesheet!A1' }
       ]);
+      // after a range colon it is a sheet name: Excel reads Alpha:TRUE!A1 as the sheet range Alpha:TRUE
+      isTokens('=Alpha:true!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'Alpha:true!A1' }
+      ]);
+      isTokens('=[Book1]Alpha:TRUE!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: '[Book1]Alpha:TRUE!A1' }
+      ]);
+      // as the first name Excel refuses it, and it stays a boolean
+      isTokens('=TRUE:Gamma!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: BOOLEAN, value: 'TRUE' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_RANGE, value: 'Gamma!A1' }
+      ]);
       isTokens('true()', [
         { type: FUNCTION, value: 'true' },
         { type: OPERATOR, value: '(' },
@@ -1683,6 +1699,16 @@ describe('lexer', () => {
       ]);
       isTokens('falsesheet!A1', [
         { type: REF_RANGE, value: 'falsesheet!A1' }
+      ]);
+      isTokens('=Alpha:false!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'Alpha:false!A1' }
+      ]);
+      isTokens('=FALSE:Gamma!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: BOOLEAN, value: 'FALSE' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_RANGE, value: 'Gamma!A1' }
       ]);
       isTokens('false()', [
         { type: FUNCTION, value: 'false' },
