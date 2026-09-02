@@ -73,6 +73,7 @@ describe('fixRanges prefixes', () => {
     isFixed('=[Foo]Ab12!B2', "='[Foo]Ab12'!B2");
     isFixed('=ABC123!B2', "='ABC123'!B2");
     isFixed('=abc123!B2', "='abc123'!B2");
+    isFixed('=2020plan!B2', "='2020plan'!B2");
     isFixed('=C!B2', "='C'!B2");
     isFixed('=R!B2', "='R'!B2");
     isFixed('=RC!B2', "='RC'!B2");
@@ -94,6 +95,7 @@ describe('fixRanges prefixes', () => {
     isFixed('=SUM(B:8!A1)', "=SUM('B:8'!A1)");
     isFixed('=SUM(8:D!A1)', "=SUM('8:D'!A1)");
     isFixed('=SUM(10:23!A1)', "=SUM('10:23'!A1)");
+    isFixed('=SUM(2020plan:Mar!A1)', "=SUM('2020plan:Mar'!A1)");
     isFixed('=A:B!A1', '=A:B!A1');
     isFixed('=SUM(AA:AB!A1)', '=SUM(AA:AB!A1)');
     isFixed('=SUM(A:AB!A1)', '=SUM(A:AB!A1)');
