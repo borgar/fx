@@ -7,6 +7,18 @@ const BR_OPEN = 91; // [
 const BR_CLOSE = 93; // ]
 const COLON = 58;
 
+// In an unquoted pair of sheet names, a digit-led right name makes the colon a range operator
+// rather than marking a sheet range, unless the left name is a number, which cannot be the range
+// operator's left operand.
+const reDigitLed = /^\d/;
+const reAllDigits = /^\d+$/;
+
+// The sheet name in an unquoted prefix: what follows its [workbook] and any path before that.
+function sheetNameOf (unquotedPrefix: string): string {
+  const close = unquotedPrefix.lastIndexOf(']');
+  return close === -1 ? unquotedPrefix : unquotedPrefix.slice(close + 1);
+}
+
 const validRunsMerge = [
   // A1 | A1:B2 | A:B | 1:2 | A1:B
   [ REF_CELL, ':', REF_CELL ],
@@ -93,6 +105,7 @@ const matcher = (
   let cols = 0;
   let brackets = 0;
   let inPrefix = false;
+  let rightSheetName: string | undefined;
   // the longest run so far that ended on a terminal: a longer run may turn out
   // to be invalid, in which case we fall back to the best valid subset run
   let best = 0;
@@ -109,6 +122,24 @@ const matcher = (
     const value = token.value;
     if (inPrefix) {
       const firstChar = value.charCodeAt(0);
+      if (
+        firstChar !== COLON &&
+        (token.type === CONTEXT || token.type === CONTEXT_QUOTE || token.type === REF_NAMED)
+      ) {
+        const name = sheetNameOf(token.type === CONTEXT_QUOTE ? unquotePrefix(value) : value);
+        if (cols === 0) {
+          rightSheetName = name;
+        }
+        // This is entered only if an earlier token set cols to 1, so never for a quoted sheet span
+        else if (
+          cols === 1 &&
+          rightSheetName != null &&
+          reDigitLed.test(rightSheetName) &&
+          !reAllDigits.test(name)
+        ) {
+          break runloop;
+        }
+      }
       if (firstChar === COLON) {
         cols++;
         if (cols >= 2 || brackets) { break runloop; }

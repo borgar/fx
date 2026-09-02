@@ -210,6 +210,13 @@ const pExtendedContext: RefParserPart = (t, data, xlsx, r1c1, tokens) => {
     const d: Partial<RefParseDataCtx & RefParseDataXls> = {};
     const value = type === CONTEXT_QUOTE ? unquotePrefix(t.value) : t.value;
     splitContext(value, d, xlsx);
+    // A digit-led second sheet name makes the colon a range operator, not a sheet range marker,
+    // unless the first name is an integer, which cannot be the range operator's left operand.
+    const second = xlsx ? d.sheetName : d.context?.[0];
+    const first = xlsx ? data.sheetName : data.context?.at(-1);
+    if (second && /^\d/.test(second) && !/^\d+$/.test(first ?? '')) {
+      return;
+    }
     if (xlsx && d.sheetName && !d.workbookName) {
       data.sheetName += ':' + d.sheetName;
       return 1;

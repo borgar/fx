@@ -90,8 +90,6 @@ describe('fixRanges prefixes', () => {
     isFixed('=SUM(A:C!A1)', "=SUM('A:C'!A1)");
     isFixed('=SUM(B:C!A1)', "=SUM('B:C'!A1)");
     isFixed('=SUM(C:D!A1)', "=SUM('C:D'!A1)");
-    isFixed('=SUM(A:8!A1)', "=SUM('A:8'!A1)");
-    isFixed('=SUM(B:8!A1)', "=SUM('B:8'!A1)");
     isFixed('=SUM(8:D!A1)', "=SUM('8:D'!A1)");
     isFixed('=SUM(10:23!A1)', "=SUM('10:23'!A1)");
     isFixed('=A:B!A1', '=A:B!A1');
@@ -126,12 +124,27 @@ describe('fixRanges prefixes', () => {
   });
 
   test('a digit-leading second sheet name goes to the range operator', () => {
-    isFixed('=SUM(Sheet1:1!A1)', "=SUM('Sheet1:1'!A1)");
-    isFixed('=SUM(X:1!A1)', "=SUM('X:1'!A1)");
+    // Excel fixes Sheet1:1!A1 by quoting the RHS, choosing the latter of these interpretations:
+    // - 'Sheet1:1'!A1 is a 3-D reference spanning the sheets Sheet1 to 1
+    // - Sheet1:'1'!A1 is a range from (misleadingly named) _defined name_ Sheet1 to cell '1'!A1
+    isFixed('=SUM(Sheet1:1!A1)', "=SUM(Sheet1:'1'!A1)");
+    isFixed('=SUM(X:1!A1)', "=SUM(X:'1'!A1)");
     isFixed("=SUM(Sheet1:'1'!A1)", "=SUM(Sheet1:'1'!A1)");
     isFixed("=SUM(Jan:'2020plan'!A1)", "=SUM(Jan:'2020plan'!A1)");
+    isFixed('=SUM([Book.xlsx]Alpha:3!A1)', "=SUM([Book.xlsx]Alpha:'3'!A1)");
+    // A number cannot be the left operand of the range operator, so these are sheet ranges.
+    isFixed('=SUM(1:5!A1)', "=SUM('1:5'!A1)");
     isFixed("=SUM('1:5'!A1)", "=SUM('1:5'!A1)");
     isFixed('=SUM([Book.xlsx]1:3!A1)', "=SUM('[Book.xlsx]1:3'!A1)");
+    isFixed('=SUM(Sheet1:1!A1)', "=SUM(Sheet1:'1'!A1)", { xlsx: true });
+    isFixed('=SUM(1:5!A1)', "=SUM('1:5'!A1)", { xlsx: true });
+    // Quoting the whole prefix makes a sheet range, regardless of what the right name looks like.
+    isFixed("=SUM('Sheet1:1'!A1)", "=SUM('Sheet1:1'!A1)");
+  });
+
+  test.fails('a digit-leading second sheet name goes to the range operator even when not all digits', () => {
+    // Fails today because 2020plan is lexed as the number 2020 followed by the name plan.
+    isFixed('=SUM(Jan:2020plan!A1)', "=SUM(Jan:'2020plan'!A1)");
   });
 
   test('a left side that is also a cell address wins over a 3D reference', () => {
