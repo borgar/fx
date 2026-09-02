@@ -6,8 +6,10 @@ import type {
   ReferenceStructXlsx,
   ReferenceR1C1Xlsx,
   ReferenceName,
-  ReferenceNameXlsx
+  ReferenceNameXlsx,
+  Token
 } from './types.ts';
+import { OPERATOR, WHITESPACE, NEWLINE } from './constants.ts';
 
 const CHAR_PERIOD = 46;
 const CHAR_0 = 48;
@@ -18,6 +20,20 @@ const reBannedChars = /[^0-9A-Za-z._¡¤§¨ª\u00ad¯-\uffff]/;
 const reIsRangelike = /^(R\d{0,7}|C\d{0,5}|R\d{0,7}C\d{0,5}|[A-Z]{1,3}\d{1,7})$/i;
 const reIsBoolean = /^(TRUE|FALSE)$/i;
 const reIsLinkIndex = /^\d+$/;
+
+const rangeOperators = new Set([ ':', '.:', ':.', '.:.' ]);
+
+// Is the token at `index` the right operand of a range operator? Looks back past any
+// whitespace/newline, since Excel allows spacing around the range colon
+// (`A1 : Jan:Mar!B2`).
+export function followsRangeOperator (tokens: Token[], index: number): boolean {
+  for (let i = index - 1; i >= 0; i--) {
+    const t = tokens[i];
+    if (t.type === WHITESPACE || t.type === NEWLINE) { continue; }
+    return t.type === OPERATOR && rangeOperators.has(t.value);
+  }
+  return false;
+}
 
 export function needQuotes (scope: string, blockSheetRanges: boolean, bracketed: boolean, checkColon = false): number {
   if (scope) {

@@ -86,3 +86,9 @@ parseA1Ref('[1]!A1', { xlsx: true });
 Inversely, when serializing a reference object, _Fx_ expects the `workbookName` and `sheetName` properties to dictate how to compose the prefix.
 
 When the sheet scope is a "3D" sheet range (`Sheet1:Sheet2!A1`) the scope will not be split but emitted as it was found (`{ sheetName: 'Sheet1:Sheet2' }`).
+
+## The right side of a colon
+
+The quotes after a colon decide what the colon means. `Q1:'Sales'!A1` is the name `Q1` joined to the reference `'Sales'!A1`; `Sales` is quoted even though the name itself needs no quotes, to set it apart from `Q1:Sales!A1`, the 3-D reference over the sheets `Q1` to `Sales`. Excel stores that position quoted whatever the name, `Sheet1!A1:Sheet2!B2` as `Sheet1!A1:'Sheet2'!B2`, even where the left side could not begin a sheet range.
+
+The two _Fx_ functions treat it differently. `fixRanges` keeps the quotes a prefix has in that position and adds none, so it never rewrites a reference into one naming different sheets. `translateToA1` quotes every such prefix, as Excel's serialization does.

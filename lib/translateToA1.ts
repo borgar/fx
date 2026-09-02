@@ -7,8 +7,7 @@ import { parseA1Range } from './parseA1Range.ts';
 import type { RangeA1, ReferenceR1C1Xlsx, Token } from './types.ts';
 import { stringifyTokens } from './stringifyTokens.ts';
 import { cloneToken } from './cloneToken.ts';
-import { OPERATOR } from './constants.ts';
-import { quotePrefix } from './stringifyPrefix.ts';
+import { quotePrefix, followsRangeOperator } from './stringifyPrefix.ts';
 
 // Turn on the most permissive setting when parsing ranges so we don't have to think about
 // this option. We already know that range tokens are legal, so we're not going to encounter
@@ -168,24 +167,32 @@ export function translateTokensToA1 (
 
   // Excel unconditionally quotes the sheet prefix on the RHS of a range
   // operator in XLSX files: Sheet1!A1:Sheet1!B2 → Sheet1!A1:'Sheet1'!B2.
-  // Apply the same quoting to match Excel's serialization.
-  for (let i = 2; i < outTokens.length; i++) {
-    const tok = outTokens[i];
-    if (!isRange(tok)) {
-      continue;
+  // Apply the same quoting to match Excel's serialization. Quoting lengthens
+  // the token, so this carries its own skew forward, same as the loop above.
+  let quoteSkew = 0;
+  for (let i = 0; i < outTokens.length; i++) {
+    let tok = outTokens[i];
+    if (quoteSkew && tok.loc) {
+      tok = cloneToken(tok);
+      tok.loc[0] += quoteSkew;
+      tok.loc[1] += quoteSkew;
+      outTokens[i] = tok;
     }
-    const prev = outTokens[i - 1];
-    if (prev?.type !== OPERATOR || prev.value !== ':') {
+    if (!isRange(tok) || !followsRangeOperator(outTokens, i)) {
       continue;
     }
     const bangIdx = tok.value.indexOf('!');
-    if (bangIdx > 0) {
+    if (bangIdx > 0 && tok.value[0] !== "'") {
       const prefix = tok.value.slice(0, bangIdx);
-      // Only quote if not already quoted
-      if (prefix[0] !== "'") {
-        outTokens[i] = cloneToken(tok);
-        outTokens[i].value = quotePrefix(prefix) + tok.value.slice(bangIdx);
+      const oldLength = tok.value.length;
+      tok = cloneToken(tok);
+      tok.value = quotePrefix(prefix) + tok.value.slice(bangIdx);
+      const delta = tok.value.length - oldLength;
+      if (tok.loc) {
+        tok.loc[1] += delta;
       }
+      quoteSkew += delta;
+      outTokens[i] = tok;
     }
   }
 

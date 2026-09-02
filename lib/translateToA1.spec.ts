@@ -262,6 +262,27 @@ describe('quote sheet prefix on RHS of range operator', () => {
   test('already-quoted RHS prefix is not double-quoted', () => {
     isR2A("='Sheet 1'!R1C1:'Sheet 1'!R2C2", 'A1', "='Sheet 1'!$A$1:'Sheet 1'!$B$2");
   });
+
+  test('a prefix behind whitespace is still the RHS of the range operator', () => {
+    // Excel allows spacing around the range colon.
+    isR2A('=B!R1C1 : B!R2C2', 'A1', "=B!$A$1 : 'B'!$B$2");
+    isR2A('=B!R1C1 :B!R2C2', 'A1', "=B!$A$1 :'B'!$B$2");
+  });
+
+  test('quoting a prefix carries a location skew forward to later tokens', () => {
+    const tokens = tokenizeXlsx('=SUM(R1C1:Sheet1!R2C2,R9C1)', { r1c1: true, withLocation: true });
+    expect(translateTokensToA1(tokens, 'A1')).toEqual([
+      { type: FX_PREFIX, value: '=', loc: [ 0, 1 ] },
+      { type: FUNCTION, value: 'SUM', loc: [ 1, 4 ] },
+      { type: OPERATOR, value: '(', loc: [ 4, 5 ] },
+      { type: REF_RANGE, value: '$A$1', loc: [ 5, 9 ] },
+      { type: OPERATOR, value: ':', loc: [ 9, 10 ] },
+      { type: REF_RANGE, value: "'Sheet1'!$B$2", loc: [ 10, 23 ] },
+      { type: OPERATOR, value: ',', loc: [ 23, 24 ] },
+      { type: REF_RANGE, value: '$A$9', loc: [ 24, 28 ] },
+      { type: OPERATOR, value: ')', loc: [ 28, 29 ] }
+    ]);
+  });
 });
 
 describe('translate 3D references', () => {
