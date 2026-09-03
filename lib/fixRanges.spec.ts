@@ -117,12 +117,21 @@ describe('fixRanges prefixes', () => {
     isFixed("='foo':bar!A1", '=foo:bar!A1', { xlsx: true });
   });
 
-  test('a quote around the second end is the range operator, not a 3D reference', () => {
+  test('a quote around the RHS makes the colon a range operator, not a sheet span marker', () => {
     isFixed("=foo:'bar baz'!A1", "=foo:'bar baz'!A1");
     // Excel fixes this to `=foo:'bar baz'!A1`
     isFixed("='foo':'bar baz'!A1", "='foo:bar baz'!A1");
     isFixed("=foo:'bar baz'!A1", "=foo:'bar baz'!A1", { xlsx: true });
     isFixed("=Jan:'[1]Nope'!A1", '=Jan:[1]Nope!A1');
+  });
+
+  test('a quoted RHS keeps quotes its own name would not call for', () => {
+    // The quote around the right endpoint makes the colon a range operator. So even if the right
+    // name doesn't need quoting, the quotes are kept, else the meaning would change.
+    isFixed("=SUM(foo:'Gamma'!A1)", "=SUM(foo:'Gamma'!A1)");
+    // A cell address on the left side rules out the sheet range interpretation
+    isFixed("=SUM(Q1:'Sales'!A1)", "=SUM(Q1:'Sales'!A1)");
+    isFixed("=SUM(A1:'Sales'!B2)", "=SUM(A1:'Sales'!B2)");
   });
 
   test('a digit-leading second sheet name goes to the range operator', () => {

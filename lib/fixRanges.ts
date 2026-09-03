@@ -9,6 +9,7 @@ import { REF_STRUCT } from './constants.ts';
 import type { ReferenceA1, ReferenceA1Xlsx, Token } from './types.ts';
 import { cloneToken } from './cloneToken.ts';
 import { stringifyTokens } from './stringifyTokens.ts';
+import { followsRangeOperator } from './stringifyPrefix.ts';
 
 // There is no R1C1 counterpart to this. This is because without an anchor cell
 // it is impossible to determine if a relative+absolute range (R[1]C[1]:R5C5)
@@ -30,6 +31,15 @@ export type OptsFixRanges = {
    */
   thisRow?: boolean,
 };
+
+// Would dropping this operand's quotes let it read as a sheet range? Only for a quoted prefix
+// with no workbook bracket: a bracket can only lead a whole prefix, so Jan:'[1]Nope'!A1 is not a
+// sheet range either way and its quotes are redundant.
+function keepsSourceQuotes (value: string): boolean {
+  if (!value.startsWith("'")) { return false; }
+  const bang = value.indexOf('!');
+  return bang !== -1 && !value.slice(0, bang).includes('[');
+}
 
 /**
  * Normalizes A1 style ranges and structured references in a list of tokens.
@@ -88,6 +98,13 @@ export function fixTokenRanges (
       token.value = newValue;
     }
     else if (isRange(token)) {
+      // After a range operator, the quotes on a prefix keep it from reading as part of a sheet
+      // range, and Excel stores range operations quoted there. Quotes in that position must be
+      // kept, whether or not the sheet name itself needs them.
+      if (followsRangeOperator(output, output.length) && keepsSourceQuotes(token.value)) {
+        output.push(token);
+        continue;
+      }
       const ref = parseA1Ref(token.value, { allowTernary: true }) as ReferenceA1;
       const range = ref.range;
       // fill missing dimensions?
