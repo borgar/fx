@@ -125,20 +125,20 @@ describe('fixRanges prefixes', () => {
     isFixed("=Jan:'[1]Nope'!A1", '=Jan:[1]Nope!A1');
   });
 
-  test('a digit-leading RHS makes the colon a range operator, not a sheet span marker', () => {
+  test('a quoted RHS keeps quotes its own name would not call for', () => {
+    // Sales needs no quotes of its own, but dropping them here would emit Q1:Sales!A1, which
+    // reads back as the sheet range Q1:Sales rather than as the name joined to 'Sales'!A1.
+    isFixed("=SUM(Q1:'Sales'!A1)", "=SUM(Q1:'Sales'!A1)");
+    isFixed("=SUM(A1:'Sales'!B2)", "=SUM(A1:'Sales'!B2)");
+  });
+
+  test('a digit-leading second sheet name goes to the range operator', () => {
     isFixed('=SUM(Sheet1:1!A1)', "=SUM('Sheet1:1'!A1)");
     isFixed('=SUM(X:1!A1)', "=SUM('X:1'!A1)");
     isFixed("=SUM(Sheet1:'1'!A1)", "=SUM(Sheet1:'1'!A1)");
     isFixed("=SUM(Jan:'2020plan'!A1)", "=SUM(Jan:'2020plan'!A1)");
     isFixed("=SUM('1:5'!A1)", "=SUM('1:5'!A1)");
     isFixed('=SUM([Book.xlsx]1:3!A1)', "=SUM('[Book.xlsx]1:3'!A1)");
-  });
-
-  test('a quoted RHS keeps quotes its own name would not call for', () => {
-    // Sales needs no quotes of its own, but dropping them here would emit Q1:Sales!A1, which
-    // reads back as the sheet range Q1:Sales rather than as the name joined to 'Sales'!A1.
-    isFixed("=SUM(Q1:'Sales'!A1)", "=SUM(Q1:'Sales'!A1)");
-    isFixed("=SUM(A1:'Sales'!B2)", "=SUM(A1:'Sales'!B2)");
   });
 
   test('a left side that is also a cell address wins over a 3D reference', () => {
