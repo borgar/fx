@@ -133,9 +133,6 @@ describe('parse A1 references', () => {
     isA1Equal("'[Book.xlsx]foo':bar!A1", { context: [ 'Book.xlsx', 'foo:bar' ], range });
     isA1Equal("'foo':bar!A1", { sheetName: 'foo:bar', range }, { xlsx: true });
     isA1Equal("'[1]foo':bar!A1", { workbookName: '1', sheetName: 'foo:bar', range }, { xlsx: true });
-    isA1Equal("'foo':'bar'!A1", { sheetName: 'foo:bar', range }, { xlsx: true });
-    isA1Equal("'[1]foo':'bar'!A1", { workbookName: '1', sheetName: 'foo:bar', range }, { xlsx: true });
-    isA1Equal("'foo bar':'baz'!A1", { sheetName: 'foo bar:baz', range }, { xlsx: true });
   });
 
   test('a quote around the second end is the range operator, not a sheet range', () => {
@@ -147,6 +144,11 @@ describe('parse A1 references', () => {
     isA1Equal("foo:'bar baz'!A1", undefined, { xlsx: true });
     isA1Equal("1:'Dec'!A1", undefined, { xlsx: true });
     isA1Equal("5:'a b'!A1", undefined, { xlsx: true });
+    isA1Equal("'foo':'bar'!A1", undefined);
+    isA1Equal("'foo bar':'baz'!A1", undefined);
+    isA1Equal("'foo':'bar'!A1", undefined, { xlsx: true });
+    isA1Equal("'[1]foo':'bar'!A1", undefined, { xlsx: true });
+    isA1Equal("'foo bar':'baz'!A1", undefined, { xlsx: true });
   });
 
   test('a workbook specifier is not allowed in the second section of a sheet-range', () => {

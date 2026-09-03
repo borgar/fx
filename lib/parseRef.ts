@@ -202,14 +202,13 @@ const pContextNames: RefParserPart = (t, data, xlsx) => {
     }
   }
 };
-const pExtendedContext: RefParserPart = (t, data, xlsx, r1c1, tokens) => {
-  const type = t?.type;
-  // We don't allow quoted sheet ranges if the prev context was unquoted:
-  //   ✅ a:b   ✅ 'a':'b'   ✅ 'a':b   ⛔️ a:'b'
-  if (type === CONTEXT || (type === CONTEXT_QUOTE && tokens[0].type === CONTEXT_QUOTE)) {
+const pExtendedContext: RefParserPart = (t, data, xlsx) => {
+  // The second name must be unquoted. A quote on it makes the colon a range operator rather than
+  // a sheet-range marker, whatever stands to its left:
+  //   ✅ a:b   ✅ 'a':b   ⛔️ a:'b'   ⛔️ 'a':'b'
+  if (t?.type === CONTEXT) {
     const d: Partial<RefParseDataCtx & RefParseDataXls> = {};
-    const value = type === CONTEXT_QUOTE ? unquotePrefix(t.value) : t.value;
-    splitContext(value, d, xlsx);
+    splitContext(t.value, d, xlsx);
     if (xlsx && d.sheetName && !d.workbookName) {
       data.sheetName += ':' + d.sheetName;
       return 1;

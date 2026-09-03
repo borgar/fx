@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest';
-import { FX_PREFIX, OPERATOR, NUMBER, REF_RANGE, REF_BEAM, FUNCTION, WHITESPACE, REF_STRUCT } from './constants.ts';
+import { FX_PREFIX, OPERATOR, NUMBER, REF_RANGE, REF_BEAM, FUNCTION, WHITESPACE, REF_STRUCT, REF_NAMED } from './constants.ts';
 import { addTokenMeta } from './addTokenMeta.ts';
 import { tokenize } from './tokenize.ts';
 
@@ -85,15 +85,21 @@ describe('add extra meta to operators', () => {
       { index: 2, depth: 0, type: OPERATOR, value: ',' },
       { index: 3, depth: 0, type: REF_RANGE, value: "'jan:dec'!B11", groupId: 'fxg1' },
       { index: 4, depth: 0, type: OPERATOR, value: ',' },
-      { index: 5, depth: 0, type: REF_RANGE, value: "'jan':'dec'!B11", groupId: 'fxg1' },
-      { index: 6, depth: 0, type: OPERATOR, value: ',' },
-      { index: 7, depth: 0, type: REF_RANGE, value: "'jan':dec!B11", groupId: 'fxg1' },
+      // `'jan':'dec'!B11` is not a sheet range: the quote on the second name makes the colon a
+      // range operator, so the reference in it is `'dec'!B11` alone. References share a group
+      // when they resolve to the same sheet and cells, wherever they sit in the formula, so it
+      // shares `Dec!B11`'s group and not the sheet ranges'.
+      { index: 5, depth: 0, type: REF_NAMED, value: "'jan'" },
+      { index: 6, depth: 0, type: OPERATOR, value: ':' },
+      { index: 7, depth: 0, type: REF_RANGE, value: "'dec'!B11", groupId: 'fxg2' },
       { index: 8, depth: 0, type: OPERATOR, value: ',' },
-      { index: 9, depth: 0, type: REF_RANGE, value: 'JAN:dEc!B11', groupId: 'fxg1' },
+      { index: 9, depth: 0, type: REF_RANGE, value: "'jan':dec!B11", groupId: 'fxg1' },
       { index: 10, depth: 0, type: OPERATOR, value: ',' },
-      { index: 11, depth: 0, type: REF_RANGE, value: 'Jan!B11', groupId: 'fxg2' },
+      { index: 11, depth: 0, type: REF_RANGE, value: 'JAN:dEc!B11', groupId: 'fxg1' },
       { index: 12, depth: 0, type: OPERATOR, value: ',' },
-      { index: 13, depth: 0, type: REF_RANGE, value: 'Dec!B11', groupId: 'fxg3' }
+      { index: 13, depth: 0, type: REF_RANGE, value: 'Jan!B11', groupId: 'fxg3' },
+      { index: 14, depth: 0, type: OPERATOR, value: ',' },
+      { index: 15, depth: 0, type: REF_RANGE, value: 'Dec!B11', groupId: 'fxg2' }
     ], { sheetName: 'Sheet1', workbookName: 'foo' });
   });
 
