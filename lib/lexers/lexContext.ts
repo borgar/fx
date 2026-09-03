@@ -8,6 +8,24 @@ const EXCL = 33; // !
 const COLON = 58; // :
 const PERIOD = 46; // .
 
+// [0-9A-Za-z._¡¤§¨ª\u00ad¯-\uffff]
+export function isUnquotedSheetNameChar (c: number): boolean {
+  return (
+    (c >= 65 && c <= 90) || // A-Z
+    (c >= 97 && c <= 122) || // a-z
+    (c >= 48 && c <= 57) || // 0-9
+    (c === 46) || // .
+    (c === 95) || // _
+    (c === 161) || // ¡
+    (c === 164) || // ¤
+    (c === 167) || // §
+    (c === 168) || // ¨
+    (c === 170) || // ª
+    (c === 173) || // \u00ad
+    (c >= 175)    // ¯-\uffff
+  );
+}
+
 // xlsx xml uses a variant of the syntax that has external references in
 // bracets. Any of: [1]Sheet1!A1, '[1]Sheet one'!A1, [1]!named
 export function lexContextQuoted (str: string, pos: number, options: { xlsx: boolean }): Token | undefined {
@@ -87,27 +105,9 @@ export function lexContextUnquoted (str: string, pos: number, options: { xlsx: b
         }
         return undefined;
       }
-      else if (
-        (br1 == null || br2 != null) &&
-        // [0-9A-Za-z._¡¤§¨ª\u00ad¯-\uffff]
-        !(
-          (c >= 65 && c <= 90) || // A-Z
-          (c >= 97 && c <= 122) || // a-z
-          (c >= 48 && c <= 57) || // 0-9
-          (c === 46) || // .
-          (c === 95) || // _
-          (c === 161) || // ¡
-          (c === 164) || // ¤
-          (c === 167) || // §
-          (c === 168) || // ¨
-          (c === 170) || // ª
-          (c === 173) || // \u00ad
-          (c >= 175)    // ¯-\uffff
-        )
-      ) {
+      else if ((br1 == null || br2 != null) && !isUnquotedSheetNameChar(c)) {
         return;
       }
-      // 0-9A-Za-z._¡¤§¨ª\u00ad¯-\uffff
       pos++;
     }
   }
