@@ -98,7 +98,7 @@ describe('lexer: 3d ranges', () => {
         { type: REF_RANGE, value: "'Gamma'!A1" }
       ]);
     });
-    test('Both sections quoted independently', () => {
+    test('a quote on the second section leaves two references', () => {
       expect(tokenize("'Alpha':'Gamma'!A1", { mergeRefs: false })).toEqual([
         { type: CONTEXT_QUOTE, value: "'Alpha'" },
         { type: OPERATOR, value: ':' },
@@ -106,8 +106,12 @@ describe('lexer: 3d ranges', () => {
         { type: OPERATOR, value: '!' },
         { type: REF_RANGE, value: 'A1' }
       ]);
+      // The quote on the second name makes the colon a range operator, so these are two
+      // references and are not merged.
       expect(tokenize("'Alpha':'Gamma'!A1")).toEqual([
-        { type: REF_RANGE, value: "'Alpha':'Gamma'!A1" }
+        { type: REF_NAMED, value: "'Alpha'" },
+        { type: OPERATOR, value: ':' },
+        { type: REF_RANGE, value: "'Gamma'!A1" }
       ]);
     });
     test('Both sections quoted together', () => {
@@ -132,7 +136,7 @@ describe('lexer: 3d ranges', () => {
         { type: REF_RANGE, value: 'A1' }
       ]);
       expect(tokenize("'Alpha:Beta':Gamma!A1")).toEqual([
-        { type: CONTEXT_QUOTE, value: "'Alpha:Beta'" },
+        { type: REF_NAMED, value: "'Alpha:Beta'" },
         { type: OPERATOR, value: ':' },
         { type: REF_RANGE, value: 'Gamma!A1' }
       ]);
@@ -200,7 +204,7 @@ describe('lexer: 3d ranges', () => {
       expect(tokenize("Alpha:'Beta:Gamma':Delta!A1")).toEqual([
         { type: REF_NAMED, value: 'Alpha' },
         { type: OPERATOR, value: ':' },
-        { type: CONTEXT_QUOTE, value: "'Beta:Gamma'" },
+        { type: REF_NAMED, value: "'Beta:Gamma'" },
         { type: OPERATOR, value: ':' },
         { type: REF_RANGE, value: 'Delta!A1' }
       ]);
@@ -262,9 +266,7 @@ describe('lexer: 3d ranges', () => {
       ]);
     });
 
-    test('both sections quoted, but independently', () => {
-      // XXX: ensure fixranges deals with this
-      // Excel will correct this to `'[Book.xlsx]Alpha:Gamma'!A1`
+    test('a quote on the second section leaves two references, with a workbook', () => {
       expect(tokenize("'[Book.xlsx]Alpha':'Gamma'!A1", { mergeRefs: false })).toEqual([
         { type: CONTEXT_QUOTE, value: "'[Book.xlsx]Alpha'" },
         { type: OPERATOR, value: ':' },
@@ -273,7 +275,9 @@ describe('lexer: 3d ranges', () => {
         { type: REF_RANGE, value: 'A1' }
       ]);
       expect(tokenize("'[Book.xlsx]Alpha':'Gamma'!A1")).toEqual([
-        { type: REF_RANGE, value: "'[Book.xlsx]Alpha':'Gamma'!A1" }
+        { type: REF_NAMED, value: "'[Book.xlsx]Alpha'" },
+        { type: OPERATOR, value: ':' },
+        { type: REF_RANGE, value: "'Gamma'!A1" }
       ]);
     });
 
@@ -317,8 +321,10 @@ describe('lexer: 3d ranges', () => {
         { type: OPERATOR, value: '!' },
         { type: REF_RANGE, value: 'A1' }
       ]);
+      // Nothing merges the first scope, because a workbook specifier is not allowed in the
+      // second. What is left has no `!` after it, so it is the operand Excel reads as a name.
       expect(tokenize("'Alpha':[Book.xlsx]Gamma!A1")).toEqual([
-        { type: CONTEXT_QUOTE, value: "'Alpha'" },
+        { type: REF_NAMED, value: "'Alpha'" },
         { type: OPERATOR, value: ':' },
         { type: REF_RANGE, value: '[Book.xlsx]Gamma!A1' }
       ]);
@@ -380,7 +386,7 @@ describe('lexer: 3d ranges', () => {
         { type: REF_RANGE, value: 'A1' }
       ]);
       expect(tokenize("'Alpha':'[Book.xlsx]Gamma'!A1")).toEqual([
-        { type: CONTEXT_QUOTE, value: "'Alpha'" },
+        { type: REF_NAMED, value: "'Alpha'" },
         { type: OPERATOR, value: ':' },
         { type: REF_RANGE, value: "'[Book.xlsx]Gamma'!A1" }
       ]);

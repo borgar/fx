@@ -27,17 +27,10 @@ const validRunsMerge = [
   [ [ CONTEXT, CONTEXT_QUOTE ], '!', REF_BEAM ],
   [ [ CONTEXT, CONTEXT_QUOTE ], '!', REF_TERNARY ],
 
-  // 'Sheet1':Sheet2!A1 | 'Sheet1':'Sheet2'!A1
-  [ CONTEXT_QUOTE, ':', [ CONTEXT, CONTEXT_QUOTE ], '!', REF_CELL, ':', REF_CELL ],
-  [ CONTEXT_QUOTE, ':', [ CONTEXT, CONTEXT_QUOTE ], '!', REF_CELL, '.:', REF_CELL ],
-  [ CONTEXT_QUOTE, ':', [ CONTEXT, CONTEXT_QUOTE ], '!', REF_CELL, ':.', REF_CELL ],
-  [ CONTEXT_QUOTE, ':', [ CONTEXT, CONTEXT_QUOTE ], '!', REF_CELL, '.:.', REF_CELL ],
-  [ CONTEXT_QUOTE, ':', [ CONTEXT, CONTEXT_QUOTE ], '!', REF_CELL ],
-  [ CONTEXT_QUOTE, ':', [ CONTEXT, CONTEXT_QUOTE ], '!', REF_RANGE ],
-  [ CONTEXT_QUOTE, ':', [ CONTEXT, CONTEXT_QUOTE ], '!', REF_BEAM ],
-  [ CONTEXT_QUOTE, ':', [ CONTEXT, CONTEXT_QUOTE ], '!', REF_TERNARY ],
-
   // Sheet1:Sheet2!A1 | 'Sheet1':Sheet2!A1
+  //
+  // The second name must be unquoted. A quote on it makes the colon a range operator rather than a
+  // sheet-range marker, so `a:'b'!A1` and `'a':'b'!A1` are two references and are not merged.
   [ [ REF_NAMED, CONTEXT, CONTEXT_QUOTE ], ':', CONTEXT, '!', REF_CELL, ':', REF_CELL ],
   [ [ REF_NAMED, CONTEXT, CONTEXT_QUOTE ], ':', CONTEXT, '!', REF_CELL, '.:', REF_CELL ],
   [ [ REF_NAMED, CONTEXT, CONTEXT_QUOTE ], ':', CONTEXT, '!', REF_CELL, ':.', REF_CELL ],
@@ -193,6 +186,11 @@ const matcher = (
   return best;
 };
 
+function isBangAfter (tokenlist: Token[], i: number): boolean {
+  const next = tokenlist[i + 1];
+  return !!next && next.type === OPERATOR && next.value === '!';
+}
+
 function commonMergeRefTokens (tokenlist: Token[], xlsx: boolean): Token[] {
   const finalTokens = [];
   // this seeks backwards because it's really the range part
@@ -216,6 +214,11 @@ function commonMergeRefTokens (tokenlist: Token[], xlsx: boolean): Token[] {
         }
         i -= valid - 1;
       }
+    }
+    // A quoted scope with no `!` after it is a name, not a scope. One that has its `!` stays a
+    // scope, merged or not.
+    if (token.type === CONTEXT_QUOTE && !isBangAfter(tokenlist, i)) {
+      token = { ...token, type: REF_NAMED };
     }
     finalTokens[finalTokens.length] = token;
   }

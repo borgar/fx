@@ -137,6 +137,28 @@ describe('parser', () => {
       isParsed("'A1:B2'!C3", { type: 'ReferenceIdentifier', value: "'A1:B2'!C3", kind: 'range' });
     });
 
+    // Excel reads both as the range operator over the quoted name, and stores them with the
+    // second name quoted: `'Alpha:Beta':'Gamma'!A1` and `Alpha:'[1]Gamma'!A1`. In the second it
+    // is the workbook bracket that rules out a sheet range, not the quote, which Excel drops.
+    test('a quoted scope with no bang after it is a name operand', () => {
+      isParsed("'Alpha':[Book.xlsx]Gamma!A1", {
+        type: 'BinaryExpression',
+        operator: ':',
+        arguments: [
+          { type: 'ReferenceIdentifier', value: "'Alpha'", kind: 'name' },
+          { type: 'ReferenceIdentifier', value: '[Book.xlsx]Gamma!A1', kind: 'range' }
+        ]
+      });
+      isParsed("'Alpha:Beta':Gamma!A1", {
+        type: 'BinaryExpression',
+        operator: ':',
+        arguments: [
+          { type: 'ReferenceIdentifier', value: "'Alpha:Beta'", kind: 'name' },
+          { type: 'ReferenceIdentifier', value: 'Gamma!A1', kind: 'range' }
+        ]
+      });
+    });
+
     test('"$" is not allowed on an unquoted sheet name', () => {
       isInvalidExpr('=SUM($Jan:$Mar!A1)');
       isParsed("'$Jan:$Mar'!A1", { type: 'ReferenceIdentifier', value: "'$Jan:$Mar'!A1", kind: 'range' });

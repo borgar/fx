@@ -119,8 +119,8 @@ describe('fixRanges prefixes', () => {
 
   test('a quote around the second end is the range operator, not a 3D reference', () => {
     isFixed("=foo:'bar baz'!A1", "=foo:'bar baz'!A1");
-    // Excel fixes this to `=foo:'bar baz'!A1`
-    isFixed("='foo':'bar baz'!A1", "='foo:bar baz'!A1");
+    // Excel leaves this one as written on the next save; its formula bar drops the second quote
+    isFixed("='foo':'bar baz'!A1", "='foo':'bar baz'!A1");
     isFixed("=foo:'bar baz'!A1", "=foo:'bar baz'!A1", { xlsx: true });
     isFixed("=Jan:'[1]Nope'!A1", '=Jan:[1]Nope!A1');
   });
