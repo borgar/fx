@@ -222,9 +222,8 @@ function commonMergeRefTokens (tokenlist: Token[], xlsx: boolean): Token[] {
         i -= valid - 1;
       }
     }
-    // A quoted scope with no `!` after it is a name, not a scope; the lexer types it as a scope
-    // on the chance that a second sheet name follows. One that does have its `!` keeps the scope
-    // type even unmerged, since a scope containing a `:` never merges with the name after it.
+    // A quoted scope with no `!` after it is a name, not a scope. One that has its `!` stays a
+    // scope, merged or not.
     if (token.type === CONTEXT_QUOTE && !isBangAfter(tokenlist, i)) {
       token = { ...token, type: REF_NAMED };
     }
