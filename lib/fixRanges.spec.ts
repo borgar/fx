@@ -126,13 +126,10 @@ describe('fixRanges prefixes', () => {
   });
 
   test('a quoted RHS keeps quotes its own name would not call for', () => {
-    // The quote around the right endpoint is what makes the colon a range operator: Excel reads
-    // `foo:'Gamma'!A1` as the name `foo` joined to `'Gamma'!A1`, and `foo:Gamma!A1` as the sheet
-    // range `foo:Gamma`. So dropping a quote the right name does not need for its own sake
-    // changes which sheets the formula reads.
+    // The quote around the right endpoint makes the colon a range operator. So even if the right
+    // name doesn't need quoting, the quotes are kept, else the meaning would change.
     isFixed("=SUM(foo:'Gamma'!A1)", "=SUM(foo:'Gamma'!A1)");
-    // With a cell address on the left the reading is the same either way, since the cell wins
-    // over the sheet range; Excel still stores the quote, and takes it off nothing here.
+    // A cell address on the left side rules out the sheet range interpretation
     isFixed("=SUM(Q1:'Sales'!A1)", "=SUM(Q1:'Sales'!A1)");
     isFixed("=SUM(A1:'Sales'!B2)", "=SUM(A1:'Sales'!B2)");
   });
