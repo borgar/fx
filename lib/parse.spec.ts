@@ -137,7 +137,11 @@ describe('parser', () => {
       isParsed("'A1:B2'!C3", { type: 'ReferenceIdentifier', value: "'A1:B2'!C3", kind: 'range' });
     });
 
-    test('a quoted scope with no bang after it is a name operand', () => {
+    // These pin fx's reading, not Excel's, which is unmeasured for both forms. Excel reads a
+    // quoted first name followed by an *unquoted* second as the sheet range, so its answer here
+    // may well differ; what matters below is that the formula reaches an AST at all, since the
+    // quoted first name used to arrive as a scope and stop the parser.
+    test('a quoted scope with no bang after it parses as a name operand', () => {
       isParsed("'Alpha':[Book.xlsx]Gamma!A1", {
         type: 'BinaryExpression',
         operator: ':',
