@@ -132,7 +132,7 @@ describe('lexer: 3d ranges', () => {
         { type: REF_RANGE, value: 'A1' }
       ]);
       expect(tokenize("'Alpha:Beta':Gamma!A1")).toEqual([
-        { type: CONTEXT_QUOTE, value: "'Alpha:Beta'" },
+        { type: REF_NAMED, value: "'Alpha:Beta'" },
         { type: OPERATOR, value: ':' },
         { type: REF_RANGE, value: 'Gamma!A1' }
       ]);
@@ -200,7 +200,7 @@ describe('lexer: 3d ranges', () => {
       expect(tokenize("Alpha:'Beta:Gamma':Delta!A1")).toEqual([
         { type: REF_NAMED, value: 'Alpha' },
         { type: OPERATOR, value: ':' },
-        { type: CONTEXT_QUOTE, value: "'Beta:Gamma'" },
+        { type: REF_NAMED, value: "'Beta:Gamma'" },
         { type: OPERATOR, value: ':' },
         { type: REF_RANGE, value: 'Delta!A1' }
       ]);
@@ -317,8 +317,10 @@ describe('lexer: 3d ranges', () => {
         { type: OPERATOR, value: '!' },
         { type: REF_RANGE, value: 'A1' }
       ]);
+      // Nothing merges the first scope, because a workbook specifier is not allowed in the
+      // second. What is left has no `!` after it, so it is the operand Excel reads as a name.
       expect(tokenize("'Alpha':[Book.xlsx]Gamma!A1")).toEqual([
-        { type: CONTEXT_QUOTE, value: "'Alpha'" },
+        { type: REF_NAMED, value: "'Alpha'" },
         { type: OPERATOR, value: ':' },
         { type: REF_RANGE, value: '[Book.xlsx]Gamma!A1' }
       ]);
@@ -380,7 +382,7 @@ describe('lexer: 3d ranges', () => {
         { type: REF_RANGE, value: 'A1' }
       ]);
       expect(tokenize("'Alpha':'[Book.xlsx]Gamma'!A1")).toEqual([
-        { type: CONTEXT_QUOTE, value: "'Alpha'" },
+        { type: REF_NAMED, value: "'Alpha'" },
         { type: OPERATOR, value: ':' },
         { type: REF_RANGE, value: "'[Book.xlsx]Gamma'!A1" }
       ]);

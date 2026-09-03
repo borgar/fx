@@ -193,6 +193,11 @@ const matcher = (
   return best;
 };
 
+function isBangAfter (tokenlist: Token[], i: number): boolean {
+  const next = tokenlist[i + 1];
+  return !!next && next.type === OPERATOR && next.value === '!';
+}
+
 function commonMergeRefTokens (tokenlist: Token[], xlsx: boolean): Token[] {
   const finalTokens = [];
   // this seeks backwards because it's really the range part
@@ -216,6 +221,12 @@ function commonMergeRefTokens (tokenlist: Token[], xlsx: boolean): Token[] {
         }
         i -= valid - 1;
       }
+    }
+    // A quoted scope with no `!` after it is a name, not a scope; the lexer types it as a scope
+    // on the chance that a second sheet name follows. One that does have its `!` keeps the scope
+    // type even unmerged, since a scope containing a `:` never merges with the name after it.
+    if (token.type === CONTEXT_QUOTE && !isBangAfter(tokenlist, i)) {
+      token = { ...token, type: REF_NAMED };
     }
     finalTokens[finalTokens.length] = token;
   }
