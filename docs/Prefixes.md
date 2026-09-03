@@ -89,6 +89,6 @@ When the sheet scope is a "3D" sheet range (`Sheet1:Sheet2!A1`) the scope will n
 
 ## The right side of a colon
 
-The quotes after a colon decide what the colon means. `Q1:'Sales'!A1` is the name `Q1` joined to the reference `'Sales'!A1`; `Sales` is quoted even though the name itself needs no quotes, to set it apart from `Q1:Sales!A1`, the 3-D reference over the sheets `Q1` to `Sales`. Excel stores that position quoted whatever the name, `Sheet1!A1:Sheet2!B2` as `Sheet1!A1:'Sheet2'!B2`, even where the left side could not begin a sheet range.
+The quotes after a colon decide what the colon means. `foo:'Gamma'!A1` is the name `foo` joined to the reference `'Gamma'!A1`; `Gamma` is quoted even though the name itself needs no quotes, to set it apart from `foo:Gamma!A1`, the 3-D reference over the sheets `foo` to `Gamma`. Excel stores that position quoted whatever the name, `Sheet1!A1:Sheet2!B2` as `Sheet1!A1:'Sheet2'!B2`, even where the left side could not begin a sheet range — a left side that reads as a cell address, `Q1` or `A1`, is that cell rather than a sheet, so there the quotes change no reading and Excel writes them anyway.
 
 The two _Fx_ functions treat it differently. `fixRanges` keeps the quotes a prefix has in that position and adds none, so it never rewrites a reference into one naming different sheets. `translateToA1` quotes every such prefix, as Excel's serialization does.
