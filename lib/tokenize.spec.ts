@@ -2066,12 +2066,12 @@ describe('lexer', () => {
     });
 
     test('invalid partial range syntax', () => {
+      // the trailing period is part of the name "A1.", which Excel accepts
       isTokens('=1:A1.', [
         { type: FX_PREFIX, value: '=' },
         { type: CONTEXT, value: '1' },
         { type: OPERATOR, value: ':' },
-        { type: REF_RANGE, value: 'A1' },
-        { type: UNKNOWN, value: '.' }
+        { type: REF_NAMED, value: 'A1.' }
       ], opts);
       isTokens('=A1:X$', [
         { type: FX_PREFIX, value: '=' },
@@ -2387,6 +2387,21 @@ describe('lexer', () => {
       ]);
     });
 
+    test('Sheet name whose head is an A1 ref', () => {
+      // Excel accepts a sheet named TS1.5 and writes the reference to it unquoted
+      expect(tokenize('TS1.5!B7')).toEqual([
+        { type: REF_RANGE, value: 'TS1.5!B7' }
+      ]);
+      expect(tokenize('TS1.5!B7', { mergeRefs: false })).toEqual([
+        { type: CONTEXT, value: 'TS1.5' },
+        { type: OPERATOR, value: '!' },
+        { type: REF_RANGE, value: 'B7' }
+      ]);
+      expect(tokenizeXlsx('TS1.5!B7')).toEqual([
+        { type: REF_RANGE, value: 'TS1.5!B7' }
+      ]);
+    });
+
     test('Sheet name that is a R or C ref', () => {
       expect(tokenize("'C'!R[-9]C[-3]", { r1c1: true })).toEqual([
         { type: REF_RANGE, value: "'C'!R[-9]C[-3]" }
@@ -2423,6 +2438,184 @@ describe('lexer', () => {
         { type: FUNCTION, value: 'C' },
         { type: OPERATOR, value: '(' },
         { type: OPERATOR, value: ')' }
+      ]);
+    });
+  });
+
+  describe('Name that starts with an A1 ref', () => {
+    test('a dotted tail belongs to the name', () => {
+      // Excel reads each of these as one operand (a defined name of that text, where one
+      // exists), never as a cell reference with something after it
+      isTokens('=CH4.as.CO2e', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_NAMED, value: 'CH4.as.CO2e' }
+      ]);
+      isTokens('=A1.b', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_NAMED, value: 'A1.b' }
+      ]);
+      isTokens('=A1..b', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_NAMED, value: 'A1..b' }
+      ]);
+      isTokens('=A1.', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_NAMED, value: 'A1.' }
+      ]);
+      isTokens('=A1.b.', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_NAMED, value: 'A1.b.' }
+      ]);
+      isTokens('=SUM(LOG10.x)', [
+        { type: FX_PREFIX, value: '=' },
+        { type: FUNCTION, value: 'SUM' },
+        { type: OPERATOR, value: '(' },
+        { type: REF_NAMED, value: 'LOG10.x' },
+        { type: OPERATOR, value: ')' }
+      ]);
+    });
+
+    test('a non-ASCII tail belongs to the name', () => {
+      // The walk back over the range's own text is ASCII because a range's text is; the tail is
+      // the name lexer's, which takes the full name character set.
+      isTokens('=A1.æ', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_NAMED, value: 'A1.æ' }
+      ], { mergeRefs: false });
+      isTokens('=A1.日本', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_NAMED, value: 'A1.日本' }
+      ], { mergeRefs: false });
+      // An unquoted non-ASCII sheet name in front of the range does not reach the walk either:
+      // the `!` stops it first.
+      isTokens('=Forsætis!A1.b', [
+        { type: FX_PREFIX, value: '=' },
+        { type: CONTEXT, value: 'Forsætis' },
+        { type: OPERATOR, value: '!' },
+        { type: REF_NAMED, value: 'A1.b' }
+      ], { mergeRefs: false });
+      isTokens('=Forsætis!A1.b', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_NAMED, value: 'Forsætis!A1.b' }
+      ]);
+    });
+
+    test('a digit after the dot does not start a number', () => {
+      // ".5" is a number elsewhere, but Excel reads "=A1.5" as the name "A1.5"
+      isTokens('=A1.5', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_NAMED, value: 'A1.5' }
+      ]);
+      isTokens('=A1.5e3', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_NAMED, value: 'A1.5e3' }
+      ]);
+      // with an operator in between, the number is still a number
+      isTokens('=A1*.95', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'A1' },
+        { type: OPERATOR, value: '*' },
+        { type: NUMBER, value: '.95' }
+      ]);
+    });
+
+    test('the first endpoint stays a range where it is one on its own', () => {
+      // the pair reading of "A1:B2" fails at the period, but "A1" alone is a range, so only
+      // the second endpoint goes to the name lexer
+      isTokens('=A1:B2.c', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'A1' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_NAMED, value: 'B2.c' }
+      ], { mergeRefs: false });
+      // "A" alone is not a range, so a beam has no such fallback
+      isTokens('=A:A.b', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_NAMED, value: 'A' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_NAMED, value: 'A.b' }
+      ], { mergeRefs: false });
+    });
+
+    test('a locked or bracketed endpoint keeps its range', () => {
+      // no name may contain "$" or a bracket, so the range stands; Excel reads the tail as
+      // rich-value field access
+      isTokens('=$A$1.b', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: '$A$1' },
+        { type: UNKNOWN, value: '.b' }
+      ], { mergeRefs: false });
+      isTokens('=$A1.b', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: '$A1' },
+        { type: UNKNOWN, value: '.b' }
+      ], { mergeRefs: false });
+      isTokens('=R[-1]C.foo', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'R[-1]C' },
+        { type: UNKNOWN, value: '.foo' }
+      ], { mergeRefs: false, r1c1: true });
+      // the unbracketed R1C1 form has a name reading, and takes it
+      isTokens('=R1C1.foo', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_NAMED, value: 'R1C1.foo' }
+      ], { mergeRefs: false, r1c1: true });
+    });
+
+    test('a "." opening a trim operator still ends the range', () => {
+      isTokens('=A1.:B2', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'A1' },
+        { type: OPERATOR, value: '.:' },
+        { type: REF_RANGE, value: 'B2' }
+      ], { mergeRefs: false });
+      isTokens('=A1.:.B2', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'A1' },
+        { type: OPERATOR, value: '.:.' },
+        { type: REF_RANGE, value: 'B2' }
+      ], { mergeRefs: false });
+    });
+
+    test('the name takes a sheet prefix like any other', () => {
+      isTokens('=Sheet1!CH4.as.CO2e', [
+        { type: FX_PREFIX, value: '=' },
+        { type: CONTEXT, value: 'Sheet1' },
+        { type: OPERATOR, value: '!' },
+        { type: REF_NAMED, value: 'CH4.as.CO2e' }
+      ], { mergeRefs: false });
+      isTokens('=Sheet1!CH4.as.CO2e', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_NAMED, value: 'Sheet1!CH4.as.CO2e' }
+      ]);
+      isTokens("='My Sheet'!A1.b", [
+        { type: FX_PREFIX, value: '=' },
+        { type: CONTEXT_QUOTE, value: "'My Sheet'" },
+        { type: OPERATOR, value: '!' },
+        { type: REF_NAMED, value: 'A1.b' }
+      ], { mergeRefs: false });
+      isTokens("='My Sheet'!A1.b", [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_NAMED, value: "'My Sheet'!A1.b" }
+      ]);
+    });
+
+    test('the xlsx mode reads it the same way', () => {
+      expect(tokenizeXlsx('=A1.b')).toEqual([
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_NAMED, value: 'A1.b' }
+      ]);
+      expect(tokenizeXlsx('=A1.5')).toEqual([
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_NAMED, value: 'A1.5' }
+      ]);
+      expect(tokenizeXlsx('=[1]Sheet1!A1.b')).toEqual([
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_NAMED, value: '[1]Sheet1!A1.b' }
+      ]);
+      expect(tokenizeXlsx('=A1.:B2')).toEqual([
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'A1.:B2' }
       ]);
     });
   });

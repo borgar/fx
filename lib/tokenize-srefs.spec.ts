@@ -1,7 +1,7 @@
 import { describe, test, expect } from 'vitest';
 import {
   FX_PREFIX, UNKNOWN,
-  OPERATOR, WHITESPACE,
+  OPERATOR, WHITESPACE, FUNCTION,
   REF_NAMED, CONTEXT_QUOTE, REF_STRUCT, REF_RANGE
 } from './constants.ts';
 import { tokenize } from './tokenize.ts';
@@ -247,6 +247,22 @@ describe('tokenize structured references', () => {
       ], mergeOffOpts);
     });
 
+    test('table name that starts with an A1 ref', () => {
+      // Excel accepts a table named CO2.credit and refuses one named A1: a table name may
+      // contain a period, but may not be a valid cell reference.
+      isTokens('=CO2.credit[Sales]', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_NAMED, value: 'CO2.credit' },
+        { type: REF_STRUCT, value: '[Sales]' }
+      ], mergeOffOpts);
+
+      isTokens('=A1[Sales]', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'A1' },
+        { type: REF_STRUCT, value: '[Sales]' }
+      ], mergeOffOpts);
+    });
+
     test('column references', () => {
       isTokens('Table1[@[Column]]', [
         { type: REF_NAMED, value: 'Table1' },
@@ -348,6 +364,44 @@ describe('tokenize structured references', () => {
 
       isTokens('Table1[[#This Row],[Column Name]]', [
         { type: REF_STRUCT, value: 'Table1[[#This Row],[Column Name]]' }
+      ]);
+    });
+
+    test('table name that starts with an A1 ref, merged', () => {
+      isTokens('=CO2.credit[Sales]', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_STRUCT, value: 'CO2.credit[Sales]' }
+      ]);
+
+      isTokens('=CO2.credit[[#This Row],[Name]]', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_STRUCT, value: 'CO2.credit[[#This Row],[Name]]' }
+      ]);
+
+      isTokens('=SUM(CO2.credit[Sales])', [
+        { type: FX_PREFIX, value: '=' },
+        { type: FUNCTION, value: 'SUM' },
+        { type: OPERATOR, value: '(' },
+        { type: REF_STRUCT, value: 'CO2.credit[Sales]' },
+        { type: OPERATOR, value: ')' }
+      ]);
+
+      isTokens('=Sheet1!CO2.credit[Sales]', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_STRUCT, value: 'Sheet1!CO2.credit[Sales]' }
+      ]);
+
+      // in the xlsx mode as in the default one
+      isTokens('=CO2.credit[Sales]', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_STRUCT, value: 'CO2.credit[Sales]' }
+      ], { xlsx: true });
+
+      // a table name may not be a cell reference, so this one does not merge
+      isTokens('=A1[Sales]', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'A1' },
+        { type: REF_STRUCT, value: '[Sales]' }
       ]);
     });
 
