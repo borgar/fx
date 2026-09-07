@@ -577,6 +577,15 @@ describe('lexer', () => {
         { type: NUMBER, value: '2020' },
         { type: REF_NAMED, value: 'plan' }
       ]);
+      isTokens('=UNIQUE(1stLevel!H2:H)', [
+        { type: FX_PREFIX, value: '=' },
+        { type: FUNCTION, value: 'UNIQUE' },
+        { type: OPERATOR, value: '(' },
+        { type: REF_RANGE, value: '1stLevel!H2' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_NAMED, value: 'H' },
+        { type: OPERATOR, value: ')' }
+      ]);
     });
 
     test('decimals with no fraction part', () => {
