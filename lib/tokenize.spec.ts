@@ -2388,7 +2388,8 @@ describe('lexer', () => {
     });
 
     test('Sheet name whose head is an A1 ref', () => {
-      // Excel accepts a sheet named TS1.5 and writes the reference to it unquoted
+      // Excel accepts a sheet named TS1.5 and accepts a reference to it written unquoted. It
+      // stores the reference quoted, 'TS1.5'!B7, and shows it unquoted in the formula bar.
       expect(tokenize('TS1.5!B7')).toEqual([
         { type: REF_RANGE, value: 'TS1.5!B7' }
       ]);
