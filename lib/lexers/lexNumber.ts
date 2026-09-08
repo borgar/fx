@@ -1,5 +1,6 @@
 import { NUMBER } from '../constants.ts';
 import type { Token } from '../types.ts';
+import { isUnquotedSheetNameChar } from './lexContext.ts';
 
 const EXCL = 33; // !
 const COLON = 58; // :
@@ -52,6 +53,20 @@ export function lexNumber (str: string, pos: number): Token | undefined {
   const tail = str.charCodeAt(pos);
   if (tail === EXCL || tail === COLON) {
     return;
+  }
+
+  // A sheet name may begin with digits, so digits that run on into name characters and then
+  // reach a "!" or ":" are the start of a prefix rather than a number: the "2020plan" of
+  // 2020plan!A1, or of Jan:2020plan!A1.
+  if (!frac && isUnquotedSheetNameChar(tail)) {
+    let end = pos;
+    while (end < str.length && isUnquotedSheetNameChar(str.charCodeAt(end))) {
+      end++;
+    }
+    const after = str.charCodeAt(end);
+    if (after === EXCL || after === COLON) {
+      return;
+    }
   }
 
   return { type: NUMBER, value: str.slice(start, pos) };

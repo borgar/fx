@@ -558,6 +558,36 @@ describe('lexer', () => {
       }
     });
 
+    test('a sheet name that begins with digits is one prefix, not a number and a name', () => {
+      // 2020plan is a sheet name, not the number 2020 and the name plan: Excel stores 2020plan!A1
+      // quoted, as '2020plan'!A1.
+      isTokens('=2020plan!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: '2020plan!A1' }
+      ]);
+      isTokens('=2020plan:Mar!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: '2020plan:Mar!A1' }
+      ]);
+      // as the second name too; which side of the colon it lands on is the range operator's rule
+      expect(tokenize('=SUM(Jan:2020plan!A1)').filter(t => t.type === NUMBER)).toEqual([]);
+      // a number followed by a name, with no ! or : after it, is a number and a name
+      isTokens('=2020plan', [
+        { type: FX_PREFIX, value: '=' },
+        { type: NUMBER, value: '2020' },
+        { type: REF_NAMED, value: 'plan' }
+      ]);
+      isTokens('=UNIQUE(1stLevel!H2:H)', [
+        { type: FX_PREFIX, value: '=' },
+        { type: FUNCTION, value: 'UNIQUE' },
+        { type: OPERATOR, value: '(' },
+        { type: REF_RANGE, value: '1stLevel!H2' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_NAMED, value: 'H' },
+        { type: OPERATOR, value: ')' }
+      ]);
+    });
+
     test('decimals with no fraction part', () => {
       isTokens('=1.*2', [
         { type: FX_PREFIX, value: '=' },
