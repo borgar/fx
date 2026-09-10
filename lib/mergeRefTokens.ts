@@ -27,16 +27,6 @@ const validRunsMerge = [
   [ [ CONTEXT, CONTEXT_QUOTE ], '!', REF_BEAM ],
   [ [ CONTEXT, CONTEXT_QUOTE ], '!', REF_TERNARY ],
 
-  // 'Sheet1':Sheet2!A1 | 'Sheet1':'Sheet2'!A1
-  [ CONTEXT_QUOTE, ':', [ CONTEXT, CONTEXT_QUOTE ], '!', REF_CELL, ':', REF_CELL ],
-  [ CONTEXT_QUOTE, ':', [ CONTEXT, CONTEXT_QUOTE ], '!', REF_CELL, '.:', REF_CELL ],
-  [ CONTEXT_QUOTE, ':', [ CONTEXT, CONTEXT_QUOTE ], '!', REF_CELL, ':.', REF_CELL ],
-  [ CONTEXT_QUOTE, ':', [ CONTEXT, CONTEXT_QUOTE ], '!', REF_CELL, '.:.', REF_CELL ],
-  [ CONTEXT_QUOTE, ':', [ CONTEXT, CONTEXT_QUOTE ], '!', REF_CELL ],
-  [ CONTEXT_QUOTE, ':', [ CONTEXT, CONTEXT_QUOTE ], '!', REF_RANGE ],
-  [ CONTEXT_QUOTE, ':', [ CONTEXT, CONTEXT_QUOTE ], '!', REF_BEAM ],
-  [ CONTEXT_QUOTE, ':', [ CONTEXT, CONTEXT_QUOTE ], '!', REF_TERNARY ],
-
   // Sheet1:Sheet2!A1 | 'Sheet1':Sheet2!A1
   [ [ REF_NAMED, CONTEXT, CONTEXT_QUOTE ], ':', CONTEXT, '!', REF_CELL, ':', REF_CELL ],
   [ [ REF_NAMED, CONTEXT, CONTEXT_QUOTE ], ':', CONTEXT, '!', REF_CELL, '.:', REF_CELL ],

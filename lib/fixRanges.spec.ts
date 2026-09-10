@@ -119,10 +119,13 @@ describe('fixRanges prefixes', () => {
 
   test('a quote around the second end is the range operator, not a 3D reference', () => {
     isFixed("=foo:'bar baz'!A1", "=foo:'bar baz'!A1");
-    // Excel fixes this to `=foo:'bar baz'!A1`
-    isFixed("='foo':'bar baz'!A1", "='foo:bar baz'!A1");
     isFixed("=foo:'bar baz'!A1", "=foo:'bar baz'!A1", { xlsx: true });
-    isFixed("=Jan:'[1]Nope'!A1", '=Jan:[1]Nope!A1');
+    isFixed("=foo:'bar baz'!A1", "=foo:'bar baz'!A1");
+    isFixed("=foo:'bar baz'!A1", "=foo:'bar baz'!A1", { xlsx: true });
+    isFixed("=foo:'bar baz'!A1", "=foo:'bar baz'!A1");
+    isFixed("=foo:'bar baz'!A1", "=foo:'bar baz'!A1", { xlsx: true });
+    isFixed("=Jan:'[1]Nope'!A1", "=Jan:'[1]Nope'!A1");
+    isFixed("=Jan:'[1]Nope'!A1", "=Jan:'[1]Nope'!A1", { xlsx: true });
   });
 
   test('a digit-leading second sheet name goes to the range operator', () => {
@@ -145,15 +148,34 @@ describe('fixRanges prefixes', () => {
     isFixed('=Sheet2:Sheet1!B2:A1', '=Sheet2:Sheet1!A1:B2', { xlsx: true });
   });
 
-  test('leaves cross-sheet ranges as two references', () => {
-    isFixed('=B!F2:B!F20', '=B!F2:B!F20');
-    isFixed('=Sheet1!A1:Sheet2!B2', '=Sheet1!A1:Sheet2!B2');
-  });
-
   test('leaves an external link index unquoted', () => {
     isFixed('=SUM([1]Sheet1!A1)', '=SUM([1]Sheet1!A1)');
     isFixed("=SUM('[1]Sheet1'!A1)", '=SUM([1]Sheet1!A1)');
     isFixed('=[1]1040!B2', "='[1]1040'!B2");
+  });
+
+  test('quotes context in xlsx mode where needed', () => {
+    isFixed('=B!F2:B!F20', '=B!F2:B!F20');
+    isFixed('=B!F2:B!F20', "=B!F2:'B'!F20", { xlsx: true });
+    isFixed('=B!F2 : B!F20', '=B!F2 : B!F20');
+    isFixed('=B!F2 : B!F20', "=B!F2 : 'B'!F20", { xlsx: true });
+    isFixed('=Sheet1!A1:Sheet2!B2', '=Sheet1!A1:Sheet2!B2');
+    isFixed('=Sheet1!A1:Sheet2!B2', "=Sheet1!A1:'Sheet2'!B2", { xlsx: true });
+    isFixed('=INDIRECT("A1"):Sheet2!B2', '=INDIRECT("A1"):Sheet2!B2');
+    isFixed('=INDIRECT("A1"):Sheet2!B2', '=INDIRECT("A1"):\'Sheet2\'!B2', { xlsx: true });
+    isFixed('=#REF!:Sheet2!B2', '=#REF!:Sheet2!B2');
+    isFixed('=#REF!:Sheet2!B2', '=#REF!:\'Sheet2\'!B2', { xlsx: true });
+  });
+
+  test('removes quotes from context scopes passing as names', () => {
+    isFixed("='foo':'bar baz'!A1", "=foo:'bar baz'!A1");
+    isFixed("='foo':'bar baz'!A1", "=foo:'bar baz'!A1", { xlsx: true });
+    isFixed('=foo:bar!A1', '=foo:bar!A1');
+    isFixed('=foo:bar!A1', '=foo:bar!A1', { xlsx: true });
+    isFixed("='foo':bar!A1", '=foo:bar!A1');
+    isFixed("='foo':bar!A1", '=foo:bar!A1', { xlsx: true });
+    isFixed("=foo:'bar'!A1", "=foo:'bar'!A1");
+    isFixed("=foo:'bar'!A1", "=foo:'bar'!A1", { xlsx: true });
   });
 });
 

@@ -80,20 +80,22 @@ describe('add extra meta to operators', () => {
 
   test('group 3D references by their whole sheet range', () => {
     isMetaTokens("=Jan:Dec!B11,'jan:dec'!B11,'jan':'dec'!B11,'jan':dec!B11,JAN:dEc!B11,Jan!B11,Dec!B11", [
-      { index: 0, depth: 0, type: FX_PREFIX, value: '=' },
-      { index: 1, depth: 0, type: REF_RANGE, value: 'Jan:Dec!B11', groupId: 'fxg1' },
-      { index: 2, depth: 0, type: OPERATOR, value: ',' },
-      { index: 3, depth: 0, type: REF_RANGE, value: "'jan:dec'!B11", groupId: 'fxg1' },
-      { index: 4, depth: 0, type: OPERATOR, value: ',' },
-      { index: 5, depth: 0, type: REF_RANGE, value: "'jan':'dec'!B11", groupId: 'fxg1' },
-      { index: 6, depth: 0, type: OPERATOR, value: ',' },
-      { index: 7, depth: 0, type: REF_RANGE, value: "'jan':dec!B11", groupId: 'fxg1' },
-      { index: 8, depth: 0, type: OPERATOR, value: ',' },
-      { index: 9, depth: 0, type: REF_RANGE, value: 'JAN:dEc!B11', groupId: 'fxg1' },
-      { index: 10, depth: 0, type: OPERATOR, value: ',' },
-      { index: 11, depth: 0, type: REF_RANGE, value: 'Jan!B11', groupId: 'fxg2' },
-      { index: 12, depth: 0, type: OPERATOR, value: ',' },
-      { index: 13, depth: 0, type: REF_RANGE, value: 'Dec!B11', groupId: 'fxg3' }
+      { index: 0, depth: 0, type: 'fx_prefix', value: '=' },
+      { index: 1, depth: 0, type: 'range', value: 'Jan:Dec!B11', groupId: 'fxg1' },
+      { index: 2, depth: 0, type: 'operator', value: ',' },
+      { index: 3, depth: 0, type: 'range', value: "'jan:dec'!B11", groupId: 'fxg1' },
+      { index: 4, depth: 0, type: 'operator', value: ',' },
+      { index: 5, depth: 0, type: 'context_quote', value: "'jan'" },
+      { index: 6, depth: 0, type: 'operator', value: ':' },
+      { index: 7, depth: 0, type: 'range', value: "'dec'!B11", groupId: 'fxg2' },
+      { index: 8, depth: 0, type: 'operator', value: ',' },
+      { index: 9, depth: 0, type: 'range', value: "'jan':dec!B11", groupId: 'fxg1' },
+      { index: 10, depth: 0, type: 'operator', value: ',' },
+      { index: 11, depth: 0, type: 'range', value: 'JAN:dEc!B11', groupId: 'fxg1' },
+      { index: 12, depth: 0, type: 'operator', value: ',' },
+      { index: 13, depth: 0, type: 'range', value: 'Jan!B11', groupId: 'fxg3' },
+      { index: 14, depth: 0, type: 'operator', value: ',' },
+      { index: 15, depth: 0, type: 'range', value: 'Dec!B11', groupId: 'fxg2' }
     ], { sheetName: 'Sheet1', workbookName: 'foo' });
   });
 

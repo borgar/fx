@@ -58,6 +58,11 @@ export function isIdentityChar (s: number) {
   return (a & OK_0);
 }
 
+export function isOkayNameChar (s: number, nth = 1) {
+  const a = s >= 180 ? OK_HIGHCHAR : ALLOWED[s - OFFS];
+  return nth ? (a & OK_NAME_N) : (a & OK_NAME_0);
+}
+
 export function lexNameFuncCntx (
   str: string,
   pos: number,
