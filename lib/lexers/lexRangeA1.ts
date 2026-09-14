@@ -87,7 +87,7 @@ export function lexRangeA1 (
           return { type: REF_RANGE, value: str.slice(pos, p) };
         }
       }
-      else if (!top && !bottom) {
+      else if (!top && !bottom && right) {
         if (canEndRange(str, p)) {
           return { type: REF_BEAM, value: str.slice(pos, p) };
         }

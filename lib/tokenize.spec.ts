@@ -2126,6 +2126,19 @@ describe('lexer', () => {
         { type: REF_TERNARY, value: 'A:A1' }
       ], { mergeRefs: false, allowTernary: true });
     });
+
+    test('with space after colon', () => {
+      isTokens('=SUM(Jan: Mar!A1)', [
+        { type: FX_PREFIX, value: '=' },
+        { type: FUNCTION, value: 'SUM' },
+        { type: OPERATOR, value: '(' },
+        { type: REF_NAMED, value: 'Jan' },
+        { type: OPERATOR, value: ':' },
+        { type: WHITESPACE, value: ' ' },
+        { type: REF_RANGE, value: 'Mar!A1' },
+        { type: OPERATOR, value: ')' }
+      ], opts);
+    });
   });
 
   describe('external refs syntax from XLSX files', () => {
