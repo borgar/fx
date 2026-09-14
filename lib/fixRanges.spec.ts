@@ -151,12 +151,18 @@ describe('fixRanges prefixes', () => {
     isFixed("=SUM('Sheet1:1'!A1)", "=SUM('Sheet1:1'!A1)", { xlsx: true });
     isFixed('=SUM(X:1!A1)', "=SUM(X:'1'!A1)");
     isFixed('=SUM(X:1!A1)', "=SUM(X:'1'!A1)", { xlsx: true });
+    isFixed('=SUM(Jan:2020plan!A1)', "=SUM(Jan:'2020plan'!A1)");
+    isFixed('=SUM(Jan:2020plan!A1)', "=SUM(Jan:'2020plan'!A1)", { xlsx: true });
     isFixed("=SUM(Jan:'2020plan'!A1)", "=SUM(Jan:'2020plan'!A1)");
     isFixed("=SUM(Jan:'2020plan'!A1)", "=SUM(Jan:'2020plan'!A1)", { xlsx: true });
+    isFixed("=SUM('Jan:2020plan'!A1)", "=SUM('Jan:2020plan'!A1)");
+    isFixed("=SUM('Jan:2020plan'!A1)", "=SUM('Jan:2020plan'!A1)", { xlsx: true });
     isFixed('=SUM(1:5!A1)', "=SUM('1:5'!A1)");
     isFixed('=SUM(1:5!A1)', "=SUM('1:5'!A1)", { xlsx: true });
     isFixed("=SUM('1:5'!A1)", "=SUM('1:5'!A1)");
     isFixed("=SUM('1:5'!A1)", "=SUM('1:5'!A1)", { xlsx: true });
+    isFixed('=SUM(A:5!A1)', "=SUM(A:'5'!A1)");
+    isFixed('=SUM(A:5!A1)', "=SUM(A:'5'!A1)", { xlsx: true });
     isFixed('=SUM([Book.xlsx]1:3!A1)', "=SUM('[Book.xlsx]1:3'!A1)");
     isFixed('=SUM([Book.xlsx]1:3!A1)', "=SUM('[Book.xlsx]1:3'!A1)", { xlsx: true });
   });

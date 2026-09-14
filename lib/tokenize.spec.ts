@@ -312,17 +312,21 @@ describe('lexer', () => {
         { type: FX_PREFIX, value: '=' },
         { type: REF_RANGE, value: '2020plan!A1' }
       ]);
+      isTokens('=1:5!A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: '1:5!A1' }
+      ]);
       isTokens('=2020plan:Mar!A1', [
         { type: FX_PREFIX, value: '=' },
         { type: REF_RANGE, value: '2020plan:Mar!A1' }
       ]);
-      // expect(tokenize('=SUM(Jan:2020plan!A1)').filter(t => t.type === NUMBER)).toEqual([]);
-      // a number followed by a name, with no ! or : after it, is a number and a name
       isTokens('=SUM(Jan:2020plan!A1)', [
         { type: FX_PREFIX, value: '=' },
         { type: FUNCTION, value: 'SUM' },
         { type: OPERATOR, value: '(' },
-        { type: REF_RANGE, value: 'Jan:2020plan!A1' },
+        { type: REF_NAMED, value: 'Jan' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_RANGE, value: '2020plan!A1' },
         { type: OPERATOR, value: ')' }
       ]);
       isTokens('=2020plan', [

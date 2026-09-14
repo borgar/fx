@@ -126,7 +126,7 @@ const matcher = (
         }
         // "Sheet1"
         else {
-          if (/^\d+$/.test(value)) {
+          if (/^\d/.test(value)) {
             haveNumericSheet = true;
           }
           else if (value.includes(':')) {

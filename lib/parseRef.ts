@@ -225,13 +225,10 @@ const pContextNames: RefParserPart = (t, data, xlsx) => {
     }
   }
 };
-const pExtendedContext: RefParserPart = (t, data, xlsx, r1c1, tokens) => {
+const pExtendedContext: RefParserPart = (t, data, xlsx) => {
   const type = t?.type;
-  // We don't allow quoted sheet ranges if the prev context was unquoted:
-  //   ✅ a:b   ✅ 'a':'b'   ✅ 'a':b   ⛔️ a:'b'
-  if (type === CONTEXT || (type === CONTEXT_QUOTE && tokens[0].type === CONTEXT_QUOTE)) {
-    // const d: Partial<RefParseDataCtx & RefParseDataXls> = {};
-    const value = type === CONTEXT_QUOTE ? unquotePrefix(t.value) : t.value;
+  if (type === CONTEXT) {
+    const value = t.value;
     if (xlsx) {
       const d = splitContextXls(value);
       if (d.sheetName && !d.workbookName) {
