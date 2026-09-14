@@ -182,6 +182,13 @@ describe('parse A1 references', () => {
     isA1Equal('[Book.xlsx]1:3!A1', { context: [ 'Book.xlsx', '1:3' ], range });
   });
 
+  test('an end sheet name that only opens with a column ID', () => {
+    const range = { top: 1, left: 1, bottom: 1, right: 1 };
+    isA1Equal('Jan:Bar_Baz!B2', { context: [ 'Jan:Bar_Baz' ], range });
+    isA1Equal('Jan:A0U!B2', { context: [ 'Jan:A0U' ], range });
+    isA1Equal('Jan:AÄl!B2', { context: [ 'Jan:AÄl' ], range });
+  });
+
   test('a left side that is also a cell address wins over a sheet range', () => {
     isA1Equal('A1:B2!C3', undefined);
     isA1Equal('A1:Sheet2!B2', undefined);

@@ -99,6 +99,22 @@ describe('fixRanges prefixes', () => {
     isFixed('=A:B!A1', '=A:B!A1');
     isFixed('=SUM(AA:AB!A1)', '=SUM(AA:AB!A1)');
     isFixed('=SUM(A:AB!A1)', '=SUM(A:AB!A1)');
+    // a name that only opens with a column ID is stored unquoted
+    isFixed('=SUM(Jan:Bar_Baz!B2)', '=SUM(Jan:Bar_Baz!B2)');
+    isFixed("=SUM('Jan:Bar_Baz'!B2)", '=SUM(Jan:Bar_Baz!B2)');
+    isFixed('=SUM(Jan:A0U!B2)', '=SUM(Jan:A0U!B2)');
+  });
+
+  test('a sheet range ending in a logical literal is quoted whole', () => {
+    // Excel stores SUM(Alpha:TRUE!A1) as SUM('Alpha:TRUE'!A1)
+    isFixed('=SUM(Alpha:TRUE!A1)', "=SUM('Alpha:TRUE'!A1)");
+    isFixed('=SUM(Alpha:FALSE!A1)', "=SUM('Alpha:FALSE'!A1)");
+    isFixed("=SUM('Alpha:TRUE'!A1)", "=SUM('Alpha:TRUE'!A1)");
+    isFixed('=SUM(Alpha:TRUE!A1)', "=SUM('Alpha:TRUE'!A1)", { xlsx: true });
+    isFixed('=SUM([Book1]Alpha:TRUE!A1)', "=SUM('[Book1]Alpha:TRUE'!A1)");
+    isFixed('=SUM([Book1]TRUE:Gamma!A1)', "=SUM('[Book1]TRUE:Gamma'!A1)");
+    // Excel refuses TRUE:Gamma!A1 unquoted, and it is not a reference here either
+    isFixed('=SUM(TRUE:Gamma!A1)', '=SUM(TRUE:Gamma!A1)');
   });
 
   test('a workbook qualifier changes nothing about the quoting', () => {
