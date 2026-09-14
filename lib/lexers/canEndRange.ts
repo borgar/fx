@@ -1,5 +1,5 @@
 // regular: [A-Za-z0-9_\u00a1-\uffff]
-export function canEndRange (str: string, pos: number): boolean {
+export function canEndRange (str: string, pos: number, r1c1: boolean = false): boolean {
   const c = str.charCodeAt(pos);
   return !(
     (c >= 65 && c <= 90) || // A-Z
@@ -9,6 +9,7 @@ export function canEndRange (str: string, pos: number): boolean {
     (c === 40) || // (
     (c === 33) || // !
     (c === 39) || // '
+    (!r1c1 && c === 46 && str.charCodeAt(pos + 1) !== 58) || // . :
     (c > 0xA0) // \u00a1-\uffff
   );
 }

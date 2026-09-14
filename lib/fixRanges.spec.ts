@@ -67,12 +67,13 @@ describe('fixRanges basics', () => {
 });
 
 describe('fixRanges prefixes', () => {
-  test('Quotes prefixes as needed', () => {
+  test('quotes prefixes as needed', () => {
     isFixed('=Sch1!B2', "='Sch1'!B2");
     isFixed('=[Foo]Ab12x!B2', '=[Foo]Ab12x!B2');
     isFixed('=[Foo]Ab12!B2', "='[Foo]Ab12'!B2");
     isFixed('=ABC123!B2', "='ABC123'!B2");
     isFixed('=abc123!B2', "='abc123'!B2");
+    isFixed('=2020plan!B2', "='2020plan'!B2");
     isFixed('=C!B2', "='C'!B2");
     isFixed('=R!B2', "='R'!B2");
     isFixed('=RC!B2', "='RC'!B2");
@@ -90,10 +91,11 @@ describe('fixRanges prefixes', () => {
     isFixed('=SUM(A:C!A1)', "=SUM('A:C'!A1)");
     isFixed('=SUM(B:C!A1)', "=SUM('B:C'!A1)");
     isFixed('=SUM(C:D!A1)', "=SUM('C:D'!A1)");
-    isFixed('=SUM(A:8!A1)', "=SUM('A:8'!A1)");
-    isFixed('=SUM(B:8!A1)', "=SUM('B:8'!A1)");
+    isFixed('=SUM(A:8!A1)', "=SUM(A:'8'!A1)");
+    isFixed('=SUM(B:8!A1)', "=SUM(B:'8'!A1)");
     isFixed('=SUM(8:D!A1)', "=SUM('8:D'!A1)");
     isFixed('=SUM(10:23!A1)', "=SUM('10:23'!A1)");
+    isFixed('=SUM(2020plan:Mar!A1)', "=SUM('2020plan:Mar'!A1)");
     isFixed('=A:B!A1', '=A:B!A1');
     isFixed('=SUM(AA:AB!A1)', '=SUM(AA:AB!A1)');
     isFixed('=SUM(A:AB!A1)', '=SUM(A:AB!A1)');
@@ -120,21 +122,27 @@ describe('fixRanges prefixes', () => {
   test('a quote around the second end is the range operator, not a 3D reference', () => {
     isFixed("=foo:'bar baz'!A1", "=foo:'bar baz'!A1");
     isFixed("=foo:'bar baz'!A1", "=foo:'bar baz'!A1", { xlsx: true });
-    isFixed("=foo:'bar baz'!A1", "=foo:'bar baz'!A1");
-    isFixed("=foo:'bar baz'!A1", "=foo:'bar baz'!A1", { xlsx: true });
-    isFixed("=foo:'bar baz'!A1", "=foo:'bar baz'!A1");
-    isFixed("=foo:'bar baz'!A1", "=foo:'bar baz'!A1", { xlsx: true });
     isFixed("=Jan:'[1]Nope'!A1", "=Jan:'[1]Nope'!A1");
     isFixed("=Jan:'[1]Nope'!A1", "=Jan:'[1]Nope'!A1", { xlsx: true });
   });
 
   test('a digit-leading second sheet name goes to the range operator', () => {
-    isFixed('=SUM(Sheet1:1!A1)', "=SUM('Sheet1:1'!A1)");
-    isFixed('=SUM(X:1!A1)', "=SUM('X:1'!A1)");
+    isFixed('=SUM(Sheet1:1!A1)', "=SUM(Sheet1:'1'!A1)");
+    isFixed('=SUM(Sheet1:1!A1)', "=SUM(Sheet1:'1'!A1)", { xlsx: true });
     isFixed("=SUM(Sheet1:'1'!A1)", "=SUM(Sheet1:'1'!A1)");
+    isFixed("=SUM(Sheet1:'1'!A1)", "=SUM(Sheet1:'1'!A1)", { xlsx: true });
+    isFixed("=SUM('Sheet1:1'!A1)", "=SUM('Sheet1:1'!A1)");
+    isFixed("=SUM('Sheet1:1'!A1)", "=SUM('Sheet1:1'!A1)", { xlsx: true });
+    isFixed('=SUM(X:1!A1)', "=SUM(X:'1'!A1)");
+    isFixed('=SUM(X:1!A1)', "=SUM(X:'1'!A1)", { xlsx: true });
     isFixed("=SUM(Jan:'2020plan'!A1)", "=SUM(Jan:'2020plan'!A1)");
+    isFixed("=SUM(Jan:'2020plan'!A1)", "=SUM(Jan:'2020plan'!A1)", { xlsx: true });
+    isFixed('=SUM(1:5!A1)', "=SUM('1:5'!A1)");
+    isFixed('=SUM(1:5!A1)', "=SUM('1:5'!A1)", { xlsx: true });
     isFixed("=SUM('1:5'!A1)", "=SUM('1:5'!A1)");
+    isFixed("=SUM('1:5'!A1)", "=SUM('1:5'!A1)", { xlsx: true });
     isFixed('=SUM([Book.xlsx]1:3!A1)', "=SUM('[Book.xlsx]1:3'!A1)");
+    isFixed('=SUM([Book.xlsx]1:3!A1)', "=SUM('[Book.xlsx]1:3'!A1)", { xlsx: true });
   });
 
   test('a left side that is also a cell address wins over a 3D reference', () => {
@@ -146,6 +154,26 @@ describe('fixRanges prefixes', () => {
     // the range is normalized, the sheet range is not: fx does not know the workbook's sheet order
     isFixed('=Sheet2:Sheet1!B2:A1', '=Sheet2:Sheet1!A1:B2');
     isFixed('=Sheet2:Sheet1!B2:A1', '=Sheet2:Sheet1!A1:B2', { xlsx: true });
+  });
+
+  test('collapses 3d ranges with repeated names', () => {
+    isFixed('=Sheet1:Sheet1!A1', '=Sheet1!A1');
+    isFixed('=Sheet1:Sheet2!A1', '=Sheet1:Sheet2!A1');
+    isFixed("='List 1:List 1'!A1", "='List 1'!A1");
+    isFixed("='List 1:List 2'!A1", "='List 1:List 2'!A1");
+    isFixed('=[Book.xlsx]Sheet1:Sheet1!A1', '=[Book.xlsx]Sheet1!A1');
+    isFixed('=[Book.xlsx]Sheet1:Sheet2!A1', '=[Book.xlsx]Sheet1:Sheet2!A1');
+    isFixed("='[Book.xlsx]List 1:List 1'!A1", "='[Book.xlsx]List 1'!A1");
+    isFixed("='[Book.xlsx]List 1:List 2'!A1", "='[Book.xlsx]List 1:List 2'!A1");
+
+    isFixed('=Sheet1:Sheet1!A1', '=Sheet1!A1', { xlsx: true });
+    isFixed('=Sheet1:Sheet2!A1', '=Sheet1:Sheet2!A1', { xlsx: true });
+    isFixed("='List 1:List 1'!A1", "='List 1'!A1", { xlsx: true });
+    isFixed("='List 1:List 2'!A1", "='List 1:List 2'!A1", { xlsx: true });
+    isFixed('=[Book.xlsx]Sheet1:Sheet1!A1', '=[Book.xlsx]Sheet1!A1', { xlsx: true });
+    isFixed('=[Book.xlsx]Sheet1:Sheet2!A1', '=[Book.xlsx]Sheet1:Sheet2!A1', { xlsx: true });
+    isFixed("='[Book.xlsx]List 1:List 1'!A1", "='[Book.xlsx]List 1'!A1", { xlsx: true });
+    isFixed("='[Book.xlsx]List 1:List 2'!A1", "='[Book.xlsx]List 1:List 2'!A1", { xlsx: true });
   });
 
   test('leaves an external link index unquoted', () => {

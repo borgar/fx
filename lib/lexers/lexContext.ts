@@ -1,5 +1,6 @@
 import { CONTEXT, CONTEXT_QUOTE } from '../constants.ts';
 import type { Token } from '../types.ts';
+import { isOkayContextChar } from './lexNameFuncCntx.ts';
 
 const QUOT_SINGLE = 39; // '
 const BR_OPEN = 91; // [
@@ -87,24 +88,7 @@ export function lexContextUnquoted (str: string, pos: number, options: { xlsx: b
         }
         return undefined;
       }
-      else if (
-        (br1 == null || br2 != null) &&
-        // [0-9A-Za-z._¡¤§¨ª\u00ad¯-\uffff]
-        !(
-          (c >= 65 && c <= 90) || // A-Z
-          (c >= 97 && c <= 122) || // a-z
-          (c >= 48 && c <= 57) || // 0-9
-          (c === 46) || // .
-          (c === 95) || // _
-          (c === 161) || // ¡
-          (c === 164) || // ¤
-          (c === 167) || // §
-          (c === 168) || // ¨
-          (c === 170) || // ª
-          (c === 173) || // \u00ad
-          (c >= 175)    // ¯-\uffff
-        )
-      ) {
+      else if ((br1 == null || br2 != null) && !isOkayContextChar(c, pos - start)) {
         return;
       }
       // 0-9A-Za-z._¡¤§¨ª\u00ad¯-\uffff

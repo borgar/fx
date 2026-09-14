@@ -54,13 +54,21 @@ function isValidName (str: string, s: number, start: number, pos: number, name: 
 }
 
 export function isIdentityChar (s: number) {
+  if (s <= OFFS) return false;
   const a = s >= 180 ? OK_HIGHCHAR : ALLOWED[s - OFFS];
   return (a & OK_0);
 }
 
 export function isOkayNameChar (s: number, nth = 1) {
+  if (s <= OFFS) return false;
   const a = s >= 180 ? OK_HIGHCHAR : ALLOWED[s - OFFS];
   return nth ? (a & OK_NAME_N) : (a & OK_NAME_0);
+}
+
+export function isOkayContextChar (s: number, nth = 1) {
+  if (s <= OFFS) return false;
+  const a = s >= 180 ? OK_HIGHCHAR : ALLOWED[s - OFFS];
+  return nth ? (a & OK_CNTX_N) : (a & OK_CNTX_N);
 }
 
 export function lexNameFuncCntx (

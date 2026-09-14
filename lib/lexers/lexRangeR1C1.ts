@@ -118,7 +118,7 @@ export function lexRangeR1C1 (
         (r1 && c1 && r2 && !c2) ||
         (r1 && c1 && !r2 && c2)
       ) {
-        if (options.allowTernary && canEndRange(str, p)) {
+        if (options.allowTernary && canEndRange(str, p, true)) {
           return { type: REF_TERNARY, value: str.slice(pos, p) };
         }
       }
@@ -128,7 +128,7 @@ export function lexRangeR1C1 (
         (c1 && c2 && !r1 && !r2) ||
         (!c1 && !c2 && r1 && r2)
       ) {
-        if (canEndRange(str, p)) {
+        if (canEndRange(str, p, true)) {
           return { type: REF_BEAM, value: str.slice(pos, p) };
         }
       }
@@ -137,7 +137,7 @@ export function lexRangeR1C1 (
     // R1
     // C1
     // R1C1
-    if (canEndRange(str, preOp)) {
+    if (canEndRange(str, preOp, true)) {
       return {
         type: (r1 && c1) ? REF_RANGE : REF_BEAM,
         value: str.slice(pos, preOp)

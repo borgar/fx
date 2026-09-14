@@ -83,6 +83,7 @@ const matcher = (
   let cols = 0;
   let brackets = 0;
   let inPrefix = false;
+  let haveNumericSheet = false;
   // the longest run so far that ended on a terminal: a longer run may turn out
   // to be invalid, in which case we fall back to the best valid subset run
   let best = 0;
@@ -103,7 +104,12 @@ const matcher = (
         cols++;
         if (cols >= 2 || brackets) { break runloop; }
       }
-      // Note: (token.type === REF_NAMED) is not needed here because names cannot contain any of []:
+      // Note: names cannot contain any of: "[]:", so we don't need to count them in names
+      else if (token.type === REF_NAMED) {
+        if (haveNumericSheet) {
+          break runloop;
+        }
+      }
       // unquoted prefix
       else if (token.type === CONTEXT) {
         // "[Book1.xlsx]"
@@ -120,7 +126,10 @@ const matcher = (
         }
         // "Sheet1"
         else {
-          if (value.includes(':')) {
+          if (/^\d+$/.test(value)) {
+            haveNumericSheet = true;
+          }
+          else if (value.includes(':')) {
             cols++;
             if (cols >= 2) { break runloop; }
             if (rootType === REF_NAMED || rootType === REF_STRUCT) {
