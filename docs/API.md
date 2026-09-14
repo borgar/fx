@@ -1016,7 +1016,7 @@ An object representing a valid reference or `undefined` if it is invalid.
 ```ts
 function stringifyA1Ref(refObject: 
   | ReferenceA1
-  | ReferenceName): string;
+  | ReferenceName, forceQuotes?: boolean): string;
 ```
 
 Get an A1-style string representation of a reference object.
@@ -1040,9 +1040,10 @@ stringifyA1Ref({
 
 ## Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `refObject` | \| [`ReferenceA1`](#fxtype-aliasesreferencea1md) \| [`ReferenceName`](#fxtype-aliasesreferencenamemd) | A reference object. |
+| Parameter | Type | Default value | Description |
+| ------ | ------ | ------ | ------ |
+| `refObject` | \| [`ReferenceA1`](#fxtype-aliasesreferencea1md) \| [`ReferenceName`](#fxtype-aliasesreferencenamemd) | `undefined` | A reference object. |
+| `forceQuotes?` | `boolean` | `false` | Force the prefix to have single quotes around it. |
 
 ## Returns
 
@@ -1058,7 +1059,7 @@ The reference in A1-style string format.
 ```ts
 function stringifyR1C1Ref(refObject: 
   | ReferenceName
-  | ReferenceR1C1): string;
+  | ReferenceR1C1, forceQuotes?: boolean): string;
 ```
 
 Get an R1C1-style string representation of a reference object.
@@ -1082,9 +1083,10 @@ stringifyR1C1Ref({
 
 ## Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `refObject` | \| [`ReferenceName`](#fxtype-aliasesreferencenamemd) \| [`ReferenceR1C1`](#fxtype-aliasesreferencer1c1md) | A reference object. |
+| Parameter | Type | Default value | Description |
+| ------ | ------ | ------ | ------ |
+| `refObject` | \| [`ReferenceName`](#fxtype-aliasesreferencenamemd) \| [`ReferenceR1C1`](#fxtype-aliasesreferencer1c1md) | `undefined` | A reference object. |
+| `forceQuotes?` | `boolean` | `false` | Force the prefix to have single quotes around it. |
 
 ## Returns
 
@@ -3156,7 +3158,7 @@ An object representing a valid reference or null if it is invalid.
 ```ts
 function stringifyA1Ref(refObject: 
   | ReferenceA1Xlsx
-  | ReferenceNameXlsx): string;
+  | ReferenceNameXlsx, forceQuotes?: boolean): string;
 ```
 
 Get an A1-style string representation of a reference object.
@@ -3180,9 +3182,10 @@ stringifyA1Ref({
 
 ## Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `refObject` | \| [`ReferenceA1Xlsx`](#fxtype-aliasesreferencea1xlsxmd) \| [`ReferenceNameXlsx`](#fxtype-aliasesreferencenamexlsxmd) | A reference object. |
+| Parameter | Type | Default value | Description |
+| ------ | ------ | ------ | ------ |
+| `refObject` | \| [`ReferenceA1Xlsx`](#fxtype-aliasesreferencea1xlsxmd) \| [`ReferenceNameXlsx`](#fxtype-aliasesreferencenamexlsxmd) | `undefined` | A reference object. |
+| `forceQuotes?` | `boolean` | `false` | Force the prefix to have single quotes around it. |
 
 ## Returns
 
@@ -3198,7 +3201,7 @@ The reference in A1-style string format.
 ```ts
 function stringifyR1C1Ref(refObject: 
   | ReferenceNameXlsx
-  | ReferenceR1C1Xlsx): string;
+  | ReferenceR1C1Xlsx, forceQuotes?: boolean): string;
 ```
 
 Get an R1C1-style string representation of a reference object.
@@ -3222,9 +3225,10 @@ stringifyR1C1Ref({
 
 ## Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `refObject` | \| [`ReferenceNameXlsx`](#fxtype-aliasesreferencenamexlsxmd) \| [`ReferenceR1C1Xlsx`](#fxtype-aliasesreferencer1c1xlsxmd) | A reference object. |
+| Parameter | Type | Default value | Description |
+| ------ | ------ | ------ | ------ |
+| `refObject` | \| [`ReferenceNameXlsx`](#fxtype-aliasesreferencenamexlsxmd) \| [`ReferenceR1C1Xlsx`](#fxtype-aliasesreferencer1c1xlsxmd) | `undefined` | A reference object. |
+| `forceQuotes?` | `boolean` | `false` | Force the prefix to have single quotes around it. |
 
 ## Returns
 
