@@ -1,14 +1,20 @@
-import { isRange } from './isType.ts';
+import { isRange, isWhitespace } from './isType.ts';
 import { parseA1Ref, parseA1RefXlsx } from './parseA1Ref.ts';
 import { stringifyA1Ref, stringifyA1RefXlsx } from './stringifyA1Ref.ts';
 import { addA1RangeBounds } from './addA1RangeBounds.ts';
 import { parseStructRef, parseStructRefXlsx } from './parseStructRef.ts';
 import { stringifyStructRef, stringifyStructRefXlsx } from './stringifyStructRef.ts';
 import { tokenize, type OptsTokenize, tokenizeXlsx } from './tokenize.ts';
-import { REF_STRUCT } from './constants.ts';
+import { CONTEXT_QUOTE, OPERATOR, REF_NAMED, REF_STRUCT } from './constants.ts';
 import type { ReferenceA1, ReferenceA1Xlsx, Token } from './types.ts';
 import { cloneToken } from './cloneToken.ts';
 import { stringifyTokens } from './stringifyTokens.ts';
+import { unquotePrefix } from './parseRef.ts';
+import { isValidName } from './isValidName.ts';
+
+function isColonOperator (t?: Token): boolean {
+  return !!t && t.type === OPERATOR && t.value === ':';
+}
 
 // There is no R1C1 counterpart to this. This is because without an anchor cell
 // it is impossible to determine if a relative+absolute range (R[1]C[1]:R5C5)
@@ -78,10 +84,28 @@ export function fixTokenRanges (
   const { addBounds, thisRow } = options;
   let offsetSkew = 0;
   const output: Token[] = [];
-  for (const t of tokens) {
-    const token = cloneToken(t);
+  let last: Token | undefined;
+  let lastLast: Token | undefined;
+  for (let i = 0; i < tokens.length; i++) {
+    const token = cloneToken(tokens[i]);
     let offsetDelta = 0;
-    if (token.type === REF_STRUCT) {
+    if (token.type === CONTEXT_QUOTE) {
+      const next = tokens[i + 1];
+      const nextNext = tokens[i + 2];
+      // seek forwards to determine if this token should be normalized to a name:
+      // `'foo':'bar'!A1` => `foo:'bar'!A1`
+      if (
+        isColonOperator(next) &&
+        isRange(nextNext) &&
+        isValidName(unquotePrefix(token.value))
+      ) {
+        const preLen = token.value.length;
+        token.value = unquotePrefix(token.value);
+        token.type = REF_NAMED;
+        offsetDelta = token.value.length - preLen;
+      }
+    }
+    else if (token.type === REF_STRUCT) {
       const sref = parseStructRef(token.value);
       const newValue = stringifyStructRef(sref, { thisRow });
       offsetDelta = newValue.length - token.value.length;
@@ -94,7 +118,9 @@ export function fixTokenRanges (
       if (addBounds) {
         addA1RangeBounds(range);
       }
-      const newValue = stringifyA1Ref(ref);
+      // name type is the only ambiguity, so we only add quotes if we need to
+      const forceQuotes = isColonOperator(last) && lastLast?.type === REF_NAMED;
+      const newValue = stringifyA1Ref(ref, forceQuotes);
       offsetDelta = newValue.length - token.value.length;
       token.value = newValue;
     }
@@ -110,6 +136,10 @@ export function fixTokenRanges (
     }
     else {
       offsetSkew += offsetDelta;
+    }
+    if (!isWhitespace(token)) {
+      lastLast = last;
+      last = token;
     }
     output.push(token);
   }
@@ -169,11 +199,29 @@ export function fixTokenRangesXlsx (
   }
   const { addBounds, thisRow } = options;
   let offsetSkew = 0;
+  let last: Token | undefined;
+  let lastLast: Token | undefined;
   const output: Token[] = [];
-  for (const t of tokens) {
-    const token = cloneToken(t);
+  for (let i = 0; i < tokens.length; i++) {
+    const token = cloneToken(tokens[i]);
     let offsetDelta = 0;
-    if (token.type === REF_STRUCT) {
+    if (token.type === CONTEXT_QUOTE) {
+      const next = tokens[i + 1];
+      const nextNext = tokens[i + 2];
+      // look forwards and determine if this token should be normalized to a name:
+      // `'foo':'bar'!A1` => `foo:'bar'!A1`
+      if (
+        isColonOperator(next) &&
+        isRange(nextNext) &&
+        isValidName(unquotePrefix(token.value))
+      ) {
+        const preLen = token.value.length;
+        token.value = unquotePrefix(token.value);
+        token.type = REF_NAMED;
+        offsetDelta = token.value.length - preLen;
+      }
+    }
+    else if (token.type === REF_STRUCT) {
       const sref = parseStructRefXlsx(token.value);
       const newValue = stringifyStructRefXlsx(sref, { thisRow });
       offsetDelta = newValue.length - token.value.length;
@@ -186,7 +234,8 @@ export function fixTokenRangesXlsx (
       if (addBounds) {
         addA1RangeBounds(range);
       }
-      const newValue = stringifyA1RefXlsx(ref);
+      const forceQuotes = isColonOperator(last) || (isWhitespace(last) && isColonOperator(lastLast));
+      const newValue = stringifyA1RefXlsx(ref, forceQuotes);
       offsetDelta = newValue.length - token.value.length;
       token.value = newValue;
     }
@@ -202,6 +251,10 @@ export function fixTokenRangesXlsx (
     }
     else {
       offsetSkew += offsetDelta;
+    }
+    if (!isWhitespace(token)) {
+      lastLast = last;
+      last = token;
     }
     output.push(token);
   }

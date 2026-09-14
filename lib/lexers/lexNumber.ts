@@ -1,5 +1,6 @@
 import { NUMBER } from '../constants.ts';
 import type { Token } from '../types.ts';
+import { isOkayContextChar } from './lexNameFuncCntx.ts';
 
 const EXCL = 33; // !
 const COLON = 58; // :
@@ -50,7 +51,7 @@ export function lexNumber (str: string, pos: number): Token | undefined {
 
   // don't allow ! or : to follow a number
   const tail = str.charCodeAt(pos);
-  if (tail === EXCL || tail === COLON) {
+  if (tail === EXCL || tail === COLON || isOkayContextChar(tail)) {
     return;
   }
 

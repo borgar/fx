@@ -31,10 +31,11 @@ import { stringifyR1C1Range } from './stringifyR1C1Range.ts';
  * ```
  *
  * @param refObject A reference object.
+ * @param [forceQuotes] Force the prefix to have single quotes around it.
  * @returns The reference in R1C1-style string format.
  */
-export function stringifyR1C1Ref (refObject: ReferenceR1C1 | ReferenceName): string {
-  const prefix = stringifyPrefix(refObject);
+export function stringifyR1C1Ref (refObject: ReferenceR1C1 | ReferenceName, forceQuotes = false): string {
+  const prefix = stringifyPrefix(refObject, forceQuotes);
   return prefix + ('name' in refObject ? refObject.name : stringifyR1C1Range(refObject.range));
 }
 
@@ -59,9 +60,10 @@ export function stringifyR1C1Ref (refObject: ReferenceR1C1 | ReferenceName): str
  * ```
  *
  * @param refObject A reference object.
+ * @param [forceQuotes] Force the prefix to have single quotes around it.
  * @returns The reference in R1C1-style string format.
  */
-export function stringifyR1C1RefXlsx (refObject: ReferenceR1C1Xlsx | ReferenceNameXlsx): string {
-  const prefix = stringifyPrefixXlsx(refObject);
+export function stringifyR1C1RefXlsx (refObject: ReferenceR1C1Xlsx | ReferenceNameXlsx, forceQuotes = false): string {
+  const prefix = stringifyPrefixXlsx(refObject, forceQuotes);
   return prefix + ('name' in refObject ? refObject.name : stringifyR1C1Range(refObject.range));
 }

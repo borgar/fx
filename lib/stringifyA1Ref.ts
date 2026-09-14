@@ -23,10 +23,11 @@ import { stringifyA1Range } from './stringifyA1Range.ts';
  * ```
  *
  * @param refObject A reference object.
+ * @param [forceQuotes] Force the prefix to have single quotes around it.
  * @returns The reference in A1-style string format.
  */
-export function stringifyA1Ref (refObject: ReferenceA1 | ReferenceName): string {
-  const prefix = stringifyPrefix(refObject);
+export function stringifyA1Ref (refObject: ReferenceA1 | ReferenceName, forceQuotes = false): string {
+  const prefix = stringifyPrefix(refObject, forceQuotes);
   return prefix + ('name' in refObject ? refObject.name : stringifyA1Range(refObject.range));
 }
 
@@ -51,9 +52,10 @@ export function stringifyA1Ref (refObject: ReferenceA1 | ReferenceName): string 
  * ```
  *
  * @param refObject A reference object.
+ * @param [forceQuotes] Force the prefix to have single quotes around it.
  * @returns The reference in A1-style string format.
  */
-export function stringifyA1RefXlsx (refObject: ReferenceA1Xlsx | ReferenceNameXlsx): string {
-  const prefix = stringifyPrefixXlsx(refObject);
+export function stringifyA1RefXlsx (refObject: ReferenceA1Xlsx | ReferenceNameXlsx, forceQuotes = false): string {
+  const prefix = stringifyPrefixXlsx(refObject, forceQuotes);
   return prefix + ('name' in refObject ? refObject.name : stringifyA1Range(refObject.range));
 }

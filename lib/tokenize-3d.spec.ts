@@ -107,7 +107,9 @@ describe('lexer: 3d ranges', () => {
         { type: REF_RANGE, value: 'A1' }
       ]);
       expect(tokenize("'Alpha':'Gamma'!A1")).toEqual([
-        { type: REF_RANGE, value: "'Alpha':'Gamma'!A1" }
+        { type: CONTEXT_QUOTE, value: "'Alpha'" },
+        { type: OPERATOR, value: ':' },
+        { type: REF_RANGE, value: "'Gamma'!A1" }
       ]);
     });
     test('Both sections quoted together', () => {
@@ -263,8 +265,6 @@ describe('lexer: 3d ranges', () => {
     });
 
     test('both sections quoted, but independently', () => {
-      // XXX: ensure fixranges deals with this
-      // Excel will correct this to `'[Book.xlsx]Alpha:Gamma'!A1`
       expect(tokenize("'[Book.xlsx]Alpha':'Gamma'!A1", { mergeRefs: false })).toEqual([
         { type: CONTEXT_QUOTE, value: "'[Book.xlsx]Alpha'" },
         { type: OPERATOR, value: ':' },
@@ -273,7 +273,9 @@ describe('lexer: 3d ranges', () => {
         { type: REF_RANGE, value: 'A1' }
       ]);
       expect(tokenize("'[Book.xlsx]Alpha':'Gamma'!A1")).toEqual([
-        { type: REF_RANGE, value: "'[Book.xlsx]Alpha':'Gamma'!A1" }
+        { type: CONTEXT_QUOTE, value: "'[Book.xlsx]Alpha'" },
+        { type: OPERATOR, value: ':' },
+        { type: REF_RANGE, value: "'Gamma'!A1" }
       ]);
     });
 

@@ -45,19 +45,13 @@ type SplitItem = {
 };
 // Liberally split a context string up into parts.
 // Permits any combination of braced and unbraced items.
-export function splitPrefix (str: string, stringsOnly: true): string[];
-export function splitPrefix (str: string, stringsOnly?: false): SplitItem[];
-export function splitPrefix (str: string, stringsOnly: boolean = false): string[] | SplitItem[] {
+export function splitPrefix (str: string): SplitItem[] {
   let inBrace = false;
   let currStr = '';
   const parts = [];
   const flush = () => {
     if (currStr) {
-      parts.push(
-        stringsOnly
-          ? currStr
-          : { value: currStr, braced: inBrace }
-      );
+      parts.push({ value: currStr, braced: inBrace });
     }
     currStr = '';
   };
@@ -80,26 +74,44 @@ export function splitPrefix (str: string, stringsOnly: boolean = false): string[
   return parts;
 }
 
-export function splitContext (contextString: string, data: Partial<RefParseDataCtx & RefParseDataXls>, xlsx: boolean) {
-  if (xlsx) {
-    const ctx = splitPrefix(contextString, false);
-    if (ctx.length > 1) {
-      data.workbookName = ctx[ctx.length - 2].value;
-      data.sheetName = ctx[ctx.length - 1].value;
-    }
-    else if (ctx.length === 1) {
-      const item = ctx[0];
-      if (item.braced) {
-        data.workbookName = item.value;
-      }
-      else {
-        data.sheetName = item.value;
-      }
-    }
+function dedupe (s: string) {
+  const idx = s.indexOf(':');
+  if (idx === Math.trunc(s.length / 2) && s.slice(0, idx) === s.slice(idx + 1)) {
+    return s.slice(0, idx);
   }
-  else {
-    data.context = splitPrefix(contextString, true);
+  return s;
+}
+
+export function splitContextXls (contextString: string, fix3d = true): { workbookName?: string, sheetName?: string } {
+  const ctx = splitPrefix(contextString);
+  if (ctx.length > 1) {
+    return {
+      workbookName: ctx[ctx.length - 2].value,
+      sheetName: fix3d ? dedupe(ctx[ctx.length - 1].value) : ctx[ctx.length - 1].value
+    };
   }
+  else if (ctx.length === 1) {
+    const item = ctx[0];
+    const data: { workbookName?: string, sheetName?: string } = {};
+    if (item.braced) {
+      data.workbookName = item.value;
+    }
+    else {
+      data.sheetName = fix3d ? dedupe(item.value) : item.value;
+    }
+    return data;
+  }
+  return {};
+}
+
+export function splitContextCtx (contextString: string, fix3d = true): string[] {
+  const ctx = splitPrefix(contextString);
+  return ctx.map((d, i) => {
+    if (fix3d && i === ctx.length - 1) {
+      return dedupe(d.value);
+    }
+    return d.value;
+  });
 }
 
 export const unquotePrefix = (d: string) => d.slice(1, -1).replace(/''/g, "'");
@@ -153,15 +165,21 @@ const pStrucured: RefParserPart = (t, data) => {
 };
 const pContext: RefParserPart = (t, data, xlsx, r1c1 = false) => {
   const type = t?.type;
-  let isCtx = type === CONTEXT;
-  let usable = isCtx || type === CONTEXT_QUOTE;
+  let isUnquoted = type === CONTEXT;
+  let isUsable = isUnquoted || type === CONTEXT_QUOTE;
   // r1c1 exception
   if (r1c1 && type === REF_BEAM && !t.value.includes('[')) {
-    usable = true;
-    isCtx = true;
+    isUsable = true;
+    isUnquoted = true;
   }
-  if (usable) {
-    splitContext(isCtx ? t.value : unquotePrefix(t.value), data, xlsx);
+  if (isUsable) {
+    const prefix = isUnquoted ? t.value : unquotePrefix(t.value);
+    if (xlsx) {
+      Object.assign(data, splitContextXls(prefix));
+    }
+    else {
+      data.context = splitContextCtx(prefix);
+    }
     return 1;
   }
 };
@@ -169,18 +187,23 @@ const pContextNames: RefParserPart = (t, data, xlsx) => {
   const type = t?.type;
   if (type === CONTEXT) {
     // this won't not have ":" as lexer doesn't allow it
-    splitContext(t.value, data, xlsx);
+    if (xlsx) {
+      Object.assign(data, splitContextXls(t.value, false));
+    }
+    else {
+      data.context = splitContextCtx(t.value, false);
+    }
     return 1;
   }
   else if (type === CONTEXT_QUOTE && !xlsx) {
-    const ctx = splitPrefix(unquotePrefix(t.value), true);
-    if (!(ctx.length > 1 && ctx.at(-1).includes(':'))) {
+    const ctx = splitContextCtx(unquotePrefix(t.value), false);
+    if (ctx.length === 1 || (ctx.length > 1 && !ctx.at(-1).includes(':'))) {
       data.context = ctx;
       return 1;
     }
   }
   else if (type === CONTEXT_QUOTE) {
-    const ctx = splitPrefix(unquotePrefix(t.value), false);
+    const ctx = splitPrefix(unquotePrefix(t.value));
     if (ctx.length === 1) {
       const item = ctx[0];
       if (item.braced) {
@@ -193,8 +216,8 @@ const pContextNames: RefParserPart = (t, data, xlsx) => {
       }
     }
     else if (ctx.length > 1) {
-      data.workbookName = ctx[ctx.length - 2].value;
-      const sn = ctx[ctx.length - 1].value;
+      data.workbookName = ctx.at(-2).value;
+      const sn = ctx.at(-1).value;
       if (!sn.includes(':')) {
         data.sheetName = sn;
         return 1;
@@ -207,17 +230,27 @@ const pExtendedContext: RefParserPart = (t, data, xlsx, r1c1, tokens) => {
   // We don't allow quoted sheet ranges if the prev context was unquoted:
   //   ✅ a:b   ✅ 'a':'b'   ✅ 'a':b   ⛔️ a:'b'
   if (type === CONTEXT || (type === CONTEXT_QUOTE && tokens[0].type === CONTEXT_QUOTE)) {
-    const d: Partial<RefParseDataCtx & RefParseDataXls> = {};
+    // const d: Partial<RefParseDataCtx & RefParseDataXls> = {};
     const value = type === CONTEXT_QUOTE ? unquotePrefix(t.value) : t.value;
-    splitContext(value, d, xlsx);
-    if (xlsx && d.sheetName && !d.workbookName) {
-      data.sheetName += ':' + d.sheetName;
-      return 1;
+    if (xlsx) {
+      const d = splitContextXls(value);
+      if (d.sheetName && !d.workbookName) {
+        if (d.sheetName !== data.sheetName) {
+          data.sheetName += ':' + d.sheetName;
+        }
+        return 1;
+      }
     }
-    else if (!xlsx && d.context?.length === 1) {
-      const scope = data.context.pop();
-      data.context.push(scope + ':' + d.context[0]);
-      return 1;
+    else {
+      const ctx = splitContextCtx(value);
+      if (ctx?.length === 1) {
+        const newScope = ctx[0];
+        if (newScope !== data.context.at(-1)) {
+          const scope = data.context.pop();
+          data.context.push(scope + ':' + newScope);
+        }
+        return 1;
+      }
     }
   }
 };

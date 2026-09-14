@@ -59,10 +59,11 @@ export function quotePrefix (prefix: string) {
 }
 
 export function stringifyPrefix (
-  ref: ReferenceA1 | ReferenceName | ReferenceStruct | ReferenceR1C1
+  ref: ReferenceA1 | ReferenceName | ReferenceStruct | ReferenceR1C1,
+  forceQuotes = false
 ): string {
   let pre = '';
-  let quote = 0;
+  let quote = forceQuotes ? 1 : 0;
   const isName = !('range' in ref);
   const context = ref.context || [];
   const len = context.length;
@@ -81,17 +82,18 @@ export function stringifyPrefix (
     pre += context[len - 1];
     quote += quote ? 1 : needQuotes(context[len - 1], isName, false, true);
   }
-  if (quote) {
+  if (quote && pre) {
     pre = quotePrefix(pre);
   }
   return pre ? pre + '!' : pre;
 }
 
 export function stringifyPrefixXlsx (
-  ref: ReferenceA1Xlsx | ReferenceNameXlsx | ReferenceStructXlsx | ReferenceR1C1Xlsx
+  ref: ReferenceA1Xlsx | ReferenceNameXlsx | ReferenceStructXlsx | ReferenceR1C1Xlsx,
+  forceQuotes = false
 ): string {
   let pre = '';
-  let quote = 0;
+  let quote = forceQuotes ? 1 : 0;
   const isName = !('range' in ref);
   const { workbookName, sheetName } = ref;
   // if (path) {
@@ -106,7 +108,7 @@ export function stringifyPrefixXlsx (
     pre += sheetName;
     quote += quote ? 1 : needQuotes(sheetName, isName, false, true);
   }
-  if (quote) {
+  if (quote && pre) {
     pre = quotePrefix(pre);
   }
   return pre ? pre + '!' : pre;

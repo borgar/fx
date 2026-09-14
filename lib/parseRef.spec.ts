@@ -1,90 +1,95 @@
 import { describe, test, expect } from 'vitest';
-import { splitPrefix } from './parseRef.ts';
+import { splitContextCtx, splitContextXls, splitPrefix } from './parseRef.ts';
 
-function testStr (str: string, opt: boolean, expected: any) {
-  expect(opt ? splitPrefix(str, true) : splitPrefix(str, false)).toEqual(expected);
-}
-
-describe('splitPrefix', () => {
-  describe('with simple mode (opt = true)', () => {
+describe('parseRef', () => {
+  describe('splitPrefix', () => {
     test('fully bracketed references', () => {
-      testStr('[foo][bar][baz]', true, [ 'foo', 'bar', 'baz' ]);
-      testStr('[foo][bar]', true, [ 'foo', 'bar' ]);
-      testStr('[foo]', true, [ 'foo' ]);
-    });
-
-    test('mixed bracketed and unbracketed references', () => {
-      testStr('foo[bar][baz]', true, [ 'foo', 'bar', 'baz' ]);
-      testStr('[foo]bar[baz]', true, [ 'foo', 'bar', 'baz' ]);
-      testStr('[foo][bar]baz', true, [ 'foo', 'bar', 'baz' ]);
-      testStr('foo[bar]baz', true, [ 'foo', 'bar', 'baz' ]);
-      testStr('[foo]bar', true, [ 'foo', 'bar' ]);
-      testStr('foo[bar]', true, [ 'foo', 'bar' ]);
-    });
-
-    test('unbracketed references', () => {
-      testStr('foo', true, [ 'foo' ]);
-    });
-  });
-
-  describe('with detailed mode (opt = false)', () => {
-    test('fully bracketed references', () => {
-      testStr('[foo][bar][baz]', false, [
+      expect(splitPrefix('[foo][bar][baz]')).toEqual([
         { value: 'foo', braced: true },
         { value: 'bar', braced: true },
         { value: 'baz', braced: true }
       ]);
 
-      testStr('[foo][bar]', false, [
+      expect(splitPrefix('[foo][bar]')).toEqual([
         { value: 'foo', braced: true },
         { value: 'bar', braced: true }
       ]);
 
-      testStr('[foo]', false, [
+      expect(splitPrefix('[foo]')).toEqual([
         { value: 'foo', braced: true }
       ]);
     });
 
     test('mixed bracketed and unbracketed references', () => {
-      testStr('foo[bar][baz]', false, [
+      expect(splitPrefix('foo[bar][baz]')).toEqual([
         { value: 'foo', braced: false },
         { value: 'bar', braced: true },
         { value: 'baz', braced: true }
       ]);
 
-      testStr('[foo]bar[baz]', false, [
+      expect(splitPrefix('[foo]bar[baz]')).toEqual([
         { value: 'foo', braced: true },
         { value: 'bar', braced: false },
         { value: 'baz', braced: true }
       ]);
 
-      testStr('[foo][bar]baz', false, [
+      expect(splitPrefix('[foo][bar]baz')).toEqual([
         { value: 'foo', braced: true },
         { value: 'bar', braced: true },
         { value: 'baz', braced: false }
       ]);
 
-      testStr('foo[bar]baz', false, [
+      expect(splitPrefix('foo[bar]baz')).toEqual([
         { value: 'foo', braced: false },
         { value: 'bar', braced: true },
         { value: 'baz', braced: false }
       ]);
 
-      testStr('[foo]bar', false, [
+      expect(splitPrefix('[foo]bar')).toEqual([
         { value: 'foo', braced: true },
         { value: 'bar', braced: false }
       ]);
 
-      testStr('foo[bar]', false, [
+      expect(splitPrefix('foo[bar]')).toEqual([
         { value: 'foo', braced: false },
         { value: 'bar', braced: true }
       ]);
     });
 
     test('unbracketed references', () => {
-      testStr('foo', false, [
+      expect(splitPrefix('foo')).toEqual([
         { value: 'foo', braced: false }
       ]);
     });
+  });
+
+  test('splitContextXls', () => {
+    expect(splitContextXls('Sheet1')).toEqual({ sheetName: 'Sheet1' });
+    expect(splitContextXls('Sheet 1')).toEqual({ sheetName: 'Sheet 1' });
+    expect(splitContextXls('[Book1.xlsx]Sheet1')).toEqual({ workbookName: 'Book1.xlsx', sheetName: 'Sheet1' });
+    expect(splitContextXls('[Book1.xlsx]Sheet 1')).toEqual({ workbookName: 'Book1.xlsx', sheetName: 'Sheet 1' });
+    expect(splitContextXls('Sheet1:Sheet1')).toEqual({ sheetName: 'Sheet1' });
+    expect(splitContextXls('Sheet1:Sheet2')).toEqual({ sheetName: 'Sheet1:Sheet2' });
+    expect(splitContextXls('Sheet 1:Sheet 1')).toEqual({ sheetName: 'Sheet 1' });
+    expect(splitContextXls('Sheet 1:Sheet 2')).toEqual({ sheetName: 'Sheet 1:Sheet 2' });
+    expect(splitContextXls('[Book1.xlsx]Sheet1:Sheet1')).toEqual({ workbookName: 'Book1.xlsx', sheetName: 'Sheet1' });
+    expect(splitContextXls('[Book1.xlsx]Sheet 1:Sheet 1')).toEqual({ workbookName: 'Book1.xlsx', sheetName: 'Sheet 1' });
+    expect(splitContextXls('[Book1.xlsx]Sheet 1:Sheet 2')).toEqual({ workbookName: 'Book1.xlsx', sheetName: 'Sheet 1:Sheet 2' });
+    expect(splitContextXls('[Book1.xlsx]')).toEqual({ workbookName: 'Book1.xlsx' });
+  });
+
+  test('splitContextCtx', () => {
+    expect(splitContextCtx('Sheet1')).toEqual([ 'Sheet1' ]);
+    expect(splitContextCtx('Sheet 1')).toEqual([ 'Sheet 1' ]);
+    expect(splitContextCtx('[Book1.xlsx]Sheet1')).toEqual([ 'Book1.xlsx', 'Sheet1' ]);
+    expect(splitContextCtx('[Book1.xlsx]Sheet 1')).toEqual([ 'Book1.xlsx', 'Sheet 1' ]);
+    expect(splitContextCtx('Sheet1:Sheet1')).toEqual([ 'Sheet1' ]);
+    expect(splitContextCtx('Sheet1:Sheet2')).toEqual([ 'Sheet1:Sheet2' ]);
+    expect(splitContextCtx('Sheet 1:Sheet 1')).toEqual([ 'Sheet 1' ]);
+    expect(splitContextCtx('Sheet 1:Sheet 2')).toEqual([ 'Sheet 1:Sheet 2' ]);
+    expect(splitContextCtx('[Book1.xlsx]Sheet1:Sheet1')).toEqual([ 'Book1.xlsx', 'Sheet1' ]);
+    expect(splitContextCtx('[Book1.xlsx]Sheet1:Sheet2')).toEqual([ 'Book1.xlsx', 'Sheet1:Sheet2' ]);
+    expect(splitContextCtx('[Book1.xlsx]Sheet 1:Sheet 1')).toEqual([ 'Book1.xlsx', 'Sheet 1' ]);
+    expect(splitContextCtx('[Book1.xlsx]Sheet 1:Sheet 2')).toEqual([ 'Book1.xlsx', 'Sheet 1:Sheet 2' ]);
   });
 });

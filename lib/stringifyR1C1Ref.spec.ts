@@ -85,3 +85,56 @@ describe('stringifyR1C1Ref in XLSX mode', () => {
     testRef({ context: [ 'MyFile.xlsx', 'Sheet1' ], name: 'foo' }, 'foo');
   });
 });
+
+describe('stringifyR1C1Ref with forceQuotes', () => {
+  const rangeA1 = { r0: 2, c0: 4, r1: 2, c1: 4 };
+
+  test('quotes prefixes that would not otherwise be quoted', () => {
+    expect(stringifyR1C1Ref({ context: [ 'Sheet1' ], range: rangeA1 }, true)).toBe("'Sheet1'!R[2]C[4]");
+    expect(stringifyR1C1Ref({ context: [ 'Sheet1' ], name: 'foo' }, true)).toBe("'Sheet1'!foo");
+    expect(stringifyR1C1Ref({ context: [ 'MyFile.xlsx', 'Sheet1' ], range: rangeA1 }, true)).toBe("'[MyFile.xlsx]Sheet1'!R[2]C[4]");
+    expect(stringifyR1C1Ref({ context: [ 'Jan:Dec' ], range: rangeA1 }, true)).toBe("'Jan:Dec'!R[2]C[4]");
+  });
+
+  test('prefixes that are quoted anyway are unaffected', () => {
+    expect(stringifyR1C1Ref({ context: [ 'Sheet 1' ], range: rangeA1 }, true)).toBe("'Sheet 1'!R[2]C[4]");
+    expect(stringifyR1C1Ref({ context: [ "O'Neil" ], range: rangeA1 }, true)).toBe("'O''Neil'!R[2]C[4]");
+  });
+
+  test('defaults to quoting only when needed', () => {
+    expect(stringifyR1C1Ref({ context: [ 'Sheet1' ], range: rangeA1 })).toBe('Sheet1!R[2]C[4]');
+    expect(stringifyR1C1Ref({ context: [ 'Sheet1' ], range: rangeA1 }, false)).toBe('Sheet1!R[2]C[4]');
+  });
+
+  test('an empty prefix stays empty', () => {
+    expect(stringifyR1C1Ref({ range: rangeA1 }, true)).toBe('R[2]C[4]');
+    expect(stringifyR1C1Ref({ context: [], range: rangeA1 }, true)).toBe('R[2]C[4]');
+    expect(stringifyR1C1Ref({ name: 'foo' }, true)).toBe('foo');
+  });
+});
+
+describe('stringifyR1C1Ref with forceQuotes in XLSX mode', () => {
+  const rangeA1 = { r0: 2, c0: 4, r1: 2, c1: 4 };
+
+  test('quotes prefixes that would not otherwise be quoted', () => {
+    expect(stringifyR1C1RefXlsx({ sheetName: 'Sheet1', range: rangeA1 }, true)).toBe("'Sheet1'!R[2]C[4]");
+    expect(stringifyR1C1RefXlsx({ sheetName: 'Sheet1', name: 'foo' }, true)).toBe("'Sheet1'!foo");
+    expect(stringifyR1C1RefXlsx({ workbookName: 'MyFile.xlsx', sheetName: 'Sheet1', range: rangeA1 }, true)).toBe("'[MyFile.xlsx]Sheet1'!R[2]C[4]");
+    expect(stringifyR1C1RefXlsx({ workbookName: 'MyFile.xlsx', range: rangeA1 }, true)).toBe("'[MyFile.xlsx]'!R[2]C[4]");
+  });
+
+  test('prefixes that are quoted anyway are unaffected', () => {
+    expect(stringifyR1C1RefXlsx({ sheetName: 'Sheet 1', range: rangeA1 }, true)).toBe("'Sheet 1'!R[2]C[4]");
+  });
+
+  test('defaults to quoting only when needed', () => {
+    expect(stringifyR1C1RefXlsx({ sheetName: 'Sheet1', range: rangeA1 })).toBe('Sheet1!R[2]C[4]');
+    expect(stringifyR1C1RefXlsx({ sheetName: 'Sheet1', range: rangeA1 }, false)).toBe('Sheet1!R[2]C[4]');
+  });
+
+  test('an empty prefix stays empty', () => {
+    expect(stringifyR1C1RefXlsx({ range: rangeA1 }, true)).toBe('R[2]C[4]');
+    expect(stringifyR1C1RefXlsx({ workbookName: '', sheetName: '', range: rangeA1 }, true)).toBe('R[2]C[4]');
+    expect(stringifyR1C1RefXlsx({ name: 'foo' }, true)).toBe('foo');
+  });
+});
