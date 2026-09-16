@@ -67,6 +67,18 @@ describe('stringifyA1Ref', () => {
     expect(stringifyA1Ref({ context: [ 'Truer' ], range: rangeA1 })).toBe('Truer!A1');
   });
 
+  test('quotes characters above U+00AF that Excel refuses unquoted', () => {
+    expect(stringifyA1Ref({ context: [ 'My\u00bbSheet' ], range: rangeA1 })).toBe("'My\u00bbSheet'!A1");
+    expect(stringifyA1Ref({ context: [ 'My\u02efSheet' ], range: rangeA1 })).toBe("'My\u02efSheet'!A1");
+    expect(stringifyA1Ref({ context: [ 'My\ufff8Sheet' ], range: rangeA1 })).toBe("'My\ufff8Sheet'!A1");
+    expect(stringifyA1Ref({ context: [ 'Jan:My\u00bbSheet' ], range: rangeA1 })).toBe("'Jan:My\u00bbSheet'!A1");
+    expect(stringifyA1Ref({ context: [ 'My\u00baSheet' ], range: rangeA1 })).toBe('My\u00baSheet!A1');
+    expect(stringifyA1Ref({ context: [ 'My\u00bcSheet' ], range: rangeA1 })).toBe('My\u00bcSheet!A1');
+    expect(stringifyA1Ref({ context: [ 'My\u02eeSheet' ], range: rangeA1 })).toBe('My\u02eeSheet!A1');
+    expect(stringifyA1Ref({ context: [ 'My\ufff9Sheet' ], range: rangeA1 })).toBe('My\ufff9Sheet!A1');
+    expect(stringifyA1Ref({ context: [ 'My\u{1f600}Sheet' ], range: rangeA1 })).toBe('My\u{1f600}Sheet!A1');
+  });
+
   test('3D references are quoted per endpoint', () => {
     expect(stringifyA1Ref({ context: [ 'Jan:Dec' ], range: rangeA1 })).toBe('Jan:Dec!A1');
     expect(stringifyA1Ref({ context: [ 'Sheet 1:Sheet 2' ], range: rangeA1 })).toBe("'Sheet 1:Sheet 2'!A1");
@@ -146,6 +158,14 @@ describe('stringifyA1Ref in XLSX mode', () => {
     expect(stringifyA1RefXlsx({ workbookName: '1040.xlsx', sheetName: 'Sheet1', range: rangeA1 })).toBe("'[1040.xlsx]Sheet1'!A1");
     expect(stringifyA1RefXlsx({ workbookName: '1040.xlsx', name: 'foo' })).toBe("'[1040.xlsx]'!foo");
     expect(stringifyA1RefXlsx({ sheetName: '1040', name: 'foo' })).toBe("'1040'!foo");
+  });
+
+  test('quotes characters above U+00AF that Excel refuses unquoted', () => {
+    expect(stringifyA1RefXlsx({ sheetName: 'My\u00bbSheet', range: rangeA1 })).toBe("'My\u00bbSheet'!A1");
+    expect(stringifyA1RefXlsx({ sheetName: 'My\u00bcSheet', range: rangeA1 })).toBe('My\u00bcSheet!A1');
+    expect(stringifyA1RefXlsx({ workbookName: 'My\u00bbBook.xlsx', sheetName: 'Sheet1', range: rangeA1 })).toBe("'[My\u00bbBook.xlsx]Sheet1'!A1");
+    expect(stringifyA1RefXlsx({ workbookName: 'My\u00bcBook.xlsx', sheetName: 'Sheet1', range: rangeA1 })).toBe('[My\u00bcBook.xlsx]Sheet1!A1');
+    expect(stringifyA1RefXlsx({ sheetName: 'My\u00bbSheet', name: 'foo' })).toBe("'My\u00bbSheet'!foo");
   });
 
   test('an external link index is not quoted', () => {
