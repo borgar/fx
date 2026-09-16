@@ -8,6 +8,7 @@ import type {
   ReferenceName,
   ReferenceNameXlsx
 } from './types.ts';
+import { reRefusedAbove00AF } from './quoteRequiringCharacters.ts';
 
 const CHAR_PERIOD = 46;
 const CHAR_0 = 48;
@@ -34,7 +35,7 @@ export function needQuotes (scope: string, blockSheetRanges: boolean, bracketed:
       }
       return bits.some(bit => needQuotes(bit, blockSheetRanges, bracketed)) ? 1 : 0;
     }
-    if (reBannedChars.test(scope)) {
+    if (reBannedChars.test(scope) || reRefusedAbove00AF.test(scope)) {
       return 1;
     }
     if (reIsRangelike.test(scope)) {

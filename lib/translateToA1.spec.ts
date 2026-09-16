@@ -273,6 +273,13 @@ describe('translate 3D references', () => {
     isR2A('=A:C!R1C1', 'A1', "='A:C'!$A$1");
     isR2A("=SUM('Sheet 1:Sheet 2'!R1C1:R2C2)", 'A1', "=SUM('Sheet 1:Sheet 2'!$A$1:$B$2)");
   });
+
+  test('keeps the quotes on a name with a character that Excel refuses unquoted', () => {
+    isR2A("='My\u00bbSheet'!RC[-2]", 'C1', "='My\u00bbSheet'!A1");
+    isR2A("='My\u00bcSheet'!RC[-2]", 'C1', '=My\u00bcSheet!A1');
+    isR2A("=SUM('Alpha:My\u00bbSheet'!R1C1)", 'A1', "=SUM('Alpha:My\u00bbSheet'!$A$1)");
+    isR2A("='[My\u00bbBook.xlsx]Sheet1'!R1C1", 'A1', "='[My\u00bbBook.xlsx]Sheet1'!$A$1");
+  });
 });
 
 describe('translate r & c as LET parameters', () => {
