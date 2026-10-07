@@ -2,9 +2,6 @@
 
 A tokenizer, parser, and other utilities to work with Excel formula code, specifically syntax highlighting.
 
-This utility is partially developed as tooling for [GRID – The new face of spreadsheets](https://grid.is/), to which it owes a debt of gratitude.
-
-
 ## Installing
 
 The library is also provided as an ES6 module in an NPM package:
@@ -22,4 +19,6 @@ Documentation can be found under [docs/](./docs/):
 
 * A primer/terminology definitions of Excel references and ranges can be found in [docs/References.md](./docs/References.md).
 
+---
 
+Development of @borgar/fx is sponsored by [GRID](https://grid.is/), the spreadsheet engine for AI agents.
