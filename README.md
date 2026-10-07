@@ -22,4 +22,6 @@ Documentation can be found under [docs/](./docs/):
 
 * A primer/terminology definitions of Excel references and ranges can be found in [docs/References.md](./docs/References.md).
 
+---
 
+Development of @borgar/fx is sponsored by [GRID](https://grid.is/), the spreadsheet engine for AI agents.
