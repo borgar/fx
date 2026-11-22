@@ -1107,6 +1107,78 @@ describe('lexer', () => {
       ], { r1c1: true });
     });
 
+    test('sheet names that start with RC notation followed by a period', () => {
+      isTokens('=c.Data!R[15]C[2]', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'c.Data!R[15]C[2]' }
+      ], { r1c1: true });
+      isTokens('=r.x!R1C1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'r.x!R1C1' }
+      ], { r1c1: true });
+      isTokens('=rc.x!RC', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'rc.x!RC' }
+      ], { r1c1: true });
+      isTokens('=R1.x!R1C1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'R1.x!R1C1' }
+      ], { r1c1: true });
+      isTokens('=C2.x!RC', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'C2.x!RC' }
+      ], { r1c1: true });
+      isTokens('=c.Data', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_NAMED, value: 'c.Data' }
+      ], { r1c1: true });
+    });
+
+    test('a period after a two-endpoint range is a field accessor', () => {
+      isTokens('=R1:R2.x', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_BEAM, value: 'R1:R2' },
+        { type: UNKNOWN, value: '.x' }
+      ], { r1c1: true });
+      isTokens('=C1:C2.x', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_BEAM, value: 'C1:C2' },
+        { type: UNKNOWN, value: '.x' }
+      ], { r1c1: true });
+      isTokens('=R1C1:R2C2.x', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'R1C1:R2C2' },
+        { type: UNKNOWN, value: '.x' }
+      ], { r1c1: true });
+    });
+
+    test('trim range operators', () => {
+      isTokens('=R1C1.:R2C2', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'R1C1.:R2C2' }
+      ], { r1c1: true });
+      isTokens('=R1C1:.R2C2', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'R1C1:.R2C2' }
+      ], { r1c1: true });
+      isTokens('=R1C1.:.R2C2', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'R1C1.:.R2C2' }
+      ], { r1c1: true });
+      isTokens('=R1.:R2', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_BEAM, value: 'R1.:R2' }
+      ], { r1c1: true });
+      isTokens('=R1:.R2', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_BEAM, value: 'R1:.R2' }
+      ], { r1c1: true });
+      isTokens('=RC.:RC[1]', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_RANGE, value: 'RC.:RC[1]' }
+      ], { r1c1: true });
+    });
+
     test('mixed absolute and relative references', () => {
       isTokens('=R[2]C', [
         { type: FX_PREFIX, value: '=' },
@@ -2625,21 +2697,23 @@ describe('lexer', () => {
       ]);
     });
 
-    test('the first endpoint stays a range where it is one on its own', () => {
-      // the pair reading of "A1:B2" fails at the period, but "A1" alone is a range, so only
-      // the second endpoint goes to the name lexer
+    test('a period after a two-endpoint range is a field accessor', () => {
+      // Excel reads "A1:B2.c" as the range "A1:B2" followed by the field accessor ".c",
+      // which is unsupported and so left unknown
       isTokens('=A1:B2.c', [
         { type: FX_PREFIX, value: '=' },
-        { type: REF_RANGE, value: 'A1' },
-        { type: OPERATOR, value: ':' },
-        { type: REF_NAMED, value: 'B2.c' }
-      ], { mergeRefs: false });
-      // "A" alone is not a range, so a beam has no such fallback
+        { type: REF_RANGE, value: 'A1:B2' },
+        { type: UNKNOWN, value: '.c' }
+      ]);
       isTokens('=A:A.b', [
         { type: FX_PREFIX, value: '=' },
-        { type: REF_NAMED, value: 'A' },
-        { type: OPERATOR, value: ':' },
-        { type: REF_NAMED, value: 'A.b' }
+        { type: REF_BEAM, value: 'A:A' },
+        { type: UNKNOWN, value: '.b' }
+      ], { mergeRefs: false });
+      isTokens('=1:2.x', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_BEAM, value: '1:2' },
+        { type: UNKNOWN, value: '.x' }
       ], { mergeRefs: false });
     });
 
