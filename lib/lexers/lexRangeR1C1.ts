@@ -28,7 +28,7 @@ function lexR1C1Part (str: string, pos: number, isRow: boolean = false): number 
     let value = 0;
     let stop = str.length;
     const c1 = str.charCodeAt(pos);
-    let c;
+    let c: number;
     let sign = 1;
     const relative = c1 === BR_OPEN;
     if (relative) {
@@ -42,8 +42,8 @@ function lexR1C1Part (str: string, pos: number, isRow: boolean = false): number 
         sign = c === MINUS ? -1 : 1;
       }
     }
-    else if (c1 < 49 || c1 > 57 || isNaN(c1)) {
-      // char must be 1-9, or part is either just "R" or "C"
+    else if (c1 < 48 || c1 > 57 || isNaN(c1)) {
+      // char must be 0-9, or part is either just "R" or "C"
       return 1;
     }
 
@@ -74,7 +74,7 @@ function lexR1C1Part (str: string, pos: number, isRow: boolean = false): number 
         : 0;
     }
     // isRow: next char must not be a number!
-    return (digits && value <= (MAX + 1)) ? pos - start : 0;
+    return (digits && value <= (MAX + 1) && value >= 1) ? pos - start : 0;
   }
   return 0;
 }

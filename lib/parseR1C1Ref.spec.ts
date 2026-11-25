@@ -41,6 +41,8 @@ describe('parse single R1C1 references', () => {
   test('relative row references', () => {
     isRCEqual('R[1]', { range: { r0: 1, r1: 1 } });
     isRCEqual('R[-1]', { range: { r0: -1, r1: -1 } });
+    isRCEqual('r[-1]', { range: { r0: -1, r1: -1 } });
+    isRCEqual('R[-01]', { range: { r0: -1, r1: -1 } });
   });
 
   test('current column references', () => {
@@ -52,28 +54,40 @@ describe('parse single R1C1 references', () => {
     isRCEqual('C0', { name: 'C0' });
     isRCEqual('C1', { range: { c0: 0, c1: 0, $c0: true, $c1: true } });
     isRCEqual('C10', { range: { c0: 9, c1: 9, $c0: true, $c1: true } });
+    isRCEqual('c10', { range: { c0: 9, c1: 9, $c0: true, $c1: true } });
+    isRCEqual('c010', { range: { c0: 9, c1: 9, $c0: true, $c1: true } });
   });
 
   test('relative column references', () => {
     isRCEqual('C[1]', { range: { c0: 1, c1: 1 } });
     isRCEqual('C[-1]', { range: { c0: -1, c1: -1 } });
+    isRCEqual('c[-1]', { range: { c0: -1, c1: -1 } });
+    isRCEqual('c[-01]', { range: { c0: -1, c1: -1 } });
   });
 
   test('cell references', () => {
     isRCEqual('RC', { range: { r0: 0, c0: 0, r1: 0, c1: 0 } });
     isRCEqual('R0C0', { name: 'R0C0' });
     isRCEqual('R1C1', { range: { r0: 0, c0: 0, r1: 0, c1: 0, $c0: true, $c1: true, $r0: true, $r1: true } });
+    isRCEqual('r1c1', { range: { r0: 0, c0: 0, r1: 0, c1: 0, $c0: true, $c1: true, $r0: true, $r1: true } });
     isRCEqual('R10C8', { range: { r0: 9, c0: 7, r1: 9, c1: 7, $c0: true, $c1: true, $r0: true, $r1: true } });
+    isRCEqual('r10c8', { range: { r0: 9, c0: 7, r1: 9, c1: 7, $c0: true, $c1: true, $r0: true, $r1: true } });
+    isRCEqual('R01C01', { range: { r0: 0, c0: 0, r1: 0, c1: 0, $c0: true, $c1: true, $r0: true, $r1: true } });
+    isRCEqual('R1C01', { range: { r0: 0, c0: 0, r1: 0, c1: 0, $c0: true, $c1: true, $r0: true, $r1: true } });
     isRCEqual('R-10C-8', undefined);
   });
 
   test('relative cell parts', () => {
     isRCEqual('R[2]C', { range: { r0: 2, c0: 0, r1: 2, c1: 0 } });
     isRCEqual('R[-2]C', { range: { r0: -2, c0: 0, r1: -2, c1: 0 } });
+    isRCEqual('r[-2]c', { range: { r0: -2, c0: 0, r1: -2, c1: 0 } });
     isRCEqual('RC[3]', { range: { r0: 0, c0: 3, r1: 0, c1: 3 } });
     isRCEqual('RC[-3]', { range: { r0: 0, c0: -3, r1: 0, c1: -3 } });
+    isRCEqual('rc[-3]', { range: { r0: 0, c0: -3, r1: 0, c1: -3 } });
     isRCEqual('R[2]C[4]', { range: { r0: 2, c0: 4, r1: 2, c1: 4 } });
     isRCEqual('R[-2]C[-4]', { range: { r0: -2, c0: -4, r1: -2, c1: -4 } });
+    isRCEqual('r[-2]c[-4]', { range: { r0: -2, c0: -4, r1: -2, c1: -4 } });
+    isRCEqual('R[-02]C[-04]', { range: { r0: -2, c0: -4, r1: -2, c1: -4 } });
   });
 
   test('mixed fixed and relative references', () => {
@@ -156,6 +170,8 @@ describe('parse joined R1C1 references', () => {
     isRCEqual('R[1]C[1]:R1C1', { range: { r0: 1, c0: 1, r1: 0, c1: 0, $c1: true, $r1: true } });
     isRCEqual('R1C1:R2C2', { range: { r0: 0, c0: 0, r1: 1, c1: 1, $c0: true, $c1: true, $r0: true, $r1: true } });
     isRCEqual('R2C2:R1C1', { range: { r0: 0, c0: 0, r1: 1, c1: 1, $c0: true, $c1: true, $r0: true, $r1: true } });
+    isRCEqual('r2c2:R1C1', { range: { r0: 0, c0: 0, r1: 1, c1: 1, $c0: true, $c1: true, $r0: true, $r1: true } });
+    isRCEqual('R2C2:r1c1', { range: { r0: 0, c0: 0, r1: 1, c1: 1, $c0: true, $c1: true, $r0: true, $r1: true } });
   });
 
   test('single dimension ranges', () => {
