@@ -75,7 +75,8 @@ const matcher = (
   currNode: TypeNode,
   anchorIndex: number,
   rootType: string,
-  xlsx: boolean = false
+  xlsx: boolean = false,
+  boundNames?: Set<Token>
 ) => {
   let i = 0;
   let node = currNode;
@@ -106,7 +107,8 @@ const matcher = (
       }
       // Note: names cannot contain any of: "[]:", so we don't need to count them in names
       else if (token.type === REF_NAMED) {
-        if (haveNumericSheet) {
+        // a LET or LAMBDA parameter is not the first sheet of a 3D reference
+        if (haveNumericSheet || boundNames?.has(token)) {
           break runloop;
         }
       }
@@ -192,7 +194,7 @@ const matcher = (
   return best;
 };
 
-function commonMergeRefTokens (tokenlist: Token[], xlsx: boolean): Token[] {
+export function commonMergeRefTokens (tokenlist: Token[], xlsx: boolean, boundNames?: Set<Token>): Token[] {
   const finalTokens = [];
   // this seeks backwards because it's really the range part
   // that controls what can be joined.
@@ -202,7 +204,7 @@ function commonMergeRefTokens (tokenlist: Token[], xlsx: boolean): Token[] {
     // Quick check if token type can start a valid run
     if (type === REF_RANGE || type === REF_BEAM || type === REF_TERNARY ||
         type === REF_NAMED || type === REF_STRUCT) {
-      const valid = matcher(tokenlist, refPartsTree, i, type, xlsx);
+      const valid = matcher(tokenlist, refPartsTree, i, type, xlsx, boundNames);
       if (valid > 1) {
         token = { ...token, value: '' };
         const start = i - valid + 1;

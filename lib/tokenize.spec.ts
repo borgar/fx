@@ -2412,6 +2412,151 @@ describe('lexer', () => {
     });
   });
 
+  describe('LET and LAMBDA parameters do not start 3D references', () => {
+    test('a LET name joined to a sheet reference by ":"', () => {
+      // Excel stores this as `_xlpm.foo:'Mar'!A1`
+      isTokens('=LET(foo,1,SUM(foo:Mar!A1))', [
+        { type: FX_PREFIX, value: '=' },
+        { type: FUNCTION, value: 'LET' },
+        { type: OPERATOR, value: '(' },
+        { type: REF_NAMED, value: 'foo' },
+        { type: OPERATOR, value: ',' },
+        { type: NUMBER, value: '1' },
+        { type: OPERATOR, value: ',' },
+        { type: FUNCTION, value: 'SUM' },
+        { type: OPERATOR, value: '(' },
+        { type: REF_NAMED, value: 'foo' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_RANGE, value: 'Mar!A1' },
+        { type: OPERATOR, value: ')' },
+        { type: OPERATOR, value: ')' }
+      ]);
+      // names are case-insensitive
+      isTokens('=LET(FOO,1,foo:Mar!A1)', [
+        { type: FX_PREFIX, value: '=' },
+        { type: FUNCTION, value: 'LET' },
+        { type: OPERATOR, value: '(' },
+        { type: REF_NAMED, value: 'FOO' },
+        { type: OPERATOR, value: ',' },
+        { type: NUMBER, value: '1' },
+        { type: OPERATOR, value: ',' },
+        { type: REF_NAMED, value: 'foo' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_RANGE, value: 'Mar!A1' },
+        { type: OPERATOR, value: ')' }
+      ]);
+    });
+
+    test('a LAMBDA parameter joined to a sheet reference by ":"', () => {
+      isTokens('=LAMBDA(foo,foo:Mar!A1)', [
+        { type: FX_PREFIX, value: '=' },
+        { type: FUNCTION, value: 'LAMBDA' },
+        { type: OPERATOR, value: '(' },
+        { type: REF_NAMED, value: 'foo' },
+        { type: OPERATOR, value: ',' },
+        { type: REF_NAMED, value: 'foo' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_RANGE, value: 'Mar!A1' },
+        { type: OPERATOR, value: ')' }
+      ]);
+    });
+
+    test('a single letter r or c parameter joined to a sheet reference by ":"', () => {
+      isTokens('=LET(c,1,c:Mar!A1)', [
+        { type: FX_PREFIX, value: '=' },
+        { type: FUNCTION, value: 'LET' },
+        { type: OPERATOR, value: '(' },
+        { type: REF_NAMED, value: 'c' },
+        { type: OPERATOR, value: ',' },
+        { type: NUMBER, value: '1' },
+        { type: OPERATOR, value: ',' },
+        { type: REF_NAMED, value: 'c' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_RANGE, value: 'Mar!A1' },
+        { type: OPERATOR, value: ')' }
+      ]);
+      isTokens('=LAMBDA(r,R:Mar!A1)', [
+        { type: FX_PREFIX, value: '=' },
+        { type: FUNCTION, value: 'LAMBDA' },
+        { type: OPERATOR, value: '(' },
+        { type: REF_NAMED, value: 'r' },
+        { type: OPERATOR, value: ',' },
+        { type: REF_NAMED, value: 'R' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_RANGE, value: 'Mar!A1' },
+        { type: OPERATOR, value: ')' }
+      ]);
+      // "c" is not a parameter here, so "c:Mar" is a sheet span
+      isTokens('=LET(x,1,c:Mar!A1)', [
+        { type: FX_PREFIX, value: '=' },
+        { type: FUNCTION, value: 'LET' },
+        { type: OPERATOR, value: '(' },
+        { type: REF_NAMED, value: 'x' },
+        { type: OPERATOR, value: ',' },
+        { type: NUMBER, value: '1' },
+        { type: OPERATOR, value: ',' },
+        { type: REF_RANGE, value: 'c:Mar!A1' },
+        { type: OPERATOR, value: ')' }
+      ]);
+    });
+
+    test('commas in arrays do not shift LET arguments', () => {
+      isTokens('=LET(x,{1,2},foo,1,foo:Mar!A1)', [
+        { type: FX_PREFIX, value: '=' },
+        { type: FUNCTION, value: 'LET' },
+        { type: OPERATOR, value: '(' },
+        { type: REF_NAMED, value: 'x' },
+        { type: OPERATOR, value: ',' },
+        { type: OPERATOR, value: '{' },
+        { type: NUMBER, value: '1' },
+        { type: OPERATOR, value: ',' },
+        { type: NUMBER, value: '2' },
+        { type: OPERATOR, value: '}' },
+        { type: OPERATOR, value: ',' },
+        { type: REF_NAMED, value: 'foo' },
+        { type: OPERATOR, value: ',' },
+        { type: NUMBER, value: '1' },
+        { type: OPERATOR, value: ',' },
+        { type: REF_NAMED, value: 'foo' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_RANGE, value: 'Mar!A1' },
+        { type: OPERATOR, value: ')' }
+      ]);
+    });
+
+    test('the 3D reference is kept where the name is not in scope', () => {
+      // outside the LET
+      isTokens('=LET(foo,1,foo)+SUM(foo:Mar!A1)', [
+        { type: FX_PREFIX, value: '=' },
+        { type: FUNCTION, value: 'LET' },
+        { type: OPERATOR, value: '(' },
+        { type: REF_NAMED, value: 'foo' },
+        { type: OPERATOR, value: ',' },
+        { type: NUMBER, value: '1' },
+        { type: OPERATOR, value: ',' },
+        { type: REF_NAMED, value: 'foo' },
+        { type: OPERATOR, value: ')' },
+        { type: OPERATOR, value: '+' },
+        { type: FUNCTION, value: 'SUM' },
+        { type: OPERATOR, value: '(' },
+        { type: REF_RANGE, value: 'foo:Mar!A1' },
+        { type: OPERATOR, value: ')' }
+      ]);
+      // in the name's own value
+      isTokens('=LET(foo,foo:Mar!A1,foo)', [
+        { type: FX_PREFIX, value: '=' },
+        { type: FUNCTION, value: 'LET' },
+        { type: OPERATOR, value: '(' },
+        { type: REF_NAMED, value: 'foo' },
+        { type: OPERATOR, value: ',' },
+        { type: REF_RANGE, value: 'foo:Mar!A1' },
+        { type: OPERATOR, value: ',' },
+        { type: REF_NAMED, value: 'foo' },
+        { type: OPERATOR, value: ')' }
+      ]);
+    });
+  });
+
   describe('trim operators', () => {
     test('valid trim operators between ranges', () => {
       isTokens('=Sheet1!A1.:.B2', [
