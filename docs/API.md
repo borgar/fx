@@ -810,7 +810,7 @@ The AST Abstract Syntax Tree's format is documented in
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
 | `tokenlist` | [`Token`](#fxtype-aliasestokenmd)[] | An array of tokens. |
-| `options` | [`OptsParse`](#fxtype-aliasesoptsparsemd) | Options for the parsers behavior. |
+| `options?` | [`OptsParse`](#fxtype-aliasesoptsparsemd) | Options for the parsers behavior. |
 
 ## Returns
 
@@ -886,7 +886,7 @@ syntax does not specify.
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
 | `refString` | `string` | An A1-style reference string. |
-| `options` | [`OptsParseA1Ref`](#fxtype-aliasesoptsparsea1refmd) | Options. |
+| `options?` | [`OptsParseA1Ref`](#fxtype-aliasesoptsparsea1refmd) | Options. |
 
 ## Returns
 
@@ -1248,7 +1248,8 @@ An array of Tokens
 function translateFormulaToA1(
    formula: string, 
    anchorCell: string, 
-   options?: OptsTranslateFormulaToA1): string;
+   options?: OptsTranslateFormulaToA1
+): string;
 ```
 
 Translates ranges in a formula from relative R1C1 syntax to absolute A1 syntax.
@@ -1277,7 +1278,7 @@ translateToA1("=R[-1]C[-1]", "A1", { wrapEdges: false });
 | ------ | ------ | ------ |
 | `formula` | `string` | An Excel formula string that should be adjusted. |
 | `anchorCell` | `string` | A simple string reference to an A1 cell ID (`AF123` or`$C$5`). |
-| `options` | [`OptsTranslateFormulaToA1`](#fxtype-aliasesoptstranslateformulatoa1md) | Translation options. |
+| `options?` | [`OptsTranslateFormulaToA1`](#fxtype-aliasesoptstranslateformulatoa1md) | Translation options. |
 
 ## Returns
 
@@ -1298,7 +1299,8 @@ A formula string.
 function translateFormulaToR1C1(
    formula: string, 
    anchorCell: string, 
-   options?: OptsTranslateToR1C1): string;
+   options?: OptsTranslateToR1C1
+): string;
 ```
 
 Translates ranges in a formula from absolute A1 syntax to relative R1C1 syntax.
@@ -1335,7 +1337,8 @@ A formula string.
 function translateTokensToA1(
    tokens: Token[], 
    anchorCell: string, 
-   options?: OptsTranslateTokensToA1): Token[];
+   options?: OptsTranslateTokensToA1
+): Token[];
 ```
 
 Translates ranges in a list of tokens from relative R1C1 syntax to absolute A1 syntax.
@@ -1370,7 +1373,7 @@ and Excel will accept them, but they are not supported in Google Sheets.
 | ------ | ------ | ------ |
 | `tokens` | [`Token`](#fxtype-aliasestokenmd)[] | A token list that should be adjusted. |
 | `anchorCell` | `string` | A simple string reference to an A1 cell ID (`AF123` or`$C$5`). |
-| `options` | [`OptsTranslateTokensToA1`](#fxtype-aliasesoptstranslatetokenstoa1md) | Translation options. |
+| `options?` | [`OptsTranslateTokensToA1`](#fxtype-aliasesoptstranslatetokenstoa1md) | Translation options. |
 
 ## Returns
 
@@ -3051,7 +3054,7 @@ syntax does not specify.
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
 | `refString` | `string` | An A1-style reference string. |
-| `options` | [`OptsParseA1Ref`](#fxtype-aliasesoptsparsea1refmd) | Options. |
+| `options?` | [`OptsParseA1Ref`](#fxtype-aliasesoptsparsea1refmd) | Options. |
 
 ## Returns
 
