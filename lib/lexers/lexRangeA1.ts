@@ -83,12 +83,12 @@ export function lexRangeA1 (
       bottom = advA1Row(str, p);
       p += bottom;
       if (top && bottom && right) {
-        if (canEndRange(str, p) && options.mergeRefs) {
+        if (canEndRange(str, p, true) && options.mergeRefs) {
           return { type: REF_RANGE, value: str.slice(pos, p) };
         }
       }
       else if (!top && !bottom && right) {
-        if (canEndRange(str, p)) {
+        if (canEndRange(str, p, true)) {
           return { type: REF_BEAM, value: str.slice(pos, p) };
         }
       }
@@ -124,7 +124,7 @@ export function lexRangeA1 (
           }
         }
         if (!right && bottom) {
-          if (canEndRange(str, p)) {
+          if (canEndRange(str, p, true)) {
             return { type: REF_BEAM, value: str.slice(pos, p) };
           }
         }

@@ -1,6 +1,6 @@
 import { NUMBER } from '../constants.ts';
 import type { Token } from '../types.ts';
-import { isOkayContextChar } from './lexNameFuncCntx.ts';
+import { isOkayContextChar } from './charTables.ts';
 
 const EXCL = 33; // !
 const COLON = 58; // :

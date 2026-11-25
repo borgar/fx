@@ -28,7 +28,7 @@ function lexR1C1Part (str: string, pos: number, isRow: boolean = false): number 
     let value = 0;
     let stop = str.length;
     const c1 = str.charCodeAt(pos);
-    let c;
+    let c: number;
     let sign = 1;
     const relative = c1 === BR_OPEN;
     if (relative) {
@@ -137,7 +137,10 @@ export function lexRangeR1C1 (
     // R1
     // C1
     // R1C1
-    if (canEndRange(str, preOp, true)) {
+    const cannotBeName = (r1 > 1)
+      ? c1 > 0 || str.charCodeAt(pos + 1) === BR_OPEN
+      : c1 > 1 && str.charCodeAt(pos + r1 + 1) === BR_OPEN;
+    if (canEndRange(str, preOp, cannotBeName)) {
       return {
         type: (r1 && c1) ? REF_RANGE : REF_BEAM,
         value: str.slice(pos, preOp)

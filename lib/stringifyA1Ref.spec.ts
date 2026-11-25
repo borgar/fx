@@ -67,6 +67,22 @@ describe('stringifyA1Ref', () => {
     expect(stringifyA1Ref({ context: [ 'Truer' ], range: rangeA1 })).toBe('Truer!A1');
   });
 
+  test('quotes characters above U+00AF that Excel refuses unquoted', () => {
+    expect(stringifyA1Ref({ context: [ 'My\u00bbSheet' ], range: rangeA1 })).toBe("'My\u00bbSheet'!A1");
+    expect(stringifyA1Ref({ context: [ 'My\u02efSheet' ], range: rangeA1 })).toBe("'My\u02efSheet'!A1");
+    expect(stringifyA1Ref({ context: [ 'My\ufff8Sheet' ], range: rangeA1 })).toBe("'My\ufff8Sheet'!A1");
+    expect(stringifyA1Ref({ context: [ 'Jan:My\u00bbSheet' ], range: rangeA1 })).toBe("'Jan:My\u00bbSheet'!A1");
+    expect(stringifyA1Ref({ context: [ 'My\u00baSheet' ], range: rangeA1 })).toBe('My\u00baSheet!A1');
+    expect(stringifyA1Ref({ context: [ 'My\u00bcSheet' ], range: rangeA1 })).toBe('My\u00bcSheet!A1');
+    expect(stringifyA1Ref({ context: [ 'My\u02eeSheet' ], range: rangeA1 })).toBe('My\u02eeSheet!A1');
+    expect(stringifyA1Ref({ context: [ 'My\ufff9Sheet' ], range: rangeA1 })).toBe('My\ufff9Sheet!A1');
+    expect(stringifyA1Ref({ context: [ 'My\u{1f600}Sheet' ], range: rangeA1 })).toBe('My\u{1f600}Sheet!A1');
+    expect(stringifyA1Ref({ context: [ 'My\u{1f600}Sheet' ], range: rangeA1 })).toBe('My\u{1f600}Sheet!A1');
+    expect(stringifyA1Ref({ context: [ 'シート1' ], range: rangeA1 })).toBe('シート1!A1');
+    expect(stringifyA1Ref({ context: [ '工作表1' ], range: rangeA1 })).toBe('工作表1!A1');
+    expect(stringifyA1Ref({ context: [ 'แผ่นที่.๑๓' ], range: rangeA1 })).toBe('แผ่นที่.๑๓!A1');
+  });
+
   test('3D references are quoted per endpoint', () => {
     expect(stringifyA1Ref({ context: [ 'Jan:Dec' ], range: rangeA1 })).toBe('Jan:Dec!A1');
     expect(stringifyA1Ref({ context: [ 'Sheet 1:Sheet 2' ], range: rangeA1 })).toBe("'Sheet 1:Sheet 2'!A1");
