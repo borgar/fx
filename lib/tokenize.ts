@@ -9,12 +9,14 @@ import {
   FUNCTION,
   OPERATOR_TRIM,
   REF_RANGE,
-  REF_BEAM
+  REF_BEAM,
+  CONTEXT
 } from './constants.ts';
-import { mergeRefTokens, mergeRefTokensXlsx } from './mergeRefTokens.ts';
+import { commonMergeRefTokens } from './mergeRefTokens.ts';
 import { lexers, type PartLexer } from './lexers/sets.ts';
 import type { Token } from './types.ts';
 import { isRCTokenValue } from './isRCTokenValue.ts';
+import { findBoundNames } from './findBoundNames.ts';
 
 const reLetLambda = /^l(?:ambda|et)$/i;
 const isType = (t: Token, type: string) => t && t.type === type;
@@ -90,6 +92,8 @@ export function getTokens (fx: string, tokenHandlers: PartLexer[], options: Opts
   let pos = 0;
   let letOrLambda = 0;
   let unknownRC = 0;
+  // an unquoted sheet name follows a ":", as in "foo:Mar!A1"
+  let colonContext = false;
   const trimOps = [];
 
   let tail0: Token; // last non-whitespace token
@@ -197,6 +201,10 @@ export function getTokens (fx: string, tokenHandlers: PartLexer[], options: Opts
       }
     }
 
+    if (token.type === CONTEXT && lastToken?.type === OPERATOR && lastToken.value === ':') {
+      colonContext = true;
+    }
+
     pushToken(token);
   }
 
@@ -219,9 +227,10 @@ export function getTokens (fx: string, tokenHandlers: PartLexer[], options: Opts
   }
 
   if (mergeRefs) {
-    return opts.xlsx
-      ? mergeRefTokensXlsx(tokens)
-      : mergeRefTokens(tokens);
+    // LET and LAMBDA parameters must not start a 3D reference. This only
+    // matters where a sheet name follows a ":", so skip the scan otherwise.
+    const boundNames = (letOrLambda && colonContext) ? findBoundNames(tokens) : undefined;
+    return commonMergeRefTokens(tokens, opts.xlsx, boundNames);
   }
 
   return tokens;
