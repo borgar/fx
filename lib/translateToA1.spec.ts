@@ -358,3 +358,12 @@ describe('translate r & c as LET parameters', () => {
     ]);
   });
 });
+
+describe('quotes characters above U+00AF', () => {
+  test('keeps the quotes on a name with a character that Excel refuses unquoted', () => {
+    isR2A("='My\u00bbSheet'!RC[-2]", 'C1', "='My\u00bbSheet'!A1");
+    isR2A("='My\u00bcSheet'!RC[-2]", 'C1', '=My\u00bcSheet!A1');
+    isR2A("=SUM('Alpha:My\u00bbSheet'!R1C1)", 'A1', "=SUM('Alpha:My\u00bbSheet'!$A$1)");
+    isR2A("='[My\u00bbBook.xlsx]Sheet1'!R1C1", 'A1', "='[My\u00bbBook.xlsx]Sheet1'!$A$1");
+  });
+});

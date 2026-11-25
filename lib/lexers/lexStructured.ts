@@ -2,7 +2,7 @@ import { parseSRange } from '../parseSRange.ts';
 import { REF_STRUCT } from '../constants.ts';
 import { isWS } from './lexWhitespace.ts';
 import type { Token } from '../types.ts';
-import { isIdentityChar } from './lexNameFuncCntx.ts';
+import { isIdentityChar } from './charTables.ts';
 
 const EXCL = 33; // !
 

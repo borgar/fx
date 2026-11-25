@@ -101,6 +101,20 @@ describe('isValidName', () => {
     expect(isValidName('RC_foo')).toBe(true);
   });
 
+  test('R and C prefixes are banned only for valid row and column numbers', () => {
+    // verified in Excel's Name Manager
+    expect(isValidName('R999999x')).toBe(false);
+    expect(isValidName('R1000000x')).toBe(false);
+    expect(isValidName('R1048576x')).toBe(false);
+    expect(isValidName('R1048577x')).toBe(true);
+    expect(isValidName('R9999999x')).toBe(true);
+    expect(isValidName('C16384x')).toBe(false);
+    expect(isValidName('C16385x')).toBe(true);
+    expect(isValidName('C1000000x')).toBe(true);
+    expect(isValidName('RC1000000x')).toBe(true);
+    expect(isValidName('R1048576C1')).toBe(false);
+  });
+
   test('name may not look like an A1 range', () => {
     expect(isValidName('A1')).toBe(false);
     expect(isValidName('ZZ100')).toBe(false);

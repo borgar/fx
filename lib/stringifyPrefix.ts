@@ -8,16 +8,26 @@ import type {
   ReferenceName,
   ReferenceNameXlsx
 } from './types.ts';
+import { isA1 } from './isA1.ts';
+import { hasLeadingRC } from './hasLeadingRC.ts';
+import { charNeedsEscape } from './lexers/charTables.ts';
 
 const CHAR_PERIOD = 46;
 const CHAR_0 = 48;
 const CHAR_9 = 57;
 
-const reBannedChars = /[^0-9A-Za-z._¡¤§¨ª\u00ad¯-\uffff]/;
-// A1-XFD1048575 | R | R0-R1048577 | C | C0-C16385 | RC
-const reIsRangelike = /^(R\d{0,7}|C\d{0,5}|R\d{0,7}C\d{0,5}|[A-Z]{1,3}\d{1,7})$/i;
 const reIsBoolean = /^(TRUE|FALSE)$/i;
 const reIsLinkIndex = /^\d+$/;
+
+function hasBannedChar (str: string): boolean {
+  for (const s of str) {
+    const cp = s.codePointAt(0);
+    if (charNeedsEscape(cp)) {
+      return true;
+    }
+  }
+  return false;
+}
 
 export function needQuotes (scope: string, blockSheetRanges: boolean, bracketed: boolean, checkColon = false): number {
   if (scope) {
@@ -34,10 +44,10 @@ export function needQuotes (scope: string, blockSheetRanges: boolean, bracketed:
       }
       return bits.some(bit => needQuotes(bit, blockSheetRanges, bracketed)) ? 1 : 0;
     }
-    if (reBannedChars.test(scope)) {
+    if (hasBannedChar(scope)) {
       return 1;
     }
-    if (reIsRangelike.test(scope)) {
+    if (hasLeadingRC(scope) || isA1(scope)) {
       return 1;
     }
     if (reIsBoolean.test(scope)) {

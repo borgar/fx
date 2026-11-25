@@ -1,6 +1,6 @@
 import { CONTEXT, CONTEXT_QUOTE } from '../constants.ts';
 import type { Token } from '../types.ts';
-import { isOkayContextChar } from './lexNameFuncCntx.ts';
+import { isOkayContextChar } from './charTables.ts';
 
 const QUOT_SINGLE = 39; // '
 const BR_OPEN = 91; // [
