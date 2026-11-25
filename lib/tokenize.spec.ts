@@ -2412,6 +2412,70 @@ describe('lexer', () => {
     });
   });
 
+  describe('a lone r or c before ":" is a name unless it starts a sheet span', () => {
+    const opts = { xlsx: true, mergeRefs: true, allowTernary: true };
+    test('with whitespace on either side of the colon', () => {
+      for (const [ expr, name ] of [
+        [ '=SUM(R: Mar!A1)', 'R' ],
+        [ '=SUM(R :Mar!A1)', 'R' ],
+        [ '=SUM(c : Mar!A1)', 'c' ]
+      ]) {
+        const ws = expr.includes(' :') ? [ { type: WHITESPACE, value: ' ' } ] : [];
+        const ws2 = expr.includes(': ') ? [ { type: WHITESPACE, value: ' ' } ] : [];
+        isTokens(expr, [
+          { type: FX_PREFIX, value: '=' },
+          { type: FUNCTION, value: 'SUM' },
+          { type: OPERATOR, value: '(' },
+          { type: REF_NAMED, value: name },
+          ...ws,
+          { type: OPERATOR, value: ':' },
+          ...ws2,
+          { type: REF_RANGE, value: 'Mar!A1' },
+          { type: OPERATOR, value: ')' }
+        ], opts);
+      }
+    });
+
+    test('a range on the right', () => {
+      isTokens('=R:A1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: REF_NAMED, value: 'R' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_RANGE, value: 'A1' }
+      ]);
+    });
+
+    test('a sheet span is kept', () => {
+      isTokens('=SUM(R:Mar!A1)', [
+        { type: FX_PREFIX, value: '=' },
+        { type: FUNCTION, value: 'SUM' },
+        { type: OPERATOR, value: '(' },
+        { type: REF_RANGE, value: 'R:Mar!A1' },
+        { type: OPERATOR, value: ')' }
+      ], opts);
+      isTokens('=SUM(R:Mar!A1)', [
+        { type: FX_PREFIX, value: '=' },
+        { type: FUNCTION, value: 'SUM' },
+        { type: OPERATOR, value: '(' },
+        { type: CONTEXT, value: 'R' },
+        { type: OPERATOR, value: ':' },
+        { type: CONTEXT, value: 'Mar' },
+        { type: OPERATOR, value: '!' },
+        { type: REF_RANGE, value: 'A1' },
+        { type: OPERATOR, value: ')' }
+      ], { mergeRefs: false });
+    });
+
+    test('a lone r or c elsewhere stays unknown', () => {
+      isTokens('=R+1', [
+        { type: FX_PREFIX, value: '=' },
+        { type: UNKNOWN, value: 'R' },
+        { type: OPERATOR, value: '+' },
+        { type: NUMBER, value: '1' }
+      ]);
+    });
+  });
+
   describe('LET and LAMBDA parameters do not start 3D references', () => {
     test('a LET name joined to a sheet reference by ":"', () => {
       // Excel stores this as `_xlpm.foo:'Mar'!A1`

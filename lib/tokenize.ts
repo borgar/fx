@@ -64,6 +64,31 @@ function fixRCNames (tokens: Token[], r1c1Mode?: boolean): Token[] {
   return tokens;
 }
 
+// A lone "r" or "c" is not a valid name on its own, so the lexer reads it as a sheet name
+// when ":" follows ("R: Mar!A1"), or as unknown when whitespace follows ("R :Mar!A1").
+// Unless it starts a sheet span ("R:Mar!A1"), it is the left operand of the range
+// operator, and so a name like any other.
+function fixRCRangeOperands (tokens: Token[]): Token[] {
+  for (let i = 0; i < tokens.length; i++) {
+    const token = tokens[i];
+    if ((token.type === CONTEXT || token.type === UNKNOWN) && isRCTokenValue(token.value)) {
+      let j = i + 1;
+      while (tokens[j]?.type === WHITESPACE || tokens[j]?.type === NEWLINE) {
+        j++;
+      }
+      const next = tokens[j];
+      if (next?.type === OPERATOR && next.value === ':') {
+        // "R:Mar!A1" may still be a sheet span, which the merge step decides
+        const isSheetSpan = j === i + 1 && tokens[j + 1]?.type === CONTEXT;
+        if (!isSheetSpan) {
+          token.type = REF_NAMED;
+        }
+      }
+    }
+  }
+  return tokens;
+}
+
 type OptsGetTokens = {
   withLocation?: boolean,
   mergeRefs?: boolean,
@@ -94,6 +119,8 @@ export function getTokens (fx: string, tokenHandlers: PartLexer[], options: Opts
   let unknownRC = 0;
   // an unquoted sheet name follows a ":", as in "foo:Mar!A1"
   let colonContext = false;
+  // a lone "r" or "c" comes before a ":", as in "R: Mar!A1"
+  let rcColon = false;
   const trimOps = [];
 
   let tail0: Token; // last non-whitespace token
@@ -201,7 +228,13 @@ export function getTokens (fx: string, tokenHandlers: PartLexer[], options: Opts
       }
     }
 
-    if (token.type === CONTEXT && lastToken?.type === OPERATOR && lastToken.value === ':') {
+    if (token.type === OPERATOR && token.value === ':') {
+      // a lone "r" or "c" is the left operand of a ":", as in "R :A1"
+      if ((tail0?.type === CONTEXT || tail0?.type === UNKNOWN) && isRCTokenValue(tail0.value)) {
+        rcColon = true;
+      }
+    }
+    else if (token.type === CONTEXT && lastToken?.type === OPERATOR && lastToken.value === ':') {
       colonContext = true;
     }
 
@@ -212,6 +245,10 @@ export function getTokens (fx: string, tokenHandlers: PartLexer[], options: Opts
   // we'll turn the unknown tokens into names within the call.
   if (unknownRC && letOrLambda) {
     fixRCNames(tokens, opts.r1c1);
+  }
+
+  if (rcColon) {
+    fixRCRangeOperands(tokens);
   }
 
   // Any OPERATOR_TRIM tokens have been indexed already, they now need to be
