@@ -23,24 +23,10 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "check": "npm run test && npm run lint && npm run typecheck",
-    "build": "tsup",
+    "build": "tsdown",
     "build:all": "npm run docs && npm run build",
     "docs": "typedoc && concat-md tempdocs > docs/API.md && rm -rf tempdocs",
     "release": "git diff --exit-code && PACKAGE_VERSION=$(jq -r .version package.json) && echo \"About to tag and push v$PACKAGE_VERSION. Continue? (y/n)\" && read -r REPLY && [ \"$REPLY\" = \"y\" ] && git tag --annotate v$PACKAGE_VERSION --message=v$PACKAGE_VERSION && git push origin v$PACKAGE_VERSION"
-  },
-  "tsup": {
-    "entry": [
-      "lib/index.ts",
-      "lib/xlsx/index.ts"
-    ],
-    "format": [
-      "esm",
-      "cjs"
-    ],
-    "splitting": false,
-    "sourcemap": true,
-    "clean": true,
-    "dts": true
   },
   "repository": {
     "type": "git",
@@ -67,17 +53,16 @@
     "@eslint/js": "~10.0.1",
     "benchmark": "~2.1.4",
     "concat-md": "~0.5.1",
-    "eslint": "~10.9.0",
-    "globals": "~17.11.0",
-    "tsup": "~8.5.1",
+    "eslint": "~10.15.0",
+    "globals": "~17.14.0",
+    "tsdown": "~0.23.7",
     "typedoc": "~0.28.20",
-    "typedoc-plugin-markdown": "~4.12.0",
+    "typedoc-plugin-markdown": "~4.14.1",
     "typescript": "~5.9.3",
-    "typescript-eslint": "~8.67.0",
-    "vitest": "~4.1.11"
+    "typescript-eslint": "~8.74.0",
+    "vitest": "~5.1.1"
   },
   "allowScripts": {
-    "fsevents@2.3.3": true,
-    "esbuild@0.27.2": true
+    "fsevents@2.3.3": true
   }
 }
