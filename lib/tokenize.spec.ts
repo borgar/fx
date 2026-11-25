@@ -1291,6 +1291,17 @@ describe('lexer', () => {
       ], { r1c1: true });
     });
 
+    test('allow lowercase and leading zeros in refs', () => {
+      isTokens('Sheet!r[-1]c[-1]', [ { type: REF_RANGE, value: 'Sheet!r[-1]c[-1]' } ], { r1c1: true });
+      isTokens('r02c02', [ { type: REF_RANGE, value: 'r02c02' } ], { r1c1: true });
+      isTokens('Sheet!r3c5', [ { type: REF_RANGE, value: 'Sheet!r3c5' } ], { r1c1: true });
+      isTokens('r02:C3', [
+        { type: REF_BEAM, value: 'r02' },
+        { type: OPERATOR, value: ':' },
+        { type: REF_BEAM, value: 'C3' }
+      ], { r1c1: true });
+    });
+
     test('complex references in formula', () => {
       isTokens('Sheet!R[-1]C[-1].:.RC*Sheet2!C[50].:.C[700]', [
         { type: REF_RANGE, value: 'Sheet!R[-1]C[-1].:.RC' },

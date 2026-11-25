@@ -26,7 +26,7 @@ function parseR1C1Part (ref: string): [number, number, boolean, boolean] {
   let $r0 = null;
   let $c0 = null;
   // R part
-  const rm = /^R(?:\[([+-]?\d+)\]|(\d+))?/.exec(ref);
+  const rm = /^[Rr](?:\[([+-]?\d+)\]|(\d+))?/.exec(ref);
   if (rm) {
     if (rm[1]) {
       r0 = parseInt(rm[1], 10);
@@ -43,7 +43,7 @@ function parseR1C1Part (ref: string): [number, number, boolean, boolean] {
     ref = ref.slice(rm[0].length);
   }
   // C part
-  const cm = /^C(?:\[([+-]?\d+)\]|(\d+))?/.exec(ref);
+  const cm = /^[Cc](?:\[([+-]?\d+)\]|(\d+))?/.exec(ref);
   if (cm) {
     if (cm[1]) {
       c0 = parseInt(cm[1], 10);
